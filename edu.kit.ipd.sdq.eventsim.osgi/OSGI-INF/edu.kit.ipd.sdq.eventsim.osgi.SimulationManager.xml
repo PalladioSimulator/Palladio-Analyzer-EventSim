@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" name="edu.kit.ipd.sdq.eventsim.osgi.SimulationManager">
+   <service>
+      <provide interface="edu.kit.ipd.sdq.eventsim.osgi.ISimulationManager"/>
+   </service>
+   <reference bind="bindMiddlewareFactory" cardinality="1..1" interface="org.osgi.service.component.ComponentFactory" name="MiddlewareFactory" policy="static" target="(component.factory=middleware.factory)" unbind="unbindMiddlewareFactory"/>
+   <reference bind="bindWorkloadFactory" cardinality="1..1" interface="org.osgi.service.component.ComponentFactory" name="WorkloadFactory" policy="static" target="(component.factory=workload.factory)" unbind="unbindWorkloadFactory"/>
+   <implementation class="edu.kit.ipd.sdq.eventsim.osgi.SimulationManager"/>
+</scr:component>

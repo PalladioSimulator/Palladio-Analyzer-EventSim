@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" factory="workload.factory" name="edu.kit.ipd.sdq.eventsim.osgi.WorkloadComponent">
+   <service>
+      <provide interface="edu.kit.ipd.sdq.eventsim.api.IWorkload"/>
+   </service>
+   <reference bind="bindCompositionManager" cardinality="0..1" interface="edu.kit.ipd.sdq.eventsim.osgi.ISimulationManager" name="CompositionManager" policy="dynamic" unbind="unbindCompositionManager"/>
+   <reference bind="bindSytemFactory" cardinality="1..1" interface="org.osgi.service.component.ComponentFactory" name="SytemFactory" policy="static" target="(component.factory=system.factory)" unbind="unbindSytemFactory"/>
+   <implementation class="edu.kit.ipd.sdq.eventsim.osgi.WorkloadComponent"/>
+</scr:component>

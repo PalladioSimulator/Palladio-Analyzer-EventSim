@@ -6,7 +6,7 @@
       <simulator
             id="de.uka.ipd.sdq.codegen.simucontroller.simcomp"
             launchDelegate="edu.kit.ipd.sdq.eventsim.launch.runconfig.SimulationComponentWorkflowLauncher"
-            name="EventSim">
+            name="EventSim (Event-Driven Simulation)">
       </simulator>
    </extension>
 

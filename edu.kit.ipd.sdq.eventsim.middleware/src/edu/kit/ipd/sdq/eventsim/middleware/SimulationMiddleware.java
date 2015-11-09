@@ -16,7 +16,6 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
@@ -64,7 +63,7 @@ public class SimulationMiddleware implements ISimulationMiddleware {
 	private List<ServiceRegistration<?>> eventHandlerToRemove;
 	private IRandomGenerator randomNumberGenerator;
 	
-	private RMeasurementStore store = new RMeasurementStore();
+	private RMeasurementStore store;
 
 	public SimulationMiddleware() {
 		this.eventHandlerRegistry = new ArrayList<ServiceRegistration<?>>();
@@ -82,8 +81,12 @@ public class SimulationMiddleware implements ISimulationMiddleware {
 		this.pcmModel = pcmModel;
 		this.simConfig = config;
 
-		if (logger.isInfoEnabled()) {
-			logger.info("Initializing middleware");
+		logger.info("Initializing middleware");
+		
+		// initialize R measurement store
+		store = RMeasurementStore.fromLaunchConfiguration(config.getConfigurationMap());
+		if(store == null) {
+			throw new RuntimeException("R measurement store could not bet constructed from launch configuration.");
 		}
 
 		// Create the simulation model (this model is control and not the

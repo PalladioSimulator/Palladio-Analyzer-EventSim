@@ -20,6 +20,7 @@ import org.rosuda.REngine.Rserve.RserveException;
 
 import edu.kit.ipd.sdq.eventsim.measurement.Measurement;
 import edu.kit.ipd.sdq.eventsim.measurement.Pair;
+import edu.kit.ipd.sdq.eventsim.measurement.r.launch.RConfigurationConstants;
 
 /**
  * Stores {@link Measurement}s into R using Rserve (for details on Rserve see https://rforge.net/Rserve).
@@ -52,12 +53,52 @@ public class RMeasurementStore {
 
 	private int bufferNumber;
 
+	private boolean storeRds;
+	private String rdsFilePath;
+
+	/**
+	 * Use this constructor when no RDS file is to be created upon finish.
+	 */
 	public RMeasurementStore() {
+		this("");
+		this.storeRds = false;
+	}
+
+	/**
+	 * Use this constructor when an RDS file is to be created upon finish.
+	 * 
+	 * @param rdsFilePath
+	 *            the location of the file to be created.
+	 */
+	public RMeasurementStore(String rdsFilePath) {
+		this.storeRds = true;
+		this.rdsFilePath = rdsFilePath;
 		idExtractorMap = new HashMap<>();
 		rJobQueue = new LinkedBlockingQueue<>();
 		rJobProcessor = new Thread(new RJobProcessor(rJobQueue));
 		rJobProcessor.start();
 		buffer = new Buffer(BUFFER_CAPACITY);
+	}
+
+	/**
+	 * Constructs a {@link RMeasurementStore} by extracting configuration options from the provided launch
+	 * configuration.
+	 * 
+	 * @param configuration
+	 *            the launch configuration
+	 * @return the constructed {@link RMeasurementStore}, or {@code null} if expected configuration options could not be
+	 *         found in the provided launch configuration.
+	 */
+	public static RMeasurementStore fromLaunchConfiguration(Map<String, Object> configuration) {
+		Boolean createRds = (Boolean) configuration.get(RConfigurationConstants.CREATE_RDS_FILE_KEY);
+		if (!createRds) {
+			return new RMeasurementStore();
+		}
+		String rdsFilePath = (String) configuration.get(RConfigurationConstants.RDS_FILE_PATH_KEY);
+		if (rdsFilePath != null) {
+			return new RMeasurementStore(rdsFilePath);
+		}
+		return null;
 	}
 
 	public void addIdExtractor(Class<? extends Object> elementClass, Function<Object, String> function) {
@@ -93,7 +134,7 @@ public class RMeasurementStore {
 		buffer.shrinkToSize();
 		try {
 			rJobQueue.put(new PushBufferToRJob(buffer, bufferNumber++));
-			rJobQueue.put(new FinalizeRProcessing());
+			rJobQueue.put(new FinalizeRProcessing(storeRds, rdsFilePath));
 		} catch (InterruptedException e) {
 			log.error(e);
 		}
@@ -302,7 +343,7 @@ public class RMeasurementStore {
 	private static class RJobProcessor implements Runnable {
 
 		private BlockingQueue<RJob> queue;
-		
+
 		public RJobProcessor(BlockingQueue<RJob> queue) {
 			this.queue = queue;
 		}
@@ -318,11 +359,11 @@ public class RMeasurementStore {
 				return null; // TODO better throw exception
 			}
 		}
-		
+
 		@Override
 		public void run() {
 			RConnection connection = connectToR();
-			
+
 			boolean keepRunning = true;
 			while (keepRunning) {
 				try {
@@ -390,7 +431,8 @@ public class RMeasurementStore {
 			long end = System.currentTimeMillis();
 			// rTime += end - start;
 			if (log.isDebugEnabled())
-				log.debug(String.format("Pushed %d measuements to R. Took %.2f seconds.", size, (end - start) / 1000.0));
+				log.debug(
+						String.format("Pushed %d measuements to R. Took %.2f seconds.", size, (end - start) / 1000.0));
 		}
 
 		private REXP createDataFrameFromBuffer(Buffer buffer) {
@@ -424,12 +466,25 @@ public class RMeasurementStore {
 	 */
 	private static class FinalizeRProcessing extends RJob {
 
+		private boolean storeRds;
+		private String rdsFilePath;
+
+		public FinalizeRProcessing(boolean storeRds, String rdsFilePath) {
+			this.storeRds = storeRds;
+			this.rdsFilePath = rdsFilePath;
+		}
+
 		@Override
 		public void process(RConnection connection) {
 			createSingleDataFrameFromBufferedDataFrames(connection);
-			storeRDS(connection);
+
+			if (storeRds) {
+				storeRDS(connection);
+			} else {
+				log.info("Skipped creation of RDS file.");
+			}
 			// log.info(String.format("Finished R processing. Total time spent in R: %.2f seconds.", rTime / 1000.0));
-			
+
 			connection.close();
 		}
 
@@ -437,13 +492,14 @@ public class RMeasurementStore {
 			log.info("Saving measurements into RDS file. This can take a moment...");
 			long start = System.currentTimeMillis();
 			try {
-				connection.voidEval("saveRDS(mm, 'D:/test.rds')");
+				connection.voidEval("saveRDS(mm, '" + convertToRCompliantPath(rdsFilePath) + "')");
 			} catch (RserveException e) {
 				log.error("Rserve reported an error while saving measurements to RDS file.", e);
 			}
 			long end = System.currentTimeMillis();
 			// rTime += end - start;
 			log.info(String.format("Saved measurements into RDS file. Took %.2f seconds.", (end - start) / 1000.0));
+			log.info(String.format("RDS file location: %s", rdsFilePath));
 		}
 
 		private void createSingleDataFrameFromBufferedDataFrames(RConnection connection) {
@@ -456,6 +512,10 @@ public class RMeasurementStore {
 			long end = System.currentTimeMillis();
 			// rTime += end - start;
 			log.info(String.format("Merged buffers into single dataframe. Took %.2f seconds.", (end - start) / 1000.0));
+		}
+
+		private String convertToRCompliantPath(String path) {
+			return path.replace("\\", "/");
 		}
 
 	}

@@ -35,12 +35,6 @@ public class SimulationComponentJob extends AbstractSimulationJob<SimulationComp
 	protected void addSimulatorSpecificJobs(final SimulationComponentWorkflowConfiguration configuration) {
 		// prepare and start simulation
 		this.addJob(new StartSimulationJob(configuration));
-
-		// 4. Transfer the JAR to a free simulation dock and simulate it
-		// TODO connect dock to simulation service
-//		this.addJob(new TransferSimulationBundleToDock(configuration, debugListener, buildBundleJob));
-		
-		
 	}
 
 }

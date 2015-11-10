@@ -42,14 +42,13 @@ public class RMeasurementStore {
 	/** the number of measurements processed since the last reset (or instantiation) */
 	private int processed;
 
-	/** the total time spent in R since the last reset (or instantiation) */
-	private long rTime;
-
 	private Map<Class<? extends Object>, Function<Object, String>> idExtractorMap;
 
 	private BlockingQueue<RJob> rJobQueue;
 
 	private Thread rJobProcessor;
+
+	private RStatistics statistics;
 
 	private int bufferNumber;
 
@@ -75,7 +74,8 @@ public class RMeasurementStore {
 		this.rdsFilePath = rdsFilePath;
 		idExtractorMap = new HashMap<>();
 		rJobQueue = new LinkedBlockingQueue<>();
-		rJobProcessor = new Thread(new RJobProcessor(rJobQueue));
+		statistics = new RStatistics();
+		rJobProcessor = new Thread(new RJobProcessor(rJobQueue, statistics));
 		rJobProcessor.start();
 		buffer = new Buffer(BUFFER_CAPACITY);
 	}
@@ -145,12 +145,13 @@ public class RMeasurementStore {
 		} catch (InterruptedException e) {
 			log.error(e);
 		}
-		log.info("Finished R processing.");
+		log.info(String.format("Finished R processing. Total time spent in R: %.2f seconds.",
+				statistics.getTotalTimeSpentInR() / 1000.0));
 
 		// clean up
 		buffer = new Buffer(BUFFER_CAPACITY);
 		bufferNumber = 0;
-		rTime = 0;
+		statistics.reset(); // TODO really needed?
 		processed = 0;
 	}
 
@@ -336,7 +337,7 @@ public class RMeasurementStore {
 
 	private static abstract class RJob {
 
-		public abstract void process(RConnection connection);
+		public abstract void process(RConnection connection, RStatistics statistics);
 
 	}
 
@@ -344,8 +345,11 @@ public class RMeasurementStore {
 
 		private BlockingQueue<RJob> queue;
 
-		public RJobProcessor(BlockingQueue<RJob> queue) {
+		private RStatistics statistics;
+
+		public RJobProcessor(BlockingQueue<RJob> queue, RStatistics statistics) {
 			this.queue = queue;
+			this.statistics = statistics;
 		}
 
 		private RConnection connectToR() {
@@ -368,7 +372,7 @@ public class RMeasurementStore {
 			while (keepRunning) {
 				try {
 					RJob job = queue.take();
-					job.process(connection);
+					job.process(connection, statistics);
 					if (job.getClass().equals(FinalizeRProcessing.class)) {
 						keepRunning = false;
 					}
@@ -376,6 +380,10 @@ public class RMeasurementStore {
 					log.error(e);
 				}
 			}
+		}
+
+		public RStatistics getStatistics() {
+			return statistics;
 		}
 
 	}
@@ -392,8 +400,8 @@ public class RMeasurementStore {
 		}
 
 		@Override
-		public void process(RConnection connection) {
-			pushBufferToR(connection);
+		public void process(RConnection connection, RStatistics statistics) {
+			pushBufferToR(connection, statistics);
 		}
 
 		private void convertCategoricalColumnsToFactorColumns(RConnection connection) {
@@ -410,7 +418,7 @@ public class RMeasurementStore {
 			}
 		}
 
-		private void pushBufferToR(RConnection connection) {
+		private void pushBufferToR(RConnection connection, RStatistics statistics) {
 			long start = System.currentTimeMillis();
 			int size = buffer.size;
 			if (bufferNumber == 0) {
@@ -429,7 +437,7 @@ public class RMeasurementStore {
 				e.printStackTrace();
 			}
 			long end = System.currentTimeMillis();
-			// rTime += end - start;
+			statistics.captureTimeSpentInR(end - start);
 			if (log.isDebugEnabled())
 				log.debug(
 						String.format("Pushed %d measuements to R. Took %.2f seconds.", size, (end - start) / 1000.0));
@@ -475,20 +483,19 @@ public class RMeasurementStore {
 		}
 
 		@Override
-		public void process(RConnection connection) {
-			createSingleDataFrameFromBufferedDataFrames(connection);
+		public void process(RConnection connection, RStatistics statistics) {
+			createSingleDataFrameFromBufferedDataFrames(connection, statistics);
 
 			if (storeRds) {
-				storeRDS(connection);
+				storeRDS(connection, statistics);
 			} else {
 				log.info("Skipped creation of RDS file.");
 			}
-			// log.info(String.format("Finished R processing. Total time spent in R: %.2f seconds.", rTime / 1000.0));
 
 			connection.close();
 		}
 
-		private void storeRDS(RConnection connection) {
+		private void storeRDS(RConnection connection, RStatistics statistics) {
 			log.info("Saving measurements into RDS file. This can take a moment...");
 			long start = System.currentTimeMillis();
 			try {
@@ -497,12 +504,12 @@ public class RMeasurementStore {
 				log.error("Rserve reported an error while saving measurements to RDS file.", e);
 			}
 			long end = System.currentTimeMillis();
-			// rTime += end - start;
+			statistics.captureTimeSpentInR(end - start);
 			log.info(String.format("Saved measurements into RDS file. Took %.2f seconds.", (end - start) / 1000.0));
 			log.info(String.format("RDS file location: %s", rdsFilePath));
 		}
 
-		private void createSingleDataFrameFromBufferedDataFrames(RConnection connection) {
+		private void createSingleDataFrameFromBufferedDataFrames(RConnection connection, RStatistics statistics) {
 			long start = System.currentTimeMillis();
 			try {
 				connection.voidEval("mm <- rbindlist(mm)");
@@ -510,12 +517,30 @@ public class RMeasurementStore {
 				e.printStackTrace();
 			}
 			long end = System.currentTimeMillis();
-			// rTime += end - start;
+			statistics.captureTimeSpentInR(end - start);
 			log.info(String.format("Merged buffers into single dataframe. Took %.2f seconds.", (end - start) / 1000.0));
 		}
 
 		private String convertToRCompliantPath(String path) {
 			return path.replace("\\", "/");
+		}
+
+	}
+
+	private static class RStatistics {
+
+		private double rTime;
+
+		public void captureTimeSpentInR(double millisecondsSpentInR) {
+			rTime += millisecondsSpentInR;
+		}
+
+		public double getTotalTimeSpentInR() {
+			return rTime;
+		}
+
+		public void reset() {
+			rTime = 0;
 		}
 
 	}

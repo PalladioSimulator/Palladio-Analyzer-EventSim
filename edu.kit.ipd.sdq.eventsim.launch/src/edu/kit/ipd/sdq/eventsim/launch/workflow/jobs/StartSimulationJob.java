@@ -1,8 +1,14 @@
 package edu.kit.ipd.sdq.eventsim.launch.workflow.jobs;
 
+import java.util.Hashtable;
+import java.util.Map;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
+import org.osgi.util.tracker.ServiceTracker;
 import org.palladiosimulator.analyzer.workflow.blackboard.PCMResourceSetPartition;
 import org.palladiosimulator.analyzer.workflow.jobs.LoadPCMModelsIntoBlackboardJob;
 
@@ -21,12 +27,20 @@ import edu.kit.ipd.sdq.eventsim.osgi.ISimulationManager;
 
 public class StartSimulationJob extends AbstractExtendableJob<MDSDBlackboard> {
 
+	private static final String DOCK_IDLE_TOPIC = "de/uka/ipd/sdq/simucomframework/simucomdock/DOCK_IDLE";
+	private static final String SIM_STOPPED_TOPIC = "de/uka/ipd/sdq/simucomframework/simucomdock/SIM_STOPPED";
+	private static final String SIM_STARTED_TOPIC = "de/uka/ipd/sdq/simucomframework/simucomdock/SIM_STARTED";
+	private static final String DOCK_BUSY_TOPIC = "de/uka/ipd/sdq/simucomframework/simucomdock/DOCK_BUSY";
+	
 	private SimulationComponentWorkflowConfiguration configuration;
+	
+	private EventAdmin eventAdmin;
 
 	public StartSimulationJob(SimulationComponentWorkflowConfiguration configuration) {
 		this.configuration = configuration;
+		this.eventAdmin = discoverEventAdmin();
 	}
-
+	
 	public void execute(IProgressMonitor monitor) throws JobFailedException, UserCanceledException {
 		// obtain PCM model from MDSD blackboard
 		PCMResourceSetPartition p = (PCMResourceSetPartition) getBlackboard()
@@ -54,23 +68,37 @@ public class StartSimulationJob extends AbstractExtendableJob<MDSDBlackboard> {
 			e.printStackTrace(); // TODO
 		}
 
-		final DockModel activeDock = dock;
+        sendEventToSimulationDock(DOCK_BUSY_TOPIC, dock);
+        sendEventToSimulationDock(SIM_STARTED_TOPIC, dock);
 
-		activeDock.setStarted(true); // TODO needed?
-		activeDock.setIdle(false);
-
+        final DockModel activeDock = dock;
 		manager.getMiddleware(simulationId).startSimulation(new IStatusObserver() {
-
 			@Override
 			public void updateStatus(int percentDone, double currentSimTime, long measurementsTaken) {
 				activeDock.setMeasurementCount(measurementsTaken);
 				activeDock.setPercentDone(percentDone);
 				activeDock.setSimTime(currentSimTime);
 			}
-
 		});
 
+		sendEventToSimulationDock(SIM_STOPPED_TOPIC, dock);
+		sendEventToSimulationDock(DOCK_IDLE_TOPIC, dock);
+		
 		super.execute(monitor); // TODO needed?
+	}
+	
+	private EventAdmin discoverEventAdmin() {
+	    BundleContext context = Activator.getDefault().getBundle().getBundleContext();
+	    ServiceReference<EventAdmin> eventServiceRef = context.getServiceReference(EventAdmin.class);
+	    ServiceTracker eventService = new ServiceTracker<>(context, eventServiceRef, null);
+	    eventService.open();
+	    return (EventAdmin) eventService.getService();
+	}
+
+	private void sendEventToSimulationDock(String topic, DockModel dock) {
+		Map<String, Object> properties = new Hashtable<>();
+        properties.put("DOCK_ID", dock.getID());
+		eventAdmin.sendEvent(new Event(topic, properties));
 	}
 
 }

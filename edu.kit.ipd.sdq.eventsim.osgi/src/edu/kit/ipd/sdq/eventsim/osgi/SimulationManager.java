@@ -3,6 +3,7 @@ package edu.kit.ipd.sdq.eventsim.osgi;
 import java.util.Collection;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -34,6 +35,9 @@ public class SimulationManager implements ISimulationManager {
 	private ISimulationMiddleware middleware;
 
 	private ComponentContext ctx;
+	
+	// counts the number of simulation instances created since the VM started
+	private static AtomicInteger simulationCount = new AtomicInteger();
 
 	@Activate
 	void activate(ComponentContext ctx) {
@@ -42,8 +46,7 @@ public class SimulationManager implements ISimulationManager {
 
 	@Override
 	public int prepareSimulation(SimulationConfiguration config) {
-		// TODO support multiple simulation ids
-		int simulationId = 0;
+		int simulationId = simulationCount.getAndIncrement();
 
 		// instantiate middleware component
 		final Dictionary properties = new Hashtable<>();
@@ -86,6 +89,7 @@ public class SimulationManager implements ISimulationManager {
 
 	public void unbindMiddlewareFactory(final ComponentFactory factory) {
 		middlewareInstance.dispose();
+		// TODO dispose service
 	}
 
 	@Override

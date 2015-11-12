@@ -8,7 +8,7 @@ import de.uka.ipd.sdq.probfunction.math.IRandomGenerator;
 import de.uka.ipd.sdq.simulation.IStatusObserver;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationControl;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
-import edu.kit.ipd.sdq.eventsim.measurement.r.RMeasurementStore;
+import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 import edu.kit.ipd.sdq.eventsim.middleware.ISimulationConfiguration;
 import edu.kit.ipd.sdq.eventsim.middleware.ISimulationMiddleware;
 import edu.kit.ipd.sdq.eventsim.middleware.SimulationMiddleware;
@@ -95,8 +95,8 @@ public class MiddlewareComponent implements ISimulationMiddleware {
 		return middlewareDelegate.getRandomGenerator();
 	}
 
-	public RMeasurementStore getMeasurementStore() {
-		return middlewareDelegate.getMeasurementStore();
+	public MeasurementStorage getMeasurementStorage() {
+		return middlewareDelegate.getMeasurementStorage();
 	}
 
 }

@@ -1,14 +1,13 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Persistence
-Bundle-SymbolicName: edu.kit.ipd.sdq.eventsim.measurement;singleton:=true
+Bundle-Name: EventSim Measurements
+Bundle-SymbolicName: edu.kit.ipd.sdq.eventsim.measurement
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: edu.kit.ipd.sdq.eventsim.measurement,
  edu.kit.ipd.sdq.eventsim.measurement.annotation,
  edu.kit.ipd.sdq.eventsim.measurement.calculator,
- edu.kit.ipd.sdq.eventsim.measurement.probe,
- edu.kit.ipd.sdq.eventsim.measurement.r
+ edu.kit.ipd.sdq.eventsim.measurement.probe
 Require-Bundle: org.palladiosimulator.pcm;bundle-version="4.0.0",
  org.apache.log4j;bundle-version="1.2.15",
  org.rosuda.rJavaAndRserve;bundle-version="1.0.0",

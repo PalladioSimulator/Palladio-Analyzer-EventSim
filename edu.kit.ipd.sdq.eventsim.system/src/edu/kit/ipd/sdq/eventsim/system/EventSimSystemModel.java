@@ -10,7 +10,6 @@ import org.palladiosimulator.pcm.seff.ExternalCallAction;
 import org.palladiosimulator.pcm.usagemodel.EntryLevelSystemCall;
 
 import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
-import edu.kit.ipd.sdq.eventsim.api.IPassiveResource;
 import edu.kit.ipd.sdq.eventsim.api.ISystem.ActiveResourceListener;
 import edu.kit.ipd.sdq.eventsim.api.ISystem.PassiveResourceAcquireListener;
 import edu.kit.ipd.sdq.eventsim.api.ISystem.PassiveResourceReleaseListener;
@@ -21,7 +20,7 @@ import edu.kit.ipd.sdq.eventsim.core.palladio.state.IUserState;
 import edu.kit.ipd.sdq.eventsim.core.palladio.state.StateExchange;
 import edu.kit.ipd.sdq.eventsim.core.palladio.state.UserState;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementFacade;
-import edu.kit.ipd.sdq.eventsim.measurement.r.RMeasurementStore;
+import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 import edu.kit.ipd.sdq.eventsim.middleware.ISimulationMiddleware;
 import edu.kit.ipd.sdq.eventsim.system.calculators.ResponseTimeOfExternalCallsCalculator;
 import edu.kit.ipd.sdq.eventsim.system.command.BuildComponentInstances;
@@ -133,17 +132,17 @@ public class EventSimSystemModel extends AbstractEventSimModel {
 		measurementFacade = new MeasurementFacade<>(
 				SystemMeasurementConfiguration.from(this), Activator.getContext().getBundle());
 
-		RMeasurementStore rstore = getSimulationMiddleware().getMeasurementStore();
-		rstore.addIdProvider(Request.class, c -> Long.toString(((Request)c).getId()));
-		rstore.addIdProvider(ForkedRequest.class, c -> Long.toString(((ForkedRequest)c).getEntityId()));
-		rstore.addIdProvider(Entity.class, c -> ((Entity)c).getId());
+		MeasurementStorage measurementStorage = getSimulationMiddleware().getMeasurementStorage();
+		measurementStorage.addIdProvider(Request.class, c -> Long.toString(((Request)c).getId()));
+		measurementStorage.addIdProvider(ForkedRequest.class, c -> Long.toString(((ForkedRequest)c).getEntityId()));
+		measurementStorage.addIdProvider(Entity.class, c -> ((Entity)c).getId());
 		
 		// response time of external calls
 		execute(new FindAllActionsByType<>(ExternalCallAction.class)).forEach(
 				call -> measurementFacade.createCalculator(new ResponseTimeOfExternalCallsCalculator())
 						.from(call.getAction(), "before", call.getAssemblyContext())
 						.to(call.getAction(), "after", call.getAssemblyContext())
-						.forEachMeasurement(m -> getSimulationMiddleware().getMeasurementStore().putPair(m)));
+						.forEachMeasurement(m -> getSimulationMiddleware().getMeasurementStorage().putPair(m)));
 		
 //		// calculation time of internal actions [just as a proof of concept] 
 //		execute(new FindAllActionsByType<>(InternalAction.class)).forEach(

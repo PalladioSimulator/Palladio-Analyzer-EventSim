@@ -10,7 +10,7 @@ import org.palladiosimulator.pcm.repository.PassiveResource;
 import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
 import edu.kit.ipd.sdq.eventsim.api.IRequest;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementFacade;
-import edu.kit.ipd.sdq.eventsim.measurement.r.RMeasurementStore;
+import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 import edu.kit.ipd.sdq.eventsim.middleware.ISimulationMiddleware;
 import edu.kit.ipd.sdq.eventsim.resources.calculators.HoldTimeCalculator;
 import edu.kit.ipd.sdq.eventsim.resources.calculators.WaitingTimeCalculator;
@@ -38,8 +38,8 @@ public class EventSimPassiveResourceModel extends AbstractEventSimModel {
 		measurementFacade = new MeasurementFacade<>(new ResourceProbeConfiguration(), Activator.getContext()
 				.getBundle());
 		
-		RMeasurementStore rstore = getSimulationMiddleware().getMeasurementStore();
-		rstore.addIdProvider(SimPassiveResource.class, c -> ((SimPassiveResource)c).getSpecification().getId());
+		MeasurementStorage measurementStorage = getSimulationMiddleware().getMeasurementStorage();
+		measurementStorage.addIdProvider(SimPassiveResource.class, c -> ((SimPassiveResource)c).getSpecification().getId());
 	}
 
 //	private void initProbeSpecification() {
@@ -109,13 +109,13 @@ public class EventSimPassiveResourceModel extends AbstractEventSimModel {
             
     		// create probes and calculators
     		measurementFacade.createProbe(resource, "queue_length").forEachMeasurement(
-    				m -> getSimulationMiddleware().getMeasurementStore().put(m));
+    				m -> getSimulationMiddleware().getMeasurementStorage().put(m));
     		
 			measurementFacade.createCalculator(new HoldTimeCalculator()).from(resource, "acquire")
-					.to(resource, "release").forEachMeasurement(m -> getSimulationMiddleware().getMeasurementStore().put(m));
+					.to(resource, "release").forEachMeasurement(m -> getSimulationMiddleware().getMeasurementStorage().put(m));
 			
 			measurementFacade.createCalculator(new WaitingTimeCalculator()).from(resource, "request")
-					.to(resource, "acquire").forEachMeasurement(m -> getSimulationMiddleware().getMeasurementStore().put(m));
+					.to(resource, "acquire").forEachMeasurement(m -> getSimulationMiddleware().getMeasurementStorage().put(m));
         }
         return contextToResourceMap.get(compoundKey(assCtx, specification));
     }

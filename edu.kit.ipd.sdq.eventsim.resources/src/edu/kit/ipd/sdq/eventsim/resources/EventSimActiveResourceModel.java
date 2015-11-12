@@ -20,7 +20,7 @@ import edu.kit.ipd.sdq.eventsim.api.IRequest;
 import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
 import edu.kit.ipd.sdq.eventsim.entities.IEntityListener;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementFacade;
-import edu.kit.ipd.sdq.eventsim.measurement.r.RMeasurementStore;
+import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 import edu.kit.ipd.sdq.eventsim.middleware.ISimulationMiddleware;
 import edu.kit.ipd.sdq.eventsim.middleware.simulation.SimulationModel;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimActiveResource;
@@ -57,9 +57,9 @@ public class EventSimActiveResourceModel extends AbstractEventSimModel {
 		measurementFacade = new MeasurementFacade<>(new ResourceProbeConfiguration(), Activator.getContext()
 				.getBundle());
 		
-		RMeasurementStore rstore = getSimulationMiddleware().getMeasurementStore();
-		rstore.addIdProvider(SimActiveResource.class, c -> ((SimActiveResource)c).getSpecification().getId());
-		rstore.addIdProvider(SimulatedProcess.class, c -> Long.toString(((SimulatedProcess)c).getEntityId()));
+		MeasurementStorage measurementStorage = getSimulationMiddleware().getMeasurementStorage();
+		measurementStorage.addIdProvider(SimActiveResource.class, c -> ((SimActiveResource)c).getSpecification().getId());
+		measurementStorage.addIdProvider(SimulatedProcess.class, c -> Long.toString(((SimulatedProcess)c).getEntityId()));
 	}
 	
 //	private void initProbeSpecification() {
@@ -129,9 +129,9 @@ public class EventSimActiveResourceModel extends AbstractEventSimModel {
 		
 		// create corresponding probe
 		measurementFacade.createProbe(resource, "queue_length").forEachMeasurement(
-				m -> getSimulationMiddleware().getMeasurementStore().put(m));
+				m -> getSimulationMiddleware().getMeasurementStorage().put(m));
 		measurementFacade.createProbe(resource, "resource_demand").forEachMeasurement(
-				m -> getSimulationMiddleware().getMeasurementStore().put(m));
+				m -> getSimulationMiddleware().getMeasurementStorage().put(m));
 
 		// initialise probe spec
 //		this.execute(new BuildActiveResourceCalculators(this, resource));

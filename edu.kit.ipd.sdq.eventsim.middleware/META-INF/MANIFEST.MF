@@ -18,7 +18,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.palladiosimulator.analyzer.workflow;bundle-version="1.0.0",
  org.palladiosimulator.pcm;bundle-version="4.0.0",
  edu.kit.ipd.sdq.eventsim.measurement;bundle-version="1.0.0",
- de.uka.ipd.sdq.codegen.simucontroller
+ de.uka.ipd.sdq.codegen.simucontroller,
+ edu.kit.ipd.sdq.eventsim.measurement.r;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Export-Package: edu.kit.ipd.sdq.eventsim.middleware,

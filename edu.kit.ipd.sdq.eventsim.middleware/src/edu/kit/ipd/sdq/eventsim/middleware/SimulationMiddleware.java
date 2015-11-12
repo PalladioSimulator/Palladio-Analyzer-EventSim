@@ -30,6 +30,7 @@ import de.uka.ipd.sdq.simulation.IStatusObserver;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimEngineFactory;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationControl;
 import de.uka.ipd.sdq.simulation.preferences.SimulationPreferencesHelper;
+import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 import edu.kit.ipd.sdq.eventsim.measurement.r.RMeasurementStore;
 import edu.kit.ipd.sdq.eventsim.middleware.events.IEventHandler;
 import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationEvent;
@@ -63,7 +64,7 @@ public class SimulationMiddleware implements ISimulationMiddleware {
 	private List<ServiceRegistration<?>> eventHandlerToRemove;
 	private IRandomGenerator randomNumberGenerator;
 	
-	private RMeasurementStore store;
+	private MeasurementStorage store;
 
 	public SimulationMiddleware() {
 		this.eventHandlerRegistry = new ArrayList<ServiceRegistration<?>>();
@@ -397,7 +398,7 @@ public class SimulationMiddleware implements ISimulationMiddleware {
 	}
 
 	@Override
-	public RMeasurementStore getMeasurementStore() {
+	public MeasurementStorage getMeasurementStorage() {
 		return store;
 	}
 

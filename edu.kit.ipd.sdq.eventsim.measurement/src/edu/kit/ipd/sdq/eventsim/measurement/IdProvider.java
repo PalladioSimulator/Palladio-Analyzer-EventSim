@@ -1,4 +1,4 @@
-package edu.kit.ipd.sdq.eventsim.measurement.r;
+package edu.kit.ipd.sdq.eventsim.measurement;
 
 import java.util.HashMap;
 import java.util.Map;

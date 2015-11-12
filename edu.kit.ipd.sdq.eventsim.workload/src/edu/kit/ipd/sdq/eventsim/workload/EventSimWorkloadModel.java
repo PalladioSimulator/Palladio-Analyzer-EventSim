@@ -14,7 +14,6 @@ import de.uka.ipd.sdq.probfunction.math.impl.ProbabilityFunctionFactoryImpl;
 import de.uka.ipd.sdq.simucomframework.variables.cache.StoExCache;
 import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
 import edu.kit.ipd.sdq.eventsim.api.IRequest;
-import edu.kit.ipd.sdq.eventsim.api.ISystem;
 import edu.kit.ipd.sdq.eventsim.api.IWorkload.SystemCallListener;
 import edu.kit.ipd.sdq.eventsim.api.events.SystemRequestProcessed;
 import edu.kit.ipd.sdq.eventsim.api.events.WorkloadUserFinished;
@@ -23,8 +22,8 @@ import edu.kit.ipd.sdq.eventsim.core.palladio.state.StateExchange;
 import edu.kit.ipd.sdq.eventsim.core.palladio.state.StateExchangeService;
 import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementFacade;
+import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 import edu.kit.ipd.sdq.eventsim.measurement.Metric;
-import edu.kit.ipd.sdq.eventsim.measurement.r.RMeasurementStore;
 import edu.kit.ipd.sdq.eventsim.middleware.ISimulationMiddleware;
 import edu.kit.ipd.sdq.eventsim.middleware.events.IEventHandler;
 import edu.kit.ipd.sdq.eventsim.workload.calculators.TimeSpanBetweenUserActionsCalculator;
@@ -147,16 +146,16 @@ public class EventSimWorkloadModel extends AbstractEventSimModel {
 		measurementFacade = new MeasurementFacade<>(
 				WorkloadMeasurementConfiguration.from(this), Activator.getContext().getBundle());
 		
-		RMeasurementStore rstore = getSimulationMiddleware().getMeasurementStore();
-		rstore.addIdProvider(User.class, c -> Long.toString(((User)c).getEntityId()));
-		rstore.addIdProvider(AbstractUserAction.class, c -> ((AbstractUserAction)c).getId());
+		MeasurementStorage measurementStorage = getSimulationMiddleware().getMeasurementStorage();
+		measurementStorage.addIdProvider(User.class, c -> Long.toString(((User)c).getEntityId()));
+		measurementStorage.addIdProvider(AbstractUserAction.class, c -> ((AbstractUserAction)c).getId());
 
 		// response time of system calls
 		execute(new FindAllUserActionsByType<>(EntryLevelSystemCall.class)).forEach(
 				call -> measurementFacade
 						.createCalculator(new TimeSpanBetweenUserActionsCalculator(Metric.RESPONSE_TIME))
 						.from(call, "before").to(call, "after")
-						.forEachMeasurement(m -> getSimulationMiddleware().getMeasurementStore().putPair(m)));
+						.forEachMeasurement(m -> getSimulationMiddleware().getMeasurementStorage().putPair(m)));
 
 		// response time of usage scenarios
 		execute(new FindUsageScenarios()).forEach(scenario -> {
@@ -165,7 +164,7 @@ public class EventSimWorkloadModel extends AbstractEventSimModel {
 				Stop stop = execute(new FindActionsInUsageScenario<>(scenario, Stop.class, false)).get(0);
 				measurementFacade.createCalculator(new TimeSpanBetweenUserActionsCalculator(Metric.RESPONSE_TIME))
 						.from(start, "before").to(stop, "after")
-						.forEachMeasurement(m -> getSimulationMiddleware().getMeasurementStore().putPair(m));
+						.forEachMeasurement(m -> getSimulationMiddleware().getMeasurementStorage().putPair(m));
 				// TODO redefine measurement point (Start/Stop --> UsageScenario)
 			});
 

@@ -13,6 +13,7 @@ import edu.kit.ipd.sdq.eventsim.measurement.Measurement;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 import edu.kit.ipd.sdq.eventsim.measurement.Pair;
 import edu.kit.ipd.sdq.eventsim.measurement.r.jobs.FinalizeRProcessingJob;
+import edu.kit.ipd.sdq.eventsim.measurement.r.jobs.MergeBufferedDataFramesJob;
 import edu.kit.ipd.sdq.eventsim.measurement.r.jobs.PushBufferToRJob;
 import edu.kit.ipd.sdq.eventsim.measurement.r.jobs.StoreRDSFileJob;
 import edu.kit.ipd.sdq.eventsim.measurement.r.launch.RConfigurationConstants;
@@ -142,6 +143,7 @@ public class RMeasurementStore implements MeasurementStorage {
 		buffer.shrinkToSize();
 
 		rJobProcessor.enqueue(new PushBufferToRJob(buffer, bufferNumber++));
+		rJobProcessor.enqueue(new MergeBufferedDataFramesJob());
 		if (storeRds) {
 			rJobProcessor.enqueue(new StoreRDSFileJob(rdsFilePath));
 		} else {

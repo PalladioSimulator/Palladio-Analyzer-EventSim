@@ -155,7 +155,7 @@ public class RMeasurementStore {
 							+ "Make sure to run Rserve, e.g. by calling \"library(Rserve); Rserve()\" in R. ");
 				}
 				if (retries % 20 == 0) {
-					log.error("Waiting for connection...");
+					log.error("Waiting for Rserve connection...");
 				}
 				// wait some time before retrying again
 				try {

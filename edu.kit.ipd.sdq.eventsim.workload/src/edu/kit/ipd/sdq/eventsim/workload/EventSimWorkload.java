@@ -67,7 +67,7 @@ public class EventSimWorkload implements IWorkload {
 				EventSimWorkload.this.generate();
 			}
 
-		}, false);
+		}, true);
 
 		// clean up event handler
 		this.middleware.registerEventHandler(SimulationFinalizeEvent.EVENT_ID,

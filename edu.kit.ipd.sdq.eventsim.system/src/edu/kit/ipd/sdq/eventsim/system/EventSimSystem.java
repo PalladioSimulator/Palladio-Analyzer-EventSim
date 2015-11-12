@@ -70,7 +70,7 @@ public class EventSimSystem implements ISystem {
 //				EventSimSystem.this.init(); TODO remove?
 			}
 
-		}, false);
+		}, true);
 
 		this.middleware.registerEventHandler(SimulationFinalizeEvent.EVENT_ID,
 				new IEventHandler<SimulationFinalizeEvent>() {
@@ -80,7 +80,7 @@ public class EventSimSystem implements ISystem {
 						EventSimSystem.this.finalise();
 					}
 
-				}, false);
+				}, true);
 	}
 
 	@Override

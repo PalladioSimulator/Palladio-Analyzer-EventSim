@@ -57,9 +57,7 @@ public class SimulationModel extends SchedulerModel implements ISimulationModel 
 	}
 
 	@Override
-	public void init() {
-		this.middleware.reset();
-		
+	public void init() {	
 		// before the simulation start we trigger the init event
 		ISimulationConfiguration simulationConfiguration = this.middleware.getSimulationConfiguration();
 		this.middleware.triggerEvent(new SimulationInitEvent(simulationConfiguration));
@@ -72,6 +70,8 @@ public class SimulationModel extends SchedulerModel implements ISimulationModel 
 	public void finalise() {
 		// after the simulation has stopped we trigger the finalize event for cleanup tasks
 		this.middleware.triggerEvent(new SimulationFinalizeEvent());
+		
+		this.middleware.reset();
 	}
 
 }

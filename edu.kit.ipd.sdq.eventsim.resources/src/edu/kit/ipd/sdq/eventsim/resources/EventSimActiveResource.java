@@ -49,7 +49,7 @@ public class EventSimActiveResource implements IActiveResource {
 				// TODO ?
 			}
 
-		}, false);
+		}, true);
 
 		this.middleware.registerEventHandler(SimulationFinalizeEvent.EVENT_ID, new IEventHandler<SimulationFinalizeEvent>() {
 
@@ -58,7 +58,7 @@ public class EventSimActiveResource implements IActiveResource {
 				EventSimActiveResource.this.finalise();
 			}
 
-		}, false);
+		}, true);
 	}
 
 }

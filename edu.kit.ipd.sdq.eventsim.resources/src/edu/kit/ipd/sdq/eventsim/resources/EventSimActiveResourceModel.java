@@ -58,8 +58,8 @@ public class EventSimActiveResourceModel extends AbstractEventSimModel {
 				.getBundle());
 		
 		RMeasurementStore rstore = getSimulationMiddleware().getMeasurementStore();
-		rstore.addIdExtractor(SimActiveResource.class, c -> ((SimActiveResource)c).getSpecification().getId());
-		rstore.addIdExtractor(SimulatedProcess.class, c -> Long.toString(((SimulatedProcess)c).getEntityId()));
+		rstore.addIdProvider(SimActiveResource.class, c -> ((SimActiveResource)c).getSpecification().getId());
+		rstore.addIdProvider(SimulatedProcess.class, c -> Long.toString(((SimulatedProcess)c).getEntityId()));
 	}
 	
 //	private void initProbeSpecification() {

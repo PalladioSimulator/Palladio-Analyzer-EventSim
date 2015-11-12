@@ -39,7 +39,7 @@ public class EventSimPassiveResourceModel extends AbstractEventSimModel {
 				.getBundle());
 		
 		RMeasurementStore rstore = getSimulationMiddleware().getMeasurementStore();
-		rstore.addIdExtractor(SimPassiveResource.class, c -> ((SimPassiveResource)c).getSpecification().getId());
+		rstore.addIdProvider(SimPassiveResource.class, c -> ((SimPassiveResource)c).getSpecification().getId());
 	}
 
 //	private void initProbeSpecification() {

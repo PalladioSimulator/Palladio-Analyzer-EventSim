@@ -148,8 +148,8 @@ public class EventSimWorkloadModel extends AbstractEventSimModel {
 				WorkloadMeasurementConfiguration.from(this), Activator.getContext().getBundle());
 		
 		RMeasurementStore rstore = getSimulationMiddleware().getMeasurementStore();
-		rstore.addIdExtractor(User.class, c -> Long.toString(((User)c).getEntityId()));
-		rstore.addIdExtractor(AbstractUserAction.class, c -> ((AbstractUserAction)c).getId());
+		rstore.addIdProvider(User.class, c -> Long.toString(((User)c).getEntityId()));
+		rstore.addIdProvider(AbstractUserAction.class, c -> ((AbstractUserAction)c).getId());
 
 		// response time of system calls
 		execute(new FindAllUserActionsByType<>(EntryLevelSystemCall.class)).forEach(

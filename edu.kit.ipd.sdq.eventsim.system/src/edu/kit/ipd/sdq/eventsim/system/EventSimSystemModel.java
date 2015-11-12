@@ -134,9 +134,9 @@ public class EventSimSystemModel extends AbstractEventSimModel {
 				SystemMeasurementConfiguration.from(this), Activator.getContext().getBundle());
 
 		RMeasurementStore rstore = getSimulationMiddleware().getMeasurementStore();
-		rstore.addIdExtractor(Request.class, c -> Long.toString(((Request)c).getId()));
-		rstore.addIdExtractor(ForkedRequest.class, c -> Long.toString(((ForkedRequest)c).getEntityId()));
-		rstore.addIdExtractor(Entity.class, c -> ((Entity)c).getId());
+		rstore.addIdProvider(Request.class, c -> Long.toString(((Request)c).getId()));
+		rstore.addIdProvider(ForkedRequest.class, c -> Long.toString(((ForkedRequest)c).getEntityId()));
+		rstore.addIdProvider(Entity.class, c -> ((Entity)c).getId());
 		
 		// response time of external calls
 		execute(new FindAllActionsByType<>(ExternalCallAction.class)).forEach(

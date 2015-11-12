@@ -5,12 +5,11 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.log4j.Logger;
 import org.rosuda.REngine.Rserve.RConnection;
-import org.rosuda.REngine.Rserve.RserveException;
 
 import edu.kit.ipd.sdq.eventsim.measurement.r.jobs.FinalizeRProcessingJob;
 
 /**
- * Connects to R and processes enqueued {@link RJob}s in a FCFS manner.
+ * Processes enqueued {@link RJob}s in a FCFS manner.
  * 
  * @author Philipp Merkle
  *
@@ -22,8 +21,11 @@ public class RJobProcessor {
 	private BlockingQueue<RJob> jobQueue;
 
 	private Thread thread;
+	
+	private RConnection connection;
 
-	public RJobProcessor() {
+	public RJobProcessor(RConnection connection) {
+		this.connection = connection;
 		this.jobQueue = new LinkedBlockingQueue<>();
 	}
 
@@ -41,19 +43,6 @@ public class RJobProcessor {
 		}
 	}
 
-	private RConnection connectToR() {
-		try {
-			RConnection connection = new RConnection();
-			connection.voidEval("library(data.table)");
-			return connection;
-		} catch (RserveException e) {
-			RMeasurementStore.log
-					.error("Rserve reported an error in initialization. Check if the package \"data.table\" is "
-							+ "installed in R.", e);
-			return null; // TODO better throw exception
-		}
-	}
-
 	/**
 	 * Starts processing enqueued jobs.
 	 */
@@ -63,7 +52,7 @@ public class RJobProcessor {
 	}
 
 	/**
-	 * Waits until all jobs left in this processor's queue have been processed. This effectively stops the caller
+	 * Waits until all jobs left in this processor's queue have been processed. This effectively stops the calling
 	 * thread.
 	 */
 	public void waitUntilFinished() {
@@ -80,7 +69,6 @@ public class RJobProcessor {
 	private class RJobProcessorRunnable implements Runnable {
 		@Override
 		public void run() {
-			RConnection connection = connectToR();
 			RContext context = new RContext(connection);
 
 			boolean keepRunning = true;
@@ -103,10 +91,9 @@ public class RJobProcessor {
 					RMeasurementStore.log.error(e);
 				}
 			}
-			connection.close();
+			
 			RMeasurementStore.log.info(String.format("Finished R processing. Total time spent in R: %.2f seconds.",
 					context.getStatistics().getTotalTimeSpentInR() / 1000.0));
 		}
 	}
-
 }

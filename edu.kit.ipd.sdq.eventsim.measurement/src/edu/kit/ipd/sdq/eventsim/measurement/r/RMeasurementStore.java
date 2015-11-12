@@ -5,6 +5,8 @@ import java.util.function.Function;
 
 import org.apache.log4j.Logger;
 import org.palladiosimulator.pcm.core.entity.Entity;
+import org.rosuda.REngine.Rserve.RConnection;
+import org.rosuda.REngine.Rserve.RserveException;
 
 import edu.kit.ipd.sdq.eventsim.measurement.Measurement;
 import edu.kit.ipd.sdq.eventsim.measurement.Pair;
@@ -27,6 +29,10 @@ public class RMeasurementStore {
 	static final Logger log = Logger.getLogger(RMeasurementStore.class);
 
 	private static final int BUFFER_CAPACITY = 10_000;
+
+	private static final int CONNECTION_RETRIES_MAX = 60;
+
+	private static final int MILLISECONDS_BETWEEN_CONNECTION_RETRIES = 1000;
 
 	private Buffer buffer;
 
@@ -60,7 +66,7 @@ public class RMeasurementStore {
 		this.storeRds = true;
 		this.rdsFilePath = rdsFilePath;
 		idProvider = new IdProvider();
-		rJobProcessor = new RJobProcessor();
+		rJobProcessor = new RJobProcessor(connectToR());
 		rJobProcessor.start();
 		buffer = new Buffer(BUFFER_CAPACITY, idProvider);
 	}
@@ -128,6 +134,52 @@ public class RMeasurementStore {
 		buffer = new Buffer(BUFFER_CAPACITY, idProvider);
 		bufferNumber = 0;
 		processed = 0;
+	}
+
+	private RConnection connectToR() {
+		// try connecting to R
+		RConnection connection = null;
+		for (int retries = 0; retries < CONNECTION_RETRIES_MAX; retries++) {
+			try {
+				connection = new RConnection();
+			} catch (RserveException e) {
+				// handled in the following
+			}
+
+			if (connection != null && connection.isConnected()) {
+				// successfully connected => leave for
+				break;
+			} else {
+				if (retries == 0) {
+					log.error("Could not establish Rserve connection to R. "
+							+ "Make sure to run Rserve, e.g. by calling \"library(Rserve); Rserve()\" in R. ");
+				}
+				if (retries % 20 == 0) {
+					log.error("Waiting for connection...");
+				}
+				// wait some time before retrying again
+				try {
+					Thread.sleep(MILLISECONDS_BETWEEN_CONNECTION_RETRIES);
+				} catch (InterruptedException e) {
+					log.error(e);
+				}
+			}
+		}
+
+		// still not yet connected? give up.
+		if (connection == null || !connection.isConnected()) {
+			throw new RuntimeException("Could not establish Rserve connection to R within " + CONNECTION_RETRIES_MAX
+					+ " attempts. Giving up now.");
+		}
+
+		// try loading "data.table" library 
+		try {
+			connection.voidEval("library(data.table)");
+		} catch (RserveException e) {
+			throw new RuntimeException("R could not load library \"data.table\". "
+					+ "Please run \"install.packages('data.table')\" in R.");
+		}
+		return connection;
 	}
 
 }

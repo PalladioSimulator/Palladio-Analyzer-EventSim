@@ -44,6 +44,8 @@ public class RMeasurementStore implements MeasurementStorage {
 
 	private IdProvider idProvider;
 
+	private RConnection connection;
+	
 	private RJobProcessor rJobProcessor;
 
 	private int bufferNumber;
@@ -69,7 +71,8 @@ public class RMeasurementStore implements MeasurementStorage {
 		this.storeRds = true;
 		this.rdsFilePath = rdsFilePath;
 		idProvider = new IdProvider();
-		rJobProcessor = new RJobProcessor(connectToR());
+		connection = connectToR();
+		rJobProcessor = new RJobProcessor(connection);
 		rJobProcessor.start();
 		buffer = new Buffer(BUFFER_CAPACITY, idProvider);
 	}
@@ -153,8 +156,9 @@ public class RMeasurementStore implements MeasurementStorage {
 
 		// wait until R processing is finished
 		rJobProcessor.waitUntilFinished();
-
+				
 		// clean up
+		connection.close();
 		buffer = new Buffer(BUFFER_CAPACITY, idProvider);
 		bufferNumber = 0;
 		processed = 0;

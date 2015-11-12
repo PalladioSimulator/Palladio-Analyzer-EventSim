@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         id="id1"
+         point="org.palladiosimulator.recorderframework">
+      <recorder
+            configurationFactory="edu.kit.ipd.sdq.eventsim.measurement.r.launch.DummyRecorderConfigurationFactory"
+            launchConfigTab="edu.kit.ipd.sdq.eventsim.measurement.r.launch.RConfigurationTab"
+            name="Rserve Connector for EventSim"
+            recorderImplementation="edu.kit.ipd.sdq.eventsim.measurement.r.launch.DummyRecorder">
+      </recorder>
+   </extension>
+
+</plugin>

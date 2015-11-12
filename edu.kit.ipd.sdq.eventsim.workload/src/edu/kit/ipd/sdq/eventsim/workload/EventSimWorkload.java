@@ -78,7 +78,7 @@ public class EventSimWorkload implements IWorkload {
 						EventSimWorkload.this.finalise();
 					}
 
-				}, false);
+				}, true);
 
 		// measurement count event handler
 		this.middleware.registerEventHandler(WorkloadUserFinished.EVENT_ID, new IEventHandler<WorkloadUserFinished>() {
@@ -89,7 +89,7 @@ public class EventSimWorkload implements IWorkload {
 				middleware.increaseMeasurementCount();
 			}
 
-		}, false);
+		}, true);
 	}
 
 	@Override

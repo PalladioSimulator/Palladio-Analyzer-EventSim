@@ -7,10 +7,6 @@ import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 import edu.kit.ipd.sdq.eventsim.middleware.events.IEventHandler;
 import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationEvent;
-import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationFinalizeEvent;
-import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationInitEvent;
-import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationStartEvent;
-import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationStopEvent;
 import edu.kit.ipd.sdq.eventsim.middleware.simulation.PCMModel;
 
 /**
@@ -21,12 +17,6 @@ import edu.kit.ipd.sdq.eventsim.middleware.simulation.PCMModel;
 public interface ISimulationMiddleware {
 
 	/**
-	 * List of simulation events triggered by this simulation component.
-	 */
-	@SuppressWarnings("rawtypes")
-	public static Class[] componentEvents = new Class[] { SimulationInitEvent.class, SimulationStartEvent.class, SimulationStopEvent.class, SimulationFinalizeEvent.class };
-
-	/**
 	 * Initializes the middleware with a simulation configuration provided by
 	 * the user on launch. Called in the prepare simulation phase.
 	 * 
@@ -35,28 +25,7 @@ public interface ISimulationMiddleware {
 	 * @param pcmModel
 	 *            The PCM model to be simulated
 	 */
-	public void initialize(ISimulationConfiguration config, PCMModel pcmModel);
-
-	/**
-	 * Returns a collection of meta data about all simulation components
-	 * registered at this simulation middleware instance. The meta data consists
-	 * of a list of simulation component type descriptions which contain data
-	 * about their available implementations and contexts to configure the
-	 * dynamic simulator composition.
-	 * 
-	 * @return A List of simulation component metadata
-	 */
-//	public List<SimulationComponentImpl> getSimulationComponentMetadata();
-
-	/**
-	 * Returns the value provider for a given simulation context field. Used to
-	 * create simulation configurations.
-	 * 
-	 * @param field
-	 *            The field to fetch the value provider for
-	 * @return A value provider instance
-	 */
-//	public IContextFieldValueProvider getValueProviderForContextField(SimulationContextField field);
+	void initialize(ISimulationConfiguration config, PCMModel pcmModel);
 
 	/**
 	 * Starts a simulation component based simulation.
@@ -65,35 +34,35 @@ public interface ISimulationMiddleware {
 	 *            A status observer which indicates the simulation progress in
 	 *            the GUI.
 	 */
-	public void startSimulation(final IStatusObserver statusObserver);
+	void startSimulation(final IStatusObserver statusObserver);
 
 	/**
 	 * Stops a simulation run simulation.
 	 */
-	public void stopSimulation();
+	void stopSimulation();
 
-	/**
-	 * Returns a simulation component out of a list of alternatives based on the
-	 * simulation configuration and a simulation context.
-	 * 
-	 * @param requestingType
-	 *            The component type requesting access to a required simulation
-	 *            component. For example ISystem when accessing a
-	 *            IActiveResource from ISystem.
-	 * @param requiredType
-	 *            The component type to be accessed. For example IActiveResource
-	 *            when accessing a IActiveResource from ISystem.
-	 * @param componentList
-	 *            A list of alternative simulation components to select one
-	 *            from. For example a list of IActiveResource implementations
-	 *            when accessing a IActiveResource from ISystem.
-	 * @param context
-	 *            The simulation context used to determine the simulation
-	 *            component
-	 * 
-	 * @return The simulation component to use
-	 */
-//	public ISimulationComponent getSimulationComponent(Class<? extends ISimulationComponent> requestingType, Class<? extends ISimulationComponent> requiredType, List<? extends ISimulationComponent> componentList, AbstractSimulationContext context);
+//	/**
+//	 * Returns a simulation component out of a list of alternatives based on the
+//	 * simulation configuration and a simulation context.
+//	 * 
+//	 * @param requestingType
+//	 *            The component type requesting access to a required simulation
+//	 *            component. For example ISystem when accessing a
+//	 *            IActiveResource from ISystem.
+//	 * @param requiredType
+//	 *            The component type to be accessed. For example IActiveResource
+//	 *            when accessing a IActiveResource from ISystem.
+//	 * @param componentList
+//	 *            A list of alternative simulation components to select one
+//	 *            from. For example a list of IActiveResource implementations
+//	 *            when accessing a IActiveResource from ISystem.
+//	 * @param context
+//	 *            The simulation context used to determine the simulation
+//	 *            component
+//	 * 
+//	 * @return The simulation component to use
+//	 */
+//	ISimulationComponent getSimulationComponent(Class<? extends ISimulationComponent> requestingType, Class<? extends ISimulationComponent> requiredType, List<? extends ISimulationComponent> componentList, AbstractSimulationContext context);
 
 	/**
 	 * Gives access to the simulation configuration provided by the user on
@@ -101,14 +70,14 @@ public interface ISimulationMiddleware {
 	 * 
 	 * @return A simulation configuration
 	 */
-	public ISimulationConfiguration getSimulationConfiguration();
+	ISimulationConfiguration getSimulationConfiguration();
 
 	/**
 	 * Gives access to the PCM model to be simulated.
 	 * 
 	 * @return The PCM model to be simulated
 	 */
-	public PCMModel getPCMModel();
+	PCMModel getPCMModel();
 
 	/**
 	 * Gives access to the abstract sim engine simulation model, which is the
@@ -117,14 +86,14 @@ public interface ISimulationMiddleware {
 	 * 
 	 * @return The simulation model
 	 */
-	public ISimulationModel getSimulationModel();
+	ISimulationModel getSimulationModel();
 
 	/**
 	 * Gives access to the simulation control instance
 	 * 
 	 * @return The simulation control
 	 */
-	public ISimulationControl getSimulationControl();
+	ISimulationControl getSimulationControl();
 
 	/**
 	 * Triggers a specific simulation event. All registered event handlers are
@@ -133,7 +102,7 @@ public interface ISimulationMiddleware {
 	 * @param event
 	 *            The event type to trigger
 	 */
-	public void triggerEvent(SimulationEvent event);
+	void triggerEvent(SimulationEvent event);
 
 	/**
 	 * Registers a new event handler for a specific event. This event handler is
@@ -144,15 +113,7 @@ public interface ISimulationMiddleware {
 	 * @param handler
 	 *            The event handler callback.
 	 */
-	public <T extends SimulationEvent> void registerEventHandler(String eventId, IEventHandler<T> handler);
-
-//	/**
-//	 * Gives access to the central probe specification context of the probe
-//	 * framework.
-//	 * 
-//	 * @return The probe specification context
-//	 */
-//	MeasurementSink getProbeSpecContext();
+	<T extends SimulationEvent> void registerEventHandler(String eventId, IEventHandler<T> handler);
 
 	/**
 	 * Gives access the the amount of measurements done in the current
@@ -168,16 +129,6 @@ public interface ISimulationMiddleware {
 	 * user request was entirely processed.
 	 */
 	void increaseMeasurementCount();
-
-	/**
-	 * Resets the measurement counter.
-	 */
-	void resetMeasurementCount();
-
-	/**
-	 * Called before every simulation run to reset the middleware.
-	 */
-	void reset();
 
 	IRandomGenerator getRandomGenerator();
 	

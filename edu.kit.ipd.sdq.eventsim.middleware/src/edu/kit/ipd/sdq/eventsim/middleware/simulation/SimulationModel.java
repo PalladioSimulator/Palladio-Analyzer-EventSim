@@ -70,8 +70,6 @@ public class SimulationModel extends SchedulerModel implements ISimulationModel 
 	public void finalise() {
 		// after the simulation has stopped we trigger the finalize event for cleanup tasks
 		this.middleware.triggerEvent(new SimulationFinalizeEvent());
-		
-		this.middleware.reset();
 	}
 
 }

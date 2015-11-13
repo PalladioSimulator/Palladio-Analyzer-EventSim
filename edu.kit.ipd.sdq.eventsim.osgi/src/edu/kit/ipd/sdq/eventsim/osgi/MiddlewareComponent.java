@@ -93,14 +93,6 @@ public class MiddlewareComponent implements ISimulationMiddleware {
 		middlewareDelegate.increaseMeasurementCount();
 	}
 
-	public void resetMeasurementCount() {
-		middlewareDelegate.resetMeasurementCount();
-	}
-
-	public void reset() {
-		middlewareDelegate.reset();
-	}
-
 	public IRandomGenerator getRandomGenerator() {
 		return middlewareDelegate.getRandomGenerator();
 	}

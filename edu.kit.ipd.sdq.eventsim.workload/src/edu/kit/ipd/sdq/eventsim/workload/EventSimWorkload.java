@@ -2,7 +2,6 @@ package edu.kit.ipd.sdq.eventsim.workload;
 
 import org.apache.log4j.Logger;
 
-import edu.kit.ipd.sdq.eventsim.api.ISystem;
 import edu.kit.ipd.sdq.eventsim.api.IWorkload;
 import edu.kit.ipd.sdq.eventsim.api.events.WorkloadUserFinished;
 import edu.kit.ipd.sdq.eventsim.middleware.ISimulationMiddleware;
@@ -20,25 +19,21 @@ public class EventSimWorkload implements IWorkload {
 	private static final Logger logger = Logger.getLogger(EventSimWorkload.class);
 
 	private ISimulationMiddleware middleware;
-//	private List<ISystem> systemComponents;
 	private EventSimWorkloadModel model;
 
 	private SystemCallListener systemCallCallback;
-	
+
 	public EventSimWorkload(ISimulationMiddleware middleware) {
-		// TODO enable more than one system
+		// TODO allow more than one system
 		this.middleware = middleware;
-		
+
 		// when the middleware is bound we register for some events
 		this.registerEventHandler();
 	}
-	
+
 	@Override
 	public void generate() {
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("Generating Workload");
-		}
+		logger.debug("Generating workload");
 
 		// create the event sim model
 		model = new EventSimWorkloadModel(this.middleware, systemCallCallback);
@@ -52,6 +47,10 @@ public class EventSimWorkload implements IWorkload {
 	 */
 	public void finalise() {
 		this.model.finalise();
+		/*
+		 * TODO should not be required here when instances of this class are released properly (which seems not to be
+		 * the case
+		 */
 		this.model = null;
 	}
 

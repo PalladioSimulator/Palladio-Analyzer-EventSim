@@ -20,7 +20,6 @@ import edu.kit.ipd.sdq.eventsim.api.events.WorkloadUserFinished;
 import edu.kit.ipd.sdq.eventsim.core.palladio.state.IStateExchangeService;
 import edu.kit.ipd.sdq.eventsim.core.palladio.state.StateExchange;
 import edu.kit.ipd.sdq.eventsim.core.palladio.state.StateExchangeService;
-import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementFacade;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 import edu.kit.ipd.sdq.eventsim.measurement.Metric;
@@ -174,9 +173,7 @@ public class EventSimWorkloadModel extends AbstractEventSimModel {
 	public void finalise() {
 		super.finalise();
 
-		// TODO move to middleware
-		EventSimEntity.resetIdGenerator();
-		
+		// TODO required?
 		measurementFacade = null;
 	}
 

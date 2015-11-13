@@ -13,9 +13,6 @@ import org.apache.log4j.Logger;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
-import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventConstants;
@@ -46,23 +43,22 @@ import edu.kit.ipd.sdq.eventsim.middleware.simulation.config.SimulationConfigura
  * configuration.
  * 
  * @author Christoph Föhrdes
+ * @author Philipp Merkle
  */
 public class SimulationMiddleware implements ISimulationMiddleware {
 
 	private static final Logger logger = Logger.getLogger(SimulationMiddleware.class);
 
-//	private Activator middlewareActivator;
 	private SimulationModel simModel;
 	private ISimulationControl simControl;
 	private ISimulationConfiguration simConfig;
 	private PCMModel pcmModel;
 	private EventAdmin eventAdmin;
-//	private MeasurementSink probeSpecContext;
 	private int measurementCount;
 	private List<ServiceRegistration<?>> eventHandlerRegistry;
 	private IRandomGenerator randomNumberGenerator;
 	
-	private MeasurementStorage store;
+	private MeasurementStorage measurementStorage;
 
 	public SimulationMiddleware() {
 		this.eventHandlerRegistry = new ArrayList<ServiceRegistration<?>>();
@@ -78,12 +74,10 @@ public class SimulationMiddleware implements ISimulationMiddleware {
 	public void initialize(ISimulationConfiguration config, PCMModel pcmModel) {
 		this.pcmModel = pcmModel;
 		this.simConfig = config;
-
-		logger.info("Initializing middleware");
 		
 		// initialize R measurement store
-		store = RMeasurementStore.fromLaunchConfiguration(config.getConfigurationMap());
-		if(store == null) {
+		measurementStorage = RMeasurementStore.fromLaunchConfiguration(config.getConfigurationMap());
+		if(measurementStorage == null) {
 			throw new RuntimeException("R measurement store could not bet constructed from launch configuration.");
 		}
 
@@ -103,36 +97,8 @@ public class SimulationMiddleware implements ISimulationMiddleware {
 		ServiceReference<EventAdmin> eventAdminServiceReference = bundleContext.getServiceReference(EventAdmin.class);
 		this.eventAdmin = bundleContext.getService(eventAdminServiceReference);
 
-		// TODO: init probe framework
-//		probeSpecContext = new OtherMeasurementSink();
-//		this.initPropeFramework();
-
 		this.setupStopConditions(config);
 	}
-
-	/**
-	 * Initialize probe framework
-	 */
-//	private void initPropeFramework() {
-//		// initialize probe specification context
-//		probeSpecContext = new ProbeSpecContext();
-//
-//		// create a blackboard of the specified type
-//		AbstractSimulationConfig config = (AbstractSimulationConfig) this.getSimulationConfiguration();
-//		ISampleBlackboard blackboard = BlackboardFactory.createBlackboard(config.getBlackboardType(), probeSpecContext.getThreadManager());
-//
-//		// initialize ProbeSpecification context
-//		probeSpecContext.initialise(blackboard, new ProbeStrategyRegistry(), new CalculatorFactory(this));
-//
-//		// install garbage collector which removes samples when they become
-//		// obsolete
-//		IRegionBasedGarbageCollector<RequestContext> garbageCollector = new SimCompGarbageCollector(blackboard);
-//		probeSpecContext.setBlackboardGarbageCollector(garbageCollector);
-//
-//		// register simulation time strategy
-//		probeSpecContext.getProbeStrategyRegistry().registerProbeStrategy(new TakeSimulatedTimeStrategy(), ProbeType.CURRENT_TIME, null);
-//	}
-	
 
 	/**
 	 * Setup the simulation stop conditions based on the simulation
@@ -231,13 +197,16 @@ public class SimulationMiddleware implements ISimulationMiddleware {
 	 * Called after a simulation run to perform some clean up.
 	 */
 	private void finalise() {
-		if (logger.isDebugEnabled()) {
-			logger.debug("Cleaning up...");
-		}
+		logger.debug("Cleaning up...");
 		
 		notifyStopListeners();
 
-		store.finish();
+		measurementStorage.finish();
+		
+		// unregister services
+		for (ServiceRegistration<?> reg : eventHandlerRegistry) {
+			reg.unregister();
+		}
 		
 		logger.info("Simulation took " + this.getSimulationControl().getCurrentSimulationTime() + " simulation seconds");
 	}
@@ -309,16 +278,6 @@ public class SimulationMiddleware implements ISimulationMiddleware {
 	}
 
 	@Override
-	public void resetMeasurementCount() {
-		measurementCount = 0;
-	}
-
-//	@Override
-//	public MeasurementSink getProbeSpecContext() {
-//		return probeSpecContext;
-//	}
-
-	@Override
 	public SimulationModel getSimulationModel() {
 		return simModel;
 	}
@@ -326,48 +285,6 @@ public class SimulationMiddleware implements ISimulationMiddleware {
 	@Override
 	public ISimulationControl getSimulationControl() {
 		return simControl;
-	}
-
-	/**
-	 * Declarative service lifecycle method called when the middleware component
-	 * is activated.
-	 * 
-	 * @param context
-	 */
-	@Activate
-	public void activate(ComponentContext context) {
-		System.out.println("SimulationMiddleware activated");
-
-//		this.middlewareActivator = Activator.getDefault();
-//		this.middlewareActivator.bindSimulationMiddleware(this);
-	}
-
-	/**
-	 * Declarative service lifecycle method called when the middleware component
-	 * is deactivated.
-	 * 
-	 * @param context
-	 */
-	@Deactivate
-	public void deactivate(ComponentContext context) {
-		System.out.println("SimulationMiddleware deactivated");
-
-//		this.middlewareActivator.unbindSimulationMiddleware();
-//		this.middlewareActivator = null;
-	}
-
-
-	@Override
-	public void reset() {
-		this.randomNumberGenerator = null;
-
-		// reset measurement count
-		this.resetMeasurementCount();
-
-		// unregister services
-		for (ServiceRegistration<?> reg : eventHandlerRegistry) {
-			reg.unregister();
-		}
 	}
 
 	/**
@@ -384,7 +301,7 @@ public class SimulationMiddleware implements ISimulationMiddleware {
 
 	@Override
 	public MeasurementStorage getMeasurementStorage() {
-		return store;
+		return measurementStorage;
 	}
 
 	/**

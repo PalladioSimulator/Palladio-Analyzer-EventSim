@@ -1,6 +1,5 @@
 package edu.kit.ipd.sdq.eventsim.middleware;
 
-import java.util.List;
 import java.util.Map;
 
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationConfig;

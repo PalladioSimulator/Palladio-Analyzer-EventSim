@@ -96,8 +96,7 @@ abstract public class AbstractEventSimModel {
 	 * This method does some common EventSim related clean up.
 	 * Should be called when a simulation has stopped.
 	 */
-	public void finalise() {
-
+	public void finalise() {	
 		// notify active entities that the simulation is finished (and
 		// therefore, also their existence in the simulated system)
 		for (EventSimEntity entity : activeEntitiesList) {
@@ -106,6 +105,7 @@ abstract public class AbstractEventSimModel {
 		}
 		assert activeEntitiesList.isEmpty() : "There are some entities left in the list of active entities, though " + "each of them was asked to leave the system.";
 
+		EventSimEntity.resetIdGenerator();
 	}
 
 }

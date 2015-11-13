@@ -1,4 +1,4 @@
-package edu.kit.ipd.sdq.eventsim.system.interpreter.seff.strategies;
+package edu.kit.ipd.sdq.eventsim.system.interpreter.strategies;
 
 import org.palladiosimulator.pcm.seff.AbstractAction;
 import org.palladiosimulator.pcm.seff.ExternalCallAction;
@@ -7,7 +7,7 @@ import org.palladiosimulator.pcm.seff.ResourceDemandingSEFF;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalInstruction;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
-import edu.kit.ipd.sdq.eventsim.system.interpreter.seff.instructions.TraverseComponentBehaviourInstruction;
+import edu.kit.ipd.sdq.eventsim.system.interpreter.instructions.TraverseComponentBehaviourInstruction;
 import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
 import edu.kit.ipd.sdq.eventsim.system.staticstructure.ComponentInstance;
 

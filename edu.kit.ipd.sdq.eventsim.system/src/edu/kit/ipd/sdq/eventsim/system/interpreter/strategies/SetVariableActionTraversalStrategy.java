@@ -1,4 +1,4 @@
-package edu.kit.ipd.sdq.eventsim.system.interpreter.seff.strategies;
+package edu.kit.ipd.sdq.eventsim.system.interpreter.strategies;
 
 import org.palladiosimulator.pcm.seff.AbstractAction;
 import org.palladiosimulator.pcm.seff.SetVariableAction;

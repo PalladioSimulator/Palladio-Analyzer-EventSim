@@ -5,7 +5,7 @@ import org.palladiosimulator.pcm.seff.ResourceDemandingSEFF;
 import de.uka.ipd.sdq.simulation.abstractsimengine.AbstractSimEventDelegator;
 import edu.kit.ipd.sdq.eventsim.system.EventSimSystemModel;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
-import edu.kit.ipd.sdq.eventsim.system.interpreter.seff.SeffBehaviourInterpreter;
+import edu.kit.ipd.sdq.eventsim.system.interpreter.SeffBehaviourInterpreter;
 import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
 
 /**

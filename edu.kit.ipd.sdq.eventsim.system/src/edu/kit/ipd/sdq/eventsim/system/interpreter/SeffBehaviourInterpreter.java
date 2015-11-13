@@ -1,4 +1,4 @@
-package edu.kit.ipd.sdq.eventsim.system.interpreter.seff;
+package edu.kit.ipd.sdq.eventsim.system.interpreter;
 
 import java.util.List;
 

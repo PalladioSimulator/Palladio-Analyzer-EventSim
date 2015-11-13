@@ -1,4 +1,4 @@
-package edu.kit.ipd.sdq.eventsim.system.interpreter.seff.strategies;
+package edu.kit.ipd.sdq.eventsim.system.interpreter.strategies;
 
 import org.apache.log4j.Logger;
 import org.palladiosimulator.pcm.core.PCMRandomVariable;
@@ -11,7 +11,7 @@ import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.interpreter.instructions.TraverseNextAction;
 import edu.kit.ipd.sdq.eventsim.interpreter.state.ITraversalStrategyState;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
-import edu.kit.ipd.sdq.eventsim.system.interpreter.seff.instructions.TraverseComponentBehaviourInstruction;
+import edu.kit.ipd.sdq.eventsim.system.interpreter.instructions.TraverseComponentBehaviourInstruction;
 import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
 
 /**

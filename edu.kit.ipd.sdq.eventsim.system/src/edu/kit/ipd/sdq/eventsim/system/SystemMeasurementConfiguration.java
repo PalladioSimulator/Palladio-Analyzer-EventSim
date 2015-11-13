@@ -1,7 +1,7 @@
 package edu.kit.ipd.sdq.eventsim.system;
 
 import edu.kit.ipd.sdq.eventsim.measurement.ProbeConfiguration;
-import edu.kit.ipd.sdq.eventsim.system.interpreter.seff.SeffInterpreterConfiguration;
+import edu.kit.ipd.sdq.eventsim.system.interpreter.SeffInterpreterConfiguration;
 
 public class SystemMeasurementConfiguration implements ProbeConfiguration {
 

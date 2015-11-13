@@ -1,4 +1,4 @@
-package edu.kit.ipd.sdq.eventsim.system.interpreter.seff;
+package edu.kit.ipd.sdq.eventsim.system.interpreter;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,17 +18,17 @@ import edu.kit.ipd.sdq.eventsim.interpreter.InterpreterConfiguration;
 import edu.kit.ipd.sdq.eventsim.interpreter.listener.ITraversalListener;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
 import edu.kit.ipd.sdq.eventsim.system.interpreter.listener.ISeffTraversalListener;
-import edu.kit.ipd.sdq.eventsim.system.interpreter.seff.strategies.AcquireActionTraversalStrategy;
-import edu.kit.ipd.sdq.eventsim.system.interpreter.seff.strategies.BranchActionTraversalStrategy;
-import edu.kit.ipd.sdq.eventsim.system.interpreter.seff.strategies.ExternalCallActionStrategy;
-import edu.kit.ipd.sdq.eventsim.system.interpreter.seff.strategies.ForkActionTraversalStrategy;
-import edu.kit.ipd.sdq.eventsim.system.interpreter.seff.strategies.InternalActionTraversalStrategy;
-import edu.kit.ipd.sdq.eventsim.system.interpreter.seff.strategies.LoopActionTraversalStrategy;
-import edu.kit.ipd.sdq.eventsim.system.interpreter.seff.strategies.ReleaseActionTraversalStrategy;
-import edu.kit.ipd.sdq.eventsim.system.interpreter.seff.strategies.SetVariableActionTraversalStrategy;
-import edu.kit.ipd.sdq.eventsim.system.interpreter.seff.strategies.StartActionTraversalStrategy;
-import edu.kit.ipd.sdq.eventsim.system.interpreter.seff.strategies.StopActionTraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
+import edu.kit.ipd.sdq.eventsim.system.interpreter.strategies.AcquireActionTraversalStrategy;
+import edu.kit.ipd.sdq.eventsim.system.interpreter.strategies.BranchActionTraversalStrategy;
+import edu.kit.ipd.sdq.eventsim.system.interpreter.strategies.ExternalCallActionStrategy;
+import edu.kit.ipd.sdq.eventsim.system.interpreter.strategies.ForkActionTraversalStrategy;
+import edu.kit.ipd.sdq.eventsim.system.interpreter.strategies.InternalActionTraversalStrategy;
+import edu.kit.ipd.sdq.eventsim.system.interpreter.strategies.LoopActionTraversalStrategy;
+import edu.kit.ipd.sdq.eventsim.system.interpreter.strategies.ReleaseActionTraversalStrategy;
+import edu.kit.ipd.sdq.eventsim.system.interpreter.strategies.SetVariableActionTraversalStrategy;
+import edu.kit.ipd.sdq.eventsim.system.interpreter.strategies.StartActionTraversalStrategy;
+import edu.kit.ipd.sdq.eventsim.system.interpreter.strategies.StopActionTraversalStrategy;
 
 public class SeffInterpreterConfiguration implements InterpreterConfiguration<AbstractAction, Request, RequestState> {
 

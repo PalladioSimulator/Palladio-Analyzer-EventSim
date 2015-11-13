@@ -4,7 +4,7 @@ import org.palladiosimulator.pcm.seff.AbstractAction;
 
 import edu.kit.ipd.sdq.eventsim.interpreter.listener.ITraversalListener;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
-import edu.kit.ipd.sdq.eventsim.system.interpreter.seff.SeffBehaviourInterpreter;
+import edu.kit.ipd.sdq.eventsim.system.interpreter.SeffBehaviourInterpreter;
 import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
 
 /**

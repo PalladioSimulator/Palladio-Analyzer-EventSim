@@ -6,9 +6,9 @@ import org.palladiosimulator.pcm.seff.AbstractAction;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
+import edu.kit.ipd.sdq.eventsim.system.interpreter.SeffBehaviourInterpreter;
+import edu.kit.ipd.sdq.eventsim.system.interpreter.SeffInterpreterConfiguration;
 import edu.kit.ipd.sdq.eventsim.system.interpreter.listener.ISeffTraversalListener;
-import edu.kit.ipd.sdq.eventsim.system.interpreter.seff.SeffBehaviourInterpreter;
-import edu.kit.ipd.sdq.eventsim.system.interpreter.seff.SeffInterpreterConfiguration;
 import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
 import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
 

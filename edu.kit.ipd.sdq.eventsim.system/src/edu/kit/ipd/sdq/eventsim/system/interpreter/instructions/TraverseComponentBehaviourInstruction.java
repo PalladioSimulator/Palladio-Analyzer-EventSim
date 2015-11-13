@@ -1,4 +1,4 @@
-package edu.kit.ipd.sdq.eventsim.system.interpreter.seff.instructions;
+package edu.kit.ipd.sdq.eventsim.system.interpreter.instructions;
 
 import org.palladiosimulator.pcm.seff.AbstractAction;
 import org.palladiosimulator.pcm.seff.ResourceDemandingBehaviour;

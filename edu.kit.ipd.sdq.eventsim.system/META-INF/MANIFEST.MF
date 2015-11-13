@@ -40,7 +40,7 @@ Export-Package: edu.kit.ipd.sdq.eventsim.system;
    org.palladiosimulator.pcm.allocation,
    edu.kit.ipd.sdq.eventsim.command",
  edu.kit.ipd.sdq.eventsim.system.context,
- edu.kit.ipd.sdq.eventsim.system.interpreter.seff;
+ edu.kit.ipd.sdq.eventsim.system.interpreter;
   uses:="org.eclipse.emf.ecore,
    org.palladiosimulator.pcm.repository,
    edu.kit.ipd.sdq.eventsim,

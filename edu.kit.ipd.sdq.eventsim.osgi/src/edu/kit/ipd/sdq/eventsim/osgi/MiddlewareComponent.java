@@ -1,8 +1,10 @@
 package edu.kit.ipd.sdq.eventsim.osgi;
 
+import org.apache.log4j.Logger;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 
 import de.uka.ipd.sdq.probfunction.math.IRandomGenerator;
 import de.uka.ipd.sdq.simulation.IStatusObserver;
@@ -18,18 +20,31 @@ import edu.kit.ipd.sdq.eventsim.middleware.simulation.PCMModel;
 
 @Component(factory = "middleware.factory")
 public class MiddlewareComponent implements ISimulationMiddleware {
-	
+
+	private static final Logger log = Logger.getLogger(MiddlewareComponent.class);
+
 	private ISimulationMiddleware middlewareDelegate;
-	
+
 	private int simulationId;
 
 	@Activate
-	void activate(ComponentContext ctx) {
+	public void activate(ComponentContext ctx) {
 		simulationId = (int) ctx.getProperties().get(SimulationManager.SIMULATION_ID);
-		
+
 		middlewareDelegate = new SimulationMiddleware();
 	}
-	
+
+	@Deactivate
+	public void deactivate(ComponentContext ctx) {
+		/*
+		 * TODO currently the following statement is necessary to prevent memory leaks. However, this indicates that 
+		 * references to this component are not released properly, hence preventing the GC from garbage collecting this
+		 * instance.
+		 */
+		middlewareDelegate = null;
+		log.debug("Deactivated simulation middleware component (Simulation ID = " + simulationId + ")");
+	}
+
 	public int getSimulationId() {
 		return simulationId;
 	}
@@ -66,13 +81,8 @@ public class MiddlewareComponent implements ISimulationMiddleware {
 		middlewareDelegate.triggerEvent(event);
 	}
 
-	public void registerEventHandler(String eventId, IEventHandler<? extends SimulationEvent> handler) {
+	public <T extends SimulationEvent> void registerEventHandler(String eventId, IEventHandler<T> handler) {
 		middlewareDelegate.registerEventHandler(eventId, handler);
-	}
-
-	public void registerEventHandler(String eventId, IEventHandler<? extends SimulationEvent> handler,
-			boolean unregisterOnReset) {
-		middlewareDelegate.registerEventHandler(eventId, handler, unregisterOnReset);
 	}
 
 	public int getMeasurementCount() {

@@ -8,5 +8,7 @@ public interface ISimulationManager {
 	public int prepareSimulation(SimulationConfiguration config);
 	
 	public ISimulationMiddleware getMiddleware(int simulationId);
+
+	void disposeSimulation(int simulationId);
 	
 }

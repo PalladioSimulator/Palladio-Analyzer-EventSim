@@ -1,9 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Middleware
+Bundle-Name: EventSim Simulation Middleware
 Bundle-SymbolicName: edu.kit.ipd.sdq.eventsim.osgi
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: edu.kit.ipd.sdq.eventsim.osgi.Activator
 Require-Bundle: org.eclipse.core.runtime,
  edu.kit.ipd.sdq.eventsim.resources;bundle-version="1.0.0",
  edu.kit.ipd.sdq.eventsim.workload;bundle-version="1.0.0",

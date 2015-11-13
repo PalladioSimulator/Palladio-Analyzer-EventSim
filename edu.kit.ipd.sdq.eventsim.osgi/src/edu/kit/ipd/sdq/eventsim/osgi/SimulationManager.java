@@ -5,6 +5,7 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.log4j.Logger;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
@@ -14,6 +15,7 @@ import org.osgi.service.component.ComponentFactory;
 import org.osgi.service.component.ComponentInstance;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import edu.kit.ipd.sdq.eventsim.middleware.ISimulationMiddleware;
@@ -22,6 +24,8 @@ import edu.kit.ipd.sdq.eventsim.middleware.simulation.config.SimulationConfigura
 @Component
 public class SimulationManager implements ISimulationManager {
 
+	private static final Logger log = Logger.getLogger(SimulationManager.class);
+	
 	public static final String SIMULATION_ID = "simulation.id";
 
 	private ComponentFactory workloadFactory;
@@ -32,16 +36,23 @@ public class SimulationManager implements ISimulationManager {
 
 	private ComponentInstance middlewareInstance;
 
+	private ServiceRegistration<ISimulationMiddleware> middlewareService;
+	
 	private ISimulationMiddleware middleware;
 
 	private ComponentContext ctx;
-	
+
 	// counts the number of simulation instances created since the VM started
 	private static AtomicInteger simulationCount = new AtomicInteger();
 
 	@Activate
-	void activate(ComponentContext ctx) {
+	public void activate(ComponentContext ctx) {
 		this.ctx = ctx;
+	}
+
+	@Deactivate
+	public void deactivate() {
+		log.debug("Deactivated simulation manager component");
 	}
 
 	@Override
@@ -62,8 +73,8 @@ public class SimulationManager implements ISimulationManager {
 		final Dictionary serviceProperties = new Hashtable<>();
 		serviceProperties.put(ComponentConstants.COMPONENT_NAME, ISimulationMiddleware.class.getName());
 		serviceProperties.put(SIMULATION_ID, simulationId);
-		ServiceRegistration<ISimulationMiddleware> reg = ctx.getBundleContext()
-				.registerService(ISimulationMiddleware.class, middleware, serviceProperties);
+		middlewareService = ctx.getBundleContext().registerService(ISimulationMiddleware.class, middleware,
+				serviceProperties);
 
 		// instantiate workload component
 		workloadInstance = workloadFactory.newInstance(properties);
@@ -71,6 +82,13 @@ public class SimulationManager implements ISimulationManager {
 		// workload listens for simulation start event and must not be started here
 
 		return simulationId;
+	}
+
+	@Override
+	public void disposeSimulation(int simulationId) {
+		middlewareInstance.dispose();
+		workloadInstance.dispose();
+		middlewareService.unregister();
 	}
 
 	@Reference(target = "(component.factory=workload.factory)")
@@ -89,7 +107,7 @@ public class SimulationManager implements ISimulationManager {
 
 	public void unbindMiddlewareFactory(final ComponentFactory factory) {
 		middlewareInstance.dispose();
-		// TODO dispose service
+		middlewareService.unregister();
 	}
 
 	@Override

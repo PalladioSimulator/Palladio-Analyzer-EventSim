@@ -144,20 +144,7 @@ public interface ISimulationMiddleware {
 	 * @param handler
 	 *            The event handler callback.
 	 */
-	public void registerEventHandler(String eventId, IEventHandler<? extends SimulationEvent> handler);
-
-	/**
-	 * Registers a new event handler for a specific event.
-	 * 
-	 * @param eventId
-	 *            The event type to listen for
-	 * @param handler
-	 *            The event handler callback.
-	 * @param unregisterOnReset
-	 *            Specifies if the event handler should be unregistered on
-	 *            middleware cleanup or not
-	 */
-	public void registerEventHandler(String eventId, IEventHandler<? extends SimulationEvent> handler, boolean unregisterOnReset);
+	public <T extends SimulationEvent> void registerEventHandler(String eventId, IEventHandler<T> handler);
 
 //	/**
 //	 * Gives access to the central probe specification context of the probe

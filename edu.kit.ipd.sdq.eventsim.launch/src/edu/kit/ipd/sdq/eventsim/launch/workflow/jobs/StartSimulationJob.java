@@ -1,6 +1,8 @@
 package edu.kit.ipd.sdq.eventsim.launch.workflow.jobs;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -25,7 +27,7 @@ import edu.kit.ipd.sdq.eventsim.middleware.simulation.PCMModel;
 import edu.kit.ipd.sdq.eventsim.osgi.ISimulationManager;
 
 /**
- * Starts an EventSim simulation. 
+ * Starts an EventSim simulation.
  * <p>
  * Connects to a simulation dock (see {@link DockModel}) to display simulation progress.
  * 
@@ -90,6 +92,9 @@ public class StartSimulationJob extends AbstractExtendableJob<MDSDBlackboard> {
 
 		sendEventToSimulationDock(SIM_STOPPED_TOPIC, dock);
 		sendEventToSimulationDock(DOCK_IDLE_TOPIC, dock);
+
+		// clean up
+		manager.disposeSimulation(simulationId);
 
 		super.execute(monitor); // TODO needed?
 	}

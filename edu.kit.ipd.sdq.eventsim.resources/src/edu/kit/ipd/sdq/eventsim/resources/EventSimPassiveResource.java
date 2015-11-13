@@ -57,7 +57,7 @@ public class EventSimPassiveResource implements IPassiveResource {
 				EventSimPassiveResource.this.init();
 			}
 
-		}, true);
+		});
 
 		this.middleware.registerEventHandler(SimulationFinalizeEvent.EVENT_ID, new IEventHandler<SimulationFinalizeEvent>() {
 
@@ -66,7 +66,7 @@ public class EventSimPassiveResource implements IPassiveResource {
 				EventSimPassiveResource.this.finalise();
 			}
 
-		}, true);
+		});
 	}
 
 }

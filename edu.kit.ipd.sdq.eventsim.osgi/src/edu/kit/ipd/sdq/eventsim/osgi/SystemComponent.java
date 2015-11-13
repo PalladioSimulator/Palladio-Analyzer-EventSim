@@ -1,10 +1,12 @@
 package edu.kit.ipd.sdq.eventsim.osgi;
 
+import org.apache.log4j.Logger;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.ComponentFactory;
 import org.osgi.service.component.ComponentInstance;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
@@ -19,6 +21,8 @@ import edu.kit.ipd.sdq.eventsim.system.EventSimSystem;
 @Component(factory = "system.factory")
 public class SystemComponent implements ISystem {
 
+	private static final Logger log = Logger.getLogger(SystemComponent.class);
+	
 	private ComponentFactory activeResourceFactory;
 
 	private ComponentInstance activeResourceInstance;
@@ -38,7 +42,7 @@ public class SystemComponent implements ISystem {
 	private IPassiveResource passiveResource;
 
 	@Activate
-	void activate(ComponentContext ctx) {
+	public void activate(ComponentContext ctx) {
 		simulationId = (int) ctx.getProperties().get(SimulationManager.SIMULATION_ID);
 
 		// instantiate active resource component
@@ -59,6 +63,11 @@ public class SystemComponent implements ISystem {
 				(request, asctx, passiveResouce, num) -> passiveResource.acquire(request, asctx, passiveResouce, num));
 		systemDelegate.onPassiveResourceRelease(
 				(request, asctx, passiveResouce, num) -> passiveResource.release(request, asctx, passiveResouce, num));
+	}
+	
+	@Deactivate
+	public void deactivate() {
+		log.debug("Deactivated system simulation component (Simulation ID = " + simulationId + ")");
 	}
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.OPTIONAL)

@@ -67,10 +67,10 @@ public class EventSimSystem implements ISystem {
 			@Override
 			public void handle(SimulationInitEvent event) {
 				// nothing to do
-//				EventSimSystem.this.init(); TODO remove?
+				// EventSimSystem.this.init(); TODO remove?
 			}
 
-		}, true);
+		});
 
 		this.middleware.registerEventHandler(SimulationFinalizeEvent.EVENT_ID,
 				new IEventHandler<SimulationFinalizeEvent>() {
@@ -80,7 +80,7 @@ public class EventSimSystem implements ISystem {
 						EventSimSystem.this.finalise();
 					}
 
-				}, true);
+				});
 	}
 
 	@Override

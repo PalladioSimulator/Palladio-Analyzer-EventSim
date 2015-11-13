@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
@@ -61,14 +60,12 @@ public class SimulationMiddleware implements ISimulationMiddleware {
 //	private MeasurementSink probeSpecContext;
 	private int measurementCount;
 	private List<ServiceRegistration<?>> eventHandlerRegistry;
-	private List<ServiceRegistration<?>> eventHandlerToRemove;
 	private IRandomGenerator randomNumberGenerator;
 	
 	private MeasurementStorage store;
 
 	public SimulationMiddleware() {
 		this.eventHandlerRegistry = new ArrayList<ServiceRegistration<?>>();
-		this.eventHandlerToRemove = new ArrayList<ServiceRegistration<?>>();
 
 		// register the middleware event handlers
 		this.registerEventHandler();
@@ -182,7 +179,7 @@ public class SimulationMiddleware implements ISimulationMiddleware {
 				finalise();
 			}
 
-		}, false);
+		});
 
 	}
 
@@ -259,8 +256,7 @@ public class SimulationMiddleware implements ISimulationMiddleware {
 	}
 
 	@Override
-	@SuppressWarnings("rawtypes")
-	public void registerEventHandler(String eventId, final IEventHandler handler, boolean unregisterOnReset) {
+	public <T extends SimulationEvent> void registerEventHandler(String eventId, final IEventHandler<T> handler) {
 
 		// we delegate the event handling to the OSGi event admin service
 		BundleContext bundleContext = Activator.getContext();
@@ -271,27 +267,19 @@ public class SimulationMiddleware implements ISimulationMiddleware {
 			@Override
 			@SuppressWarnings("unchecked")
 			public void handleEvent(Event event) {
-				SimulationEvent simulationEvent = (SimulationEvent) event.getProperty(SimulationEvent.SIMCOMP_EVENT_PROPERTY);
+				// TODO get rid of cast?
+				T simulationEvent = (T) event.getProperty(SimulationEvent.SIMCOMP_EVENT_PROPERTY);
 				handler.handle(simulationEvent);
 			}
 
 		}, properties);
 
+		// store service registration for later cleanup
 		this.eventHandlerRegistry.add(handlerService);
-		// store service reference for later cleanup
-		if (unregisterOnReset) {
-			this.eventHandlerToRemove.add(handlerService);
-		}
-	}
-
-	@Override
-	public void registerEventHandler(String eventId, IEventHandler<? extends SimulationEvent> handler) {
-		this.registerEventHandler(eventId, handler, true);
 	}
 
 	/**
 	 * Gives access to the simulation configuration of the current simulation
-	 * run.
 	 * 
 	 * @return A simulation configuration
 	 */
@@ -376,12 +364,9 @@ public class SimulationMiddleware implements ISimulationMiddleware {
 		// reset measurement count
 		this.resetMeasurementCount();
 
-		// remove the event handler marked to be unregistered
-		for (Iterator<ServiceRegistration<?>> it = this.eventHandlerToRemove.iterator(); it.hasNext();) {
-			ServiceRegistration<?> handler = it.next();
-			handler.unregister();
-			it.remove();
-			this.eventHandlerRegistry.remove(handler);
+		// unregister services
+		for (ServiceRegistration<?> reg : eventHandlerRegistry) {
+			reg.unregister();
 		}
 	}
 

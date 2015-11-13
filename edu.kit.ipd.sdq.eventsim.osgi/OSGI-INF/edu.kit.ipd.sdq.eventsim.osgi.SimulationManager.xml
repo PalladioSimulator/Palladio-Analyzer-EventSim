@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" name="edu.kit.ipd.sdq.eventsim.osgi.SimulationManager">
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="deactivate" name="edu.kit.ipd.sdq.eventsim.osgi.SimulationManager">
    <service>
       <provide interface="edu.kit.ipd.sdq.eventsim.osgi.ISimulationManager"/>
    </service>

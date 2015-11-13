@@ -1,8 +1,10 @@
 package edu.kit.ipd.sdq.eventsim.osgi;
 
+import org.apache.log4j.Logger;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
@@ -16,6 +18,8 @@ import edu.kit.ipd.sdq.eventsim.resources.EventSimPassiveResource;
 @Component(factory = "passiveresource.factory")
 public class PassiveResourceComponent implements IPassiveResource {
 
+	private static final Logger log = Logger.getLogger(PassiveResourceComponent.class);
+	
 	private IPassiveResource resourceDelegate;
 
 	private int simulationId;
@@ -27,6 +31,11 @@ public class PassiveResourceComponent implements IPassiveResource {
 		simulationId = (int) ctx.getProperties().get(SimulationManager.SIMULATION_ID);
 
 		resourceDelegate = new EventSimPassiveResource(compositionManager.getMiddleware(simulationId));
+	}
+	
+	@Deactivate
+	void deactivate() {
+		log.debug("Deactivated passive resource simulation component (Simulation ID = " + simulationId + ")");
 	}
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.OPTIONAL)

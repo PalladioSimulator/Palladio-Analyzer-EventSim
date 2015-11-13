@@ -17,13 +17,13 @@ import edu.kit.ipd.sdq.eventsim.measurement.r.RJob;
 public class StoreRDSFileJob implements RJob {
 
 	private static final Logger log = Logger.getLogger(StoreRDSFileJob.class);
-	
+
 	private String rdsFilePath;
-	
+
 	public StoreRDSFileJob(String rdsFilePath) {
 		this.rdsFilePath = rdsFilePath;
 	}
-	
+
 	@Override
 	public void process(RContext context) {
 		log.info("Saving measurements into RDS file. This can take a moment...");
@@ -35,11 +35,11 @@ public class StoreRDSFileJob implements RJob {
 		}
 		long end = System.currentTimeMillis();
 		context.getStatistics().captureTimeSpentInR(end - start);
-		log.info(String.format("Saved measurements into RDS file. Took %.2f seconds.", (end - start) / 1000.0));
-		log.info(String.format("RDS file location: %s", rdsFilePath));
+		log.info(String.format("Open the RDS file in R using \"mm <- readRDS('%s')\"",
+				convertToRCompliantPath(rdsFilePath)));
 
 	}
-	
+
 	private String convertToRCompliantPath(String path) {
 		return path.replace("\\", "/");
 	}
@@ -48,5 +48,5 @@ public class StoreRDSFileJob implements RJob {
 	public String getName() {
 		return "Save measurements into RDS file";
 	}
-	
+
 }

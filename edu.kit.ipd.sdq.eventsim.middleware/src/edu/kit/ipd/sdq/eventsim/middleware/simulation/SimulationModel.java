@@ -6,7 +6,7 @@ import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationControl;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 import edu.kit.ipd.sdq.eventsim.middleware.ISimulationConfiguration;
 import edu.kit.ipd.sdq.eventsim.middleware.ISimulationMiddleware;
-import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationFinalizeEvent;
+import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationStopEvent;
 import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationInitEvent;
 import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationStartEvent;
 
@@ -69,7 +69,7 @@ public class SimulationModel extends SchedulerModel implements ISimulationModel 
 	@Override
 	public void finalise() {
 		// after the simulation has stopped we trigger the finalize event for cleanup tasks
-		this.middleware.triggerEvent(new SimulationFinalizeEvent());
+		this.middleware.triggerEvent(new SimulationStopEvent());
 	}
 
 }

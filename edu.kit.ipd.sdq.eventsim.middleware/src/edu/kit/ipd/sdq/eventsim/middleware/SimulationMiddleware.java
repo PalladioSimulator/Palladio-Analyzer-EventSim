@@ -30,7 +30,6 @@ import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 import edu.kit.ipd.sdq.eventsim.measurement.r.RMeasurementStore;
 import edu.kit.ipd.sdq.eventsim.middleware.events.IEventHandler;
 import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationEvent;
-import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationFinalizeEvent;
 import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationStopEvent;
 import edu.kit.ipd.sdq.eventsim.middleware.simulation.MaxMeasurementsStopCondition;
 import edu.kit.ipd.sdq.eventsim.middleware.simulation.PCMModel;
@@ -138,10 +137,10 @@ public class SimulationMiddleware implements ISimulationMiddleware {
 	private void registerEventHandler() {
 
 		// setup system processed request event listener
-		this.registerEventHandler(SimulationFinalizeEvent.EVENT_ID, new IEventHandler<SimulationFinalizeEvent>() {
+		this.registerEventHandler(SimulationStopEvent.EVENT_ID, new IEventHandler<SimulationStopEvent>() {
 
 			@Override
-			public void handle(SimulationFinalizeEvent event) {
+			public void handle(SimulationStopEvent event) {
 				finalise();
 			}
 
@@ -187,10 +186,7 @@ public class SimulationMiddleware implements ISimulationMiddleware {
 	 */
 	@Override
 	public void stopSimulation() {
-		// trigger the simulation stop event
-		this.triggerEvent(new SimulationStopEvent());
-
-		this.simControl.stop();
+		simControl.stop();
 	}
 
 	/**

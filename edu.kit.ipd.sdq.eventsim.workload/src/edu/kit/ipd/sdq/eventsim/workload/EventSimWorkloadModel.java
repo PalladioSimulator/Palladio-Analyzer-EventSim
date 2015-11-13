@@ -15,8 +15,8 @@ import de.uka.ipd.sdq.simucomframework.variables.cache.StoExCache;
 import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
 import edu.kit.ipd.sdq.eventsim.api.IRequest;
 import edu.kit.ipd.sdq.eventsim.api.IWorkload.SystemCallListener;
-import edu.kit.ipd.sdq.eventsim.api.events.SystemRequestProcessed;
-import edu.kit.ipd.sdq.eventsim.api.events.WorkloadUserFinished;
+import edu.kit.ipd.sdq.eventsim.api.events.SystemRequestFinishedEvent;
+import edu.kit.ipd.sdq.eventsim.api.events.WorkloadUserFinishedEvent;
 import edu.kit.ipd.sdq.eventsim.core.palladio.state.IStateExchangeService;
 import edu.kit.ipd.sdq.eventsim.core.palladio.state.StateExchange;
 import edu.kit.ipd.sdq.eventsim.core.palladio.state.StateExchangeService;
@@ -112,11 +112,11 @@ public class EventSimWorkloadModel extends AbstractEventSimModel {
 	private void registerEventHandler() {
 
 		// setup system processed request event listener
-		this.getSimulationMiddleware().registerEventHandler(SystemRequestProcessed.EVENT_ID,
-				new IEventHandler<SystemRequestProcessed>() {
+		this.getSimulationMiddleware().registerEventHandler(SystemRequestFinishedEvent.EVENT_ID,
+				new IEventHandler<SystemRequestFinishedEvent>() {
 
 					@Override
-					public void handle(SystemRequestProcessed simulationEvent) {
+					public void handle(SystemRequestFinishedEvent simulationEvent) {
 						// resume usage traversal after system finished processing
 						IRequest request = simulationEvent.getRequest();
 						User user = (User) request.getUser();
@@ -128,11 +128,11 @@ public class EventSimWorkloadModel extends AbstractEventSimModel {
 				});
 
 		// setup state exchange service cleanup listener
-		this.getSimulationMiddleware().registerEventHandler(WorkloadUserFinished.EVENT_ID,
-				new IEventHandler<WorkloadUserFinished>() {
+		this.getSimulationMiddleware().registerEventHandler(WorkloadUserFinishedEvent.EVENT_ID,
+				new IEventHandler<WorkloadUserFinishedEvent>() {
 
 					@Override
-					public void handle(WorkloadUserFinished simulationEvent) {
+					public void handle(WorkloadUserFinishedEvent simulationEvent) {
 						StateExchange.cleanupUserState(simulationEvent.getUser().getId());
 					}
 

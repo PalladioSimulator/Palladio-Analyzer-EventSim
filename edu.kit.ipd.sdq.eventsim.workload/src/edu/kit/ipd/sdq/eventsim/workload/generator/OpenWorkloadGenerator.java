@@ -5,7 +5,7 @@ import org.palladiosimulator.pcm.usagemodel.OpenWorkload;
 import org.palladiosimulator.pcm.usagemodel.UsageScenario;
 
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
-import edu.kit.ipd.sdq.eventsim.api.events.WorkloadUserFinished;
+import edu.kit.ipd.sdq.eventsim.api.events.WorkloadUserFinishedEvent;
 import edu.kit.ipd.sdq.eventsim.entities.IEntityListener;
 import edu.kit.ipd.sdq.eventsim.workload.EventSimWorkloadModel;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
@@ -69,7 +69,7 @@ public class OpenWorkloadGenerator implements IWorkloadGenerator {
             @Override
             public void leftSystem() {
             	// trigger event that the user finished his work
-            	model.getSimulationMiddleware().triggerEvent(new WorkloadUserFinished(user));
+            	model.getSimulationMiddleware().triggerEvent(new WorkloadUserFinishedEvent(user));
             }
 
         });

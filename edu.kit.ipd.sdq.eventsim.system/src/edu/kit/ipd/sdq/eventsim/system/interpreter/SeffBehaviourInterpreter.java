@@ -12,7 +12,7 @@ import org.palladiosimulator.pcm.seff.StartAction;
 
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
 import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
-import edu.kit.ipd.sdq.eventsim.api.events.SystemRequestStart;
+import edu.kit.ipd.sdq.eventsim.api.events.SystemRequestSpawnEvent;
 import edu.kit.ipd.sdq.eventsim.core.palladio.state.UserState;
 import edu.kit.ipd.sdq.eventsim.interpreter.BehaviourInterpreter;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalStrategy;
@@ -58,7 +58,7 @@ public class SeffBehaviourInterpreter extends BehaviourInterpreter<AbstractActio
         request.setRequestState(state);
         
         // fire request start event
-        this.model.getSimulationMiddleware().triggerEvent(new SystemRequestStart(request));
+        this.model.getSimulationMiddleware().triggerEvent(new SystemRequestSpawnEvent(request));
 
         // find start action
         final ResourceDemandingSEFF seff = component.getServiceEffectSpecification(signature);

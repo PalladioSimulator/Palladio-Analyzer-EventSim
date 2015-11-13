@@ -6,7 +6,7 @@ import org.palladiosimulator.pcm.resourcetype.ResourceType;
 import edu.kit.ipd.sdq.eventsim.api.IActiveResource;
 import edu.kit.ipd.sdq.eventsim.api.IRequest;
 import edu.kit.ipd.sdq.eventsim.middleware.ISimulationMiddleware;
-import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationFinalizeEvent;
+import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationStopEvent;
 import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationInitEvent;
 
 public class EventSimActiveResource implements IActiveResource {
@@ -21,7 +21,7 @@ public class EventSimActiveResource implements IActiveResource {
 	
 	private void registerEventHandler() {
 		middleware.registerEventHandler(SimulationInitEvent.EVENT_ID, e -> init());
-		middleware.registerEventHandler(SimulationFinalizeEvent.EVENT_ID, e -> finalise());
+		middleware.registerEventHandler(SimulationStopEvent.EVENT_ID, e -> finalise());
 	}
 
 	private void init() {

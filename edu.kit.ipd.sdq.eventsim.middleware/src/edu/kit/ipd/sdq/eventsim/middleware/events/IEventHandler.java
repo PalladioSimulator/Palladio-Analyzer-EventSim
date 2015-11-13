@@ -15,5 +15,5 @@ public interface IEventHandler <T extends SimulationEvent> {
 	 * @param simulationEvent
 	 *            The triggered event
 	 */
-	public void handle(T simulationEvent);
+	void handle(T simulationEvent);
 }

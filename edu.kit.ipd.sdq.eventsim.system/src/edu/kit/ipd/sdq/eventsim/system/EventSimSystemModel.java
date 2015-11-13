@@ -14,8 +14,8 @@ import edu.kit.ipd.sdq.eventsim.api.ISystem.ActiveResourceListener;
 import edu.kit.ipd.sdq.eventsim.api.ISystem.PassiveResourceAcquireListener;
 import edu.kit.ipd.sdq.eventsim.api.ISystem.PassiveResourceReleaseListener;
 import edu.kit.ipd.sdq.eventsim.api.IUser;
-import edu.kit.ipd.sdq.eventsim.api.events.SystemRequestProcessed;
-import edu.kit.ipd.sdq.eventsim.api.events.SystemRequestStart;
+import edu.kit.ipd.sdq.eventsim.api.events.SystemRequestFinishedEvent;
+import edu.kit.ipd.sdq.eventsim.api.events.SystemRequestSpawnEvent;
 import edu.kit.ipd.sdq.eventsim.core.palladio.state.IUserState;
 import edu.kit.ipd.sdq.eventsim.core.palladio.state.StateExchange;
 import edu.kit.ipd.sdq.eventsim.core.palladio.state.UserState;
@@ -122,8 +122,8 @@ public class EventSimSystemModel extends AbstractEventSimModel {
 	private void registerEventHandler() {
 
 		// setup system call parameter handling
-		this.getSimulationMiddleware().registerEventHandler(SystemRequestStart.EVENT_ID, new BeforeSystemCallParameterHandler(this));
-		this.getSimulationMiddleware().registerEventHandler(SystemRequestProcessed.EVENT_ID, new AfterSystemCallParameterHandler());
+		this.getSimulationMiddleware().registerEventHandler(SystemRequestSpawnEvent.EVENT_ID, new BeforeSystemCallParameterHandler(this));
+		this.getSimulationMiddleware().registerEventHandler(SystemRequestFinishedEvent.EVENT_ID, new AfterSystemCallParameterHandler());
 
 	}
 

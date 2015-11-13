@@ -6,7 +6,7 @@ import org.palladiosimulator.pcm.usagemodel.EntryLevelSystemCall;
 import edu.kit.ipd.sdq.eventsim.api.ISystem;
 import edu.kit.ipd.sdq.eventsim.api.IUser;
 import edu.kit.ipd.sdq.eventsim.middleware.ISimulationMiddleware;
-import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationFinalizeEvent;
+import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationStopEvent;
 import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationInitEvent;
 
 public class EventSimSystem implements ISystem {
@@ -30,7 +30,7 @@ public class EventSimSystem implements ISystem {
 
 	private void registerEventHandler() {
 		middleware.registerEventHandler(SimulationInitEvent.EVENT_ID, e -> init());
-		middleware.registerEventHandler(SimulationFinalizeEvent.EVENT_ID, e -> finalise());
+		middleware.registerEventHandler(SimulationStopEvent.EVENT_ID, e -> finalise());
 	}
 
 	private void init() {

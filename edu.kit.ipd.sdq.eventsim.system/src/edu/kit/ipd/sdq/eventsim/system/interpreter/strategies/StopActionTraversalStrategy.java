@@ -3,7 +3,7 @@ package edu.kit.ipd.sdq.eventsim.system.interpreter.strategies;
 import org.palladiosimulator.pcm.seff.AbstractAction;
 import org.palladiosimulator.pcm.seff.StopAction;
 
-import edu.kit.ipd.sdq.eventsim.api.events.SystemRequestProcessed;
+import edu.kit.ipd.sdq.eventsim.api.events.SystemRequestFinishedEvent;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalInstruction;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.interpreter.instructions.EndTraversal;
@@ -34,7 +34,7 @@ public class StopActionTraversalStrategy implements ITraversalStrategy<AbstractA
             	
             	// fire seff traversal completed event
             	ISimulationMiddleware middleware = request.getEventSimModel().getSimulationMiddleware();
-            	middleware.triggerEvent(new SystemRequestProcessed(request));
+            	middleware.triggerEvent(new SystemRequestFinishedEvent(request));
 
                 return new EndTraversal<>();
             }

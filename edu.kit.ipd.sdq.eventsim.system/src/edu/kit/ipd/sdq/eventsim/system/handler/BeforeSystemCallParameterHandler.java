@@ -9,7 +9,7 @@ import org.palladiosimulator.pcm.usagemodel.EntryLevelSystemCall;
 
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
 import de.uka.ipd.sdq.simucomframework.variables.stackframe.SimulatedStackframe;
-import edu.kit.ipd.sdq.eventsim.api.events.SystemRequestStart;
+import edu.kit.ipd.sdq.eventsim.api.events.SystemRequestSpawnEvent;
 import edu.kit.ipd.sdq.eventsim.middleware.events.IEventHandler;
 import edu.kit.ipd.sdq.eventsim.system.EventSimSystemModel;
 import edu.kit.ipd.sdq.eventsim.system.command.FindAssemblyContextForSystemCall;
@@ -18,7 +18,7 @@ import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
 import edu.kit.ipd.sdq.eventsim.system.staticstructure.ComponentInstance;
 import edu.kit.ipd.sdq.eventsim.util.ParameterHelper;
 
-public class BeforeSystemCallParameterHandler implements IEventHandler<SystemRequestStart> {
+public class BeforeSystemCallParameterHandler implements IEventHandler<SystemRequestSpawnEvent> {
 
     private static final Logger logger = Logger.getLogger(BeforeSystemCallParameterHandler.class);
     
@@ -29,7 +29,7 @@ public class BeforeSystemCallParameterHandler implements IEventHandler<SystemReq
 	}
 
 	@Override
-	public void handle(SystemRequestStart simulationEvent) {
+	public void handle(SystemRequestSpawnEvent simulationEvent) {
 		if (logger.isDebugEnabled()) {
             logger.debug("Begin handling system call input parameters");
         }

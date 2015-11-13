@@ -8,18 +8,18 @@ import org.palladiosimulator.pcm.usagemodel.EntryLevelSystemCall;
 
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
 import de.uka.ipd.sdq.simucomframework.variables.stackframe.SimulatedStackframe;
-import edu.kit.ipd.sdq.eventsim.api.events.SystemRequestProcessed;
+import edu.kit.ipd.sdq.eventsim.api.events.SystemRequestFinishedEvent;
 import edu.kit.ipd.sdq.eventsim.middleware.events.IEventHandler;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
 import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
 import edu.kit.ipd.sdq.eventsim.util.ParameterHelper;
 
-public class AfterSystemCallParameterHandler implements  IEventHandler<SystemRequestProcessed> {
+public class AfterSystemCallParameterHandler implements  IEventHandler<SystemRequestFinishedEvent> {
 
     private static final Logger logger = Logger.getLogger(AfterSystemCallParameterHandler.class);
 
 	@Override
-	public void handle(SystemRequestProcessed simulationEvent) {
+	public void handle(SystemRequestFinishedEvent simulationEvent) {
 		if (logger.isDebugEnabled()) {
             logger.debug("Begin handling system call output parameters");
         }

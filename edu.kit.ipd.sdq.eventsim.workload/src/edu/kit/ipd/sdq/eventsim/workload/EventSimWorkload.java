@@ -3,9 +3,9 @@ package edu.kit.ipd.sdq.eventsim.workload;
 import org.apache.log4j.Logger;
 
 import edu.kit.ipd.sdq.eventsim.api.IWorkload;
-import edu.kit.ipd.sdq.eventsim.api.events.WorkloadUserFinished;
+import edu.kit.ipd.sdq.eventsim.api.events.WorkloadUserFinishedEvent;
 import edu.kit.ipd.sdq.eventsim.middleware.ISimulationMiddleware;
-import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationFinalizeEvent;
+import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationStopEvent;
 import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationInitEvent;
 
 /**
@@ -31,8 +31,8 @@ public class EventSimWorkload implements IWorkload {
 
 	private void registerEventHandler() {
 		middleware.registerEventHandler(SimulationInitEvent.EVENT_ID, e -> generate());
-		middleware.registerEventHandler(SimulationFinalizeEvent.EVENT_ID, e -> finalise());
-		middleware.registerEventHandler(WorkloadUserFinished.EVENT_ID, e -> middleware.increaseMeasurementCount());
+		middleware.registerEventHandler(SimulationStopEvent.EVENT_ID, e -> finalise());
+		middleware.registerEventHandler(WorkloadUserFinishedEvent.EVENT_ID, e -> middleware.increaseMeasurementCount());
 	}
 
 	@Override

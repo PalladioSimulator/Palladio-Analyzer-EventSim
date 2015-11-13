@@ -107,7 +107,6 @@ public class SimulationManager implements ISimulationManager {
 
 	public void unbindMiddlewareFactory(final ComponentFactory factory) {
 		middlewareInstance.dispose();
-		middlewareService.unregister();
 	}
 
 	@Override

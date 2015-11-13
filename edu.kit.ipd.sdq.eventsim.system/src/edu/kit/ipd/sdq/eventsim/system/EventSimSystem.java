@@ -6,7 +6,6 @@ import org.palladiosimulator.pcm.usagemodel.EntryLevelSystemCall;
 import edu.kit.ipd.sdq.eventsim.api.ISystem;
 import edu.kit.ipd.sdq.eventsim.api.IUser;
 import edu.kit.ipd.sdq.eventsim.middleware.ISimulationMiddleware;
-import edu.kit.ipd.sdq.eventsim.middleware.events.IEventHandler;
 import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationFinalizeEvent;
 import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationInitEvent;
 
@@ -26,15 +25,22 @@ public class EventSimSystem implements ISystem {
 
 	public EventSimSystem(ISimulationMiddleware middleware) {
 		this.middleware = middleware;
-		this.registerEventHandler();
+		registerEventHandler();
 	}
 
-	/**
-	 * Cleans up the system simulation component
-	 */
-	public void finalise() {
-		this.model.finalise();
-		this.model = null;
+	private void registerEventHandler() {
+		middleware.registerEventHandler(SimulationInitEvent.EVENT_ID, e -> init());
+		middleware.registerEventHandler(SimulationFinalizeEvent.EVENT_ID, e -> finalise());
+	}
+
+	private void init() {
+		model = new EventSimSystemModel(middleware, activeResourceCallback, acquireCallback, releaseCallback);
+		model.init();
+	}
+	
+	private void finalise() {
+		model.finalise();
+		model = null;
 	}
 
 	/**
@@ -46,41 +52,10 @@ public class EventSimSystem implements ISystem {
 			logger.debug("Received service call from " + user.getId() + " on " + call.getEntityName() + " ("
 					+ call.getOperationSignature__EntryLevelSystemCall().getEntityName() + ")");
 		}
-		
-		// TODO where to place?
-		if(model == null) {
-			this.model = new EventSimSystemModel(middleware, activeResourceCallback, acquireCallback, releaseCallback);
-			this.model.init();
-		}
 
 		// delegate the system call to the event sim model
-		this.model.callService(user, call);
+		model.callService(user, call);
 
-	}
-
-	/**
-	 * Registers the event handler which will initialize the system simulation
-	 */
-	private void registerEventHandler() {
-		this.middleware.registerEventHandler(SimulationInitEvent.EVENT_ID, new IEventHandler<SimulationInitEvent>() {
-
-			@Override
-			public void handle(SimulationInitEvent event) {
-				// nothing to do
-				// EventSimSystem.this.init(); TODO remove?
-			}
-
-		});
-
-		this.middleware.registerEventHandler(SimulationFinalizeEvent.EVENT_ID,
-				new IEventHandler<SimulationFinalizeEvent>() {
-
-					@Override
-					public void handle(SimulationFinalizeEvent event) {
-						EventSimSystem.this.finalise();
-					}
-
-				});
 	}
 
 	@Override

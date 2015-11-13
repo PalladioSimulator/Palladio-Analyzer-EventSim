@@ -1,7 +1,7 @@
 package edu.kit.ipd.sdq.eventsim.workload;
 
 import edu.kit.ipd.sdq.eventsim.measurement.ProbeConfiguration;
-import edu.kit.ipd.sdq.eventsim.workload.interpreter.usage.UsageInterpreterConfiguration;
+import edu.kit.ipd.sdq.eventsim.workload.interpreter.UsageInterpreterConfiguration;
 
 public class WorkloadMeasurementConfiguration implements ProbeConfiguration {
 

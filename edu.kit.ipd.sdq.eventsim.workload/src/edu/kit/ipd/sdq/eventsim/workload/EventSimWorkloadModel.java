@@ -34,8 +34,8 @@ import edu.kit.ipd.sdq.eventsim.workload.entities.User;
 import edu.kit.ipd.sdq.eventsim.workload.events.ResumeUsageTraversalEvent;
 import edu.kit.ipd.sdq.eventsim.workload.generator.BuildWorkloadGenerator;
 import edu.kit.ipd.sdq.eventsim.workload.generator.IWorkloadGenerator;
-import edu.kit.ipd.sdq.eventsim.workload.interpreter.usage.UsageBehaviourInterpreter;
-import edu.kit.ipd.sdq.eventsim.workload.interpreter.usage.UsageInterpreterConfiguration;
+import edu.kit.ipd.sdq.eventsim.workload.interpreter.UsageBehaviourInterpreter;
+import edu.kit.ipd.sdq.eventsim.workload.interpreter.UsageInterpreterConfiguration;
 
 /**
  * The EventSim workload simulation model. This is the central class of the workload simulation.

@@ -6,9 +6,9 @@ import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 import edu.kit.ipd.sdq.eventsim.core.palladio.state.UserState;
 import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
+import edu.kit.ipd.sdq.eventsim.workload.interpreter.UsageBehaviourInterpreter;
+import edu.kit.ipd.sdq.eventsim.workload.interpreter.UsageInterpreterConfiguration;
 import edu.kit.ipd.sdq.eventsim.workload.interpreter.listener.IUsageTraversalListener;
-import edu.kit.ipd.sdq.eventsim.workload.interpreter.usage.UsageBehaviourInterpreter;
-import edu.kit.ipd.sdq.eventsim.workload.interpreter.usage.UsageInterpreterConfiguration;
 
 /**
  * This listener prints a debug message whenever an {@link AbstractUserAction} is about to be

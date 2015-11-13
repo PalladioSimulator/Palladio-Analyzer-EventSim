@@ -1,4 +1,4 @@
-package edu.kit.ipd.sdq.eventsim.workload.interpreter.usage;
+package edu.kit.ipd.sdq.eventsim.workload.interpreter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,12 +16,12 @@ import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.interpreter.InterpreterConfiguration;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
 import edu.kit.ipd.sdq.eventsim.workload.interpreter.listener.IUsageTraversalListener;
-import edu.kit.ipd.sdq.eventsim.workload.interpreter.usage.strategies.BranchTraversalStrategy;
-import edu.kit.ipd.sdq.eventsim.workload.interpreter.usage.strategies.DelayTraversalStrategy;
-import edu.kit.ipd.sdq.eventsim.workload.interpreter.usage.strategies.EntryLevelSystemCallTraversalStrategy;
-import edu.kit.ipd.sdq.eventsim.workload.interpreter.usage.strategies.LoopTraversalStrategy;
-import edu.kit.ipd.sdq.eventsim.workload.interpreter.usage.strategies.StartTraversalStrategy;
-import edu.kit.ipd.sdq.eventsim.workload.interpreter.usage.strategies.StopTraversalStrategy;
+import edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies.BranchTraversalStrategy;
+import edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies.DelayTraversalStrategy;
+import edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies.EntryLevelSystemCallTraversalStrategy;
+import edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies.LoopTraversalStrategy;
+import edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies.StartTraversalStrategy;
+import edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies.StopTraversalStrategy;
 
 public class UsageInterpreterConfiguration implements InterpreterConfiguration<AbstractUserAction, User, UserState> {
 

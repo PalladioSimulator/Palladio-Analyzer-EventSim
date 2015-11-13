@@ -1,4 +1,4 @@
-package edu.kit.ipd.sdq.eventsim.workload.interpreter.usage.strategies;
+package edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies;
 
 import org.apache.log4j.Logger;
 import org.palladiosimulator.pcm.core.PCMRandomVariable;
@@ -13,7 +13,7 @@ import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.interpreter.instructions.TraverseNextAction;
 import edu.kit.ipd.sdq.eventsim.interpreter.state.ITraversalStrategyState;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
-import edu.kit.ipd.sdq.eventsim.workload.interpreter.usage.instructions.TraverseUsageBehaviourInstruction;
+import edu.kit.ipd.sdq.eventsim.workload.interpreter.instructions.TraverseUsageBehaviourInstruction;
 
 /**
  * This traversal strategy is responsible for {@link Loop} actions.

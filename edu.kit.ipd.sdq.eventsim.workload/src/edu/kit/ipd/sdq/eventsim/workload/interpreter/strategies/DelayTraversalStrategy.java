@@ -1,4 +1,4 @@
-package edu.kit.ipd.sdq.eventsim.workload.interpreter.usage.strategies;
+package edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies;
 
 import org.palladiosimulator.pcm.core.PCMRandomVariable;
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;

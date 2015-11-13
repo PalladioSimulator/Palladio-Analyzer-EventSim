@@ -1,4 +1,4 @@
-package edu.kit.ipd.sdq.eventsim.workload.interpreter.usage;
+package edu.kit.ipd.sdq.eventsim.workload.interpreter;
 
 import java.util.List;
 

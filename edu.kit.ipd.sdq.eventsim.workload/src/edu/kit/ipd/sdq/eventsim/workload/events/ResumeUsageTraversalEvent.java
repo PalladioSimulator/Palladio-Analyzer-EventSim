@@ -6,7 +6,7 @@ import de.uka.ipd.sdq.simulation.abstractsimengine.AbstractSimEventDelegator;
 import edu.kit.ipd.sdq.eventsim.core.palladio.state.UserState;
 import edu.kit.ipd.sdq.eventsim.workload.EventSimWorkloadModel;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
-import edu.kit.ipd.sdq.eventsim.workload.interpreter.usage.UsageBehaviourInterpreter;
+import edu.kit.ipd.sdq.eventsim.workload.interpreter.UsageBehaviourInterpreter;
 
 /**
  * Schedule this event to resume the traversal of a {@link UsageScenario}.

@@ -10,14 +10,11 @@ import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationEvent;
  * @author Philipp Merkle
  * 
  */
-public class SystemRequestSpawnEvent extends SimulationEvent {
-
-	public static final String EVENT_ID = SimulationEvent.ID_PREFIX + "system/REQUEST_START";
+public class SystemRequestSpawnEvent implements SimulationEvent {
 
 	private IRequest request;
 
 	public SystemRequestSpawnEvent(IRequest request) {
-		super(EVENT_ID);
 		this.request = request;
 	}
 

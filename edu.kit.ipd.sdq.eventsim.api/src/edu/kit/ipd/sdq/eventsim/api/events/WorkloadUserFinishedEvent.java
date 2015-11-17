@@ -10,14 +10,11 @@ import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationEvent;
  * @author Philipp Merkle
  * 
  */
-public class WorkloadUserFinishedEvent extends SimulationEvent {
-
-	public static final String EVENT_ID = SimulationEvent.ID_PREFIX + "workload/USER_FINISHED";
+public class WorkloadUserFinishedEvent implements SimulationEvent {
 
 	private IUser user;
 
 	public WorkloadUserFinishedEvent(IUser user) {
-		super(EVENT_ID);
 		this.user = user;
 	}
 

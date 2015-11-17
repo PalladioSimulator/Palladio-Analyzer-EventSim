@@ -1,11 +1,9 @@
 package edu.kit.ipd.sdq.eventsim.middleware.events;
 
-public class SimulationStopEvent extends SimulationEvent {
-
-	public static final String EVENT_ID = SimulationEvent.ID_PREFIX + "middleware/SIMULATION_FINALIZE";
+public class SimulationStopEvent implements SimulationEvent {
 
 	public SimulationStopEvent() {
-		super(SimulationStopEvent.EVENT_ID);
+		// nothing to do
 	}
 
 }

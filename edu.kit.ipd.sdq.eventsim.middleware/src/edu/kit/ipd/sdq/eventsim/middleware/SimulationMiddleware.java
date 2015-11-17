@@ -1,22 +1,9 @@
 package edu.kit.ipd.sdq.eventsim.middleware;
 
-import java.util.ArrayList;
-import java.util.Dictionary;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 
 import org.apache.log4j.Logger;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.osgi.framework.ServiceRegistration;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventAdmin;
-import org.osgi.service.event.EventConstants;
-import org.osgi.service.event.EventHandler;
 
 import de.uka.ipd.sdq.probfunction.math.IRandomGenerator;
 import de.uka.ipd.sdq.simucomframework.SimuComDefaultRandomNumberGenerator;
@@ -28,6 +15,7 @@ import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationControl;
 import de.uka.ipd.sdq.simulation.preferences.SimulationPreferencesHelper;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 import edu.kit.ipd.sdq.eventsim.measurement.r.RMeasurementStore;
+import edu.kit.ipd.sdq.eventsim.middleware.events.EventManager;
 import edu.kit.ipd.sdq.eventsim.middleware.events.IEventHandler;
 import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationEvent;
 import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationStopEvent;
@@ -52,16 +40,14 @@ public class SimulationMiddleware implements ISimulationMiddleware {
 	private ISimulationControl simControl;
 	private ISimulationConfiguration simConfig;
 	private PCMModel pcmModel;
-	private EventAdmin eventAdmin;
 	private int measurementCount;
-	private List<ServiceRegistration<?>> eventHandlerRegistry;
 	private IRandomGenerator randomNumberGenerator;
-	
 	private MeasurementStorage measurementStorage;
+	private EventManager eventManager;
 
 	public SimulationMiddleware() {
-		this.eventHandlerRegistry = new ArrayList<ServiceRegistration<?>>();
-
+		eventManager = new EventManager();
+		
 		// register the middleware event handlers
 		this.registerEventHandler();
 	}
@@ -90,11 +76,6 @@ public class SimulationMiddleware implements ISimulationMiddleware {
 		this.simModel = new SimulationModel(factory, this);
 		factory.setModel(simModel);
 		this.simControl = simModel.getSimulationControl();
-
-		// Prepare event admin service
-		BundleContext bundleContext = Activator.getContext();
-		ServiceReference<EventAdmin> eventAdminServiceReference = bundleContext.getServiceReference(EventAdmin.class);
-		this.eventAdmin = bundleContext.getService(eventAdminServiceReference);
 
 		this.setupStopConditions(config);
 	}
@@ -131,21 +112,8 @@ public class SimulationMiddleware implements ISimulationMiddleware {
 		this.getSimulationControl().addStopCondition(new MaxMeasurementsStopCondition(this));
 	}
 
-	/**
-	 * Register event handler to react on specific simulation events.
-	 */
 	private void registerEventHandler() {
-
-		// setup system processed request event listener
-		this.registerEventHandler(SimulationStopEvent.EVENT_ID, new IEventHandler<SimulationStopEvent>() {
-
-			@Override
-			public void handle(SimulationStopEvent event) {
-				finalise();
-			}
-
-		});
-
+		registerEventHandler(SimulationStopEvent.class, e -> finalise());
 	}
 
 	/**
@@ -192,55 +160,23 @@ public class SimulationMiddleware implements ISimulationMiddleware {
 	/**
 	 * Called after a simulation run to perform some clean up.
 	 */
-	private void finalise() {
-		logger.debug("Cleaning up...");
-		
+	private void finalise() {		
 		notifyStopListeners();
-
 		measurementStorage.finish();
-		
-		// unregister services
-		for (ServiceRegistration<?> reg : eventHandlerRegistry) {
-			reg.unregister();
-		}
-		
+		eventManager.unregisterAllEventHandlers();
 		logger.info("Simulation took " + this.getSimulationControl().getCurrentSimulationTime() + " simulation seconds");
 	}
 
 	@Override
 	public void triggerEvent(SimulationEvent event) {
-		if (logger.isDebugEnabled()) {
-			logger.debug("Event triggered (" + event.getEventId() + ")");
-		}
-
-		// we delegate the event to the OSGi event admin service
-		Map<String, Object> properties = new HashMap<String, Object>();
-		properties.put(SimulationEvent.SIMCOMP_EVENT_PROPERTY, event);
-		eventAdmin.sendEvent(new Event(event.getEventId(), properties));
-
+		// delegate event processing
+		eventManager.triggerEvent(event);
 	}
 
 	@Override
-	public <T extends SimulationEvent> void registerEventHandler(String eventId, final IEventHandler<T> handler) {
-
-		// we delegate the event handling to the OSGi event admin service
-		BundleContext bundleContext = Activator.getContext();
-		Dictionary<String, Object> properties = new Hashtable<String, Object>();
-		properties.put(EventConstants.EVENT_TOPIC, eventId);
-		ServiceRegistration<?> handlerService = bundleContext.registerService(EventHandler.class.getName(), new EventHandler() {
-
-			@Override
-			@SuppressWarnings("unchecked")
-			public void handleEvent(Event event) {
-				// TODO get rid of cast?
-				T simulationEvent = (T) event.getProperty(SimulationEvent.SIMCOMP_EVENT_PROPERTY);
-				handler.handle(simulationEvent);
-			}
-
-		}, properties);
-
-		// store service registration for later cleanup
-		this.eventHandlerRegistry.add(handlerService);
+	public <T extends SimulationEvent> void registerEventHandler(Class<T> eventType, final IEventHandler<T> handler) {
+		// delegate handler registration
+		eventManager.registerEventHandler(eventType, handler);
 	}
 
 	/**
@@ -311,7 +247,9 @@ public class SimulationMiddleware implements ISimulationMiddleware {
 	}
 
 	/**
-	 * Notfies all simulation observers that the simulation has stopped
+	 * Notifies all simulation observers that the simulation has stopped.
+	 * 
+	 * TODO this method is redundant to {@link SimulationStopEvent} and should be removed
 	 */
 	private void notifyStopListeners() {
 		AbstractSimulationConfig config = (AbstractSimulationConfig) this.getSimulationConfiguration();

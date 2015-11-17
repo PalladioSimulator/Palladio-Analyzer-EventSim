@@ -29,8 +29,8 @@ public class EventSimSystem implements ISystem {
 	}
 
 	private void registerEventHandler() {
-		middleware.registerEventHandler(SimulationInitEvent.EVENT_ID, e -> init());
-		middleware.registerEventHandler(SimulationStopEvent.EVENT_ID, e -> finalise());
+		middleware.registerEventHandler(SimulationInitEvent.class, e -> init());
+		middleware.registerEventHandler(SimulationStopEvent.class, e -> finalise());
 	}
 
 	private void init() {

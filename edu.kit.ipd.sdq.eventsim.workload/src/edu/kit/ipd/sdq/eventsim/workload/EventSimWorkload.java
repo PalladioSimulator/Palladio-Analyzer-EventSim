@@ -30,9 +30,9 @@ public class EventSimWorkload implements IWorkload {
 	}
 
 	private void registerEventHandler() {
-		middleware.registerEventHandler(SimulationInitEvent.EVENT_ID, e -> generate());
-		middleware.registerEventHandler(SimulationStopEvent.EVENT_ID, e -> finalise());
-		middleware.registerEventHandler(WorkloadUserFinishedEvent.EVENT_ID, e -> middleware.increaseMeasurementCount());
+		middleware.registerEventHandler(SimulationInitEvent.class, e -> generate());
+		middleware.registerEventHandler(SimulationStopEvent.class, e -> finalise());
+		middleware.registerEventHandler(WorkloadUserFinishedEvent.class, e -> middleware.increaseMeasurementCount());
 	}
 
 	@Override

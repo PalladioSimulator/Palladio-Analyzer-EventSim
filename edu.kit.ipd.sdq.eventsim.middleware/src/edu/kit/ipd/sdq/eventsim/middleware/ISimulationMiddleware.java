@@ -96,24 +96,22 @@ public interface ISimulationMiddleware {
 	ISimulationControl getSimulationControl();
 
 	/**
-	 * Triggers a specific simulation event. All registered event handlers are
-	 * processed synchronously.
+	 * Triggers the specified simulation event. Does not return to the caller until delivery of the event is completed.
 	 * 
 	 * @param event
-	 *            The event type to trigger
+	 *            the event to trigger
 	 */
 	void triggerEvent(SimulationEvent event);
 
 	/**
-	 * Registers a new event handler for a specific event. This event handler is
-	 * not unregistered on cleanup of the simulation middleware.
+	 * Registers a new event handler for events of a specified type.
 	 * 
-	 * @param eventId
+	 * @param eventType
 	 *            The event type to listen for
 	 * @param handler
-	 *            The event handler callback.
+	 *            The event handler
 	 */
-	<T extends SimulationEvent> void registerEventHandler(String eventId, IEventHandler<T> handler);
+	<T extends SimulationEvent> void registerEventHandler(Class<T> eventType, final IEventHandler<T> handler);
 
 	/**
 	 * Gives access the the amount of measurements done in the current

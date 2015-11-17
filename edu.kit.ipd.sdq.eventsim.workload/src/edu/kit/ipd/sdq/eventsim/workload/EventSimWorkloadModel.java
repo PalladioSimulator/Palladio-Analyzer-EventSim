@@ -24,7 +24,6 @@ import edu.kit.ipd.sdq.eventsim.measurement.MeasurementFacade;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 import edu.kit.ipd.sdq.eventsim.measurement.Metric;
 import edu.kit.ipd.sdq.eventsim.middleware.ISimulationMiddleware;
-import edu.kit.ipd.sdq.eventsim.middleware.events.IEventHandler;
 import edu.kit.ipd.sdq.eventsim.workload.calculators.TimeSpanBetweenUserActionsCalculator;
 import edu.kit.ipd.sdq.eventsim.workload.command.usage.FindActionsInUsageScenario;
 import edu.kit.ipd.sdq.eventsim.workload.command.usage.FindAllUserActionsByType;
@@ -110,34 +109,21 @@ public class EventSimWorkloadModel extends AbstractEventSimModel {
 	 * Register event handler to react on specific simulation events.
 	 */
 	private void registerEventHandler() {
-
+		// TODO can we get rid of this state exchange "workaround"? perhaps just by maintaining a map between Users and
+		// their Requests?
+		
 		// setup system processed request event listener
-		this.getSimulationMiddleware().registerEventHandler(SystemRequestFinishedEvent.EVENT_ID,
-				new IEventHandler<SystemRequestFinishedEvent>() {
+		this.getSimulationMiddleware().registerEventHandler(SystemRequestFinishedEvent.class, event -> {
+			IRequest request = event.getRequest();
+			User user = (User) request.getUser();
 
-					@Override
-					public void handle(SystemRequestFinishedEvent simulationEvent) {
-						// resume usage traversal after system finished processing
-						IRequest request = simulationEvent.getRequest();
-						User user = (User) request.getUser();
-
-						new ResumeUsageTraversalEvent(EventSimWorkloadModel.this, user.getUserState()).schedule(
-								(User) request.getUser(), 0);
-					}
-
-				});
+			new ResumeUsageTraversalEvent(EventSimWorkloadModel.this, user.getUserState())
+					.schedule((User) request.getUser(), 0);
+		});
 
 		// setup state exchange service cleanup listener
-		this.getSimulationMiddleware().registerEventHandler(WorkloadUserFinishedEvent.EVENT_ID,
-				new IEventHandler<WorkloadUserFinishedEvent>() {
-
-					@Override
-					public void handle(WorkloadUserFinishedEvent simulationEvent) {
-						StateExchange.cleanupUserState(simulationEvent.getUser().getId());
-					}
-
-				});
-
+		this.getSimulationMiddleware().registerEventHandler(WorkloadUserFinishedEvent.class,
+				event -> StateExchange.cleanupUserState(event.getUser().getId()));
 	}
 
 	private void setupMeasurements() {

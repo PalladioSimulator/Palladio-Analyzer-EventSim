@@ -122,8 +122,8 @@ public class EventSimSystemModel extends AbstractEventSimModel {
 	private void registerEventHandler() {
 
 		// setup system call parameter handling
-		this.getSimulationMiddleware().registerEventHandler(SystemRequestSpawnEvent.EVENT_ID, new BeforeSystemCallParameterHandler(this));
-		this.getSimulationMiddleware().registerEventHandler(SystemRequestFinishedEvent.EVENT_ID, new AfterSystemCallParameterHandler());
+		this.getSimulationMiddleware().registerEventHandler(SystemRequestSpawnEvent.class, new BeforeSystemCallParameterHandler(this));
+		this.getSimulationMiddleware().registerEventHandler(SystemRequestFinishedEvent.class, new AfterSystemCallParameterHandler());
 
 	}
 

@@ -81,8 +81,8 @@ public class MiddlewareComponent implements ISimulationMiddleware {
 		middlewareDelegate.triggerEvent(event);
 	}
 
-	public <T extends SimulationEvent> void registerEventHandler(String eventId, IEventHandler<T> handler) {
-		middlewareDelegate.registerEventHandler(eventId, handler);
+	public <T extends SimulationEvent> void registerEventHandler(Class<T> eventType, final IEventHandler<T> handler) {
+		middlewareDelegate.registerEventHandler(eventType, handler);
 	}
 
 	public int getMeasurementCount() {

@@ -10,14 +10,11 @@ import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationEvent;
  * @author Philipp Merkle
  * 
  */
-public class SystemRequestFinishedEvent extends SimulationEvent {
-
-	public static final String EVENT_ID = SimulationEvent.ID_PREFIX + "system/REQUEST_PROCESSED";
+public class SystemRequestFinishedEvent implements SimulationEvent {
 
 	private IRequest request;
 
 	public SystemRequestFinishedEvent(IRequest request) {
-		super(EVENT_ID);
 		this.request = request;
 	}
 

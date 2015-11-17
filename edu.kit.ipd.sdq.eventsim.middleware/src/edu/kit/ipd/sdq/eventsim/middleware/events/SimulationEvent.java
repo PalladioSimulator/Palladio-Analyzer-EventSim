@@ -1,32 +1,24 @@
 package edu.kit.ipd.sdq.eventsim.middleware.events;
 
 /**
- * A simulation event triggered by a simulation component.
+ * A simulation event triggered or handled by a simulation component.
  * 
  * @author Christoph Föhrdes
+ * @author Philipp Merkle
  */
-public abstract class SimulationEvent {
+public interface SimulationEvent {
 
 	/**
-	 * Prefix for an event ID to identify simulation component events.
+	 * property name indicating the {@code SimulationEvent} encapsulated by the OSGi event to be used as key in a
+	 * properties map
 	 */
-	public static String ID_PREFIX = "simcomp/";
-
-	public static String SIMCOMP_EVENT_PROPERTY = "simcomp.event";
-
-	private String eventId;
-
-	public SimulationEvent(String eventId) {
-		this.eventId = eventId;
-	}
+	public static String ENCAPSULATED_EVENT = "encapsulated.event";
 
 	/**
-	 * The unique ID for a specific event.
-	 * 
-	 * @return A unique event ID
+	 * @return the unique topic name of the given event type.
 	 */
-	public String getEventId() {
-		return this.eventId;
+	public static String topicName(Class<? extends SimulationEvent> eventType) {
+		return eventType.getName().replaceAll("\\.", "/");
 	}
 
 }

@@ -7,8 +7,10 @@ import edu.kit.ipd.sdq.eventsim.measurement.MeasuringPoint;
 
 /**
  * 
- * A probe that is attached to a {@link MeasuringPoint} and continuously produces {@link Measurement} whenever the
- * observed {@link MeasuringPoint}'s state changes.
+ * A probe observes a {@link MeasuringPoint} and produces a {@link Measurement} whenever the property observed by the
+ * {@code MeasuringPoint} changes.
+ * <p>
+ * TODO document caching
  * 
  * @author Philipp Merkle
  *
@@ -64,9 +66,9 @@ public interface IProbe<E, T> extends MeasurementProducer<E, T> {
 			}
 		};
 	}
-	
+
 	public void enableCaching();
-	
-	public void disableCaching();	
+
+	public void disableCaching();
 
 }

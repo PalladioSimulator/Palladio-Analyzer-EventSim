@@ -6,7 +6,6 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: edu.kit.ipd.sdq.eventsim.system.Activator
 Require-Bundle: de.uka.ipd.sdq.simulation.abstractsimengine;bundle-version="1.0.0",
  edu.kit.ipd.sdq.eventsim.resources;bundle-version="1.0.0",
- edu.kit.ipd.sdq.eventsim.core.palladio;bundle-version="1.0.0",
  org.palladiosimulator.pcm;bundle-version="4.0.0",
  edu.kit.ipd.sdq.eventsim.measurement;bundle-version="1.0.0",
  de.uka.ipd.sdq.probfunction.math,

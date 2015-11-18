@@ -19,6 +19,9 @@ import org.osgi.service.event.EventHandler;
 import edu.kit.ipd.sdq.eventsim.middleware.Activator;
 
 /**
+ * Wraps the OSGi {@link EventAdmin} service for better type safety. {@link SimulationEvent}s and {@link IEventHandler}s
+ * are strongly typed, whereas the classical way of using {@link Event}s (hidden by this wrapper) involves undesired
+ * type casts.
  * 
  * @author Christoph Föhrdes
  * @author Philipp Merkle
@@ -26,24 +29,31 @@ import edu.kit.ipd.sdq.eventsim.middleware.Activator;
  */
 public class EventManager {
 
-	private static final Logger logger = Logger.getLogger(EventManager.class);
-	
+	private static final Logger log = Logger.getLogger(EventManager.class);
+
 	private EventAdmin eventAdmin;
-	
+
 	private List<ServiceRegistration<?>> handlerRegistrations;
-	
+
 	public EventManager() {
 		handlerRegistrations = new ArrayList<ServiceRegistration<?>>();
-		
-		// Prepare event admin service
+
+		// discover event admin service
 		BundleContext bundleContext = Activator.getContext();
 		ServiceReference<EventAdmin> eventAdminServiceReference = bundleContext.getServiceReference(EventAdmin.class);
 		eventAdmin = bundleContext.getService(eventAdminServiceReference);
 	}
-	
+
+	/**
+	 * Delivers the specified {@code event} to interested event handlers. Returns not until all interested event
+	 * handlers processed the event completely (synchronous delivery).
+	 * 
+	 * @param event
+	 *            the event to be delivered
+	 */
 	public void triggerEvent(SimulationEvent event) {
-		if (logger.isDebugEnabled()) {
-			logger.debug("Event triggered (" + SimulationEvent.topicName(event.getClass()) + ")");
+		if (log.isDebugEnabled()) {
+			log.debug("Event triggered (" + SimulationEvent.topicName(event.getClass()) + ")");
 		}
 
 		// we delegate the event to the OSGi event admin service
@@ -53,31 +63,33 @@ public class EventManager {
 
 	}
 
+	/**
+	 * Registers the specified handler with events of the specified type.
+	 * 
+	 * @param eventType
+	 *            the type of events handled by the handler
+	 * @param handler
+	 *            the event handler
+	 */
 	public <T extends SimulationEvent> void registerEventHandler(Class<T> eventType, final IEventHandler<T> handler) {
-		// we delegate the event handling to the OSGi event admin service
 		BundleContext bundleContext = Activator.getContext();
 		Dictionary<String, Object> properties = new Hashtable<String, Object>();
 		properties.put(EventConstants.EVENT_TOPIC, SimulationEvent.topicName(eventType));
-		ServiceRegistration<EventHandler> handlerService = bundleContext.registerService(EventHandler.class, new EventHandler() {
-
-			@Override
-			public void handleEvent(Event event) {
-				// TODO get rid of cast?
-				@SuppressWarnings("unchecked")
-				T simulationEvent = (T) event.getProperty(SimulationEvent.ENCAPSULATED_EVENT);
-				handler.handle(simulationEvent);
-			}
-
-		}, properties);
+		ServiceRegistration<EventHandler> handlerRegistration = bundleContext.registerService(EventHandler.class,
+				event -> {
+					@SuppressWarnings("unchecked")
+					T encapsulatedEvent = (T) event.getProperty(SimulationEvent.ENCAPSULATED_EVENT);
+					handler.handle(encapsulatedEvent);
+				} , properties);
 
 		// store service registration for later cleanup
-		handlerRegistrations.add(handlerService);
+		handlerRegistrations.add(handlerRegistration);
 	}
-	
+
 	public void unregisterAllEventHandlers() {
 		for (ServiceRegistration<?> reg : handlerRegistrations) {
 			reg.unregister();
 		}
 	}
-	
+
 }

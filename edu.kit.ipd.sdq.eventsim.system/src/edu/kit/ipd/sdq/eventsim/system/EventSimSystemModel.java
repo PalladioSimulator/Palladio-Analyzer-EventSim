@@ -16,9 +16,6 @@ import edu.kit.ipd.sdq.eventsim.api.ISystem.PassiveResourceReleaseListener;
 import edu.kit.ipd.sdq.eventsim.api.IUser;
 import edu.kit.ipd.sdq.eventsim.api.events.SystemRequestFinishedEvent;
 import edu.kit.ipd.sdq.eventsim.api.events.SystemRequestSpawnEvent;
-import edu.kit.ipd.sdq.eventsim.core.palladio.state.IUserState;
-import edu.kit.ipd.sdq.eventsim.core.palladio.state.StateExchange;
-import edu.kit.ipd.sdq.eventsim.core.palladio.state.UserState;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementFacade;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 import edu.kit.ipd.sdq.eventsim.middleware.ISimulationMiddleware;
@@ -184,18 +181,8 @@ public class EventSimSystemModel extends AbstractEventSimModel {
 		// spawn a new EventSim request
 		final Request request = new Request(this, call, user);
 
-		new BeginSeffTraversalEvent(this, component, signature, (UserState) getUserState(user)).schedule(request, 0);
-	}
-
-	/**
-	 * Fetches the user state created by the workload component from the state
-	 * exchange service.
-	 * 
-	 * @param user
-	 * @return A user state object
-	 */
-	private IUserState getUserState(IUser user) {
-		return StateExchange.getUserState(user.getId());
+		new BeginSeffTraversalEvent(this, component, signature, user.getStochasticExpressionContext()).schedule(request,
+				0);
 	}
 
 	public SeffBehaviourInterpreter getSeffInterpreter() {

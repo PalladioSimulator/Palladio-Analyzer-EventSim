@@ -9,13 +9,12 @@ import org.palladiosimulator.pcm.usagemodel.Start;
 import org.palladiosimulator.pcm.usagemodel.UsageScenario;
 
 import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
-import edu.kit.ipd.sdq.eventsim.core.palladio.state.StateExchange;
-import edu.kit.ipd.sdq.eventsim.core.palladio.state.UserState;
 import edu.kit.ipd.sdq.eventsim.interpreter.BehaviourInterpreter;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.workload.command.usage.FindActionInUsageBehaviour;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
 import edu.kit.ipd.sdq.eventsim.workload.interpreter.listener.IUsageTraversalListener;
+import edu.kit.ipd.sdq.eventsim.workload.interpreter.state.UserState;
 
 /**
  * An interpreter for {@link UsageScenario}s.
@@ -42,9 +41,7 @@ public class UsageBehaviourInterpreter extends BehaviourInterpreter<AbstractUser
 		UserState state = new UserState();
 		state.pushStackFrame();
 		state.getStoExContext().getStack().createAndPushNewStackFrame();
-
-		// store created state to the state exchange service
-		StateExchange.storeUserState(user.getId(), state);
+		user.setUserState(state);
 
 		// find start action
 		final AbstractEventSimModel model = user.getEventSimModel();

@@ -20,8 +20,6 @@ public class EventSimWorkload implements IWorkload {
 	private ISimulationMiddleware middleware;
 	private EventSimWorkloadModel model;
 
-	private SystemCallListener systemCallCallback;
-
 	public EventSimWorkload(ISimulationMiddleware middleware) {
 		this.middleware = middleware;
 
@@ -36,17 +34,11 @@ public class EventSimWorkload implements IWorkload {
 	}
 
 	@Override
-	public void onSystemCall(SystemCallListener callback) {
-		// TODO allow more than one system!?
-		systemCallCallback = callback;
-	}
-
-	@Override
 	public void generate() {
 		logger.debug("Generating workload");
 
 		// create the event sim model
-		model = new EventSimWorkloadModel(this.middleware, systemCallCallback);
+		model = new EventSimWorkloadModel(this.middleware);
 
 		// launch the event generation
 		model.init();

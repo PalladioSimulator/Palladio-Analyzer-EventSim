@@ -3,12 +3,13 @@ package edu.kit.ipd.sdq.eventsim.workload.entities;
 import org.apache.log4j.Logger;
 import org.palladiosimulator.pcm.usagemodel.UsageScenario;
 
+import de.uka.ipd.sdq.simucomframework.variables.StackContext;
 import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
 import edu.kit.ipd.sdq.eventsim.api.IUser;
-import edu.kit.ipd.sdq.eventsim.core.palladio.state.UserState;
 import edu.kit.ipd.sdq.eventsim.debug.DebugEntityListener;
 import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
 import edu.kit.ipd.sdq.eventsim.workload.generator.IWorkloadGenerator;
+import edu.kit.ipd.sdq.eventsim.workload.interpreter.state.UserState;
 
 /**
  * This entity represents a user of the system under simulation. Users issue system calls while
@@ -69,6 +70,11 @@ public class User extends EventSimEntity implements IUser {
 
 	public void setUserState(UserState state) {
 		this.state = state;
+	}
+
+	@Override
+	public StackContext getStochasticExpressionContext() {
+		return state.getStoExContext();
 	}
 
 }

@@ -11,11 +11,11 @@ import org.eclipse.emf.ecore.EClass;
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 import org.palladiosimulator.pcm.usagemodel.UsagemodelPackage;
 
-import edu.kit.ipd.sdq.eventsim.core.palladio.state.UserState;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.interpreter.InterpreterConfiguration;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
 import edu.kit.ipd.sdq.eventsim.workload.interpreter.listener.IUsageTraversalListener;
+import edu.kit.ipd.sdq.eventsim.workload.interpreter.state.UserState;
 import edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies.BranchTraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies.DelayTraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies.EntryLevelSystemCallTraversalStrategy;

@@ -7,7 +7,6 @@ import org.palladiosimulator.pcm.seff.AbstractAction;
 import org.palladiosimulator.pcm.seff.ResourceDemandingSEFF;
 
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
-import edu.kit.ipd.sdq.eventsim.core.palladio.state.UserState;
 import edu.kit.ipd.sdq.eventsim.interpreter.state.AbstractInterpreterState;
 import edu.kit.ipd.sdq.eventsim.interpreter.state.ITraversalStrategyState;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
@@ -27,12 +26,10 @@ public class RequestState extends AbstractInterpreterState<AbstractAction> imple
 
     private final Stack<RequestStateStackFrame> stack;
     private final StackContext stoExContext;
-    private final UserState usageState;
 
-    public RequestState(final UserState usageState, final StackContext stoExContext) {
+    public RequestState(final StackContext stoExContext) {
         this.stack = new Stack<RequestStateStackFrame>();
         this.stoExContext = stoExContext;
-        this.usageState = usageState;
     }
 
     /**
@@ -163,10 +160,6 @@ public class RequestState extends AbstractInterpreterState<AbstractAction> imple
         this.stack.peek().setPreviousPosition(previousPosition);
     }
 
-    public UserState getUsageState() {
-        return usageState;
-    }
-
     /**
      * Returns the context that is used to evaluate stochastic expressions (StoEx). The context
      * comprises a stack that contains the local variables of service calls. While traversing a
@@ -186,7 +179,7 @@ public class RequestState extends AbstractInterpreterState<AbstractAction> imple
     public RequestState clone() throws CloneNotSupportedException {
         StackContext stoExContextCopy = new StackContext();
         stoExContextCopy.getStack().pushStackFrame(this.stoExContext.getStack().currentStackFrame().copyFrame());
-        RequestState copy = new RequestState(this.usageState, stoExContextCopy);
+        RequestState copy = new RequestState(stoExContextCopy);
 
         // copy stack
         RequestStateStackFrame[] frames = new RequestStateStackFrame[this.stack.size()];

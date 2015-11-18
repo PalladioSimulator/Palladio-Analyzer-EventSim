@@ -1,7 +1,6 @@
 package edu.kit.ipd.sdq.eventsim.system.interpreter.state;
 
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
-import edu.kit.ipd.sdq.eventsim.core.palladio.state.UserState;
 
 /**
  * 
@@ -12,12 +11,12 @@ public class ForkedRequestState extends RequestState {
 
     private IRequestState parentRequestState;
 
-    private ForkedRequestState(UserState usageState, StackContext stoExContext) {
-        super(usageState, stoExContext);
+    private ForkedRequestState(StackContext stoExContext) {
+        super(stoExContext);
     }
 
     public ForkedRequestState(RequestState requestState, StackContext stoExContext) {
-        this(requestState.getUsageState(), stoExContext);
+        this(stoExContext);
         this.parentRequestState = requestState;
     }
 

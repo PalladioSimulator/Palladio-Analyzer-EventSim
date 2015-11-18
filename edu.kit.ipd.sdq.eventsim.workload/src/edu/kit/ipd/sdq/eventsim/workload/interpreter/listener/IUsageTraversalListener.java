@@ -2,9 +2,9 @@ package edu.kit.ipd.sdq.eventsim.workload.interpreter.listener;
 
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 
-import edu.kit.ipd.sdq.eventsim.core.palladio.state.UserState;
 import edu.kit.ipd.sdq.eventsim.interpreter.listener.ITraversalListener;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
+import edu.kit.ipd.sdq.eventsim.workload.interpreter.state.UserState;
 
 /**
  * A usage traversal listener observes a {@link UsageTraversal} for its traversal progress.

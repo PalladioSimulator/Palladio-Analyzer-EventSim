@@ -13,6 +13,8 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import edu.kit.ipd.sdq.eventsim.api.ISystem;
 import edu.kit.ipd.sdq.eventsim.api.IWorkload;
+import edu.kit.ipd.sdq.eventsim.api.events.EntryLevelSystemCallEvent;
+import edu.kit.ipd.sdq.eventsim.middleware.ISimulationMiddleware;
 import edu.kit.ipd.sdq.eventsim.workload.EventSimWorkload;
 
 @Component(factory = "workload.factory")
@@ -43,8 +45,9 @@ public class WorkloadComponent implements IWorkload {
 		// delegate invocations of the IWorkload interface to the workload delegate
 		workloadDelegate = new EventSimWorkload(compositionManager.getMiddleware(simulationId));
 
-		// register callbacks for redirecting calls to required services
-		workloadDelegate.onSystemCall((user, call) -> system.callService(user, call));
+		// wire workload's required services
+		ISimulationMiddleware middleware = compositionManager.getMiddleware(simulationId);
+		middleware.registerEventHandler(EntryLevelSystemCallEvent.class, e -> system.callService(e.getUser(), e.getCall()));
 	}
 	
 	@Deactivate
@@ -73,10 +76,6 @@ public class WorkloadComponent implements IWorkload {
 
 	public void generate() {
 		workloadDelegate.generate();
-	}
-
-	public void onSystemCall(SystemCallListener callback) {
-		workloadDelegate.onSystemCall(callback);
 	}
 
 }

@@ -3,7 +3,6 @@ package edu.kit.ipd.sdq.eventsim.workload;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.osgi.framework.BundleContext;
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 import org.palladiosimulator.pcm.usagemodel.EntryLevelSystemCall;
 import org.palladiosimulator.pcm.usagemodel.Start;
@@ -14,12 +13,7 @@ import de.uka.ipd.sdq.probfunction.math.impl.ProbabilityFunctionFactoryImpl;
 import de.uka.ipd.sdq.simucomframework.variables.cache.StoExCache;
 import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
 import edu.kit.ipd.sdq.eventsim.api.IRequest;
-import edu.kit.ipd.sdq.eventsim.api.IWorkload.SystemCallListener;
 import edu.kit.ipd.sdq.eventsim.api.events.SystemRequestFinishedEvent;
-import edu.kit.ipd.sdq.eventsim.api.events.WorkloadUserFinishedEvent;
-import edu.kit.ipd.sdq.eventsim.core.palladio.state.IStateExchangeService;
-import edu.kit.ipd.sdq.eventsim.core.palladio.state.StateExchange;
-import edu.kit.ipd.sdq.eventsim.core.palladio.state.StateExchangeService;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementFacade;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 import edu.kit.ipd.sdq.eventsim.measurement.Metric;
@@ -55,15 +49,8 @@ public class EventSimWorkloadModel extends AbstractEventSimModel {
 
 	private MeasurementFacade<WorkloadMeasurementConfiguration> measurementFacade;
 	
-	private SystemCallListener systemCallCallback;
-	
-	public EventSimWorkloadModel(ISimulationMiddleware middleware, SystemCallListener systemCallCallback) {
+	public EventSimWorkloadModel(ISimulationMiddleware middleware) {
 		super(middleware);
-		this.systemCallCallback = systemCallCallback;
-	}
-	
-	public SystemCallListener getSystemCallCallback() {
-		return systemCallCallback;
 	}
 	
 	/**
@@ -88,8 +75,7 @@ public class EventSimWorkloadModel extends AbstractEventSimModel {
 
 		registerEventHandler();
 
-		registerStateExchangeService();
-
+		// TODO should not reside in init()
 		// ...and start the simulation by generating the workload
 		final List<IWorkloadGenerator> workloadGenerators = this.execute(new BuildWorkloadGenerator(this));
 		for (final IWorkloadGenerator d : workloadGenerators) {
@@ -98,32 +84,17 @@ public class EventSimWorkloadModel extends AbstractEventSimModel {
 	}
 
 	/**
-	 * Registers the Palladio Specific EventSim state exchange service
-	 */
-	private void registerStateExchangeService() {
-		BundleContext bundleContext = Activator.getContext();
-		bundleContext.registerService(IStateExchangeService.class, new StateExchangeService(), null);
-	}
-
-	/**
 	 * Register event handler to react on specific simulation events.
 	 */
 	private void registerEventHandler() {
-		// TODO can we get rid of this state exchange "workaround"? perhaps just by maintaining a map between Users and
-		// their Requests?
-		
+		// TODO perhaps move to EntryLevelSystemCallTraversalStrategy
+
 		// setup system processed request event listener
 		this.getSimulationMiddleware().registerEventHandler(SystemRequestFinishedEvent.class, event -> {
 			IRequest request = event.getRequest();
 			User user = (User) request.getUser();
-
-			new ResumeUsageTraversalEvent(EventSimWorkloadModel.this, user.getUserState())
-					.schedule((User) request.getUser(), 0);
+			new ResumeUsageTraversalEvent(EventSimWorkloadModel.this, user.getUserState()).schedule(user, 0);
 		});
-
-		// setup state exchange service cleanup listener
-		this.getSimulationMiddleware().registerEventHandler(WorkloadUserFinishedEvent.class,
-				event -> StateExchange.cleanupUserState(event.getUser().getId()));
 	}
 
 	private void setupMeasurements() {

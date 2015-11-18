@@ -3,8 +3,8 @@ package edu.kit.ipd.sdq.eventsim.system.events;
 import org.palladiosimulator.pcm.repository.OperationSignature;
 import org.palladiosimulator.pcm.seff.ResourceDemandingSEFF;
 
+import de.uka.ipd.sdq.simucomframework.variables.StackContext;
 import de.uka.ipd.sdq.simulation.abstractsimengine.AbstractSimEventDelegator;
-import edu.kit.ipd.sdq.eventsim.core.palladio.state.UserState;
 import edu.kit.ipd.sdq.eventsim.system.EventSimSystemModel;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
 import edu.kit.ipd.sdq.eventsim.system.interpreter.SeffBehaviourInterpreter;
@@ -23,8 +23,8 @@ public class BeginSeffTraversalEvent extends AbstractSimEventDelegator<Request> 
 
     private final ComponentInstance component;
     private final OperationSignature signature;
-    private final UserState parentState;
 	private EventSimSystemModel model;
+	private StackContext stoExContext;
 
     /**
      * Use this constructor to begin the traversal of the RD-SEFF provided by the specified {@code
@@ -40,12 +40,13 @@ public class BeginSeffTraversalEvent extends AbstractSimEventDelegator<Request> 
      * @param parentState
      *            the state of the usage traversal
      */
-    public BeginSeffTraversalEvent(final EventSimSystemModel model, final ComponentInstance component, final OperationSignature signature, UserState parentState) {
+	public BeginSeffTraversalEvent(final EventSimSystemModel model, final ComponentInstance component,
+			final OperationSignature signature, StackContext stoExContext) {
         super(model.getSimulationMiddleware().getSimulationModel(), "BeginUsageTraversalEvent");
         this.model = model;
         this.component = component;
         this.signature = signature;
-        this.parentState = parentState;
+        this.stoExContext = stoExContext;
     }
 
     /**
@@ -54,7 +55,7 @@ public class BeginSeffTraversalEvent extends AbstractSimEventDelegator<Request> 
     @Override
     public void eventRoutine(final Request who) {
         SeffBehaviourInterpreter interpreter = this.model.getSeffInterpreter();
-        interpreter.beginTraversal(who, this.component, this.signature, this.parentState);
+        interpreter.beginTraversal(who, this.component, this.signature, stoExContext);
     }
 
 }

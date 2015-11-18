@@ -13,7 +13,6 @@ import org.palladiosimulator.pcm.seff.StartAction;
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
 import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
 import edu.kit.ipd.sdq.eventsim.api.events.SystemRequestSpawnEvent;
-import edu.kit.ipd.sdq.eventsim.core.palladio.state.UserState;
 import edu.kit.ipd.sdq.eventsim.interpreter.BehaviourInterpreter;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.system.command.seff.FindActionInBehaviour;
@@ -48,11 +47,12 @@ public class SeffBehaviourInterpreter extends BehaviourInterpreter<AbstractActio
      * Starts the traversal of the {@link ResourceDemandingSEFF} associated with the specified
      * component and signature.
      */
-    public void beginTraversal(Request request, final ComponentInstance component, final OperationSignature signature, final UserState usageState) {
+	public void beginTraversal(Request request, final ComponentInstance component, final OperationSignature signature,
+			final StackContext stoExContext) {
         request.notifyEnteredSystem();
 
         // initialize traversal state and StoEx context
-        RequestState state = new RequestState(usageState, usageState.getStoExContext());
+        RequestState state = new RequestState(stoExContext);
         state.pushStackFrame();
         state.setComponent(component);
         request.setRequestState(state);

@@ -7,7 +7,6 @@ Bundle-Activator: edu.kit.ipd.sdq.eventsim.workload.Activator
 Require-Bundle: de.uka.ipd.sdq.simulation.abstractsimengine,
  org.apache.log4j,
  de.uka.ipd.sdq.probfunction.math,
- org.eclipse.osgi.services,
  org.palladiosimulator.pcm;bundle-version="4.0.0",
  edu.kit.ipd.sdq.eventsim.measurement;bundle-version="1.0.0",
  edu.kit.ipd.sdq.eventsim.middleware;bundle-version="1.0.0",

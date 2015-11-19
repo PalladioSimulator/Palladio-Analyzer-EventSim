@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Filter;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.event.Event;
@@ -59,6 +60,7 @@ public class EventManager {
 		// we delegate the event to the OSGi event admin service
 		Map<String, Object> properties = new HashMap<String, Object>();
 		properties.put(SimulationEvent.ENCAPSULATED_EVENT, event);
+		properties.putAll(event.getProperties());
 		eventAdmin.sendEvent(new Event(SimulationEvent.topicName(event.getClass()), properties));
 
 	}
@@ -71,10 +73,14 @@ public class EventManager {
 	 * @param handler
 	 *            the event handler
 	 */
-	public <T extends SimulationEvent> void registerEventHandler(Class<T> eventType, final IEventHandler<T> handler) {
+	public <T extends SimulationEvent> void registerEventHandler(Class<T> eventType, final IEventHandler<T> handler,
+			String filter) {
 		BundleContext bundleContext = Activator.getContext();
 		Dictionary<String, Object> properties = new Hashtable<String, Object>();
 		properties.put(EventConstants.EVENT_TOPIC, SimulationEvent.topicName(eventType));
+		if (filter != null && !filter.isEmpty()) {
+			properties.put(EventConstants.EVENT_FILTER, filter);
+		}
 		ServiceRegistration<EventHandler> handlerRegistration = bundleContext.registerService(EventHandler.class,
 				event -> {
 					@SuppressWarnings("unchecked")

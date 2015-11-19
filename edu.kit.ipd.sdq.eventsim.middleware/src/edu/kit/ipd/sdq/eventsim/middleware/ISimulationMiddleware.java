@@ -113,6 +113,8 @@ public interface ISimulationMiddleware {
 	 */
 	<T extends SimulationEvent> void registerEventHandler(Class<T> eventType, final IEventHandler<T> handler);
 
+	<T extends SimulationEvent> void registerEventHandler(Class<T> eventType, final IEventHandler<T> handler, String filter);
+	
 	/**
 	 * Gives access the the amount of measurements done in the current
 	 * simulation. One measurement means one user request was entirely

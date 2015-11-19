@@ -1,5 +1,7 @@
 package edu.kit.ipd.sdq.eventsim.middleware.events;
 
+import java.util.Map;
+
 /**
  * A simulation event triggered or handled by a simulation component.
  * 
@@ -21,4 +23,6 @@ public interface SimulationEvent {
 		return eventType.getName().replaceAll("\\.", "/");
 	}
 
+	public Map<String, String> getProperties();
+	
 }

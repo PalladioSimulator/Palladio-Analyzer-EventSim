@@ -2,7 +2,7 @@ package edu.kit.ipd.sdq.eventsim.middleware.events;
 
 import edu.kit.ipd.sdq.eventsim.middleware.ISimulationConfiguration;
 
-public class SimulationInitEvent implements SimulationEvent {
+public class SimulationInitEvent extends AbstractSimulationEvent {
 
 	private ISimulationConfiguration simulationConfiguration;
 

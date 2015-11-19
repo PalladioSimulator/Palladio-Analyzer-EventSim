@@ -3,9 +3,10 @@ package edu.kit.ipd.sdq.eventsim.api.events;
 import org.palladiosimulator.pcm.usagemodel.EntryLevelSystemCall;
 
 import edu.kit.ipd.sdq.eventsim.api.IUser;
+import edu.kit.ipd.sdq.eventsim.middleware.events.AbstractSimulationEvent;
 import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationEvent;
 
-public class EntryLevelSystemCallEvent implements SimulationEvent {
+public class EntryLevelSystemCallEvent extends AbstractSimulationEvent {
 
 	private IUser user;
 	

@@ -1,6 +1,6 @@
 package edu.kit.ipd.sdq.eventsim.middleware.events;
 
-public class SimulationStopEvent implements SimulationEvent {
+public class SimulationStopEvent extends AbstractSimulationEvent {
 
 	public SimulationStopEvent() {
 		// nothing to do

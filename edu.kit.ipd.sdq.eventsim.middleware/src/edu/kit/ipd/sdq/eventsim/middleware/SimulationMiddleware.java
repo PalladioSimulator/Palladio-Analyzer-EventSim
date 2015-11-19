@@ -25,9 +25,8 @@ import edu.kit.ipd.sdq.eventsim.middleware.simulation.SimulationModel;
 import edu.kit.ipd.sdq.eventsim.middleware.simulation.config.SimulationConfiguration;
 
 /**
- * The simulation middleware is the central point of the simulation component
- * based simulation. This component is activated in the simulator launch
- * configuration.
+ * The simulation middleware is the central point of the simulation component based simulation. This component is
+ * activated in the simulator launch configuration.
  * 
  * @author Christoph Föhrdes
  * @author Philipp Merkle
@@ -47,7 +46,7 @@ public class SimulationMiddleware implements ISimulationMiddleware {
 
 	public SimulationMiddleware() {
 		eventManager = new EventManager();
-		
+
 		// register the middleware event handlers
 		this.registerEventHandler();
 	}
@@ -59,10 +58,10 @@ public class SimulationMiddleware implements ISimulationMiddleware {
 	public void initialize(ISimulationConfiguration config, PCMModel pcmModel) {
 		this.pcmModel = pcmModel;
 		this.simConfig = config;
-		
+
 		// initialize R measurement store
 		measurementStorage = RMeasurementStore.fromLaunchConfiguration(config.getConfigurationMap());
-		if(measurementStorage == null) {
+		if (measurementStorage == null) {
 			throw new RuntimeException("R measurement store could not bet constructed from launch configuration.");
 		}
 
@@ -81,8 +80,7 @@ public class SimulationMiddleware implements ISimulationMiddleware {
 	}
 
 	/**
-	 * Setup the simulation stop conditions based on the simulation
-	 * configuration.
+	 * Setup the simulation stop conditions based on the simulation configuration.
 	 * 
 	 * @param config
 	 *            A simulation configuration
@@ -136,9 +134,11 @@ public class SimulationMiddleware implements ISimulationMiddleware {
 				int measurementsPercent = (int) (getMeasurementCount() * 100 / config.getMaxMeasurementsCount());
 
 				if (timePercent < measurementsPercent) {
-					statusObserver.updateStatus(measurementsPercent, (int) getSimulationControl().getCurrentSimulationTime(), getMeasurementCount());
+					statusObserver.updateStatus(measurementsPercent,
+							(int) getSimulationControl().getCurrentSimulationTime(), getMeasurementCount());
 				} else {
-					statusObserver.updateStatus(timePercent, (int) getSimulationControl().getCurrentSimulationTime(), getMeasurementCount());
+					statusObserver.updateStatus(timePercent, (int) getSimulationControl().getCurrentSimulationTime(),
+							getMeasurementCount());
 				}
 
 			}
@@ -160,11 +160,12 @@ public class SimulationMiddleware implements ISimulationMiddleware {
 	/**
 	 * Called after a simulation run to perform some clean up.
 	 */
-	private void finalise() {		
+	private void finalise() {
 		notifyStopListeners();
 		measurementStorage.finish();
 		eventManager.unregisterAllEventHandlers();
-		logger.info("Simulation took " + this.getSimulationControl().getCurrentSimulationTime() + " simulation seconds");
+		logger.info(
+				"Simulation took " + this.getSimulationControl().getCurrentSimulationTime() + " simulation seconds");
 	}
 
 	@Override
@@ -174,9 +175,15 @@ public class SimulationMiddleware implements ISimulationMiddleware {
 	}
 
 	@Override
-	public <T extends SimulationEvent> void registerEventHandler(Class<T> eventType, final IEventHandler<T> handler) {
+	public <T extends SimulationEvent> void registerEventHandler(Class<T> eventType, final IEventHandler<T> handler,
+			String filter) {
 		// delegate handler registration
-		eventManager.registerEventHandler(eventType, handler);
+		eventManager.registerEventHandler(eventType, handler, filter);
+	}
+
+	@Override
+	public <T extends SimulationEvent> void registerEventHandler(Class<T> eventType, final IEventHandler<T> handler) {
+		registerEventHandler(eventType, handler, null);
 	}
 
 	/**
@@ -189,8 +196,8 @@ public class SimulationMiddleware implements ISimulationMiddleware {
 	}
 
 	/**
-	 * Returns the PCM model to be simulated. If it has not been loaded before,
-	 * this methods loads the PCM model from the bundle.
+	 * Returns the PCM model to be simulated. If it has not been loaded before, this methods loads the PCM model from
+	 * the bundle.
 	 * 
 	 * @return a PCM model instance
 	 */

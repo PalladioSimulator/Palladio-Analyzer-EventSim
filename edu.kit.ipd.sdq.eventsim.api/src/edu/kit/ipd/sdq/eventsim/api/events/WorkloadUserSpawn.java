@@ -1,6 +1,7 @@
 package edu.kit.ipd.sdq.eventsim.api.events;
 
 import edu.kit.ipd.sdq.eventsim.api.IUser;
+import edu.kit.ipd.sdq.eventsim.middleware.events.AbstractSimulationEvent;
 import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationEvent;
 
 /**
@@ -10,7 +11,7 @@ import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationEvent;
  * @author Philipp Merkle
  * 
  */
-public class WorkloadUserSpawn implements SimulationEvent {
+public class WorkloadUserSpawn extends AbstractSimulationEvent {
 
 	private IUser user;
 

@@ -17,7 +17,6 @@ import edu.kit.ipd.sdq.eventsim.api.events.SystemRequestSpawnEvent;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementFacade;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 import edu.kit.ipd.sdq.eventsim.middleware.ISimulationMiddleware;
-import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationInitEvent;
 import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationStopEvent;
 import edu.kit.ipd.sdq.eventsim.system.calculators.ResponseTimeOfExternalCallsCalculator;
 import edu.kit.ipd.sdq.eventsim.system.command.BuildComponentInstances;

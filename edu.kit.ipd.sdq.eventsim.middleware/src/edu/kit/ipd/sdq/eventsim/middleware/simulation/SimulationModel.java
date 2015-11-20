@@ -6,9 +6,8 @@ import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationControl;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 import edu.kit.ipd.sdq.eventsim.middleware.ISimulationConfiguration;
 import edu.kit.ipd.sdq.eventsim.middleware.ISimulationMiddleware;
-import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationStopEvent;
-import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationInitEvent;
 import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationStartEvent;
+import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationStopEvent;
 
 /**
  * The simulation model is the core of an abstract simulation engine based
@@ -58,11 +57,6 @@ public class SimulationModel extends SchedulerModel implements ISimulationModel 
 
 	@Override
 	public void init() {	
-		// before the simulation start we trigger the init event
-		ISimulationConfiguration simulationConfiguration = this.middleware.getSimulationConfiguration();
-		this.middleware.triggerEvent(new SimulationInitEvent(simulationConfiguration));
-
-		// after the initialization has finished we trigger the simulation start event
 		this.middleware.triggerEvent(new SimulationStartEvent());
 	}
 

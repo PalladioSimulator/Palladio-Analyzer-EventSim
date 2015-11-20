@@ -20,8 +20,6 @@ import edu.kit.ipd.sdq.eventsim.measurement.MeasurementFacade;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 import edu.kit.ipd.sdq.eventsim.measurement.Metric;
 import edu.kit.ipd.sdq.eventsim.middleware.ISimulationMiddleware;
-import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationInitEvent;
-import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationStopEvent;
 import edu.kit.ipd.sdq.eventsim.workload.calculators.TimeSpanBetweenUserActionsCalculator;
 import edu.kit.ipd.sdq.eventsim.workload.command.usage.FindActionsInUsageScenario;
 import edu.kit.ipd.sdq.eventsim.workload.command.usage.FindAllUserActionsByType;

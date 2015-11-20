@@ -13,4 +13,5 @@ Require-Bundle: org.palladiosimulator.pcm;bundle-version="4.0.0",
  org.eclipse.debug.ui;bundle-version="3.11.100",
  org.eclipse.swt,
  de.uka.ipd.sdq.workflow.launchconfig;bundle-version="2.1.0",
- edu.kit.ipd.sdq.eventsim.measurement;bundle-version="1.0.0"
+ edu.kit.ipd.sdq.eventsim.measurement;bundle-version="1.0.0",
+ edu.kit.ipd.sdq.eventsim.components;bundle-version="1.0.0"

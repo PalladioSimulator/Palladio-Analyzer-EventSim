@@ -5,6 +5,7 @@ import edu.kit.ipd.sdq.eventsim.api.IPassiveResource;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
 import edu.kit.ipd.sdq.eventsim.api.ISystem;
 import edu.kit.ipd.sdq.eventsim.components.AbstractComponentFacade;
+import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 
 public class EventSimSystem extends AbstractComponentFacade {
 
@@ -16,6 +17,7 @@ public class EventSimSystem extends AbstractComponentFacade {
 		require(IActiveResource.class);
 		require(IPassiveResource.class);
 		require(ISimulationMiddleware.class, m -> model.init());
+		require(MeasurementStorage.class);
 		provide(ISystem.class, model);
 	}
 

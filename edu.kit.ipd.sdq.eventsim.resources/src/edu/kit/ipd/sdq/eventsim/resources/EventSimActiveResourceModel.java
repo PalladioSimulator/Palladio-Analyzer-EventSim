@@ -62,7 +62,7 @@ public class EventSimActiveResourceModel extends AbstractEventSimModel implement
 		measurementFacade = new MeasurementFacade<>(new ResourceProbeConfiguration(), Activator.getContext()
 				.getBundle());
 		
-		MeasurementStorage measurementStorage = getSimulationMiddleware().getMeasurementStorage();
+		MeasurementStorage measurementStorage = getComponent().getRequiredService(MeasurementStorage.class);
 		measurementStorage.addIdProvider(SimActiveResource.class, c -> ((SimActiveResource)c).getSpecification().getId());
 		measurementStorage.addIdProvider(SimulatedProcess.class, c -> Long.toString(((SimulatedProcess)c).getEntityId()));
 		
@@ -143,10 +143,11 @@ public class EventSimActiveResourceModel extends AbstractEventSimModel implement
 		this.containerToResourceMap.put(compoundKey(specification, type), resource);
 		
 		// create corresponding probe
+		MeasurementStorage measurementStorage = getComponent().getRequiredService(MeasurementStorage.class);
 		measurementFacade.createProbe(resource, "queue_length").forEachMeasurement(
-				m -> getSimulationMiddleware().getMeasurementStorage().put(m));
+				m -> measurementStorage.put(m));
 		measurementFacade.createProbe(resource, "resource_demand").forEachMeasurement(
-				m -> getSimulationMiddleware().getMeasurementStorage().put(m));
+				m -> measurementStorage.put(m));
 
 		// initialise probe spec
 //		this.execute(new BuildActiveResourceCalculators(this, resource));

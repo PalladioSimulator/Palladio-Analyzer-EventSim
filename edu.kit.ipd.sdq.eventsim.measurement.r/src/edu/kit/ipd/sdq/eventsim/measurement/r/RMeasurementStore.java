@@ -8,6 +8,7 @@ import org.palladiosimulator.pcm.core.entity.Entity;
 import org.rosuda.REngine.Rserve.RConnection;
 import org.rosuda.REngine.Rserve.RserveException;
 
+import edu.kit.ipd.sdq.eventsim.components.AbstractComponentFacade;
 import edu.kit.ipd.sdq.eventsim.measurement.IdProvider;
 import edu.kit.ipd.sdq.eventsim.measurement.Measurement;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
@@ -27,7 +28,7 @@ import edu.kit.ipd.sdq.eventsim.measurement.r.launch.RConfigurationConstants;
  * @author Philipp Merkle
  *
  */
-public class RMeasurementStore implements MeasurementStorage {
+public class RMeasurementStore extends AbstractComponentFacade implements MeasurementStorage {
 
 	static final Logger log = Logger.getLogger(RMeasurementStore.class);
 
@@ -72,6 +73,8 @@ public class RMeasurementStore implements MeasurementStorage {
 		rJobProcessor = new RJobProcessor(connection);
 		rJobProcessor.start();
 		buffer = new Buffer(BUFFER_CAPACITY, idProvider);
+		
+		provide(MeasurementStorage.class, this);
 	}
 
 	/**
@@ -83,7 +86,7 @@ public class RMeasurementStore implements MeasurementStorage {
 	 * @return the constructed {@link RMeasurementStore}, or {@code null} if expected configuration options could not be
 	 *         found in the provided launch configuration.
 	 */
-	public static MeasurementStorage fromLaunchConfiguration(Map<String, Object> configuration) {
+	public static RMeasurementStore fromLaunchConfiguration(Map<String, Object> configuration) {
 		Boolean createRds = (Boolean) configuration.get(RConfigurationConstants.CREATE_RDS_FILE_KEY);
 		if (!createRds) {
 			return new RMeasurementStore();

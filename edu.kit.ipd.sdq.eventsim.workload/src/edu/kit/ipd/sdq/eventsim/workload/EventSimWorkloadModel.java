@@ -113,7 +113,7 @@ public class EventSimWorkloadModel extends AbstractEventSimModel implements IWor
 		measurementFacade = new MeasurementFacade<>(
 				WorkloadMeasurementConfiguration.from(this), Activator.getContext().getBundle());
 		
-		MeasurementStorage measurementStorage = getSimulationMiddleware().getMeasurementStorage();
+		MeasurementStorage measurementStorage = getComponent().getRequiredService(MeasurementStorage.class);
 		measurementStorage.addIdProvider(User.class, c -> Long.toString(((User)c).getEntityId()));
 		measurementStorage.addIdProvider(AbstractUserAction.class, c -> ((AbstractUserAction)c).getId());
 
@@ -122,7 +122,7 @@ public class EventSimWorkloadModel extends AbstractEventSimModel implements IWor
 				call -> measurementFacade
 						.createCalculator(new TimeSpanBetweenUserActionsCalculator(Metric.RESPONSE_TIME))
 						.from(call, "before").to(call, "after")
-						.forEachMeasurement(m -> getSimulationMiddleware().getMeasurementStorage().putPair(m)));
+						.forEachMeasurement(m -> measurementStorage.putPair(m)));
 
 		// response time of usage scenarios
 		execute(new FindUsageScenarios()).forEach(scenario -> {
@@ -131,7 +131,7 @@ public class EventSimWorkloadModel extends AbstractEventSimModel implements IWor
 				Stop stop = execute(new FindActionsInUsageScenario<>(scenario, Stop.class, false)).get(0);
 				measurementFacade.createCalculator(new TimeSpanBetweenUserActionsCalculator(Metric.RESPONSE_TIME))
 						.from(start, "before").to(stop, "after")
-						.forEachMeasurement(m -> getSimulationMiddleware().getMeasurementStorage().putPair(m));
+						.forEachMeasurement(m -> measurementStorage.putPair(m));
 				// TODO redefine measurement point (Start/Stop --> UsageScenario)
 			});
 

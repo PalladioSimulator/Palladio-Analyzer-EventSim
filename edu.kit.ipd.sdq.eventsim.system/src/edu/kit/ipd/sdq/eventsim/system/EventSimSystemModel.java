@@ -151,7 +151,7 @@ public class EventSimSystemModel extends AbstractEventSimModel implements ISyste
 		measurementFacade = new MeasurementFacade<>(
 				SystemMeasurementConfiguration.from(this), Activator.getContext().getBundle());
 
-		MeasurementStorage measurementStorage = getSimulationMiddleware().getMeasurementStorage();
+		MeasurementStorage measurementStorage = getComponent().getRequiredService(MeasurementStorage.class);
 		measurementStorage.addIdProvider(Request.class, c -> Long.toString(((Request)c).getId()));
 		measurementStorage.addIdProvider(ForkedRequest.class, c -> Long.toString(((ForkedRequest)c).getEntityId()));
 		measurementStorage.addIdProvider(Entity.class, c -> ((Entity)c).getId());
@@ -161,7 +161,7 @@ public class EventSimSystemModel extends AbstractEventSimModel implements ISyste
 				call -> measurementFacade.createCalculator(new ResponseTimeOfExternalCallsCalculator())
 						.from(call.getAction(), "before", call.getAssemblyContext())
 						.to(call.getAction(), "after", call.getAssemblyContext())
-						.forEachMeasurement(m -> getSimulationMiddleware().getMeasurementStorage().putPair(m)));
+						.forEachMeasurement(m -> measurementStorage.putPair(m)));
 		
 //		// calculation time of internal actions [just as a proof of concept] 
 //		execute(new FindAllActionsByType<>(InternalAction.class)).forEach(

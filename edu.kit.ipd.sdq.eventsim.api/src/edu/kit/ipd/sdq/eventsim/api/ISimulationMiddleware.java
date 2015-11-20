@@ -6,7 +6,6 @@ import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationControl;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 import edu.kit.ipd.sdq.eventsim.components.events.IEventHandler;
 import edu.kit.ipd.sdq.eventsim.components.events.SimulationEvent;
-import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 
 /**
  * Represents the central point of a simulation component based simulation.
@@ -89,7 +88,5 @@ public interface ISimulationMiddleware {
 	void increaseMeasurementCount();
 
 	IRandomGenerator getRandomGenerator();
-	
-	MeasurementStorage getMeasurementStorage();
 
 }

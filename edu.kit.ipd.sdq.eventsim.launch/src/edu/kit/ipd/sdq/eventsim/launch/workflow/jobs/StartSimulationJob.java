@@ -28,6 +28,8 @@ import edu.kit.ipd.sdq.eventsim.api.PCMModel;
 import edu.kit.ipd.sdq.eventsim.components.ComponentFacade;
 import edu.kit.ipd.sdq.eventsim.launch.Activator;
 import edu.kit.ipd.sdq.eventsim.launch.runconfig.SimulationComponentWorkflowConfiguration;
+import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
+import edu.kit.ipd.sdq.eventsim.measurement.r.RMeasurementStore;
 import edu.kit.ipd.sdq.eventsim.middleware.SimulationMiddleware;
 import edu.kit.ipd.sdq.eventsim.middleware.simulation.config.SimulationConfiguration;
 import edu.kit.ipd.sdq.eventsim.resources.EventSimResource;
@@ -76,7 +78,17 @@ public class StartSimulationJob extends AbstractExtendableJob<MDSDBlackboard> {
 		ComponentFacade system = new EventSimSystem();
 		ComponentFacade resources = new EventSimResource();
 
+		// instantiate R measurement store (also a simulation component)
+		RMeasurementStore measurementStorage = RMeasurementStore.fromLaunchConfiguration(config.getConfigurationMap());
+		if (measurementStorage == null) {
+			throw new RuntimeException("R measurement store could not bet constructed from launch configuration.");
+		}
+		
 		// wire simulation components by connection required roles to provided roles
+		workload.getRequiredRole(MeasurementStorage.class).wire(measurementStorage.getProvidedRole(MeasurementStorage.class));
+		system.getRequiredRole(MeasurementStorage.class).wire(measurementStorage.getProvidedRole(MeasurementStorage.class));
+		resources.getRequiredRole(MeasurementStorage.class).wire(measurementStorage.getProvidedRole(MeasurementStorage.class));
+		
 		workload.getRequiredRole(ISimulationMiddleware.class).wire(middleware.getProvidedRole(ISimulationMiddleware.class));
 		system.getRequiredRole(ISimulationMiddleware.class).wire(middleware.getProvidedRole(ISimulationMiddleware.class));
 		resources.getRequiredRole(ISimulationMiddleware.class).wire(middleware.getProvidedRole(ISimulationMiddleware.class));
@@ -108,6 +120,8 @@ public class StartSimulationJob extends AbstractExtendableJob<MDSDBlackboard> {
 			}
 		});
 
+		measurementStorage.finish();
+		
 		sendEventToSimulationDock(SIM_STOPPED_TOPIC, dock);
 		sendEventToSimulationDock(DOCK_IDLE_TOPIC, dock);
 

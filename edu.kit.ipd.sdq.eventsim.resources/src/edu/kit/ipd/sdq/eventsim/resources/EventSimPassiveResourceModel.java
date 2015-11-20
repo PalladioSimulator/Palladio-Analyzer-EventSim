@@ -42,7 +42,7 @@ public class EventSimPassiveResourceModel extends AbstractEventSimModel implemen
 		measurementFacade = new MeasurementFacade<>(new ResourceProbeConfiguration(), Activator.getContext()
 				.getBundle());
 		
-		MeasurementStorage measurementStorage = getSimulationMiddleware().getMeasurementStorage();
+		MeasurementStorage measurementStorage = getComponent().getRequiredService(MeasurementStorage.class);
 		measurementStorage.addIdProvider(SimPassiveResource.class, c -> ((SimPassiveResource)c).getSpecification().getId());
 		
 		registerEventHandler();
@@ -122,14 +122,15 @@ public class EventSimPassiveResourceModel extends AbstractEventSimModel implemen
             contextToResourceMap.put(compoundKey(assCtx, specification), resource);
             
     		// create probes and calculators
+    		MeasurementStorage measurementStorage = getComponent().getRequiredService(MeasurementStorage.class);
     		measurementFacade.createProbe(resource, "queue_length").forEachMeasurement(
-    				m -> getSimulationMiddleware().getMeasurementStorage().put(m));
+    				m -> measurementStorage.put(m));
     		
 			measurementFacade.createCalculator(new HoldTimeCalculator()).from(resource, "acquire")
-					.to(resource, "release").forEachMeasurement(m -> getSimulationMiddleware().getMeasurementStorage().put(m));
+					.to(resource, "release").forEachMeasurement(m -> measurementStorage.put(m));
 			
 			measurementFacade.createCalculator(new WaitingTimeCalculator()).from(resource, "request")
-					.to(resource, "acquire").forEachMeasurement(m -> getSimulationMiddleware().getMeasurementStorage().put(m));
+					.to(resource, "acquire").forEachMeasurement(m -> measurementStorage.put(m));
         }
         return contextToResourceMap.get(compoundKey(assCtx, specification));
     }

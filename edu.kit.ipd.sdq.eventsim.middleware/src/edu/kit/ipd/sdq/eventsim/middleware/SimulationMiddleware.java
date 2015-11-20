@@ -20,8 +20,6 @@ import edu.kit.ipd.sdq.eventsim.components.AbstractComponentFacade;
 import edu.kit.ipd.sdq.eventsim.components.events.EventManager;
 import edu.kit.ipd.sdq.eventsim.components.events.IEventHandler;
 import edu.kit.ipd.sdq.eventsim.components.events.SimulationEvent;
-import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
-import edu.kit.ipd.sdq.eventsim.measurement.r.RMeasurementStore;
 import edu.kit.ipd.sdq.eventsim.middleware.simulation.MaxMeasurementsStopCondition;
 import edu.kit.ipd.sdq.eventsim.middleware.simulation.SimulationModel;
 import edu.kit.ipd.sdq.eventsim.middleware.simulation.config.SimulationConfiguration;
@@ -42,7 +40,6 @@ public class SimulationMiddleware extends AbstractComponentFacade implements ISi
 	private ISimulationConfiguration config;
 	private int measurementCount;
 	private IRandomGenerator randomNumberGenerator;
-	private MeasurementStorage measurementStorage;
 	private EventManager eventManager;
 
 	public SimulationMiddleware(ISimulationConfiguration config) {
@@ -55,12 +52,6 @@ public class SimulationMiddleware extends AbstractComponentFacade implements ISi
 
 	private void initialize(ISimulationConfiguration config) {
 		this.config = config;
-
-		// initialize R measurement store
-		measurementStorage = RMeasurementStore.fromLaunchConfiguration(config.getConfigurationMap());
-		if (measurementStorage == null) {
-			throw new RuntimeException("R measurement store could not bet constructed from launch configuration.");
-		}
 
 		// Create the simulation model (this model is control and not the subject of the simulation)
 		ISimEngineFactory factory = SimulationPreferencesHelper.getPreferredSimulationEngine();
@@ -157,7 +148,6 @@ public class SimulationMiddleware extends AbstractComponentFacade implements ISi
 	 */
 	private void finalise() {
 		notifyStopListeners();
-		measurementStorage.finish();
 		eventManager.unregisterAllEventHandlers();
 		logger.info(
 				"Simulation took " + this.getSimulationControl().getCurrentSimulationTime() + " simulation seconds");
@@ -220,11 +210,6 @@ public class SimulationMiddleware extends AbstractComponentFacade implements ISi
 			randomNumberGenerator = new SimuComDefaultRandomNumberGenerator(config.getRandomSeed());
 		}
 		return randomNumberGenerator;
-	}
-
-	@Override
-	public MeasurementStorage getMeasurementStorage() {
-		return measurementStorage;
 	}
 
 	/**

@@ -8,7 +8,7 @@ import org.apache.log4j.Logger;
 public class AbstractComponentFacade implements ComponentFacade {
 
 	private static final Logger log = Logger.getLogger(AbstractComponentFacade.class);
-	
+
 	private Map<Class<?>, RequiredRole<?>> requiredRoles;
 
 	private Map<Class<?>, ProvidedRole<?>> providedRoles;
@@ -21,8 +21,9 @@ public class AbstractComponentFacade implements ComponentFacade {
 	public <T> void require(Class<T> requiredType) {
 		require(requiredType, null);
 	}
-	
+
 	public <T> void require(Class<T> requiredType, WiringListener<T> listener) {
+		// TODO listener should rather be part of a component than an individual role
 		requiredRoles.put(requiredType, new RequiredRole<>(requiredType, listener));
 	}
 
@@ -34,7 +35,7 @@ public class AbstractComponentFacade implements ComponentFacade {
 	public <T> RequiredRole<T> getRequiredRole(Class<T> type) {
 		@SuppressWarnings("unchecked")
 		RequiredRole<T> role = ((RequiredRole<T>) requiredRoles.get(type));
-		if(role == null) {
+		if (role == null) {
 			log.warn("This component does not require " + type);
 		}
 		return role;
@@ -49,7 +50,7 @@ public class AbstractComponentFacade implements ComponentFacade {
 	public <T> ProvidedRole<T> getProvidedRole(Class<T> type) {
 		@SuppressWarnings("unchecked")
 		ProvidedRole<T> role = ((ProvidedRole<T>) providedRoles.get(type));
-		if(role == null) {
+		if (role == null) {
 			log.warn("This component does not provide " + type);
 		}
 		return role;

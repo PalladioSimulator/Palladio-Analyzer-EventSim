@@ -9,7 +9,6 @@ import org.palladiosimulator.pcm.resourceenvironment.ResourceContainer;
 import org.palladiosimulator.pcm.resourcetype.ResourceType;
 
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimActiveResource;
-import edu.kit.ipd.sdq.eventsim.staticstructure.IResourceContainer;
 import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
 
 /**
@@ -19,7 +18,7 @@ import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
  * @author Philipp Merkle
  * 
  */
-public class SimulatedResourceContainer implements IResourceContainer {
+public class SimulatedResourceContainer {
 
     private static Logger logger = Logger.getLogger(SimulatedResourceContainer.class);
 

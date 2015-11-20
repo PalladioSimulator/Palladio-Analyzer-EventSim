@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: EventSim Simulation Components
+Bundle-SymbolicName: edu.kit.ipd.sdq.eventsim.components
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: edu.kit.ipd.sdq.eventsim.components;uses:="org.osgi.framework",
+ edu.kit.ipd.sdq.eventsim.components.events
+Require-Bundle: org.apache.log4j;bundle-version="1.2.15",
+ org.eclipse.osgi.services,
+ org.eclipse.osgi
+Bundle-Activator: edu.kit.ipd.sdq.eventsim.components.Activator
+Bundle-ActivationPolicy: lazy

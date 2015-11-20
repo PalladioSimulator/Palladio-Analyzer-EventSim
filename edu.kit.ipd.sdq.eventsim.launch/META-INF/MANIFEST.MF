@@ -16,7 +16,7 @@ Require-Bundle: de.uka.ipd.sdq.codegen.simucontroller,
  edu.kit.ipd.sdq.eventsim.resources;bundle-version="1.0.0",
  edu.kit.ipd.sdq.eventsim.api;bundle-version="1.0.0",
  edu.kit.ipd.sdq.eventsim.components;bundle-version="1.0.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: edu.kit.ipd.sdq.eventsim.launch.runconfig,
  edu.kit.ipd.sdq.eventsim.launch.workflow.jobs

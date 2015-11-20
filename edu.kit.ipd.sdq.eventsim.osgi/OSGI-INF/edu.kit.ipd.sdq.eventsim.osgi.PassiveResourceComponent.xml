@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="deactivate" factory="passiveresource.factory" name="edu.kit.ipd.sdq.eventsim.osgi.PassiveResourceComponent">
-   <service>
-      <provide interface="edu.kit.ipd.sdq.eventsim.api.IPassiveResource"/>
-   </service>
-   <reference bind="bindCompositionManager" cardinality="0..1" interface="edu.kit.ipd.sdq.eventsim.osgi.ISimulationManager" name="CompositionManager" policy="dynamic" unbind="unbindCompositionManager"/>
-   <implementation class="edu.kit.ipd.sdq.eventsim.osgi.PassiveResourceComponent"/>
-</scr:component>

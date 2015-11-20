@@ -3,6 +3,7 @@ package edu.kit.ipd.sdq.eventsim.workload.interpreter.state;
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 
 import edu.kit.ipd.sdq.eventsim.interpreter.state.AbstractStateStackFrame;
+import edu.kit.ipd.sdq.eventsim.workload.entities.User;
 
 /**
  * A stack frame which holds the state of a {@link User} entity.

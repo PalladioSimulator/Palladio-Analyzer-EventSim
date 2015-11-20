@@ -2,9 +2,7 @@ package edu.kit.ipd.sdq.eventsim.interpreter.instructions;
 
 import org.palladiosimulator.pcm.core.entity.Entity;
 
-import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalInstruction;
-import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.interpreter.state.AbstractInterpreterState;
 
 /**

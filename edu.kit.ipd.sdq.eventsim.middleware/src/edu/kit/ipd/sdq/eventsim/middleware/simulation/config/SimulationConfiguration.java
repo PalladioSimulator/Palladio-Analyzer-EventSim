@@ -2,8 +2,6 @@ package edu.kit.ipd.sdq.eventsim.middleware.simulation.config;
 
 import java.util.Map;
 
-import org.palladiosimulator.analyzer.workflow.ConstantsContainer;
-
 import de.uka.ipd.sdq.simulation.AbstractSimulationConfig;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationConfiguration;
 import edu.kit.ipd.sdq.eventsim.api.PCMModel;

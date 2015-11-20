@@ -4,7 +4,6 @@ import org.apache.log4j.Logger;
 import org.palladiosimulator.pcm.seff.AbstractAction;
 
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
-import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
 import edu.kit.ipd.sdq.eventsim.system.interpreter.SeffBehaviourInterpreter;
 import edu.kit.ipd.sdq.eventsim.system.interpreter.SeffInterpreterConfiguration;

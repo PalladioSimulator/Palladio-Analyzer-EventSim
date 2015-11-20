@@ -3,7 +3,6 @@ package edu.kit.ipd.sdq.eventsim.measurement.calculator;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementFacade;
 import edu.kit.ipd.sdq.eventsim.measurement.ProbeConfiguration;
 import edu.kit.ipd.sdq.eventsim.measurement.probe.IProbe;
-import edu.kit.ipd.sdq.eventsim.measurement.probe.ProbeFactory;
 
 public class CalculatorBuilder<R, F, S, T, C extends ProbeConfiguration>
 		implements IntermediateCalculatorFrom<R, F, S, T>, IntermediateCalculatorTo<R, F, S, T> {

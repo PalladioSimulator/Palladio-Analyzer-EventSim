@@ -9,6 +9,7 @@ import org.palladiosimulator.pcm.usagemodel.UsageScenario;
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
 import edu.kit.ipd.sdq.eventsim.interpreter.state.AbstractInterpreterState;
 import edu.kit.ipd.sdq.eventsim.interpreter.state.ITraversalStrategyState;
+import edu.kit.ipd.sdq.eventsim.workload.entities.User;
 
 /**
  * This class holds the state of a {@link User}. The state is organized as a stack of

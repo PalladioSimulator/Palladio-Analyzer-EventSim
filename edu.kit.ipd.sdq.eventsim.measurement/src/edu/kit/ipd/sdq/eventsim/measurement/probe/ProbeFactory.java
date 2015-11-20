@@ -15,8 +15,8 @@ import org.eclipse.emf.ecore.EObject;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.wiring.BundleWiring;
 
-import edu.kit.ipd.sdq.eventsim.measurement.ProbeConfiguration;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasuringPoint;
+import edu.kit.ipd.sdq.eventsim.measurement.ProbeConfiguration;
 import edu.kit.ipd.sdq.eventsim.measurement.annotation.Probe;
 
 /**

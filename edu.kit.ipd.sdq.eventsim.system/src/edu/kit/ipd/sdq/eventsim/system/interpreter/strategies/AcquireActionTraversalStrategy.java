@@ -6,8 +6,6 @@ import org.palladiosimulator.pcm.seff.AbstractAction;
 import org.palladiosimulator.pcm.seff.AcquireAction;
 
 import edu.kit.ipd.sdq.eventsim.api.IPassiveResource;
-import edu.kit.ipd.sdq.eventsim.api.ISystem;
-import edu.kit.ipd.sdq.eventsim.components.UnboundRequiredRoleAccessException;
 import edu.kit.ipd.sdq.eventsim.exceptions.unchecked.EventSimException;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalInstruction;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalStrategy;

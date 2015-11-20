@@ -69,12 +69,6 @@ public class EventSimPassiveResourceModel extends AbstractEventSimModel implemen
         SimPassiveResource res = this.getPassiveResource(specification, assCtx);
         SimulatedProcess process = getOrCreateSimulatedProcess(request);
         boolean acquired = res.acquire(process, num, false, -1);
-        
-        // workaround 
-		if (acquired) {
-			process.passivate();
-			process.activate();
-		}
 
 		return acquired;
 	}

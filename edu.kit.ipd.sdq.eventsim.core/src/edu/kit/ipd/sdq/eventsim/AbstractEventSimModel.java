@@ -3,7 +3,6 @@ package edu.kit.ipd.sdq.eventsim;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import edu.kit.ipd.sdq.eventsim.api.ISimulationConfiguration;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
 import edu.kit.ipd.sdq.eventsim.api.PCMModel;
 import edu.kit.ipd.sdq.eventsim.command.ICommand;
@@ -20,7 +19,6 @@ import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
 abstract public class AbstractEventSimModel {
 
 	private ComponentFacade component;
-	private EventSimConfig config;
 	private PCMModelCommandExecutor executor;
 	private List<EventSimEntity> activeEntitiesList;
 
@@ -36,9 +34,6 @@ abstract public class AbstractEventSimModel {
 	 * Initializes the model
 	 */
 	public void init() {
-		ISimulationConfiguration cfg = getSimulationMiddleware().getSimulationConfiguration();
-
-		this.config = new EventSimConfig(cfg.getConfigurationMap(), cfg.isDebug(), cfg.getPCMModel());
 		this.executor = new PCMModelCommandExecutor(getSimulationMiddleware().getPCMModel());
 		this.activeEntitiesList = new CopyOnWriteArrayList<EventSimEntity>();
 	}
@@ -82,15 +77,6 @@ abstract public class AbstractEventSimModel {
 	 */
 	public void unregisterEntity(EventSimEntity entity) {
 		this.activeEntitiesList.remove(entity);
-	}
-
-	/**
-	 * Gives access to the EventSim specific configuration
-	 * 
-	 * @return An event EventSim config instance
-	 */
-	public EventSimConfig getEventSimConfig() {
-		return this.config;
 	}
 
 	/**

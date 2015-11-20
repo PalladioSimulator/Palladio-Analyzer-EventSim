@@ -31,15 +31,6 @@ public class EventSimConfig extends AbstractSimulationConfig {
         super(configuration, debug);
         this.model = model;
     }
-
-    /**
-     * The private constructor prevents this class from being instantiated without passing the
-     * configuration.
-     */
-    private EventSimConfig() {
-        // this constructor is not intended to be called.
-        super(null, false);
-    }
     
 	public PCMModel getModel() {
 		return model;

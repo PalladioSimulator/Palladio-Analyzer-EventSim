@@ -119,9 +119,13 @@ public class Request extends EventSimEntity implements IRequest {
      * @see #passivate(AbstractSimEventDelegator)
      */
     public void activate() {
-		if (this.activationEvent == null) {
-			logger.warn("Tried to activate request " + this.getName() + ", but there is no activation event.");
+		if (activationEvent == null) {
+			logger.warn("Tried to activate request " + getName() + ", but there is no activation event.");
 			return;
+		}
+		if (!getModel().getSimulationControl().isRunning()) {
+			logger.warn("Simulation has stopped already!");
+			// TODO exeute the event behaviour directly, without scheduling!?
 		}
 
         // schedule the activation event...

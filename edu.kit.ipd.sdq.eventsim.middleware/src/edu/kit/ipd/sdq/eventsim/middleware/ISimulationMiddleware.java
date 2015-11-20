@@ -17,18 +17,7 @@ import edu.kit.ipd.sdq.eventsim.middleware.simulation.PCMModel;
 public interface ISimulationMiddleware {
 
 	/**
-	 * Initializes the middleware with a simulation configuration provided by
-	 * the user on launch. Called in the prepare simulation phase.
-	 * 
-	 * @param configuration
-	 *            A simulation configuration
-	 * @param pcmModel
-	 *            The PCM model to be simulated
-	 */
-	void initialize(ISimulationConfiguration config, PCMModel pcmModel);
-
-	/**
-	 * Starts a simulation component based simulation.
+	 * Starts a simulation run.
 	 * 
 	 * @param statusObserver
 	 *            A status observer which indicates the simulation progress in
@@ -37,32 +26,9 @@ public interface ISimulationMiddleware {
 	void startSimulation(final IStatusObserver statusObserver);
 
 	/**
-	 * Stops a simulation run simulation.
+	 * Stops the simulation run.
 	 */
-	void stopSimulation();
-
-//	/**
-//	 * Returns a simulation component out of a list of alternatives based on the
-//	 * simulation configuration and a simulation context.
-//	 * 
-//	 * @param requestingType
-//	 *            The component type requesting access to a required simulation
-//	 *            component. For example ISystem when accessing a
-//	 *            IActiveResource from ISystem.
-//	 * @param requiredType
-//	 *            The component type to be accessed. For example IActiveResource
-//	 *            when accessing a IActiveResource from ISystem.
-//	 * @param componentList
-//	 *            A list of alternative simulation components to select one
-//	 *            from. For example a list of IActiveResource implementations
-//	 *            when accessing a IActiveResource from ISystem.
-//	 * @param context
-//	 *            The simulation context used to determine the simulation
-//	 *            component
-//	 * 
-//	 * @return The simulation component to use
-//	 */
-//	ISimulationComponent getSimulationComponent(Class<? extends ISimulationComponent> requestingType, Class<? extends ISimulationComponent> requiredType, List<? extends ISimulationComponent> componentList, AbstractSimulationContext context);
+	void stopSimulation();	
 
 	/**
 	 * Gives access to the simulation configuration provided by the user on

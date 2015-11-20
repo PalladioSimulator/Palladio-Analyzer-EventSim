@@ -1,9 +1,5 @@
 package edu.kit.ipd.sdq.eventsim.api;
 
-import org.palladiosimulator.pcm.core.composition.AssemblyContext;
-import org.palladiosimulator.pcm.repository.PassiveResource;
-import org.palladiosimulator.pcm.resourceenvironment.ResourceContainer;
-import org.palladiosimulator.pcm.resourcetype.ResourceType;
 import org.palladiosimulator.pcm.usagemodel.EntryLevelSystemCall;
 
 /**
@@ -23,24 +19,5 @@ public interface ISystem {
 	 *            The specification of the system service which is called
 	 */
 	public void callService(IUser user, EntryLevelSystemCall call);
-
-	public void onActiveResourceDemand(ActiveResourceListener callback);
-	
-	public void onPassiveResourceAcquire(PassiveResourceAcquireListener callback);
-	
-	public void onPassiveResourceRelease(PassiveResourceReleaseListener callback);
-	
-	public interface ActiveResourceListener {
-		void consume(IRequest request, ResourceContainer resourceContainer, ResourceType resourceType,
-				double absoluteDemand);
-	}
-	
-	public interface PassiveResourceAcquireListener {
-		public boolean acquire(IRequest request, AssemblyContext ctx, PassiveResource passiveResouce, int num);
-	}
-	
-	public interface PassiveResourceReleaseListener {
-		public void release(IRequest request, AssemblyContext ctx, PassiveResource passiveResouce, int num);
-	}
 
 }

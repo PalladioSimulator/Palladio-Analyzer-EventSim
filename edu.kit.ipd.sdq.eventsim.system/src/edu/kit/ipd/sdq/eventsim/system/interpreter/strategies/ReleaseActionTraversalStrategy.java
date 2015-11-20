@@ -5,11 +5,11 @@ import org.palladiosimulator.pcm.repository.PassiveResource;
 import org.palladiosimulator.pcm.seff.AbstractAction;
 import org.palladiosimulator.pcm.seff.ReleaseAction;
 
+import edu.kit.ipd.sdq.eventsim.api.IPassiveResource;
 import edu.kit.ipd.sdq.eventsim.exceptions.unchecked.EventSimException;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalInstruction;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.interpreter.instructions.TraverseNextAction;
-import edu.kit.ipd.sdq.eventsim.system.EventSimSystemModel;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
 import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
 
@@ -35,20 +35,11 @@ public class ReleaseActionTraversalStrategy
 		// store EventSim specific state to the request
 		request.setRequestState(state);
 
-		// fetch passive resource simulation component
-		// EventSimSystem system = (EventSimSystem) Activator.getDefault().getSystemComponent();
-		// List<IPassiveResource> passiveResourceComponents = system.getPassiveResourceComponents();
-		// ISimulationMiddleware middleware = request.getEventSimModel().getSimulationMiddleware();
-		// // TODO (SimComp): provide passive resource context
-		// IPassiveResource passiveResource = (IPassiveResource)
-		// middleware.getSimulationComponent(EventSimSystem.class,IPassiveResource.class, passiveResourceComponents,
-		// null);
-
 		final PassiveResource passiveResouce = action.getPassiveResource_ReleaseAction();
 		AssemblyContext ctx = state.getComponent().getAssemblyCtx();
-		// TODO get rid of cast
-		((EventSimSystemModel) request.getEventSimModel()).getReleaseCallback().release(request, ctx, passiveResouce,
-				1);
+		
+		request.getEventSimModel().getComponent().getRequiredService(IPassiveResource.class).release(request, ctx,
+				passiveResouce, 1);
 
 		return new TraverseNextAction<>(action.getSuccessor_AbstractAction());
 	}

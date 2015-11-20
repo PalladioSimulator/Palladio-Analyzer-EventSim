@@ -1,43 +1,18 @@
 package edu.kit.ipd.sdq.eventsim.resources;
 
-import org.palladiosimulator.pcm.resourceenvironment.ResourceContainer;
-import org.palladiosimulator.pcm.resourcetype.ResourceType;
-
 import edu.kit.ipd.sdq.eventsim.api.IActiveResource;
-import edu.kit.ipd.sdq.eventsim.api.IRequest;
 import edu.kit.ipd.sdq.eventsim.middleware.ISimulationMiddleware;
-import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationStopEvent;
-import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationInitEvent;
+import edu.kit.ipd.sdq.eventsim.middleware.components.AbstractComponentFacade;
 
-public class EventSimActiveResource implements IActiveResource {
-
-	private ISimulationMiddleware middleware;
+public class EventSimActiveResource extends AbstractComponentFacade {
+	
 	private EventSimActiveResourceModel model;
 
-	public EventSimActiveResource(ISimulationMiddleware middleware) {
-		this.middleware = middleware;
-		registerEventHandler();
+	public EventSimActiveResource() {
+		this.model = new EventSimActiveResourceModel(this);
+		
+		require(ISimulationMiddleware.class, m -> model.init());
+		provide(IActiveResource.class, model);
 	}
 	
-	private void registerEventHandler() {
-		middleware.registerEventHandler(SimulationInitEvent.class, e -> init());
-		middleware.registerEventHandler(SimulationStopEvent.class, e -> finalise());
-	}
-
-	private void init() {
-		model = new EventSimActiveResourceModel(middleware);
-		model.init();
-	}
-
-	private void finalise() {
-		model.finalise();
-		model = null;
-	}
-
-	@Override
-	public void consume(IRequest request, ResourceContainer resourceContainer, ResourceType resourceType,
-			double absoluteDemand) {
-		model.consume(request, resourceContainer, resourceType, absoluteDemand);
-	}
-
 }

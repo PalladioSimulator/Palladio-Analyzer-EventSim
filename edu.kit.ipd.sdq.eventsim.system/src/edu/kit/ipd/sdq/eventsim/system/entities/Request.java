@@ -119,12 +119,10 @@ public class Request extends EventSimEntity implements IRequest {
      * @see #passivate(AbstractSimEventDelegator)
      */
     public void activate() {
-        if (this.activationEvent == null) {
-        	// TODO reactive output (disabled it for performance measurements)
-        	//if(logger.isEnabledFor(Level.WARN))
-        	//	logger.warn("Tried to activate request " + this.getName() + ", but there is no activation event.");
-            return;
-        }
+		if (this.activationEvent == null) {
+			logger.warn("Tried to activate request " + this.getName() + ", but there is no activation event.");
+			return;
+		}
 
         // schedule the activation event...
         this.activationEvent.schedule(this, 0);

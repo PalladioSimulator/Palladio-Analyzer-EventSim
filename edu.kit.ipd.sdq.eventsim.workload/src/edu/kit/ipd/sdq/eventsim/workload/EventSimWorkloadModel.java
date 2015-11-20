@@ -13,11 +13,15 @@ import de.uka.ipd.sdq.probfunction.math.impl.ProbabilityFunctionFactoryImpl;
 import de.uka.ipd.sdq.simucomframework.variables.cache.StoExCache;
 import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
 import edu.kit.ipd.sdq.eventsim.api.IRequest;
+import edu.kit.ipd.sdq.eventsim.api.IWorkload;
 import edu.kit.ipd.sdq.eventsim.api.events.SystemRequestFinishedEvent;
+import edu.kit.ipd.sdq.eventsim.api.events.WorkloadUserFinishedEvent;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementFacade;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 import edu.kit.ipd.sdq.eventsim.measurement.Metric;
 import edu.kit.ipd.sdq.eventsim.middleware.ISimulationMiddleware;
+import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationInitEvent;
+import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationStopEvent;
 import edu.kit.ipd.sdq.eventsim.workload.calculators.TimeSpanBetweenUserActionsCalculator;
 import edu.kit.ipd.sdq.eventsim.workload.command.usage.FindActionsInUsageScenario;
 import edu.kit.ipd.sdq.eventsim.workload.command.usage.FindAllUserActionsByType;
@@ -41,7 +45,7 @@ import edu.kit.ipd.sdq.eventsim.workload.interpreter.UsageInterpreterConfigurati
  * @author Christoph Föhrdes
  * 
  */
-public class EventSimWorkloadModel extends AbstractEventSimModel {
+public class EventSimWorkloadModel extends AbstractEventSimModel implements IWorkload {
 
 	private static final Logger logger = Logger.getLogger(EventSimWorkloadModel.class);
 
@@ -49,46 +53,55 @@ public class EventSimWorkloadModel extends AbstractEventSimModel {
 
 	private MeasurementFacade<WorkloadMeasurementConfiguration> measurementFacade;
 	
-	public EventSimWorkloadModel(ISimulationMiddleware middleware) {
-		super(middleware);
+	public EventSimWorkloadModel(EventSimWorkload component) {
+		super(component);
 	}
 	
 	/**
 	 * This method prepares the EventSim workload simulator and creates the initial events to start the workload
 	 * generation.
 	 */
+	@Override
 	public void init() {
+		super.init();
+		
 		// initialise behaviour interpreters
 		usageInterpreter = new UsageBehaviourInterpreter(new UsageInterpreterConfiguration());
-
+	
 		// initialise probfunction factory and random generator
 		IProbabilityFunctionFactory probFunctionFactory = ProbabilityFunctionFactoryImpl.getInstance();
 		probFunctionFactory.setRandomGenerator(this.getSimulationMiddleware().getRandomGenerator());
 		StoExCache.initialiseStoExCache(probFunctionFactory);
-
+	
 		// install debug traversal listeners, if debugging is enabled
 		if (logger.isDebugEnabled()) {
 			DebugUsageTraversalListener.install(this.usageInterpreter.getConfiguration());
 		}
-
+	
 		setupMeasurements();
-
+	
 		registerEventHandler();
+	}
 
-		// TODO should not reside in init()
-		// ...and start the simulation by generating the workload
+	@Override
+	public void generate() {
+		// start the simulation by generating the workload
 		final List<IWorkloadGenerator> workloadGenerators = this.execute(new BuildWorkloadGenerator(this));
 		for (final IWorkloadGenerator d : workloadGenerators) {
 			d.processWorkload();
 		}
 	}
-
+	
 	/**
 	 * Register event handler to react on specific simulation events.
 	 */
 	private void registerEventHandler() {
+		ISimulationMiddleware middleware = getComponent().getRequiredService(ISimulationMiddleware.class);
+		
+		middleware.registerEventHandler(WorkloadUserFinishedEvent.class,
+				e -> middleware.increaseMeasurementCount());
+		
 		// TODO perhaps move to EntryLevelSystemCallTraversalStrategy
-
 		// setup system processed request event listener
 		this.getSimulationMiddleware().registerEventHandler(SystemRequestFinishedEvent.class, event -> {
 			IRequest request = event.getRequest();

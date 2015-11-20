@@ -7,6 +7,8 @@ import edu.kit.ipd.sdq.eventsim.command.ICommand;
 import edu.kit.ipd.sdq.eventsim.command.PCMModelCommandExecutor;
 import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
 import edu.kit.ipd.sdq.eventsim.middleware.ISimulationMiddleware;
+import edu.kit.ipd.sdq.eventsim.middleware.components.ComponentFacade;
+import edu.kit.ipd.sdq.eventsim.middleware.components.UnboundRequiredRoleAccessException;
 import edu.kit.ipd.sdq.eventsim.middleware.simulation.PCMModel;
 import edu.kit.ipd.sdq.eventsim.middleware.simulation.config.SimulationConfiguration;
 
@@ -18,29 +20,29 @@ import edu.kit.ipd.sdq.eventsim.middleware.simulation.config.SimulationConfigura
  */
 abstract public class AbstractEventSimModel {
 
-	private ISimulationMiddleware middleware;
+	private ComponentFacade component;
 	private EventSimConfig config;
 	private PCMModelCommandExecutor executor;
-	private final List<EventSimEntity> activeEntitiesList;
+	private List<EventSimEntity> activeEntitiesList;
 
-	public AbstractEventSimModel(ISimulationMiddleware middleware) {
-		// TODO get rid of cast
-		SimulationConfiguration cfg = (SimulationConfiguration)middleware.getSimulationConfiguration();
-		
-		this.middleware = middleware;
-		this.config = new EventSimConfig(cfg.getConfigurationMap(), cfg.isDebug(), cfg.getPCMModel());
-		this.executor = new PCMModelCommandExecutor(middleware.getPCMModel());
-		this.activeEntitiesList = new CopyOnWriteArrayList<EventSimEntity>();
+	public AbstractEventSimModel(ComponentFacade component) {
+		this.component = component;
 	}
 
 	public ISimulationMiddleware getSimulationMiddleware() {
-		return middleware;
+		return component.getRequiredService(ISimulationMiddleware.class);
 	}
 
 	/**
 	 * Initializes the model
 	 */
-	public abstract void init();
+	public void init() {
+		SimulationConfiguration cfg = (SimulationConfiguration) getSimulationMiddleware().getSimulationConfiguration();
+
+		this.config = new EventSimConfig(cfg.getConfigurationMap(), cfg.isDebug(), cfg.getPCMModel());
+		this.executor = new PCMModelCommandExecutor(getSimulationMiddleware().getPCMModel());
+		this.activeEntitiesList = new CopyOnWriteArrayList<EventSimEntity>();
+	}
 
 	/**
 	 * Executes the specified command and returns the result.
@@ -106,6 +108,10 @@ abstract public class AbstractEventSimModel {
 		assert activeEntitiesList.isEmpty() : "There are some entities left in the list of active entities, though " + "each of them was asked to leave the system.";
 
 		EventSimEntity.resetIdGenerator();
+	}
+	
+	public ComponentFacade getComponent() {
+		return component;
 	}
 
 }

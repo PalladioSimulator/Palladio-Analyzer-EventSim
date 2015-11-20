@@ -14,9 +14,7 @@ public interface IRequest {
 	public long getId();
 
 	/**
-	 * Returns the user who initiated the request.
-	 * 
-	 * @return The creator of the request
+	 * @return the user who initiated the request.
 	 */
 	public IUser getUser();
 

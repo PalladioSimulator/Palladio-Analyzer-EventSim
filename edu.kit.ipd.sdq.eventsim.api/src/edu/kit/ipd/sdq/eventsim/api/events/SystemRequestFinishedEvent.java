@@ -2,7 +2,6 @@ package edu.kit.ipd.sdq.eventsim.api.events;
 
 import edu.kit.ipd.sdq.eventsim.api.IRequest;
 import edu.kit.ipd.sdq.eventsim.middleware.events.AbstractSimulationEvent;
-import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationEvent;
 
 /**
  * Indicates that a {@link IRequest} has been simulated completely.
@@ -25,5 +24,7 @@ public class SystemRequestFinishedEvent extends AbstractSimulationEvent {
 	public IRequest getRequest() {
 		return request;
 	}
+	
+	
 
 }

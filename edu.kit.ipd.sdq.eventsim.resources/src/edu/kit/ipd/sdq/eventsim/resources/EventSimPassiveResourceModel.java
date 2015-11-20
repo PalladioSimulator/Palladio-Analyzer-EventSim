@@ -8,17 +8,19 @@ import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 import org.palladiosimulator.pcm.repository.PassiveResource;
 
 import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
+import edu.kit.ipd.sdq.eventsim.api.IPassiveResource;
 import edu.kit.ipd.sdq.eventsim.api.IRequest;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementFacade;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 import edu.kit.ipd.sdq.eventsim.middleware.ISimulationMiddleware;
+import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationStopEvent;
 import edu.kit.ipd.sdq.eventsim.resources.calculators.HoldTimeCalculator;
 import edu.kit.ipd.sdq.eventsim.resources.calculators.WaitingTimeCalculator;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimPassiveResource;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimulatedProcess;
 import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
 
-public class EventSimPassiveResourceModel extends AbstractEventSimModel {
+public class EventSimPassiveResourceModel extends AbstractEventSimModel implements IPassiveResource {
 
     // maps (AssemblyContext ID, PassiveResource ID) -> SimPassiveResource
     private Map<String, SimPassiveResource> contextToResourceMap;
@@ -26,20 +28,31 @@ public class EventSimPassiveResourceModel extends AbstractEventSimModel {
 	
     private MeasurementFacade<ResourceProbeConfiguration> measurementFacade;
     
-	public EventSimPassiveResourceModel(ISimulationMiddleware middleware) {
-		super(middleware);
-		contextToResourceMap = new HashMap<String, SimPassiveResource>();
+	public EventSimPassiveResourceModel(EventSimPassiveResource component) {
+		super(component);
 		
+		contextToResourceMap = new HashMap<String, SimPassiveResource>();
 		requestToSimulatedProcessMap = new WeakHashMap<>();
 	}
 
 	@Override
 	public void init() {
+		super.init();
+		
 		measurementFacade = new MeasurementFacade<>(new ResourceProbeConfiguration(), Activator.getContext()
 				.getBundle());
 		
 		MeasurementStorage measurementStorage = getSimulationMiddleware().getMeasurementStorage();
 		measurementStorage.addIdProvider(SimPassiveResource.class, c -> ((SimPassiveResource)c).getSpecification().getId());
+		
+		registerEventHandler();
+	}
+	
+	private void registerEventHandler() {
+		ISimulationMiddleware middleware = getComponent().getRequiredService(ISimulationMiddleware.class);
+		
+//		middleware.registerEventHandler(SimulationInitEvent.class, e -> init());
+		middleware.registerEventHandler(SimulationStopEvent.class, e -> finalise());
 	}
 
 //	private void initProbeSpecification() {

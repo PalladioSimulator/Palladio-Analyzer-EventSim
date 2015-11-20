@@ -3,7 +3,6 @@ package edu.kit.ipd.sdq.eventsim.system.interpreter.strategies;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import org.palladiosimulator.pcm.resourceenvironment.ResourceContainer;
 import org.palladiosimulator.pcm.resourcetype.ResourceType;
 import org.palladiosimulator.pcm.seff.AbstractAction;
 import org.palladiosimulator.pcm.seff.InternalAction;
@@ -15,7 +14,6 @@ import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalInstruction;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.interpreter.instructions.InterruptTraversal;
 import edu.kit.ipd.sdq.eventsim.interpreter.state.ITraversalStrategyState;
-import edu.kit.ipd.sdq.eventsim.middleware.ISimulationMiddleware;
 import edu.kit.ipd.sdq.eventsim.system.EventSimSystemModel;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
 import edu.kit.ipd.sdq.eventsim.system.events.ResumeSeffTraversalEvent;
@@ -44,25 +42,11 @@ public class InternalActionTraversalStrategy implements ITraversalStrategy<Abstr
 
 		final ParametricResourceDemand demand = internalState.dequeueDemand();
 
-		// fetch active resource simulation component
-		ISimulationMiddleware middleware = request.getEventSimModel().getSimulationMiddleware();
-
 		double evaluatedDemand = NumberConverter.toDouble(state.getStoExContext().evaluate(demand.getSpecification_ParametericResourceDemand().getSpecification()));
 		ResourceType type = demand.getRequiredResource_ParametricResourceDemand();
-
-		ResourceContainer resourceContainer = state.getComponent().getResourceContainer().getSpecification();
-		String containerDescriptor = resourceContainer.getEntityName() + "#" + resourceContainer.getId();
-		String resourceTypeDescriptor = type.getEntityName() + "#" + type.getId();
-
-		// fetch simulation component based on context
-//		EventSimSystem system = (EventSimSystem) Activator.getDefault().getSystemComponent();
-//		List<IActiveResource> activeResourceComponents = system.getActiveResourceComponents();
-//		ActiveResourceSimulationContext context = new ActiveResourceSimulationContext(containerDescriptor, resourceTypeDescriptor);
-//		IActiveResource activeResource = (IActiveResource) middleware.getSimulationComponent(EventSimSystem.class, IActiveResource.class, activeResourceComponents, context);
 		
 		// consume the resource demand
-        // TODO get rid of cast
-		((EventSimSystemModel) request.getEventSimModel()).getActiveResourceCallback().consume(request,
+		request.getEventSimModel().getComponent().getRequiredService(IActiveResource.class).consume(request,
 				state.getComponent().getResourceContainer().getSpecification(), type, evaluatedDemand);
 
 		EventSimSystemModel systemModel = (EventSimSystemModel) request.getEventSimModel();

@@ -15,6 +15,7 @@ import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationControl;
 import de.uka.ipd.sdq.simulation.preferences.SimulationPreferencesHelper;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 import edu.kit.ipd.sdq.eventsim.measurement.r.RMeasurementStore;
+import edu.kit.ipd.sdq.eventsim.middleware.components.AbstractComponentFacade;
 import edu.kit.ipd.sdq.eventsim.middleware.events.EventManager;
 import edu.kit.ipd.sdq.eventsim.middleware.events.IEventHandler;
 import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationEvent;
@@ -31,7 +32,7 @@ import edu.kit.ipd.sdq.eventsim.middleware.simulation.config.SimulationConfigura
  * @author Christoph Föhrdes
  * @author Philipp Merkle
  */
-public class SimulationMiddleware implements ISimulationMiddleware {
+public class SimulationMiddleware extends AbstractComponentFacade implements ISimulationMiddleware {
 
 	private static final Logger logger = Logger.getLogger(SimulationMiddleware.class);
 
@@ -44,18 +45,15 @@ public class SimulationMiddleware implements ISimulationMiddleware {
 	private MeasurementStorage measurementStorage;
 	private EventManager eventManager;
 
-	public SimulationMiddleware() {
+	public SimulationMiddleware(ISimulationConfiguration config, PCMModel pcmModel) {
+		provide(ISimulationMiddleware.class, this);
+		
 		eventManager = new EventManager();
-
-		// register the middleware event handlers
-		this.registerEventHandler();
+		registerEventHandler();
+		initialize(config, pcmModel);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void initialize(ISimulationConfiguration config, PCMModel pcmModel) {
+	private void initialize(ISimulationConfiguration config, PCMModel pcmModel) {
 		this.pcmModel = pcmModel;
 		this.simConfig = config;
 
@@ -65,8 +63,7 @@ public class SimulationMiddleware implements ISimulationMiddleware {
 			throw new RuntimeException("R measurement store could not bet constructed from launch configuration.");
 		}
 
-		// Create the simulation model (this model is control and not the
-		// subject of the simulation)
+		// Create the simulation model (this model is control and not the subject of the simulation)
 		ISimEngineFactory factory = SimulationPreferencesHelper.getPreferredSimulationEngine();
 		if (factory == null) {
 			throw new RuntimeException("There is no simulation engine available. Install at least one engine.");
@@ -145,7 +142,7 @@ public class SimulationMiddleware implements ISimulationMiddleware {
 
 		});
 
-		notifyStartListeners();
+		notifyStartListeners(); // TODO obsolete!?
 		simControl.start();
 	}
 

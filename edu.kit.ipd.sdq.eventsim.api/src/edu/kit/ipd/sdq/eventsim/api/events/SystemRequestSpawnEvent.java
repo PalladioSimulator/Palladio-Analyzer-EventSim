@@ -2,7 +2,6 @@ package edu.kit.ipd.sdq.eventsim.api.events;
 
 import edu.kit.ipd.sdq.eventsim.api.IRequest;
 import edu.kit.ipd.sdq.eventsim.middleware.events.AbstractSimulationEvent;
-import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationEvent;
 
 /**
  * Indicates that a new {@link IRequest} has been created and waits to be simulated.

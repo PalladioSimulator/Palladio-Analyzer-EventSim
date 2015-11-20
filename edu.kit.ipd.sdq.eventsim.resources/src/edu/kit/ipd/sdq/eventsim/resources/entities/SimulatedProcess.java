@@ -1,6 +1,5 @@
 package edu.kit.ipd.sdq.eventsim.resources.entities;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 import org.palladiosimulator.pcm.seff.AbstractAction;
@@ -25,10 +24,10 @@ import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
 public class SimulatedProcess extends EventSimEntity implements ISchedulableProcess {
 
     private final ArrayList<IActiveResource> terminatedObservers;
-    private final WeakReference<IRequest> request;
+    private final IRequest request;
     private boolean terminated;
     private int priority;
-    private SimulatedProcess parent;    
+    private SimulatedProcess parent;
     
     /**
      * Creates a simulated process with the specified id and registers the passed listener.
@@ -44,7 +43,7 @@ public class SimulatedProcess extends EventSimEntity implements ISchedulableProc
     public SimulatedProcess(AbstractEventSimModel model, SimulatedProcess parent, final IRequest request) {
     	super(model, SimulatedProcess.class.getName());
     	this.parent = parent;
-        this.request = new WeakReference<>(request);
+        this.request = request;
         this.terminatedObservers = new ArrayList<IActiveResource>();
     }
 
@@ -53,7 +52,7 @@ public class SimulatedProcess extends EventSimEntity implements ISchedulableProc
      */
     @Override
     public void activate() {
-        request.get().activate();
+        request.activate();
     }
 
     /**
@@ -86,7 +85,7 @@ public class SimulatedProcess extends EventSimEntity implements ISchedulableProc
      * Returns the request that created this simulated process.
      */
     public IRequest getRequest() {
-        return request.get();
+        return request;
     }
     
     public SimulatedProcess getParent() {
@@ -168,7 +167,7 @@ public class SimulatedProcess extends EventSimEntity implements ISchedulableProc
 	}
 	
 	public AbstractAction getCurrentPosition() {
-		return request.get().getCurrentPosition();
+		return request.getCurrentPosition();
 	}
 
 }

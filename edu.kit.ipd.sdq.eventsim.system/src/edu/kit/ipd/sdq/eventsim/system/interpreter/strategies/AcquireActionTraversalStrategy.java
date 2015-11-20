@@ -6,11 +6,13 @@ import org.palladiosimulator.pcm.seff.AbstractAction;
 import org.palladiosimulator.pcm.seff.AcquireAction;
 
 import edu.kit.ipd.sdq.eventsim.api.IPassiveResource;
+import edu.kit.ipd.sdq.eventsim.api.ISystem;
 import edu.kit.ipd.sdq.eventsim.exceptions.unchecked.EventSimException;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalInstruction;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.interpreter.instructions.InterruptTraversal;
 import edu.kit.ipd.sdq.eventsim.interpreter.instructions.TraverseNextAction;
+import edu.kit.ipd.sdq.eventsim.middleware.components.UnboundRequiredRoleAccessException;
 import edu.kit.ipd.sdq.eventsim.system.EventSimSystemModel;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
 import edu.kit.ipd.sdq.eventsim.system.events.ResumeSeffTraversalEvent;
@@ -35,20 +37,13 @@ public class AcquireActionTraversalStrategy implements ITraversalStrategy<Abstra
         }
 
 		// store EventSim specific state to the request
-        request.setRequestState(state);
-
-        // fetch passive resource simulation component
-//        EventSimSystem system = (EventSimSystem) Activator.getDefault().getSystemComponent();
-//		List<IPassiveResource> passiveResourceComponents = system.getPassiveResourceComponents();
-//		ISimulationMiddleware middleware = request.getEventSimModel().getSimulationMiddleware();
-		// TODO (SimComp): provide passive resource context
-//		IPassiveResource passiveResource = (IPassiveResource) middleware.getSimulationComponent(EventSimSystem.class, IPassiveResource.class, passiveResourceComponents, null);
+        request.setRequestState(state); // TODO why setting this here?
         
-        // TODO get rid of cast
         final PassiveResource passiveResouce = action.getPassiveresource_AcquireAction();
         AssemblyContext ctx = state.getComponent().getAssemblyCtx();
-        final boolean acquired = ((EventSimSystemModel)request.getEventSimModel()).getAcquireCallback().acquire(request, ctx, passiveResouce, 1);
-        
+		boolean acquired = request.getEventSimModel().getComponent().getRequiredService(IPassiveResource.class)
+				.acquire(request, ctx, passiveResouce, 1);
+        	
         // TODO warning if timeout is set to true in model
         
         if (acquired) {

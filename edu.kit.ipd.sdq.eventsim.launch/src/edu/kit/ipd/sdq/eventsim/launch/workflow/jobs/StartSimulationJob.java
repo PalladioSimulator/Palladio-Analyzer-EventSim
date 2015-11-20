@@ -1,8 +1,6 @@
 package edu.kit.ipd.sdq.eventsim.launch.workflow.jobs;
 
-import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -21,10 +19,21 @@ import de.uka.ipd.sdq.workflow.extension.AbstractExtendableJob;
 import de.uka.ipd.sdq.workflow.jobs.JobFailedException;
 import de.uka.ipd.sdq.workflow.jobs.UserCanceledException;
 import de.uka.ipd.sdq.workflow.mdsd.blackboard.MDSDBlackboard;
+import edu.kit.ipd.sdq.eventsim.api.IActiveResource;
+import edu.kit.ipd.sdq.eventsim.api.IPassiveResource;
+import edu.kit.ipd.sdq.eventsim.api.ISystem;
+import edu.kit.ipd.sdq.eventsim.api.IWorkload;
 import edu.kit.ipd.sdq.eventsim.launch.Activator;
 import edu.kit.ipd.sdq.eventsim.launch.runconfig.SimulationComponentWorkflowConfiguration;
+import edu.kit.ipd.sdq.eventsim.middleware.ISimulationMiddleware;
+import edu.kit.ipd.sdq.eventsim.middleware.SimulationMiddleware;
+import edu.kit.ipd.sdq.eventsim.middleware.components.ComponentFacade;
 import edu.kit.ipd.sdq.eventsim.middleware.simulation.PCMModel;
-import edu.kit.ipd.sdq.eventsim.osgi.ISimulationManager;
+import edu.kit.ipd.sdq.eventsim.middleware.simulation.config.SimulationConfiguration;
+import edu.kit.ipd.sdq.eventsim.resources.EventSimActiveResource;
+import edu.kit.ipd.sdq.eventsim.resources.EventSimPassiveResource;
+import edu.kit.ipd.sdq.eventsim.system.EventSimSystem;
+import edu.kit.ipd.sdq.eventsim.workload.EventSimWorkload;
 
 /**
  * Starts an EventSim simulation.
@@ -51,22 +60,33 @@ public class StartSimulationJob extends AbstractExtendableJob<MDSDBlackboard> {
 	}
 
 	public void execute(IProgressMonitor monitor) throws JobFailedException, UserCanceledException {
+		// derive configuration
+		SimulationConfiguration config = configuration.getSimulationConfiguration();
+		
 		// obtain PCM model from MDSD blackboard
+		// TODO multiple repositories are not supported by the following
 		PCMResourceSetPartition p = (PCMResourceSetPartition) getBlackboard()
 				.getPartition(LoadPCMModelsIntoBlackboardJob.PCM_MODELS_PARTITION_ID);
-
-		// TODO multiple repositories are not supported by the following
 		PCMModel model = new PCMModel(p.getAllocation(), p.getRepositories().get(0), p.getResourceEnvironment(),
 				p.getSystem(), p.getUsageModel(), p.getResourceTypeRepository());
+		config.setModel(model);
 
-		// derive configuration
-		configuration.getSimulationConfiguration().setModel(model);
+		// instantiate simulation components, including the underlying middleware
+		SimulationMiddleware middleware = new SimulationMiddleware(config, config.getPCMModel());
+		ComponentFacade workload = new EventSimWorkload();
+		ComponentFacade system = new EventSimSystem();
+		ComponentFacade activeResource = new EventSimActiveResource();
+		ComponentFacade passiveResource = new EventSimPassiveResource();
 
-		// obtain simulation manager service
-		ISimulationManager manager = discoverSimulationManager();
-
-		// start simulation
-		int simulationId = manager.prepareSimulation(configuration.getSimulationConfiguration());
+		// wire simulation components by connection required roles to provided roles
+		workload.getRequiredRole(ISimulationMiddleware.class).wire(middleware.getProvidedRole(ISimulationMiddleware.class));
+		system.getRequiredRole(ISimulationMiddleware.class).wire(middleware.getProvidedRole(ISimulationMiddleware.class));
+		activeResource.getRequiredRole(ISimulationMiddleware.class).wire(middleware.getProvidedRole(ISimulationMiddleware.class));
+		passiveResource.getRequiredRole(ISimulationMiddleware.class).wire(middleware.getProvidedRole(ISimulationMiddleware.class));
+		
+		workload.getRequiredRole(ISystem.class).wire(system.getProvidedRole(ISystem.class));
+		system.getRequiredRole(IActiveResource.class).wire(activeResource.getProvidedRole(IActiveResource.class));
+		system.getRequiredRole(IPassiveResource.class).wire(passiveResource.getProvidedRole(IPassiveResource.class));
 
 		// setup simulation dock (progress viewer)
 		DockModel dock = null;
@@ -81,7 +101,8 @@ public class StartSimulationJob extends AbstractExtendableJob<MDSDBlackboard> {
 
 		// start simulation and keep simulation dock updated about simulation progress
 		final DockModel activeDock = dock;
-		manager.getMiddleware(simulationId).startSimulation(new IStatusObserver() {
+		workload.getProvidedRole(IWorkload.class).getInstance().generate();
+		middleware.startSimulation(new IStatusObserver() {
 			@Override
 			public void updateStatus(int percentDone, double currentSimTime, long measurementsTaken) {
 				activeDock.setMeasurementCount(measurementsTaken);
@@ -93,9 +114,6 @@ public class StartSimulationJob extends AbstractExtendableJob<MDSDBlackboard> {
 		sendEventToSimulationDock(SIM_STOPPED_TOPIC, dock);
 		sendEventToSimulationDock(DOCK_IDLE_TOPIC, dock);
 
-		// clean up
-		manager.disposeSimulation(simulationId);
-
 		super.execute(monitor); // TODO needed?
 	}
 
@@ -105,13 +123,6 @@ public class StartSimulationJob extends AbstractExtendableJob<MDSDBlackboard> {
 		ServiceTracker eventService = new ServiceTracker<>(context, eventServiceRef, null);
 		eventService.open();
 		return (EventAdmin) eventService.getService();
-	}
-
-	private ISimulationManager discoverSimulationManager() {
-		BundleContext context = Activator.getDefault().getBundle().getBundleContext();
-		ServiceReference<ISimulationManager> managerRef = context.getServiceReference(ISimulationManager.class);
-		// TODO better use service tracker here?
-		return context.getService(managerRef);
 	}
 
 	private void sendEventToSimulationDock(String topic, DockModel dock) {

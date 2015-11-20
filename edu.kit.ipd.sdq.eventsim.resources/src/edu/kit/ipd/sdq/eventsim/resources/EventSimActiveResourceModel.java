@@ -16,18 +16,20 @@ import de.uka.ipd.sdq.scheduler.ISchedulingFactory;
 import de.uka.ipd.sdq.scheduler.factory.SchedulingFactory;
 import de.uka.ipd.sdq.scheduler.resources.active.AbstractActiveResource;
 import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
+import edu.kit.ipd.sdq.eventsim.api.IActiveResource;
 import edu.kit.ipd.sdq.eventsim.api.IRequest;
 import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
 import edu.kit.ipd.sdq.eventsim.entities.IEntityListener;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementFacade;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 import edu.kit.ipd.sdq.eventsim.middleware.ISimulationMiddleware;
+import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationStopEvent;
 import edu.kit.ipd.sdq.eventsim.middleware.simulation.SimulationModel;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimActiveResource;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimulatedProcess;
 import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
 
-public class EventSimActiveResourceModel extends AbstractEventSimModel {
+public class EventSimActiveResourceModel extends AbstractEventSimModel implements IActiveResource {
 
 	private static final Logger logger = Logger.getLogger(EventSimActiveResourceModel.class);
 
@@ -41,8 +43,8 @@ public class EventSimActiveResourceModel extends AbstractEventSimModel {
 
 	private MeasurementFacade<ResourceProbeConfiguration> measurementFacade;
 	
-	public EventSimActiveResourceModel(ISimulationMiddleware middleware) {
-		super(middleware);
+	public EventSimActiveResourceModel(EventSimActiveResource component) {
+		super(component);
 
 		containerToResourceMap = new HashMap<String, SimActiveResource>();
 		requestToSimulatedProcessMap = new WeakHashMap<IRequest, SimulatedProcess>();
@@ -50,6 +52,8 @@ public class EventSimActiveResourceModel extends AbstractEventSimModel {
 
 	@Override
 	public void init() {
+		super.init();
+		
 		// set up the resource scheduler
 		SimulationModel simModel = (SimulationModel) this.getSimulationMiddleware().getSimulationModel();
 		this.schedulingFactory = new SchedulingFactory(simModel);
@@ -60,6 +64,15 @@ public class EventSimActiveResourceModel extends AbstractEventSimModel {
 		MeasurementStorage measurementStorage = getSimulationMiddleware().getMeasurementStorage();
 		measurementStorage.addIdProvider(SimActiveResource.class, c -> ((SimActiveResource)c).getSpecification().getId());
 		measurementStorage.addIdProvider(SimulatedProcess.class, c -> Long.toString(((SimulatedProcess)c).getEntityId()));
+		
+		registerEventHandler();
+	}
+	
+	private void registerEventHandler() {
+		ISimulationMiddleware middleware = getComponent().getRequiredService(ISimulationMiddleware.class);
+		
+//		middleware.registerEventHandler(SimulationInitEvent.class, e -> init());
+		middleware.registerEventHandler(SimulationStopEvent.class, e -> finalise());
 	}
 	
 //	private void initProbeSpecification() {
@@ -76,6 +89,7 @@ public class EventSimActiveResourceModel extends AbstractEventSimModel {
 //
 //	}
 
+	@Override
 	public void consume(IRequest request, ResourceContainer resourceContainer, ResourceType resourceType, double absoluteDemand) {
 
 		final SimActiveResource resource = findOrCreateResource(resourceContainer, resourceType);

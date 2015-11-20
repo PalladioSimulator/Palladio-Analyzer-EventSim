@@ -2,59 +2,28 @@ package edu.kit.ipd.sdq.eventsim.workload;
 
 import org.apache.log4j.Logger;
 
+import edu.kit.ipd.sdq.eventsim.api.ISystem;
 import edu.kit.ipd.sdq.eventsim.api.IWorkload;
-import edu.kit.ipd.sdq.eventsim.api.events.WorkloadUserFinishedEvent;
 import edu.kit.ipd.sdq.eventsim.middleware.ISimulationMiddleware;
-import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationStopEvent;
-import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationInitEvent;
+import edu.kit.ipd.sdq.eventsim.middleware.components.AbstractComponentFacade;
 
 /**
  * An EventSim based workload simulation component implementation.
  * 
  * @author Christoph Föhrdes
  */
-public class EventSimWorkload implements IWorkload {
+public class EventSimWorkload extends AbstractComponentFacade {
 
 	private static final Logger logger = Logger.getLogger(EventSimWorkload.class);
 
-	private ISimulationMiddleware middleware;
 	private EventSimWorkloadModel model;
 
-	public EventSimWorkload(ISimulationMiddleware middleware) {
-		this.middleware = middleware;
-
-		// when the middleware is bound we register for some events
-		registerEventHandler();
-	}
-
-	private void registerEventHandler() {
-		middleware.registerEventHandler(SimulationInitEvent.class, e -> generate());
-		middleware.registerEventHandler(SimulationStopEvent.class, e -> finalise());
-		middleware.registerEventHandler(WorkloadUserFinishedEvent.class, e -> middleware.increaseMeasurementCount());
-	}
-
-	@Override
-	public void generate() {
-		logger.debug("Generating workload");
-
-		// create the event sim model
-		model = new EventSimWorkloadModel(this.middleware);
-
-		// launch the event generation
-		model.init();
-	}
-
-	/**
-	 * Cleans up the system simulation component
-	 */
-	private void finalise() {
-		model.finalise();
-
-		/*
-		 * TODO should not be required here when instances of this class are released properly (which seems not to be
-		 * the case
-		 */
-		model = null;
+	public EventSimWorkload() {
+		this.model = new EventSimWorkloadModel(this);
+		
+		require(ISimulationMiddleware.class, m -> model.init());
+		require(ISystem.class);
+		provide(IWorkload.class, model);
 	}
 
 }

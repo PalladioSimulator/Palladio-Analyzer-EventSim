@@ -19,6 +19,7 @@ Require-Bundle: de.uka.ipd.sdq.simucomframework.simucomstatus,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: edu.kit.ipd.sdq.eventsim.middleware,
+ edu.kit.ipd.sdq.eventsim.middleware.components,
  edu.kit.ipd.sdq.eventsim.middleware.events,
  edu.kit.ipd.sdq.eventsim.middleware.simulation,
  edu.kit.ipd.sdq.eventsim.middleware.simulation.config

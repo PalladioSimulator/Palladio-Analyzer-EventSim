@@ -15,7 +15,6 @@ import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationControl;
 import de.uka.ipd.sdq.simulation.preferences.SimulationPreferencesHelper;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationConfiguration;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
-import edu.kit.ipd.sdq.eventsim.api.PCMModel;
 import edu.kit.ipd.sdq.eventsim.api.events.SimulationStopEvent;
 import edu.kit.ipd.sdq.eventsim.components.AbstractComponentFacade;
 import edu.kit.ipd.sdq.eventsim.components.events.EventManager;
@@ -40,24 +39,22 @@ public class SimulationMiddleware extends AbstractComponentFacade implements ISi
 
 	private SimulationModel simModel;
 	private ISimulationControl simControl;
-	private ISimulationConfiguration simConfig;
-	private PCMModel pcmModel;
+	private ISimulationConfiguration config;
 	private int measurementCount;
 	private IRandomGenerator randomNumberGenerator;
 	private MeasurementStorage measurementStorage;
 	private EventManager eventManager;
 
-	public SimulationMiddleware(ISimulationConfiguration config, PCMModel pcmModel) {
+	public SimulationMiddleware(ISimulationConfiguration config) {
 		provide(ISimulationMiddleware.class, this);
 		
 		eventManager = new EventManager();
 		registerEventHandler();
-		initialize(config, pcmModel);
+		initialize(config);
 	}
 
-	private void initialize(ISimulationConfiguration config, PCMModel pcmModel) {
-		this.pcmModel = pcmModel;
-		this.simConfig = config;
+	private void initialize(ISimulationConfiguration config) {
+		this.config = config;
 
 		// initialize R measurement store
 		measurementStorage = RMeasurementStore.fromLaunchConfiguration(config.getConfigurationMap());
@@ -70,7 +67,6 @@ public class SimulationMiddleware extends AbstractComponentFacade implements ISi
 		if (factory == null) {
 			throw new RuntimeException("There is no simulation engine available. Install at least one engine.");
 		}
-
 		this.simModel = new SimulationModel(factory, this);
 		factory.setModel(simModel);
 		this.simControl = simModel.getSimulationControl();
@@ -191,18 +187,7 @@ public class SimulationMiddleware extends AbstractComponentFacade implements ISi
 	 * @return A simulation configuration
 	 */
 	public ISimulationConfiguration getSimulationConfiguration() {
-		return this.simConfig;
-	}
-
-	/**
-	 * Returns the PCM model to be simulated. If it has not been loaded before, this methods loads the PCM model from
-	 * the bundle.
-	 * 
-	 * @return a PCM model instance
-	 */
-	@Override
-	public PCMModel getPCMModel() {
-		return this.pcmModel;
+		return this.config;
 	}
 
 	@Override
@@ -232,7 +217,7 @@ public class SimulationMiddleware extends AbstractComponentFacade implements ISi
 	public IRandomGenerator getRandomGenerator() {
 		if (randomNumberGenerator == null) {
 			// TODO get rid of SimuCom dependency
-			randomNumberGenerator = new SimuComDefaultRandomNumberGenerator(simConfig.getRandomSeed());
+			randomNumberGenerator = new SimuComDefaultRandomNumberGenerator(config.getRandomSeed());
 		}
 		return randomNumberGenerator;
 	}

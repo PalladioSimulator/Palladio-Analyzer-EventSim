@@ -71,7 +71,7 @@ public class StartSimulationJob extends AbstractExtendableJob<MDSDBlackboard> {
 		config.setModel(model);
 
 		// instantiate simulation components, including the underlying middleware
-		SimulationMiddleware middleware = new SimulationMiddleware(config, config.getPCMModel());
+		SimulationMiddleware middleware = new SimulationMiddleware(config);
 		ComponentFacade workload = new EventSimWorkload();
 		ComponentFacade system = new EventSimSystem();
 		ComponentFacade resources = new EventSimResource();

@@ -38,13 +38,6 @@ public interface ISimulationMiddleware {
 	ISimulationConfiguration getSimulationConfiguration();
 
 	/**
-	 * Gives access to the PCM model to be simulated.
-	 * 
-	 * @return The PCM model to be simulated
-	 */
-	PCMModel getPCMModel();
-
-	/**
 	 * Gives access to the abstract sim engine simulation model, which is the
 	 * core of the simulation. It basically represents the main simulation
 	 * timeline.

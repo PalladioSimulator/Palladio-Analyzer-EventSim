@@ -5,7 +5,6 @@ import org.palladiosimulator.pcm.usagemodel.ClosedWorkload;
 import org.palladiosimulator.pcm.usagemodel.UsageScenario;
 
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
-import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
 import edu.kit.ipd.sdq.eventsim.api.events.WorkloadUserFinishedEvent;
 import edu.kit.ipd.sdq.eventsim.entities.IEntityListener;
 import edu.kit.ipd.sdq.eventsim.workload.EventSimWorkloadModel;
@@ -40,8 +39,6 @@ public class ClosedWorkloadGenerator implements IWorkloadGenerator {
 		this.workload = workload;
 		this.population = workload.getPopulation();
 		this.thinkTime = workload.getThinkTime_ClosedWorkload();
-
-		ISimulationMiddleware middleware = model.getSimulationMiddleware();
 	}
 
 	/**

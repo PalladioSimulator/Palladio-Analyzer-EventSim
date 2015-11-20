@@ -16,7 +16,6 @@ import org.palladiosimulator.pcm.seff.ResourceDemandingSEFF;
 import org.palladiosimulator.pcm.seff.ServiceEffectSpecification;
 
 import de.uka.ipd.sdq.simucomframework.variables.stackframe.SimulatedStackframe;
-import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
 import edu.kit.ipd.sdq.eventsim.exceptions.unchecked.EventSimException;
 import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
 
@@ -46,7 +45,6 @@ import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
  */
 public class ComponentInstance {
 
-    private final AbstractEventSimModel model;
     // TODO use ImplementationComponentType to be more general
     private final BasicComponent componentType;
     private List<RoleInstance> providedRoles;
@@ -65,13 +63,11 @@ public class ComponentInstance {
      *            the component type that is to be instantiated
      * @para assemblyCtx the AssemblyContext
      */
-    public ComponentInstance(final AbstractEventSimModel model, final BasicComponent type, final AssemblyContext assemblyCtx,
+    public ComponentInstance(final BasicComponent type, final AssemblyContext assemblyCtx,
             final SimulatedResourceContainer deployedOn, final SimulatedStackframe<Object> parameters) {
-        assert (model != null) : "The argument model may not be null.";
         assert (type != null) : "The argument type may not be null.";
         assert (assemblyCtx != null) : "The argument assemblyCtx may not be null.";
 
-        this.model = model;
         this.componentType = type;
         this.assemblyCtx = assemblyCtx;
         this.resourceContainer = deployedOn;

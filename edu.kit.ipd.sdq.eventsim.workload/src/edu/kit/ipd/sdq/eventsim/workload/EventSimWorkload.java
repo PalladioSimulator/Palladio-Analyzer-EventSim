@@ -1,7 +1,5 @@
 package edu.kit.ipd.sdq.eventsim.workload;
 
-import org.apache.log4j.Logger;
-
 import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
 import edu.kit.ipd.sdq.eventsim.api.ISystem;
 import edu.kit.ipd.sdq.eventsim.api.IWorkload;
@@ -13,8 +11,6 @@ import edu.kit.ipd.sdq.eventsim.components.AbstractComponentFacade;
  * @author Christoph Föhrdes
  */
 public class EventSimWorkload extends AbstractComponentFacade {
-
-	private static final Logger logger = Logger.getLogger(EventSimWorkload.class);
 
 	private EventSimWorkloadModel model;
 

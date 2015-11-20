@@ -39,9 +39,6 @@ public class RMeasurementStore implements MeasurementStorage {
 
 	private Buffer buffer;
 
-	/** the number of measurements processed since the last reset (or instantiation) */
-	private int processed;
-
 	private IdProvider idProvider;
 
 	private RConnection connection;
@@ -161,7 +158,6 @@ public class RMeasurementStore implements MeasurementStorage {
 		connection.close();
 		buffer = new Buffer(BUFFER_CAPACITY, idProvider);
 		bufferNumber = 0;
-		processed = 0;
 	}
 
 	private RConnection connectToR() {

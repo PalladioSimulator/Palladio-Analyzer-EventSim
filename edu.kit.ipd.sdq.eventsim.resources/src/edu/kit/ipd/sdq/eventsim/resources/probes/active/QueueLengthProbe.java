@@ -17,7 +17,6 @@ public class QueueLengthProbe extends AbstractProbe<SimActiveResource, Void, Res
 
 		SimActiveResource resource = p.getElement();
 		for (int instance = 0; instance < resource.getNumberOfInstances(); instance++) {
-			final int i = instance;
 			resource.addStateListener(new IStateListener() {
 
 				// TODO account for instanceid in measuring point (property suffix? explicit objects?)

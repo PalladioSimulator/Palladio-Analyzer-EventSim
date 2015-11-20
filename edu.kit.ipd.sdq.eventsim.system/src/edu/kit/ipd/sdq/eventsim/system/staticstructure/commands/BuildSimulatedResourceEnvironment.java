@@ -6,7 +6,6 @@ import java.util.List;
 import org.palladiosimulator.pcm.resourceenvironment.LinkingResource;
 import org.palladiosimulator.pcm.resourceenvironment.ResourceContainer;
 
-import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
 import edu.kit.ipd.sdq.eventsim.api.PCMModel;
 import edu.kit.ipd.sdq.eventsim.command.ICommandExecutor;
 import edu.kit.ipd.sdq.eventsim.command.IPCMCommand;
@@ -23,16 +22,14 @@ import edu.kit.ipd.sdq.eventsim.system.staticstructure.SimulatedResourceEnvironm
  */
 public class BuildSimulatedResourceEnvironment implements IPCMCommand<SimulatedResourceEnvironment> {
 
-    private final AbstractEventSimModel model;
-
     /**
      * Constructs a command that builds the {@link SimulatedResourceEnvironment}.
      * 
      * @param model
      *            the simulation model
      */
-    public BuildSimulatedResourceEnvironment(AbstractEventSimModel model) {
-        this.model = model;
+    public BuildSimulatedResourceEnvironment() {
+    	// nothing to do currently
     }
 
     /**

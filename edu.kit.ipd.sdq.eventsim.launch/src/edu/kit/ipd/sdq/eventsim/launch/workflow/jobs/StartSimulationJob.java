@@ -117,7 +117,7 @@ public class StartSimulationJob extends AbstractExtendableJob<MDSDBlackboard> {
 	private EventAdmin discoverEventAdmin() {
 		BundleContext context = Activator.getDefault().getBundle().getBundleContext();
 		ServiceReference<EventAdmin> eventServiceRef = context.getServiceReference(EventAdmin.class);
-		ServiceTracker eventService = new ServiceTracker<>(context, eventServiceRef, null);
+		ServiceTracker<?, ?> eventService = new ServiceTracker<>(context, eventServiceRef, null);
 		eventService.open();
 		return (EventAdmin) eventService.getService();
 	}

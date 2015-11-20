@@ -83,11 +83,11 @@ public class EventSimSystemModel extends AbstractEventSimModel implements ISyste
 		this.setupMeasurements();
 
 		// initialise resource environment and allocation
-		this.resourceEnvironment = this.execute(new BuildSimulatedResourceEnvironment(this));
+		this.resourceEnvironment = this.execute(new BuildSimulatedResourceEnvironment());
 		this.resourceAllocation = this.execute(new BuildResourceAllocation(this.resourceEnvironment));
 
 		// initialise component instances
-		this.componentRegistry = this.execute(new BuildComponentInstances(this, this.resourceAllocation));
+		this.componentRegistry = this.execute(new BuildComponentInstances(this.resourceAllocation));
 		
 		// install extern call parameter handling
 		this.execute(new InstallExternalCallParameterHandling(this.seffInterpreter.getConfiguration()));

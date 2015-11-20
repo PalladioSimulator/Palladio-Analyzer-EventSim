@@ -17,7 +17,6 @@ import org.palladiosimulator.pcm.repository.RepositoryComponent;
 import org.palladiosimulator.pcm.repository.RepositoryPackage;
 
 import de.uka.ipd.sdq.simucomframework.variables.stackframe.SimulatedStackframe;
-import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
 import edu.kit.ipd.sdq.eventsim.api.PCMModel;
 import edu.kit.ipd.sdq.eventsim.command.ICommandExecutor;
 import edu.kit.ipd.sdq.eventsim.command.IPCMCommand;
@@ -41,7 +40,6 @@ public class BuildComponentInstances implements IPCMCommand<Map<String, Componen
 
     private static final Logger logger = Logger.getLogger(BuildComponentInstances.class);
 
-    private final AbstractEventSimModel model;
     private final AllocationRegistry allocation;
 
     /**
@@ -53,8 +51,7 @@ public class BuildComponentInstances implements IPCMCommand<Map<String, Componen
      * @param allocation
      *            the allocation registry
      */
-    public BuildComponentInstances(AbstractEventSimModel model, AllocationRegistry allocation) {
-        this.model = model;
+    public BuildComponentInstances(AllocationRegistry allocation) {
         this.allocation = allocation;
     }
 
@@ -79,7 +76,7 @@ public class BuildComponentInstances implements IPCMCommand<Map<String, Componen
                 }
 
                 SimulatedStackframe<Object> componentParameters = createComponentParameters(basicComponent, assemblyCtx);
-                ComponentInstance componentInstance = new ComponentInstance(this.model, basicComponent, assemblyCtx, resourceContainer, componentParameters);
+                ComponentInstance componentInstance = new ComponentInstance(basicComponent, assemblyCtx, resourceContainer, componentParameters);
                 componentsMap.put(assemblyCtx.getId(), componentInstance);
             } else {
             	if(logger.isEnabledFor(Level.WARN))

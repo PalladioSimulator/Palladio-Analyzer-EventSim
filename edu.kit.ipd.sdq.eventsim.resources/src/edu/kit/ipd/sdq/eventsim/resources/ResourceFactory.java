@@ -24,7 +24,6 @@ import edu.kit.ipd.sdq.eventsim.resources.entities.SimPassiveResource;
 
 public class ResourceFactory {
 
-	private static final boolean SIMULATE_FAILURES = false;
 	private static AtomicLong idGenerator = new AtomicLong(0);
 
 	/**
@@ -107,20 +106,14 @@ public class ResourceFactory {
 	 *            the assembly context in which the passive resource is created
 	 * @return the created resource
 	 */
-	public static SimPassiveResource createPassiveResource(final AbstractEventSimModel model, final PassiveResource specification, final AssemblyContext assemblyCtx) {
+	public static SimPassiveResource createPassiveResource(final AbstractEventSimModel model,
+			final PassiveResource specification, final AssemblyContext assemblyCtx) {
 		// obtain capacity by evaluating the associated StoEx
 		final PCMRandomVariable capacitySpecification = specification.getCapacity_PassiveResource();
 		final int capacity = StackContext.evaluateStatic(capacitySpecification.getSpecification(), Integer.class);
 
-		final String name = specification.getEntityName();
-		final String resourceId = specification.getId();
-		final String assemblyContextId = assemblyCtx.getId();
-		final String combinedId = resourceId + ":" + assemblyContextId;
-
 		// create the scheduler resource for the operating system
 		ISimulationModel simulationModel = model.getSimulationMiddleware().getSimulationModel();
-//		IPassiveResource schedulerResource = new SimSimpleFairPassiveResource(simulationModel, capacity, name, resourceId, assemblyContextId, combinedId, SIMULATE_FAILURES);
-		
 		IPassiveResource schedulerResource = new SimSimpleFairPassiveResource(specification, assemblyCtx,
 				(SchedulerModel) simulationModel, new Long(capacity)); // TODO get rid of cast
 

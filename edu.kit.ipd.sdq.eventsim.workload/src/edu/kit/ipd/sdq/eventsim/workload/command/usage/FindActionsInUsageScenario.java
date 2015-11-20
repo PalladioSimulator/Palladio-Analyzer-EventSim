@@ -56,6 +56,7 @@ public class FindActionsInUsageScenario<A extends AbstractUserAction> implements
 	/**
 	 * Searches for and returns all system calls that are contained in the specified scenario behaviour
 	 */
+	@SuppressWarnings("unchecked")
 	private List<A> findActionsByType(ScenarioBehaviour behaviour, ICommandExecutor<PCMModel> executor) {
 		List<A> actions = new ArrayList<>();
 

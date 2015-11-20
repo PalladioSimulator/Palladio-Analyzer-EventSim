@@ -44,7 +44,6 @@ public class SimulationComponentWorkflowLauncher extends AbstractPCMLaunchConfig
 
 	@Override
 	protected SimulationComponentWorkflowConfiguration deriveConfiguration(ILaunchConfiguration configuration, String mode) throws CoreException {
-		@SuppressWarnings("unchecked")
 		SimulationComponentWorkflowConfiguration config = new SimulationComponentWorkflowConfiguration(configuration.getAttributes());
 
 		AbstractWorkflowConfigurationBuilder builder;

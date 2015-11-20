@@ -17,7 +17,6 @@ public class ResourceDemandProbe extends AbstractProbe<SimActiveResource, Void, 
 
 		SimActiveResource resource = p.getElement();
 		for (int instance = 0; instance < resource.getNumberOfInstances(); instance++) {
-			final int i = instance;
 			resource.addDemandListener(new IDemandListener() {
 				// TODO account for instanceid in measuring point (property suffix? explicit objects?)
 				@Override

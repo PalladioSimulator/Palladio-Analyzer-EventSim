@@ -56,6 +56,7 @@ public class FindActionsInSeff<A extends AbstractAction> implements IPCMCommand<
 	/**
 	 * Searches for and returns all external calls that are contained in the specified resource demanding behaviour.
 	 */
+	@SuppressWarnings("unchecked")
 	private List<A> findActionsByType(ResourceDemandingBehaviour behaviour, ICommandExecutor<PCMModel> executor) {
 		List<A> actions = new ArrayList<>();
 

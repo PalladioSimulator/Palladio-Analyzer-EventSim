@@ -3,10 +3,10 @@ package edu.kit.ipd.sdq.eventsim.system.command.seff;
 import org.palladiosimulator.pcm.seff.AbstractAction;
 import org.palladiosimulator.pcm.seff.ResourceDemandingBehaviour;
 
+import edu.kit.ipd.sdq.eventsim.api.PCMModel;
 import edu.kit.ipd.sdq.eventsim.command.ICommandExecutor;
 import edu.kit.ipd.sdq.eventsim.command.IPCMCommand;
 import edu.kit.ipd.sdq.eventsim.exceptions.unchecked.UnexpectedModelStructureException;
-import edu.kit.ipd.sdq.eventsim.middleware.simulation.PCMModel;
 
 /**
  * This command searches for an action of the specified type in the specified service effect

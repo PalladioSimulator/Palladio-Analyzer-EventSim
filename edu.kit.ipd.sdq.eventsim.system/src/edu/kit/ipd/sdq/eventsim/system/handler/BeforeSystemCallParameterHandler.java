@@ -10,7 +10,7 @@ import org.palladiosimulator.pcm.usagemodel.EntryLevelSystemCall;
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
 import de.uka.ipd.sdq.simucomframework.variables.stackframe.SimulatedStackframe;
 import edu.kit.ipd.sdq.eventsim.api.events.SystemRequestSpawnEvent;
-import edu.kit.ipd.sdq.eventsim.middleware.events.IEventHandler;
+import edu.kit.ipd.sdq.eventsim.components.events.IEventHandler;
 import edu.kit.ipd.sdq.eventsim.system.EventSimSystemModel;
 import edu.kit.ipd.sdq.eventsim.system.command.FindAssemblyContextForSystemCall;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;

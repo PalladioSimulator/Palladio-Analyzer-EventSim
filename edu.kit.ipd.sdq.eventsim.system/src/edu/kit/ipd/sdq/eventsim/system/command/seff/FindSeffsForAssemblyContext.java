@@ -11,10 +11,10 @@ import org.palladiosimulator.pcm.seff.ResourceDemandingSEFF;
 import org.palladiosimulator.pcm.seff.SeffPackage;
 import org.palladiosimulator.pcm.seff.ServiceEffectSpecification;
 
+import edu.kit.ipd.sdq.eventsim.api.PCMModel;
 import edu.kit.ipd.sdq.eventsim.command.ICommandExecutor;
 import edu.kit.ipd.sdq.eventsim.command.IPCMCommand;
 import edu.kit.ipd.sdq.eventsim.exceptions.unchecked.EventSimException;
-import edu.kit.ipd.sdq.eventsim.middleware.simulation.PCMModel;
 
 /**
  * This command returns all {@link ResourceDemandingSEFF}s provided by the component that is

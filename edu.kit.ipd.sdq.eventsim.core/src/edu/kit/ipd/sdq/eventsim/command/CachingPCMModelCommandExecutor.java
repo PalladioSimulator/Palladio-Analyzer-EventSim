@@ -3,7 +3,7 @@ package edu.kit.ipd.sdq.eventsim.command;
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.kit.ipd.sdq.eventsim.middleware.simulation.PCMModel;
+import edu.kit.ipd.sdq.eventsim.api.PCMModel;
 
 /**
  * 

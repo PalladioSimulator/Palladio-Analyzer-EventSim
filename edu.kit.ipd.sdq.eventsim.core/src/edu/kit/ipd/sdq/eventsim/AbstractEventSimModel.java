@@ -3,14 +3,13 @@ package edu.kit.ipd.sdq.eventsim;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import edu.kit.ipd.sdq.eventsim.api.ISimulationConfiguration;
+import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
+import edu.kit.ipd.sdq.eventsim.api.PCMModel;
 import edu.kit.ipd.sdq.eventsim.command.ICommand;
 import edu.kit.ipd.sdq.eventsim.command.PCMModelCommandExecutor;
+import edu.kit.ipd.sdq.eventsim.components.ComponentFacade;
 import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
-import edu.kit.ipd.sdq.eventsim.middleware.ISimulationMiddleware;
-import edu.kit.ipd.sdq.eventsim.middleware.components.ComponentFacade;
-import edu.kit.ipd.sdq.eventsim.middleware.components.UnboundRequiredRoleAccessException;
-import edu.kit.ipd.sdq.eventsim.middleware.simulation.PCMModel;
-import edu.kit.ipd.sdq.eventsim.middleware.simulation.config.SimulationConfiguration;
 
 /**
  * This class is the basis for a simulation component based on EventSim. It
@@ -37,7 +36,7 @@ abstract public class AbstractEventSimModel {
 	 * Initializes the model
 	 */
 	public void init() {
-		SimulationConfiguration cfg = (SimulationConfiguration) getSimulationMiddleware().getSimulationConfiguration();
+		ISimulationConfiguration cfg = getSimulationMiddleware().getSimulationConfiguration();
 
 		this.config = new EventSimConfig(cfg.getConfigurationMap(), cfg.isDebug(), cfg.getPCMModel());
 		this.executor = new PCMModelCommandExecutor(getSimulationMiddleware().getPCMModel());

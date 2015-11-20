@@ -7,9 +7,9 @@ import org.palladiosimulator.pcm.resourceenvironment.LinkingResource;
 import org.palladiosimulator.pcm.resourceenvironment.ResourceContainer;
 
 import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
+import edu.kit.ipd.sdq.eventsim.api.PCMModel;
 import edu.kit.ipd.sdq.eventsim.command.ICommandExecutor;
 import edu.kit.ipd.sdq.eventsim.command.IPCMCommand;
-import edu.kit.ipd.sdq.eventsim.middleware.simulation.PCMModel;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimActiveResource;
 import edu.kit.ipd.sdq.eventsim.system.staticstructure.CommunicationLink;
 import edu.kit.ipd.sdq.eventsim.system.staticstructure.SimulatedResourceContainer;

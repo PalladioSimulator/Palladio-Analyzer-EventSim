@@ -11,12 +11,14 @@ import org.palladiosimulator.pcm.resourceenvironment.ProcessingResourceSpecifica
 import de.uka.ipd.sdq.scheduler.IActiveResource;
 import de.uka.ipd.sdq.scheduler.IPassiveResource;
 import de.uka.ipd.sdq.scheduler.ISchedulingFactory;
+import de.uka.ipd.sdq.scheduler.SchedulerModel;
+import de.uka.ipd.sdq.scheduler.factory.SchedulingFactory;
 import de.uka.ipd.sdq.simucomframework.resources.SchedulingStrategy;
 import de.uka.ipd.sdq.simucomframework.resources.SimSimpleFairPassiveResource;
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
+import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
 import edu.kit.ipd.sdq.eventsim.exceptions.unchecked.EventSimException;
-import edu.kit.ipd.sdq.eventsim.middleware.simulation.SimulationModel;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimActiveResource;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimLinkingResource;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimPassiveResource;
@@ -117,11 +119,11 @@ public class ResourceFactory {
 		final String combinedId = resourceId + ":" + assemblyContextId;
 
 		// create the scheduler resource for the operating system
-		SimulationModel simulationModel = (SimulationModel) model.getSimulationMiddleware().getSimulationModel();
+		ISimulationModel simulationModel = model.getSimulationMiddleware().getSimulationModel();
 //		IPassiveResource schedulerResource = new SimSimpleFairPassiveResource(simulationModel, capacity, name, resourceId, assemblyContextId, combinedId, SIMULATE_FAILURES);
 		
-		IPassiveResource schedulerResource = new SimSimpleFairPassiveResource(specification, assemblyCtx, simulationModel, 
-        		new Long(capacity));
+		IPassiveResource schedulerResource = new SimSimpleFairPassiveResource(specification, assemblyCtx,
+				(SchedulerModel) simulationModel, new Long(capacity)); // TODO get rid of cast
 
 		return new SimPassiveResource(model, schedulerResource);
 	}

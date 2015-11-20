@@ -1,7 +1,7 @@
 package edu.kit.ipd.sdq.eventsim.api.events;
 
 import edu.kit.ipd.sdq.eventsim.api.IUser;
-import edu.kit.ipd.sdq.eventsim.middleware.events.AbstractSimulationEvent;
+import edu.kit.ipd.sdq.eventsim.components.events.AbstractSimulationEvent;
 
 /**
  * Indicates that a new {@link IUser} has been created and waits to be simulated.

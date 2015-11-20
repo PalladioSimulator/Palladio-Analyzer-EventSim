@@ -1,4 +1,4 @@
-package edu.kit.ipd.sdq.eventsim.middleware.simulation;
+package edu.kit.ipd.sdq.eventsim.api;
 
 import java.net.URL;
 

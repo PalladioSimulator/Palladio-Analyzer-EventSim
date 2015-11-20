@@ -4,9 +4,9 @@ import org.apache.log4j.Logger;
 
 import edu.kit.ipd.sdq.eventsim.api.IActiveResource;
 import edu.kit.ipd.sdq.eventsim.api.IPassiveResource;
+import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
 import edu.kit.ipd.sdq.eventsim.api.ISystem;
-import edu.kit.ipd.sdq.eventsim.middleware.ISimulationMiddleware;
-import edu.kit.ipd.sdq.eventsim.middleware.components.AbstractComponentFacade;
+import edu.kit.ipd.sdq.eventsim.components.AbstractComponentFacade;
 
 public class EventSimSystem extends AbstractComponentFacade {
 

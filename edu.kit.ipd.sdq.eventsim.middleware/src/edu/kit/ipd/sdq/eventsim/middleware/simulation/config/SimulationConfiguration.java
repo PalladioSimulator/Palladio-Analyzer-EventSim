@@ -5,8 +5,8 @@ import java.util.Map;
 import org.palladiosimulator.analyzer.workflow.ConstantsContainer;
 
 import de.uka.ipd.sdq.simulation.AbstractSimulationConfig;
-import edu.kit.ipd.sdq.eventsim.middleware.ISimulationConfiguration;
-import edu.kit.ipd.sdq.eventsim.middleware.simulation.PCMModel;
+import edu.kit.ipd.sdq.eventsim.api.ISimulationConfiguration;
+import edu.kit.ipd.sdq.eventsim.api.PCMModel;
 
 /**
  * A configuration object for a simulation component based advanced simulator
@@ -19,39 +19,15 @@ import edu.kit.ipd.sdq.eventsim.middleware.simulation.PCMModel;
  */
 public class SimulationConfiguration extends AbstractSimulationConfig implements ISimulationConfiguration {
 
-	public static String SIMULATION_COMPONENT_SIMULATOR_ID = "de.uka.ipd.sdq.codegen.simucontroller.simcomp";
-
-	public static String CONFIG_KEY_SIMULATION_COMPONENTS_CONFIG = "simCompConfig";
-
-	private static final long serialVersionUID = 7117529282079662258L;
+	private static final long serialVersionUID = 8569962148603263000L;
 
 	private Map<String, Object> configMap;
-
-	// TODO obsolete?
-	private final String usageModelFile;
-	private final String allocationModelFile;
 	
     private PCMModel model;
 
 	public SimulationConfiguration(Map<String, Object> configuration, boolean debug) {
 		super(configuration, debug);
 		this.configMap = configuration;
-		try {
-			this.usageModelFile = (String) configuration.get(ConstantsContainer.USAGE_FILE);
-			this.allocationModelFile = (String) configuration.get(ConstantsContainer.ALLOCATION_FILE);
-		} catch (final Exception e) {
-			throw new RuntimeException("Setting up properties failed, please check launch config (check all tabs).", e);
-		}
-	}
-
-	@Override
-	public String getUsageModelFile() {
-		return this.usageModelFile;
-	}
-
-	@Override
-	public String getAllocationModelFile() {
-		return this.allocationModelFile;
 	}
 
 	@Override
@@ -64,6 +40,7 @@ public class SimulationConfiguration extends AbstractSimulationConfig implements
 		return super.randomSeed;
 	}
 	
+	@Override
 	public PCMModel getPCMModel() {
 		return model;
 	}

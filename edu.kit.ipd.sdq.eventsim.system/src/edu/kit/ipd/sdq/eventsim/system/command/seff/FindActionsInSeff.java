@@ -14,9 +14,9 @@ import org.palladiosimulator.pcm.seff.SeffPackage;
 import org.palladiosimulator.pcm.seff.StartAction;
 import org.palladiosimulator.pcm.seff.SynchronisationPoint;
 
+import edu.kit.ipd.sdq.eventsim.api.PCMModel;
 import edu.kit.ipd.sdq.eventsim.command.ICommandExecutor;
 import edu.kit.ipd.sdq.eventsim.command.IPCMCommand;
-import edu.kit.ipd.sdq.eventsim.middleware.simulation.PCMModel;
 
 /**
  * This command returns all {@link AbstractAction}s of a specified type that are contained in the specified SEFF. The

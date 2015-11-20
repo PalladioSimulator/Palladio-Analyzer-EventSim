@@ -3,12 +3,12 @@ package edu.kit.ipd.sdq.eventsim.system.interpreter.strategies;
 import org.palladiosimulator.pcm.seff.AbstractAction;
 import org.palladiosimulator.pcm.seff.StopAction;
 
+import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
 import edu.kit.ipd.sdq.eventsim.api.events.SystemRequestFinishedEvent;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalInstruction;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.interpreter.instructions.EndTraversal;
 import edu.kit.ipd.sdq.eventsim.interpreter.instructions.TraverseAfterLeavingScope;
-import edu.kit.ipd.sdq.eventsim.middleware.ISimulationMiddleware;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
 import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
 

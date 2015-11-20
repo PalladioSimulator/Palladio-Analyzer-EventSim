@@ -13,9 +13,9 @@ import org.palladiosimulator.pcm.seff.ResourceDemandingSEFF;
 
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
 import de.uka.ipd.sdq.simucomframework.variables.stackframe.SimulatedStackframe;
+import edu.kit.ipd.sdq.eventsim.api.PCMModel;
 import edu.kit.ipd.sdq.eventsim.command.ICommandExecutor;
 import edu.kit.ipd.sdq.eventsim.command.IPCMCommand;
-import edu.kit.ipd.sdq.eventsim.middleware.simulation.PCMModel;
 import edu.kit.ipd.sdq.eventsim.system.command.seff.FindActionsInSeff;
 import edu.kit.ipd.sdq.eventsim.system.command.seff.FindSeffsForAssemblyContext;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;

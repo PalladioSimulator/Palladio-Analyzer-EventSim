@@ -3,7 +3,7 @@ package edu.kit.ipd.sdq.eventsim;
 import java.util.Map;
 
 import de.uka.ipd.sdq.simulation.AbstractSimulationConfig;
-import edu.kit.ipd.sdq.eventsim.middleware.simulation.PCMModel;
+import edu.kit.ipd.sdq.eventsim.api.PCMModel;
 
 /**
  * This class encapsulates the configuration of an EventSim simulation run. The configuration is

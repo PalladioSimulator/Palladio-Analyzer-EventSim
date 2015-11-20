@@ -1,6 +1,6 @@
 package edu.kit.ipd.sdq.eventsim.command;
 
-import edu.kit.ipd.sdq.eventsim.middleware.simulation.PCMModel;
+import edu.kit.ipd.sdq.eventsim.api.PCMModel;
 
 /**
  * Use this class to execute {@link ICommand}s requiring access to a PCM model.

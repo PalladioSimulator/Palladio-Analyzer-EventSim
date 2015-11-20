@@ -13,18 +13,19 @@ import org.palladiosimulator.pcm.resourceenvironment.ResourceContainer;
 import org.palladiosimulator.pcm.resourcetype.ResourceType;
 
 import de.uka.ipd.sdq.scheduler.ISchedulingFactory;
+import de.uka.ipd.sdq.scheduler.SchedulerModel;
 import de.uka.ipd.sdq.scheduler.factory.SchedulingFactory;
 import de.uka.ipd.sdq.scheduler.resources.active.AbstractActiveResource;
+import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
 import edu.kit.ipd.sdq.eventsim.api.IActiveResource;
 import edu.kit.ipd.sdq.eventsim.api.IRequest;
+import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
+import edu.kit.ipd.sdq.eventsim.api.events.SimulationStopEvent;
 import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
 import edu.kit.ipd.sdq.eventsim.entities.IEntityListener;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementFacade;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
-import edu.kit.ipd.sdq.eventsim.middleware.ISimulationMiddleware;
-import edu.kit.ipd.sdq.eventsim.middleware.events.SimulationStopEvent;
-import edu.kit.ipd.sdq.eventsim.middleware.simulation.SimulationModel;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimActiveResource;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimulatedProcess;
 import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
@@ -55,8 +56,8 @@ public class EventSimActiveResourceModel extends AbstractEventSimModel implement
 		super.init();
 		
 		// set up the resource scheduler
-		SimulationModel simModel = (SimulationModel) this.getSimulationMiddleware().getSimulationModel();
-		this.schedulingFactory = new SchedulingFactory(simModel);
+		ISimulationModel simModel = getSimulationMiddleware().getSimulationModel();
+		this.schedulingFactory = new SchedulingFactory((SchedulerModel) simModel); // TODO get rid of cast
 
 		measurementFacade = new MeasurementFacade<>(new ResourceProbeConfiguration(), Activator.getContext()
 				.getBundle());

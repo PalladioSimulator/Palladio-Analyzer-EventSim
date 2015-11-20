@@ -6,9 +6,9 @@ import java.util.List;
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 import org.palladiosimulator.pcm.usagemodel.UsageScenario;
 
+import edu.kit.ipd.sdq.eventsim.api.PCMModel;
 import edu.kit.ipd.sdq.eventsim.command.ICommandExecutor;
 import edu.kit.ipd.sdq.eventsim.command.IPCMCommand;
-import edu.kit.ipd.sdq.eventsim.middleware.simulation.PCMModel;
 
 /**
  * TODO

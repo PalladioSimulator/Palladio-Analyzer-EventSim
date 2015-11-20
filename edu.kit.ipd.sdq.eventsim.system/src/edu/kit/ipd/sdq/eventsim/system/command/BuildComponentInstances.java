@@ -18,10 +18,10 @@ import org.palladiosimulator.pcm.repository.RepositoryPackage;
 
 import de.uka.ipd.sdq.simucomframework.variables.stackframe.SimulatedStackframe;
 import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
+import edu.kit.ipd.sdq.eventsim.api.PCMModel;
 import edu.kit.ipd.sdq.eventsim.command.ICommandExecutor;
 import edu.kit.ipd.sdq.eventsim.command.IPCMCommand;
 import edu.kit.ipd.sdq.eventsim.exceptions.unchecked.EventSimException;
-import edu.kit.ipd.sdq.eventsim.middleware.simulation.PCMModel;
 import edu.kit.ipd.sdq.eventsim.system.staticstructure.AllocationRegistry;
 import edu.kit.ipd.sdq.eventsim.system.staticstructure.ComponentInstance;
 import edu.kit.ipd.sdq.eventsim.system.staticstructure.RoleInstance;

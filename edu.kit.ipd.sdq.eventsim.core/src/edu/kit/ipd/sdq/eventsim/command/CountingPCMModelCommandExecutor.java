@@ -6,7 +6,7 @@ import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
-import edu.kit.ipd.sdq.eventsim.middleware.simulation.PCMModel;
+import edu.kit.ipd.sdq.eventsim.api.PCMModel;
 
 public class CountingPCMModelCommandExecutor extends PCMModelCommandExecutor {
 

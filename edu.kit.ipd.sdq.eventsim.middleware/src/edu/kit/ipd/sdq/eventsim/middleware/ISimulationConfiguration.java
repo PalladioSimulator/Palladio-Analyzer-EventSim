@@ -26,26 +26,6 @@ public interface ISimulationConfiguration extends ISimulationConfig {
 	public String getAllocationModelFile();
 
 	/**
-	 * Returns the default simulation component to use for a given required
-	 * interface.
-	 * 
-	 * @param requiredType
-	 *            The required interface to fetch the default component for
-	 * @return Metadata object of the simulation component to use
-	 */
-//	public SimulationComponentImpl getDefaultComponentForRequiredType(SimulationComponentRequiredType requiredType);
-
-	/**
-	 * Returns a list of composition rules to determine the simulation component
-	 * to use for a given required interface.
-	 * 
-	 * @param requiredType
-	 *            The type to search the rules for
-	 * @return A list of composition rules
-	 */
-//	public List<ISimulatorCompositonRule> getCompositionRulesForRequiredType(SimulationComponentRequiredType requiredType);
-
-	/**
 	 * Gives access to the raw configuration map as created at simulation
 	 * launch.
 	 * 

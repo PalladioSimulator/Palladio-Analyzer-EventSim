@@ -8,8 +8,6 @@ public class Activator implements BundleActivator {
 	private static Activator plugin;
 	private static BundleContext context;
 
-//	private ISimulationMiddleware simulationMiddleware;
-
 	public static BundleContext getContext() {
 		return context;
 	}
@@ -40,19 +38,5 @@ public class Activator implements BundleActivator {
 		Activator.context = null;
 		Activator.plugin = null;
 	}
-
-//	public void bindSimulationMiddleware(ISimulationMiddleware simulationMiddleware) {
-//		System.out.println("SimulationMiddleware bound to activator");
-//
-//		this.simulationMiddleware = simulationMiddleware;
-//	}
-//
-//	public void unbindSimulationMiddleware() {
-//		this.simulationMiddleware = null;
-//	}
-//
-//	public ISimulationMiddleware getSimulationMiddleware() {
-//		return simulationMiddleware;
-//	}
 
 }

@@ -28,7 +28,7 @@ public class EventSimPassiveResourceModel extends AbstractEventSimModel implemen
 	
     private MeasurementFacade<ResourceProbeConfiguration> measurementFacade;
     
-	public EventSimPassiveResourceModel(EventSimPassiveResource component) {
+	public EventSimPassiveResourceModel(EventSimResource component) {
 		super(component);
 		
 		contextToResourceMap = new HashMap<String, SimPassiveResource>();

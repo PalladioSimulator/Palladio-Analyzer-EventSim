@@ -43,7 +43,7 @@ public class EventSimActiveResourceModel extends AbstractEventSimModel implement
 
 	private MeasurementFacade<ResourceProbeConfiguration> measurementFacade;
 	
-	public EventSimActiveResourceModel(EventSimActiveResource component) {
+	public EventSimActiveResourceModel(EventSimResource component) {
 		super(component);
 
 		containerToResourceMap = new HashMap<String, SimActiveResource>();

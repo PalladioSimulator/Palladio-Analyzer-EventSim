@@ -30,8 +30,7 @@ import edu.kit.ipd.sdq.eventsim.middleware.SimulationMiddleware;
 import edu.kit.ipd.sdq.eventsim.middleware.components.ComponentFacade;
 import edu.kit.ipd.sdq.eventsim.middleware.simulation.PCMModel;
 import edu.kit.ipd.sdq.eventsim.middleware.simulation.config.SimulationConfiguration;
-import edu.kit.ipd.sdq.eventsim.resources.EventSimActiveResource;
-import edu.kit.ipd.sdq.eventsim.resources.EventSimPassiveResource;
+import edu.kit.ipd.sdq.eventsim.resources.EventSimResource;
 import edu.kit.ipd.sdq.eventsim.system.EventSimSystem;
 import edu.kit.ipd.sdq.eventsim.workload.EventSimWorkload;
 
@@ -75,18 +74,16 @@ public class StartSimulationJob extends AbstractExtendableJob<MDSDBlackboard> {
 		SimulationMiddleware middleware = new SimulationMiddleware(config, config.getPCMModel());
 		ComponentFacade workload = new EventSimWorkload();
 		ComponentFacade system = new EventSimSystem();
-		ComponentFacade activeResource = new EventSimActiveResource();
-		ComponentFacade passiveResource = new EventSimPassiveResource();
+		ComponentFacade resources = new EventSimResource();
 
 		// wire simulation components by connection required roles to provided roles
 		workload.getRequiredRole(ISimulationMiddleware.class).wire(middleware.getProvidedRole(ISimulationMiddleware.class));
 		system.getRequiredRole(ISimulationMiddleware.class).wire(middleware.getProvidedRole(ISimulationMiddleware.class));
-		activeResource.getRequiredRole(ISimulationMiddleware.class).wire(middleware.getProvidedRole(ISimulationMiddleware.class));
-		passiveResource.getRequiredRole(ISimulationMiddleware.class).wire(middleware.getProvidedRole(ISimulationMiddleware.class));
+		resources.getRequiredRole(ISimulationMiddleware.class).wire(middleware.getProvidedRole(ISimulationMiddleware.class));
 		
 		workload.getRequiredRole(ISystem.class).wire(system.getProvidedRole(ISystem.class));
-		system.getRequiredRole(IActiveResource.class).wire(activeResource.getProvidedRole(IActiveResource.class));
-		system.getRequiredRole(IPassiveResource.class).wire(passiveResource.getProvidedRole(IPassiveResource.class));
+		system.getRequiredRole(IActiveResource.class).wire(resources.getProvidedRole(IActiveResource.class));
+		system.getRequiredRole(IPassiveResource.class).wire(resources.getProvidedRole(IPassiveResource.class));
 
 		// setup simulation dock (progress viewer)
 		DockModel dock = null;

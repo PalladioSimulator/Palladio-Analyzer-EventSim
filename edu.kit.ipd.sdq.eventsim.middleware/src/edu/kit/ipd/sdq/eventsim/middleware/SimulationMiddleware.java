@@ -72,8 +72,6 @@ public class SimulationMiddleware extends AbstractComponentFacade implements ISi
 	 *            A simulation configuration
 	 */
 	private void setupStopConditions(ISimulationConfiguration simConfig) {
-
-		this.measurementCount = 1;
 		SimulationConfiguration config = (SimulationConfiguration) simConfig;
 		long maxMeasurements = config.getMaxMeasurementsCount();
 		long maxSimulationTime = config.getSimuTime();

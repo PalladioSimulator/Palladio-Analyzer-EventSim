@@ -72,9 +72,11 @@ public class StartSimulationJob extends AbstractExtendableJob<MDSDBlackboard> {
 						bind(MeasurementStorage.class).toInstance(measurementStorage);
 					}
 				});
+		
+		// bootstrap simulation by creating initial simulation events before actually starting simulation
 		injector.getInstance(IWorkload.class).generate();
 
-		// start simulation and display simulation progress in a simulation dock 
+		// start simulation and display simulation progress in a simulation dock (progress viewer) 
 		SimulationDockWrapper dock = SimulationDockWrapper.getBestFreeDock();
 		dock.start();
 		middleware.startSimulation(dock);

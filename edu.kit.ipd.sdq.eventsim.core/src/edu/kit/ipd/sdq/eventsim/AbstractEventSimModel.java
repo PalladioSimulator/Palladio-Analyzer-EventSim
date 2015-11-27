@@ -40,7 +40,7 @@ abstract public class AbstractEventSimModel {
 	/**
 	 * Initializes the model
 	 */
-	public void init() {
+	private void init() {
 		this.executor = new PCMModelCommandExecutor(
 				getSimulationMiddleware().getSimulationConfiguration().getPCMModel());
 		this.activeEntitiesList = new CopyOnWriteArrayList<EventSimEntity>();

@@ -81,9 +81,7 @@ public class EventSimSystemModel extends AbstractEventSimModel implements ISyste
 		init();
 	}
 
-	public void init() {
-		super.init();
-		
+	public void init() {		
 		// initialise behavior interpreters
 		seffInterpreter = new SeffBehaviourInterpreter(new SeffInterpreterConfiguration(), this);
 
@@ -121,8 +119,6 @@ public class EventSimSystemModel extends AbstractEventSimModel implements ISyste
 	 */
 	@Override
 	public void callService(IUser user, EntryLevelSystemCall call) {
-		super.init();
-		
 		// find the component which provides the call
 		final AssemblyContext assemblyCtx = this.execute(new FindAssemblyContextForSystemCall(call));
 		final ComponentInstance component = this.getComponent(assemblyCtx);

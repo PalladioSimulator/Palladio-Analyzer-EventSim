@@ -54,10 +54,7 @@ public class EventSimActiveResourceModel extends AbstractEventSimModel implement
 		init();
 	}
 
-	@Override
-	public void init() {
-		super.init();
-		
+	public void init() {		
 		// set up the resource scheduler
 		ISimulationModel simModel = getSimulationMiddleware().getSimulationModel();
 		this.schedulingFactory = new SchedulingFactory((SchedulerModel) simModel); // TODO get rid of cast

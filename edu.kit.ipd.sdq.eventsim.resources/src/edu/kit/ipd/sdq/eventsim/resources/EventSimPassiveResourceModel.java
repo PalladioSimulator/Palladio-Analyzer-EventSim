@@ -38,10 +38,7 @@ public class EventSimPassiveResourceModel extends AbstractEventSimModel implemen
 		init();
 	}
 
-	@Override
-	public void init() {
-		super.init();
-		
+	public void init() {		
 		measurementFacade = new MeasurementFacade<>(new ResourceProbeConfiguration(), Activator.getContext()
 				.getBundle());
 		

@@ -7,8 +7,8 @@ import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
 import edu.kit.ipd.sdq.eventsim.api.PCMModel;
 import edu.kit.ipd.sdq.eventsim.command.ICommand;
 import edu.kit.ipd.sdq.eventsim.command.PCMModelCommandExecutor;
-import edu.kit.ipd.sdq.eventsim.components.ComponentFacade;
 import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
+import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 
 /**
  * This class is the basis for a simulation component based on EventSim. It
@@ -18,16 +18,23 @@ import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
  */
 abstract public class AbstractEventSimModel {
 
-	private ComponentFacade component;
 	private PCMModelCommandExecutor executor;
 	private List<EventSimEntity> activeEntitiesList;
-
-	public AbstractEventSimModel(ComponentFacade component) {
-		this.component = component;
+	private ISimulationMiddleware middleware;
+	private MeasurementStorage 	measurementStorage;
+	
+	public AbstractEventSimModel(ISimulationMiddleware middleware, MeasurementStorage measurementStorage) {
+		this.middleware = middleware;
+		this.measurementStorage = measurementStorage;
+		init();
 	}
 
 	public ISimulationMiddleware getSimulationMiddleware() {
-		return component.getRequiredService(ISimulationMiddleware.class);
+		return middleware;
+	}
+	
+	public MeasurementStorage getMeasurementStorage() {
+		return measurementStorage;
 	}
 
 	/**
@@ -94,10 +101,6 @@ abstract public class AbstractEventSimModel {
 		assert activeEntitiesList.isEmpty() : "There are some entities left in the list of active entities, though " + "each of them was asked to leave the system.";
 
 		EventSimEntity.resetIdGenerator();
-	}
-	
-	public ComponentFacade getComponent() {
-		return component;
 	}
 
 }

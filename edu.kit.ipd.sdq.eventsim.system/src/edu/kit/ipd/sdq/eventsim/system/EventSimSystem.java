@@ -1,24 +1,15 @@
 package edu.kit.ipd.sdq.eventsim.system;
 
-import edu.kit.ipd.sdq.eventsim.api.IActiveResource;
-import edu.kit.ipd.sdq.eventsim.api.IPassiveResource;
-import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
+import com.google.inject.AbstractModule;
+
 import edu.kit.ipd.sdq.eventsim.api.ISystem;
-import edu.kit.ipd.sdq.eventsim.components.AbstractComponentFacade;
-import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 
-public class EventSimSystem extends AbstractComponentFacade {
+public class EventSimSystem extends AbstractModule {
 
-	private EventSimSystemModel model;
-
-	public EventSimSystem() {
-		this.model = new EventSimSystemModel(this);
-
-		require(IActiveResource.class);
-		require(IPassiveResource.class);
-		require(ISimulationMiddleware.class, m -> model.init());
-		require(MeasurementStorage.class);
-		provide(ISystem.class, model);
+	@Override
+	protected void configure() {
+		// bind interfaces of provided services to their implementation
+		bind(ISystem.class).to(EventSimSystemModel.class);
 	}
 
 }

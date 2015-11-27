@@ -8,12 +8,15 @@ import org.palladiosimulator.pcm.usagemodel.EntryLevelSystemCall;
 import org.palladiosimulator.pcm.usagemodel.Start;
 import org.palladiosimulator.pcm.usagemodel.Stop;
 
+import com.google.inject.Inject;
+
 import de.uka.ipd.sdq.probfunction.math.IProbabilityFunctionFactory;
 import de.uka.ipd.sdq.probfunction.math.impl.ProbabilityFunctionFactoryImpl;
 import de.uka.ipd.sdq.simucomframework.variables.cache.StoExCache;
 import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
 import edu.kit.ipd.sdq.eventsim.api.IRequest;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
+import edu.kit.ipd.sdq.eventsim.api.ISystem;
 import edu.kit.ipd.sdq.eventsim.api.IWorkload;
 import edu.kit.ipd.sdq.eventsim.api.events.SystemRequestFinishedEvent;
 import edu.kit.ipd.sdq.eventsim.api.events.WorkloadUserFinishedEvent;
@@ -51,8 +54,14 @@ public class EventSimWorkloadModel extends AbstractEventSimModel implements IWor
 
 	private MeasurementFacade<WorkloadMeasurementConfiguration> measurementFacade;
 	
-	public EventSimWorkloadModel(EventSimWorkload component) {
-		super(component);
+	private ISystem system;
+	
+	@Inject
+	public EventSimWorkloadModel(ISystem system, ISimulationMiddleware middleware,
+			MeasurementStorage measurementStorage) {
+		super(middleware, measurementStorage);
+		this.system = system;
+		init();
 	}
 	
 	/**
@@ -94,8 +103,7 @@ public class EventSimWorkloadModel extends AbstractEventSimModel implements IWor
 	 * Register event handler to react on specific simulation events.
 	 */
 	private void registerEventHandler() {
-		ISimulationMiddleware middleware = getComponent().getRequiredService(ISimulationMiddleware.class);
-		
+		ISimulationMiddleware middleware = getSimulationMiddleware();
 		middleware.registerEventHandler(WorkloadUserFinishedEvent.class,
 				e -> middleware.increaseMeasurementCount());
 		
@@ -113,7 +121,7 @@ public class EventSimWorkloadModel extends AbstractEventSimModel implements IWor
 		measurementFacade = new MeasurementFacade<>(
 				WorkloadMeasurementConfiguration.from(this), Activator.getContext().getBundle());
 		
-		MeasurementStorage measurementStorage = getComponent().getRequiredService(MeasurementStorage.class);
+		MeasurementStorage measurementStorage = getMeasurementStorage();
 		measurementStorage.addIdProvider(User.class, c -> Long.toString(((User)c).getEntityId()));
 		measurementStorage.addIdProvider(AbstractUserAction.class, c -> ((AbstractUserAction)c).getId());
 
@@ -152,6 +160,10 @@ public class EventSimWorkloadModel extends AbstractEventSimModel implements IWor
 	 */
 	public UsageBehaviourInterpreter getUsageInterpreter() {
 		return usageInterpreter;
+	}
+	
+	public ISystem getSystem() {
+		return system;
 	}
 
 }

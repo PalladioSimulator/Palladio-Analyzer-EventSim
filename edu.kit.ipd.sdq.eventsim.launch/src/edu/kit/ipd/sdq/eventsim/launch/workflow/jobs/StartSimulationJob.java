@@ -12,6 +12,10 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.palladiosimulator.analyzer.workflow.blackboard.PCMResourceSetPartition;
 import org.palladiosimulator.analyzer.workflow.jobs.LoadPCMModelsIntoBlackboardJob;
 
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
 import de.uka.ipd.sdq.codegen.simucontroller.SimuControllerPlugin;
 import de.uka.ipd.sdq.codegen.simucontroller.dockmodel.DockModel;
 import de.uka.ipd.sdq.simulation.IStatusObserver;
@@ -19,13 +23,9 @@ import de.uka.ipd.sdq.workflow.extension.AbstractExtendableJob;
 import de.uka.ipd.sdq.workflow.jobs.JobFailedException;
 import de.uka.ipd.sdq.workflow.jobs.UserCanceledException;
 import de.uka.ipd.sdq.workflow.mdsd.blackboard.MDSDBlackboard;
-import edu.kit.ipd.sdq.eventsim.api.IActiveResource;
-import edu.kit.ipd.sdq.eventsim.api.IPassiveResource;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
-import edu.kit.ipd.sdq.eventsim.api.ISystem;
 import edu.kit.ipd.sdq.eventsim.api.IWorkload;
 import edu.kit.ipd.sdq.eventsim.api.PCMModel;
-import edu.kit.ipd.sdq.eventsim.components.ComponentFacade;
 import edu.kit.ipd.sdq.eventsim.launch.Activator;
 import edu.kit.ipd.sdq.eventsim.launch.runconfig.SimulationComponentWorkflowConfiguration;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
@@ -72,30 +72,25 @@ public class StartSimulationJob extends AbstractExtendableJob<MDSDBlackboard> {
 				p.getSystem(), p.getUsageModel(), p.getResourceTypeRepository());
 		config.setModel(model);
 
-		// instantiate simulation components, including the underlying middleware
+		// instantiate middleware
 		SimulationMiddleware middleware = new SimulationMiddleware(config);
-		ComponentFacade workload = new EventSimWorkload();
-		ComponentFacade system = new EventSimSystem();
-		ComponentFacade resources = new EventSimResource();
 
-		// instantiate R measurement store (also a simulation component)
+		// instantiate R measurement store
 		RMeasurementStore measurementStorage = RMeasurementStore.fromLaunchConfiguration(config.getConfigurationMap());
 		if (measurementStorage == null) {
 			throw new RuntimeException("R measurement store could not bet constructed from launch configuration.");
 		}
-		
-		// wire simulation components by connection required roles to provided roles
-		workload.getRequiredRole(MeasurementStorage.class).wire(measurementStorage.getProvidedRole(MeasurementStorage.class));
-		system.getRequiredRole(MeasurementStorage.class).wire(measurementStorage.getProvidedRole(MeasurementStorage.class));
-		resources.getRequiredRole(MeasurementStorage.class).wire(measurementStorage.getProvidedRole(MeasurementStorage.class));
-		
-		workload.getRequiredRole(ISimulationMiddleware.class).wire(middleware.getProvidedRole(ISimulationMiddleware.class));
-		system.getRequiredRole(ISimulationMiddleware.class).wire(middleware.getProvidedRole(ISimulationMiddleware.class));
-		resources.getRequiredRole(ISimulationMiddleware.class).wire(middleware.getProvidedRole(ISimulationMiddleware.class));
-		
-		workload.getRequiredRole(ISystem.class).wire(system.getProvidedRole(ISystem.class));
-		system.getRequiredRole(IActiveResource.class).wire(resources.getProvidedRole(IActiveResource.class));
-		system.getRequiredRole(IPassiveResource.class).wire(resources.getProvidedRole(IPassiveResource.class));
+	
+		// assemble simulation components
+		Injector injector = Guice.createInjector(new EventSimWorkload(), new EventSimSystem(), new EventSimResource(),
+				new AbstractModule() {
+					@Override
+					protected void configure() {
+						bind(ISimulationMiddleware.class).toInstance(middleware);
+						bind(MeasurementStorage.class).toInstance(measurementStorage);
+					}
+				});
+		injector.getInstance(IWorkload.class).generate();
 
 		// setup simulation dock (progress viewer)
 		DockModel dock = null;
@@ -107,10 +102,10 @@ public class StartSimulationJob extends AbstractExtendableJob<MDSDBlackboard> {
 
 		sendEventToSimulationDock(DOCK_BUSY_TOPIC, dock);
 		sendEventToSimulationDock(SIM_STARTED_TOPIC, dock);
-
+		
 		// start simulation and keep simulation dock updated about simulation progress
 		final DockModel activeDock = dock;
-		workload.getProvidedRole(IWorkload.class).getInstance().generate();
+		
 		middleware.startSimulation(new IStatusObserver() {
 			@Override
 			public void updateStatus(int percentDone, double currentSimTime, long measurementsTaken) {

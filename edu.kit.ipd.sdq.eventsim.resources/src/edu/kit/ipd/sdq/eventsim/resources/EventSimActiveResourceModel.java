@@ -12,6 +12,8 @@ import org.palladiosimulator.pcm.resourceenvironment.ProcessingResourceSpecifica
 import org.palladiosimulator.pcm.resourceenvironment.ResourceContainer;
 import org.palladiosimulator.pcm.resourcetype.ResourceType;
 
+import com.google.inject.Inject;
+
 import de.uka.ipd.sdq.scheduler.ISchedulingFactory;
 import de.uka.ipd.sdq.scheduler.SchedulerModel;
 import de.uka.ipd.sdq.scheduler.factory.SchedulingFactory;
@@ -44,11 +46,12 @@ public class EventSimActiveResourceModel extends AbstractEventSimModel implement
 
 	private MeasurementFacade<ResourceProbeConfiguration> measurementFacade;
 	
-	public EventSimActiveResourceModel(EventSimResource component) {
-		super(component);
-
+	@Inject
+	public EventSimActiveResourceModel(ISimulationMiddleware middleware, MeasurementStorage measurementStorage) {
+		super(middleware, measurementStorage);
 		containerToResourceMap = new HashMap<String, SimActiveResource>();
 		requestToSimulatedProcessMap = new WeakHashMap<IRequest, SimulatedProcess>();
+		init();
 	}
 
 	@Override
@@ -62,7 +65,7 @@ public class EventSimActiveResourceModel extends AbstractEventSimModel implement
 		measurementFacade = new MeasurementFacade<>(new ResourceProbeConfiguration(), Activator.getContext()
 				.getBundle());
 		
-		MeasurementStorage measurementStorage = getComponent().getRequiredService(MeasurementStorage.class);
+		MeasurementStorage measurementStorage = getMeasurementStorage();
 		measurementStorage.addIdProvider(SimActiveResource.class, c -> ((SimActiveResource)c).getSpecification().getId());
 		measurementStorage.addIdProvider(SimulatedProcess.class, c -> Long.toString(((SimulatedProcess)c).getEntityId()));
 		
@@ -70,7 +73,7 @@ public class EventSimActiveResourceModel extends AbstractEventSimModel implement
 	}
 	
 	private void registerEventHandler() {
-		ISimulationMiddleware middleware = getComponent().getRequiredService(ISimulationMiddleware.class);
+		ISimulationMiddleware middleware = getSimulationMiddleware();
 		
 //		middleware.registerEventHandler(SimulationInitEvent.class, e -> init());
 		middleware.registerEventHandler(SimulationStopEvent.class, e -> finalise());
@@ -143,7 +146,7 @@ public class EventSimActiveResourceModel extends AbstractEventSimModel implement
 		this.containerToResourceMap.put(compoundKey(specification, type), resource);
 		
 		// create corresponding probe
-		MeasurementStorage measurementStorage = getComponent().getRequiredService(MeasurementStorage.class);
+		MeasurementStorage measurementStorage = getMeasurementStorage();
 		measurementFacade.createProbe(resource, "queue_length").forEachMeasurement(
 				m -> measurementStorage.put(m));
 		measurementFacade.createProbe(resource, "resource_demand").forEachMeasurement(

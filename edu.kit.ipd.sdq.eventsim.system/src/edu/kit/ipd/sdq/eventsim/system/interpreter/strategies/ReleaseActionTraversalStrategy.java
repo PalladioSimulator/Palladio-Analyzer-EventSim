@@ -10,6 +10,7 @@ import edu.kit.ipd.sdq.eventsim.exceptions.unchecked.EventSimException;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalInstruction;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.interpreter.instructions.TraverseNextAction;
+import edu.kit.ipd.sdq.eventsim.system.EventSimSystemModel;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
 import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
 
@@ -38,8 +39,8 @@ public class ReleaseActionTraversalStrategy
 		final PassiveResource passiveResouce = action.getPassiveResource_ReleaseAction();
 		AssemblyContext ctx = state.getComponent().getAssemblyCtx();
 		
-		request.getEventSimModel().getComponent().getRequiredService(IPassiveResource.class).release(request, ctx,
-				passiveResouce, 1);
+		((EventSimSystemModel) request.getEventSimModel()).getPassiveResource().release(request, ctx, passiveResouce,
+				1);
 
 		return new TraverseNextAction<>(action.getSuccessor_AbstractAction());
 	}

@@ -9,7 +9,11 @@ import org.palladiosimulator.pcm.repository.OperationSignature;
 import org.palladiosimulator.pcm.seff.ExternalCallAction;
 import org.palladiosimulator.pcm.usagemodel.EntryLevelSystemCall;
 
+import com.google.inject.Inject;
+
 import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
+import edu.kit.ipd.sdq.eventsim.api.IActiveResource;
+import edu.kit.ipd.sdq.eventsim.api.IPassiveResource;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
 import edu.kit.ipd.sdq.eventsim.api.ISystem;
 import edu.kit.ipd.sdq.eventsim.api.IUser;
@@ -65,8 +69,16 @@ public class EventSimSystemModel extends AbstractEventSimModel implements ISyste
 	
 	private MeasurementFacade<SystemMeasurementConfiguration> measurementFacade;
 	
-	public EventSimSystemModel(EventSimSystem component) {
-		super(component);
+	private IActiveResource activeResource;
+	private IPassiveResource passiveResource;
+	
+	@Inject
+	public EventSimSystemModel(IActiveResource activeResource, IPassiveResource passiveResource,
+			ISimulationMiddleware middleware, MeasurementStorage measurementStorage) {
+		super(middleware, measurementStorage);
+		this.activeResource = activeResource;
+		this.passiveResource = passiveResource;
+		init();
 	}
 
 	public void init() {
@@ -132,11 +144,19 @@ public class EventSimSystemModel extends AbstractEventSimModel implements ISyste
 		measurementFacade = null;
 	}
 	
+	public IActiveResource getActiveResource() {
+		return activeResource;
+	}
+	
+	public IPassiveResource getPassiveResource() {
+		return passiveResource;
+	}
+	
 	/**
 	 * Register event handler to react on specific simulation events.
 	 */
 	private void registerEventHandler() {
-		ISimulationMiddleware middleware = getComponent().getRequiredService(ISimulationMiddleware.class);
+		ISimulationMiddleware middleware = getSimulationMiddleware();
 		
 //		middleware.registerEventHandler(SimulationInitEvent.class, e -> init());
 		middleware.registerEventHandler(SimulationStopEvent.class, e -> finalise());
@@ -151,7 +171,7 @@ public class EventSimSystemModel extends AbstractEventSimModel implements ISyste
 		measurementFacade = new MeasurementFacade<>(
 				SystemMeasurementConfiguration.from(this), Activator.getContext().getBundle());
 
-		MeasurementStorage measurementStorage = getComponent().getRequiredService(MeasurementStorage.class);
+		MeasurementStorage measurementStorage = getMeasurementStorage();
 		measurementStorage.addIdProvider(Request.class, c -> Long.toString(((Request)c).getId()));
 		measurementStorage.addIdProvider(ForkedRequest.class, c -> Long.toString(((ForkedRequest)c).getEntityId()));
 		measurementStorage.addIdProvider(Entity.class, c -> ((Entity)c).getId());

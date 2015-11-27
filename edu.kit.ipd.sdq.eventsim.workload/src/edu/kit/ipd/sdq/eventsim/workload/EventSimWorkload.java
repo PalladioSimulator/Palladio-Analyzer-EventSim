@@ -1,27 +1,20 @@
 package edu.kit.ipd.sdq.eventsim.workload;
 
-import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
-import edu.kit.ipd.sdq.eventsim.api.ISystem;
+import com.google.inject.AbstractModule;
+
 import edu.kit.ipd.sdq.eventsim.api.IWorkload;
-import edu.kit.ipd.sdq.eventsim.components.AbstractComponentFacade;
-import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 
 /**
  * An EventSim based workload simulation component implementation.
  * 
  * @author Christoph Föhrdes
  */
-public class EventSimWorkload extends AbstractComponentFacade {
+public class EventSimWorkload extends AbstractModule {
 
-	private EventSimWorkloadModel model;
-
-	public EventSimWorkload() {
-		this.model = new EventSimWorkloadModel(this);
-		
-		require(ISystem.class);
-		require(ISimulationMiddleware.class, m -> model.init());
-		require(MeasurementStorage.class);
-		provide(IWorkload.class, model);
+	@Override
+	protected void configure() {
+		// bind interfaces of provided services to their implementation
+		bind(IWorkload.class).to(EventSimWorkloadModel.class);
 	}
 
 }

@@ -7,6 +7,7 @@ import edu.kit.ipd.sdq.eventsim.api.ISystem;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalInstruction;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.interpreter.instructions.InterruptTraversal;
+import edu.kit.ipd.sdq.eventsim.workload.EventSimWorkloadModel;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
 import edu.kit.ipd.sdq.eventsim.workload.interpreter.state.UserState;
 
@@ -28,7 +29,7 @@ public class EntryLevelSystemCallTraversalStrategy implements ITraversalStrategy
 		user.setUserState(state); // TODO redundant!?
 
 		// invoke system service
-		user.getEventSimModel().getComponent().getRequiredService(ISystem.class).callService(user, call);
+		((EventSimWorkloadModel)user.getEventSimModel()).getSystem().callService(user, call);
 
 		// interrupt the usage traversal until service call simulation finished
 		return new InterruptTraversal<>(call.getSuccessor());

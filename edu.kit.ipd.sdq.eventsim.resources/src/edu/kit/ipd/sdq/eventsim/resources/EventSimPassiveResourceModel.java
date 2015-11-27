@@ -7,6 +7,8 @@ import java.util.WeakHashMap;
 import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 import org.palladiosimulator.pcm.repository.PassiveResource;
 
+import com.google.inject.Inject;
+
 import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
 import edu.kit.ipd.sdq.eventsim.api.IPassiveResource;
 import edu.kit.ipd.sdq.eventsim.api.IRequest;
@@ -28,11 +30,12 @@ public class EventSimPassiveResourceModel extends AbstractEventSimModel implemen
 	
     private MeasurementFacade<ResourceProbeConfiguration> measurementFacade;
     
-	public EventSimPassiveResourceModel(EventSimResource component) {
-		super(component);
-		
+    @Inject
+	public EventSimPassiveResourceModel(ISimulationMiddleware middleware, MeasurementStorage measurementStorage) {
+		super(middleware, measurementStorage);
 		contextToResourceMap = new HashMap<String, SimPassiveResource>();
 		requestToSimulatedProcessMap = new WeakHashMap<>();
+		init();
 	}
 
 	@Override
@@ -42,14 +45,14 @@ public class EventSimPassiveResourceModel extends AbstractEventSimModel implemen
 		measurementFacade = new MeasurementFacade<>(new ResourceProbeConfiguration(), Activator.getContext()
 				.getBundle());
 		
-		MeasurementStorage measurementStorage = getComponent().getRequiredService(MeasurementStorage.class);
+		MeasurementStorage measurementStorage = getMeasurementStorage();
 		measurementStorage.addIdProvider(SimPassiveResource.class, c -> ((SimPassiveResource)c).getSpecification().getId());
 		
 		registerEventHandler();
 	}
 	
 	private void registerEventHandler() {
-		ISimulationMiddleware middleware = getComponent().getRequiredService(ISimulationMiddleware.class);
+		ISimulationMiddleware middleware = getSimulationMiddleware();
 		
 //		middleware.registerEventHandler(SimulationInitEvent.class, e -> init());
 		middleware.registerEventHandler(SimulationStopEvent.class, e -> finalise());
@@ -122,7 +125,7 @@ public class EventSimPassiveResourceModel extends AbstractEventSimModel implemen
             contextToResourceMap.put(compoundKey(assCtx, specification), resource);
             
     		// create probes and calculators
-    		MeasurementStorage measurementStorage = getComponent().getRequiredService(MeasurementStorage.class);
+    		MeasurementStorage measurementStorage = getMeasurementStorage();
     		measurementFacade.createProbe(resource, "queue_length").forEachMeasurement(
     				m -> measurementStorage.put(m));
     		

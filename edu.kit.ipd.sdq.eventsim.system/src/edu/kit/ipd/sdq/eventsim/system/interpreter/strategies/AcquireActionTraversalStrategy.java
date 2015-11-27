@@ -39,8 +39,8 @@ public class AcquireActionTraversalStrategy implements ITraversalStrategy<Abstra
         
         final PassiveResource passiveResouce = action.getPassiveresource_AcquireAction();
         AssemblyContext ctx = state.getComponent().getAssemblyCtx();
-		boolean acquired = request.getEventSimModel().getComponent().getRequiredService(IPassiveResource.class)
-				.acquire(request, ctx, passiveResouce, 1);
+		boolean acquired = ((EventSimSystemModel) request.getEventSimModel()).getPassiveResource().acquire(request, ctx,
+				passiveResouce, 1);
         	
         // TODO warning if timeout is set to true in model
         

@@ -9,7 +9,6 @@ import org.palladiosimulator.pcm.seff.InternalAction;
 import org.palladiosimulator.pcm.seff.seff_performance.ParametricResourceDemand;
 
 import de.uka.ipd.sdq.simucomframework.variables.converter.NumberConverter;
-import edu.kit.ipd.sdq.eventsim.api.IActiveResource;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalInstruction;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.interpreter.instructions.InterruptTraversal;
@@ -46,7 +45,7 @@ public class InternalActionTraversalStrategy implements ITraversalStrategy<Abstr
 		ResourceType type = demand.getRequiredResource_ParametricResourceDemand();
 		
 		// consume the resource demand
-		request.getEventSimModel().getComponent().getRequiredService(IActiveResource.class).consume(request,
+		((EventSimSystemModel) request.getEventSimModel()).getActiveResource().consume(request,
 				state.getComponent().getResourceContainer().getSpecification(), type, evaluatedDemand);
 
 		EventSimSystemModel systemModel = (EventSimSystemModel) request.getEventSimModel();

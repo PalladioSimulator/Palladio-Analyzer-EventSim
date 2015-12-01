@@ -39,5 +39,17 @@ public class SimulationManager {
 		// when simulation has stopped...
 		measurementStorage.finish();
 	}
+	
+	public IWorkload getWorkload() {
+		return workload;
+	}
+	
+	public ISimulationMiddleware getMiddleware() {
+		return middleware;
+	}
+	
+	public MeasurementStorage getMeasurementStorage() {
+		return measurementStorage;
+	}
 
 }

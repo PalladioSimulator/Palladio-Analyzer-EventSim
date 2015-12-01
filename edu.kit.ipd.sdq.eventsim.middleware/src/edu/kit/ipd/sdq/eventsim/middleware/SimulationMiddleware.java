@@ -3,6 +3,8 @@ package edu.kit.ipd.sdq.eventsim.middleware;
 import java.util.Observable;
 import java.util.Observer;
 
+import javax.inject.Singleton;
+
 import org.apache.log4j.Logger;
 
 import de.uka.ipd.sdq.probfunction.math.IRandomGenerator;
@@ -16,7 +18,6 @@ import de.uka.ipd.sdq.simulation.preferences.SimulationPreferencesHelper;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationConfiguration;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
 import edu.kit.ipd.sdq.eventsim.api.events.SimulationStopEvent;
-import edu.kit.ipd.sdq.eventsim.components.AbstractComponentFacade;
 import edu.kit.ipd.sdq.eventsim.components.events.EventManager;
 import edu.kit.ipd.sdq.eventsim.components.events.IEventHandler;
 import edu.kit.ipd.sdq.eventsim.components.events.SimulationEvent;
@@ -31,7 +32,7 @@ import edu.kit.ipd.sdq.eventsim.middleware.simulation.config.SimulationConfigura
  * @author Christoph Föhrdes
  * @author Philipp Merkle
  */
-public class SimulationMiddleware extends AbstractComponentFacade implements ISimulationMiddleware {
+public class SimulationMiddleware implements ISimulationMiddleware {
 
 	private static final Logger logger = Logger.getLogger(SimulationMiddleware.class);
 
@@ -42,9 +43,7 @@ public class SimulationMiddleware extends AbstractComponentFacade implements ISi
 	private IRandomGenerator randomNumberGenerator;
 	private EventManager eventManager;
 
-	public SimulationMiddleware(ISimulationConfiguration config) {
-		provide(ISimulationMiddleware.class, this);
-		
+	public SimulationMiddleware(ISimulationConfiguration config) {		
 		eventManager = new EventManager();
 		registerEventHandler();
 		initialize(config);

@@ -95,6 +95,7 @@ public class ProbeFactory<C extends ProbeConfiguration> {
 					clazz = bundle.loadClass(className);
 				} catch (ClassNotFoundException e) {
 					log.error("Local bundle classloader could not find class " + className);
+					continue;
 				}
 
 				Probe a = clazz.getAnnotation(Probe.class);

@@ -14,11 +14,11 @@ import edu.kit.ipd.sdq.eventsim.middleware.simulation.config.SimulationConfigura
  * 
  * @author Christoph Föhrdes
  */
-public class SimulationComponentWorkflowConfiguration extends AbstractSimulationWorkflowConfiguration {
+public class EventSimWorkflowConfiguration extends AbstractSimulationWorkflowConfiguration {
 
 	private SimulationConfiguration simulationConfig = null;
 
-	public SimulationComponentWorkflowConfiguration(Map<String, Object> attributes) {
+	public EventSimWorkflowConfiguration(Map<String, Object> attributes) {
 		super(attributes);
 	}
 

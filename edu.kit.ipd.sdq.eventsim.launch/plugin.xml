@@ -4,8 +4,8 @@
    <extension
          point="de.uka.ipd.sdq.codegen.simucontroller.simulator">
       <simulator
-            id="de.uka.ipd.sdq.codegen.simucontroller.simcomp"
-            launchDelegate="edu.kit.ipd.sdq.eventsim.launch.runconfig.SimulationComponentWorkflowLauncher"
+            id="de.uka.ipd.sdq.codegen.simucontroller.eventsim"
+            launchDelegate="edu.kit.ipd.sdq.eventsim.launch.runconfig.EventSimWorkflowLauncher"
             name="EventSim (Event-Driven Simulation)">
       </simulator>
    </extension>

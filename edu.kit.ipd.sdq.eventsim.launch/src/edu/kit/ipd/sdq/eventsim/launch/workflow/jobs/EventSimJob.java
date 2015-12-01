@@ -4,7 +4,7 @@ import org.eclipse.core.runtime.CoreException;
 
 import de.uka.ipd.sdq.codegen.simucontroller.debug.IDebugListener;
 import de.uka.ipd.sdq.codegen.simucontroller.workflow.jobs.AbstractSimulationJob;
-import edu.kit.ipd.sdq.eventsim.launch.runconfig.SimulationComponentWorkflowConfiguration;
+import edu.kit.ipd.sdq.eventsim.launch.runconfig.EventSimWorkflowConfiguration;
 
 /**
  * The simulation component workflow job. This job generates a nearly empty simulation code project which only delegates
@@ -15,24 +15,24 @@ import edu.kit.ipd.sdq.eventsim.launch.runconfig.SimulationComponentWorkflowConf
  * @author Christoph Föhrdes
  * @author Philipp Merkle
  */
-public class SimulationComponentJob extends AbstractSimulationJob<SimulationComponentWorkflowConfiguration> {
+public class EventSimJob extends AbstractSimulationJob<EventSimWorkflowConfiguration> {
 
-	public SimulationComponentJob(SimulationComponentWorkflowConfiguration configuration, IDebugListener listener,
+	public EventSimJob(EventSimWorkflowConfiguration configuration, IDebugListener listener,
 			boolean loadModels) throws CoreException {
 		super(configuration, listener, loadModels);
 	}
 
-	public SimulationComponentJob(SimulationComponentWorkflowConfiguration configuration, IDebugListener listener)
+	public EventSimJob(EventSimWorkflowConfiguration configuration, IDebugListener listener)
 			throws CoreException {
 		super(configuration, listener);
 	}
 
-	public SimulationComponentJob(SimulationComponentWorkflowConfiguration configuration) throws CoreException {
+	public EventSimJob(EventSimWorkflowConfiguration configuration) throws CoreException {
 		super(configuration);
 	}
 
 	@Override
-	protected void addSimulatorSpecificJobs(final SimulationComponentWorkflowConfiguration configuration) {
+	protected void addSimulatorSpecificJobs(final EventSimWorkflowConfiguration configuration) {
 		// prepare and start simulation
 		this.addJob(new StartSimulationJob(configuration));
 	}

@@ -14,7 +14,7 @@ import de.uka.ipd.sdq.codegen.simucontroller.debug.SimulationDebugListener;
 import de.uka.ipd.sdq.workflow.jobs.IJob;
 import de.uka.ipd.sdq.workflow.launchconfig.AbstractWorkflowConfigurationBuilder;
 import de.uka.ipd.sdq.workflow.logging.console.LoggerAppenderStruct;
-import edu.kit.ipd.sdq.eventsim.launch.workflow.jobs.SimulationComponentJob;
+import edu.kit.ipd.sdq.eventsim.launch.workflow.jobs.EventSimJob;
 
 /**
  * The workflow launcher registered as simulation controller at the
@@ -27,10 +27,10 @@ import edu.kit.ipd.sdq.eventsim.launch.workflow.jobs.SimulationComponentJob;
  * 
  * @author Christoph Föhrdes
  */
-public class SimulationComponentWorkflowLauncher extends AbstractPCMLaunchConfigurationDelegate<SimulationComponentWorkflowConfiguration> {
+public class EventSimWorkflowLauncher extends AbstractPCMLaunchConfigurationDelegate<EventSimWorkflowConfiguration> {
 
 	@Override
-	protected IJob createWorkflowJob(SimulationComponentWorkflowConfiguration config, ILaunch launch) throws CoreException {
+	protected IJob createWorkflowJob(EventSimWorkflowConfiguration config, ILaunch launch) throws CoreException {
 		IDebugListener listener = null;
 		if (config.isDebug()) {
 			listener = new SimulationDebugListener(launch);
@@ -39,19 +39,19 @@ public class SimulationComponentWorkflowLauncher extends AbstractPCMLaunchConfig
 		// TODO allow for sensitivity analysis. See class
 		// SimuComWorkflowLauncher
 
-		return new SimulationComponentJob(config, listener);
+		return new EventSimJob(config, listener);
 	}
 
 	@Override
-	protected SimulationComponentWorkflowConfiguration deriveConfiguration(ILaunchConfiguration configuration, String mode) throws CoreException {
-		SimulationComponentWorkflowConfiguration config = new SimulationComponentWorkflowConfiguration(configuration.getAttributes());
+	protected EventSimWorkflowConfiguration deriveConfiguration(ILaunchConfiguration configuration, String mode) throws CoreException {
+		EventSimWorkflowConfiguration config = new EventSimWorkflowConfiguration(configuration.getAttributes());
 
 		AbstractWorkflowConfigurationBuilder builder;
 
 		builder = new PCMWorkflowConfigurationBuilder(configuration, mode);
 		builder.fillConfiguration(config);
 
-		builder = new SimulationComponentLaunchConfigurationBasedConfigBuilder(configuration, mode);
+		builder = new EventSimLaunchConfigurationBasedConfigBuilder(configuration, mode);
 		builder.fillConfiguration(config);
 
 		return config;

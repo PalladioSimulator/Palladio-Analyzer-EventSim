@@ -16,7 +16,7 @@ import edu.kit.ipd.sdq.eventsim.api.PCMModel;
 import edu.kit.ipd.sdq.eventsim.launch.DefaultSimulationModule;
 import edu.kit.ipd.sdq.eventsim.launch.SimulationDockWrapper;
 import edu.kit.ipd.sdq.eventsim.launch.SimulationManager;
-import edu.kit.ipd.sdq.eventsim.launch.runconfig.SimulationComponentWorkflowConfiguration;
+import edu.kit.ipd.sdq.eventsim.launch.runconfig.EventSimWorkflowConfiguration;
 import edu.kit.ipd.sdq.eventsim.middleware.simulation.config.SimulationConfiguration;
 
 /**
@@ -29,9 +29,9 @@ import edu.kit.ipd.sdq.eventsim.middleware.simulation.config.SimulationConfigura
  */
 public class StartSimulationJob extends AbstractExtendableJob<MDSDBlackboard> {
 
-	private final SimulationComponentWorkflowConfiguration configuration;
+	private final EventSimWorkflowConfiguration configuration;
 
-	public StartSimulationJob(SimulationComponentWorkflowConfiguration configuration) {
+	public StartSimulationJob(EventSimWorkflowConfiguration configuration) {
 		this.configuration = configuration;
 	}
 

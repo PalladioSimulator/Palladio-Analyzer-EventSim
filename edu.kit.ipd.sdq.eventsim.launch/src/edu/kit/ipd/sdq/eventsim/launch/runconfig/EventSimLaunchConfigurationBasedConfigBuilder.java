@@ -16,9 +16,9 @@ import edu.kit.ipd.sdq.eventsim.middleware.simulation.config.SimulationConfigura
  * 
  * @author Christoph Föhrdes
  */
-public class SimulationComponentLaunchConfigurationBasedConfigBuilder extends AbstractSimulationLaunchConfigurationBasedConfigBuilder {
+public class EventSimLaunchConfigurationBasedConfigBuilder extends AbstractSimulationLaunchConfigurationBasedConfigBuilder {
 
-	public SimulationComponentLaunchConfigurationBasedConfigBuilder(ILaunchConfiguration configuration, String mode) throws CoreException {
+	public EventSimLaunchConfigurationBasedConfigBuilder(ILaunchConfiguration configuration, String mode) throws CoreException {
 		super(configuration, mode);
 	}
 
@@ -26,7 +26,7 @@ public class SimulationComponentLaunchConfigurationBasedConfigBuilder extends Ab
 	public void fillConfiguration(AbstractWorkflowBasedRunConfiguration configuration) throws CoreException {
 		super.fillConfiguration(configuration);
 
-		SimulationComponentWorkflowConfiguration config = (SimulationComponentWorkflowConfiguration) configuration;
+		EventSimWorkflowConfiguration config = (EventSimWorkflowConfiguration) configuration;
 
 		config.setSimulationConfiguration(new SimulationConfiguration(properties, config.isDebug()));
 	}

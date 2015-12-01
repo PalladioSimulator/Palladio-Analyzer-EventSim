@@ -21,5 +21,6 @@ Require-Bundle: de.uka.ipd.sdq.codegen.simucontroller,
  com.google.inject.guice;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
-Export-Package: edu.kit.ipd.sdq.eventsim.launch.runconfig,
+Export-Package: edu.kit.ipd.sdq.eventsim.launch,
+ edu.kit.ipd.sdq.eventsim.launch.runconfig,
  edu.kit.ipd.sdq.eventsim.launch.workflow.jobs

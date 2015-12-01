@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: EventSim Workload Test
+Bundle-SymbolicName: edu.kit.ipd.sdq.eventsim.workload.test
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.junit;bundle-version="4.12.0",
+ edu.kit.ipd.sdq.eventsim.measurement;bundle-version="1.0.0",
+ edu.kit.ipd.sdq.eventsim.middleware,
+ edu.kit.ipd.sdq.eventsim.components;bundle-version="1.0.0",
+ edu.kit.ipd.sdq.eventsim.api,
+ org.palladiosimulator.pcm,
+ de.uka.ipd.sdq.simulation,
+ edu.kit.ipd.sdq.eventsim.workload,
+ edu.kit.ipd.sdq.eventsim.core;bundle-version="1.0.0",
+ de.uka.ipd.sdq.simulation.abstractsimengine;bundle-version="1.0.0",
+ org.mockito;bundle-version="1.0.0",
+ com.google.inject.guice;bundle-version="1.0.0",
+ edu.kit.ipd.sdq.eventsim.launch;bundle-version="1.0.0"

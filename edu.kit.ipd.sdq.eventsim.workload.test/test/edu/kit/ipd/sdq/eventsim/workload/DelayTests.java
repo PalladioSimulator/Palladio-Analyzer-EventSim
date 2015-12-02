@@ -35,7 +35,7 @@ import edu.kit.ipd.sdq.eventsim.measurement.Metric;
 import edu.kit.ipd.sdq.eventsim.middleware.simulation.config.SimulationConfiguration;
 import edu.kit.ipd.sdq.eventsim.workload.calculators.TimeSpanBetweenUserActionsCalculator;
 
-public class TestDelay {
+public class DelayTests {
 
 	private static final Level LOG_LEVEL = Level.DEBUG;
 

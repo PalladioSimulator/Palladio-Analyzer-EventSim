@@ -2,16 +2,16 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: EventSim Measurements R Connector
 Bundle-SymbolicName: edu.kit.ipd.sdq.eventsim.measurement.r;singleton:=true
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: edu.kit.ipd.sdq.eventsim.measurement.r
 Require-Bundle: org.palladiosimulator.pcm;bundle-version="4.0.0",
  org.apache.log4j;bundle-version="1.2.15",
  org.rosuda.rJavaAndRserve;bundle-version="1.0.0",
- org.palladiosimulator.recorderframework,
- org.palladiosimulator.measurementframework,
+ org.palladiosimulator.recorderframework;bundle-version="2.0.1",
+ org.palladiosimulator.measurementframework;bundle-version="1.0.0",
  org.eclipse.debug.ui;bundle-version="3.11.100",
- org.eclipse.swt,
+ org.eclipse.swt;bundle-version="3.104.1",
  de.uka.ipd.sdq.workflow.launchconfig;bundle-version="2.1.0",
- edu.kit.ipd.sdq.eventsim.measurement;bundle-version="1.0.0",
- edu.kit.ipd.sdq.eventsim.components;bundle-version="1.0.0"
+ edu.kit.ipd.sdq.eventsim.measurement;bundle-version="2.0.0",
+ edu.kit.ipd.sdq.eventsim.components;bundle-version="2.0.0"

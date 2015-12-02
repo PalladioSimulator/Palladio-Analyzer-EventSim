@@ -1,7 +1,9 @@
 package edu.kit.ipd.sdq.eventsim.workload;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -10,13 +12,8 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.MockitoAnnotations;
-import org.palladiosimulator.pcm.allocation.AllocationFactory;
 import org.palladiosimulator.pcm.core.CoreFactory;
 import org.palladiosimulator.pcm.core.PCMRandomVariable;
-import org.palladiosimulator.pcm.repository.RepositoryFactory;
-import org.palladiosimulator.pcm.resourceenvironment.ResourceenvironmentFactory;
-import org.palladiosimulator.pcm.resourcetype.ResourcetypeFactory;
-import org.palladiosimulator.pcm.system.SystemFactory;
 import org.palladiosimulator.pcm.usagemodel.ClosedWorkload;
 import org.palladiosimulator.pcm.usagemodel.Delay;
 import org.palladiosimulator.pcm.usagemodel.ScenarioBehaviour;
@@ -41,9 +38,9 @@ import edu.kit.ipd.sdq.eventsim.workload.calculators.TimeSpanBetweenUserActionsC
 public class TestDelay {
 
 	private static final Level LOG_LEVEL = Level.DEBUG;
-	
+
 	private static final double DELTA = 1e-10;
-	
+
 	@SuppressWarnings("rawtypes")
 	@Captor
 	private ArgumentCaptor<Measurement> measurementArgument;
@@ -55,23 +52,86 @@ public class TestDelay {
 	}
 
 	@Test
-	public void delaysDontCauseContentionTest() {
+	public void delaysDontCauseContention_oneUsageScenario_twoConcurrentUsers() {
+		// create PCM usage model
 		UsageModel um = UsagemodelFactory.eINSTANCE.createUsageModel();
+		int closedWorkloadPopulation = 2;
+		ScenarioBehaviour b = createUsageScenarioWithClosedWorkloadInUsageModel(um, closedWorkloadPopulation);
+		Delay delay = createStartDelayStopActionChainInBehaviour(b);
+		PCMModel model = new PCMModelBuilder().withUsageModel(um).build();
 
-		UsageScenario s = UsagemodelFactory.eINSTANCE.createUsageScenario();
-		s.setUsageModel_UsageScenario(um);
+		// create simulation configuration
+		SimulationConfiguration config = new ConfigurationBuilder(model).stopAtMeasurementCount(2).build();
 
-		ClosedWorkload w = UsagemodelFactory.eINSTANCE.createClosedWorkload();
-		w.setUsageScenario_Workload(s);
-		w.setPopulation(2);
+		// assemble simulation components (some of them being mocked)
+		Injector injector = Guice.createInjector(new TestSimulationModule(config));
+		SimulationManager manager = injector.getInstance(SimulationManager.class);
 
-		PCMRandomVariable thinkTime = CoreFactory.eINSTANCE.createPCMRandomVariable();
-		thinkTime.setSpecification("0");
-		thinkTime.setClosedWorkload_PCMRandomVariable(w);
+		// set up custom measuring points
+		MeasurementFacade<?> measurementFacade = ((EventSimWorkloadModel) manager.getWorkload()).getMeasurementFacade();
+		MeasurementStorage measurementStorage = mock(MeasurementStorage.class);
+		measurementFacade.createCalculator(new TimeSpanBetweenUserActionsCalculator(Metric.TIME_SPAN))
+				.from(delay, "before").to(delay, "after").forEachMeasurement(m -> measurementStorage.putPair(m));
 
-		ScenarioBehaviour b = UsagemodelFactory.eINSTANCE.createScenarioBehaviour();
-		b.setUsageScenario_SenarioBehaviour(s);
+		// run simulation
+		manager.startSimulation();
 
+		// check simulation results
+		verify(measurementStorage, times(2)).putPair(measurementArgument.capture());
+		Measurement<?, ?> firstMeasurement = measurementArgument.getAllValues().get(0);
+		assertEquals(1.42, firstMeasurement.getValue(), DELTA);
+		assertEquals(1.42, firstMeasurement.getWhen(), DELTA);
+
+		Measurement<?, ?> secondMeasurement = measurementArgument.getAllValues().get(1);
+		assertEquals(1.42, secondMeasurement.getValue(), DELTA);
+		assertEquals(1.42, secondMeasurement.getWhen(), DELTA);
+
+		assertEquals(manager.getMiddleware().getSimulationControl().getCurrentSimulationTime(), 1.42, DELTA);
+	}
+
+	@Test
+	public void delaysDontCauseContention_twoUsageScenarios_oneUserPerScenario() {
+		// create PCM usage model
+		UsageModel um = UsagemodelFactory.eINSTANCE.createUsageModel();
+		int closedWorkloadPopulation = 1;
+		ScenarioBehaviour b1 = createUsageScenarioWithClosedWorkloadInUsageModel(um, closedWorkloadPopulation);
+		ScenarioBehaviour b2 = createUsageScenarioWithClosedWorkloadInUsageModel(um, closedWorkloadPopulation);
+		Delay delay1 = createStartDelayStopActionChainInBehaviour(b1);
+		Delay delay2 = createStartDelayStopActionChainInBehaviour(b2);
+		PCMModel model = new PCMModelBuilder().withUsageModel(um).build();
+
+		// create simulation configuration
+		SimulationConfiguration config = new ConfigurationBuilder(model).stopAtMeasurementCount(2).build();
+
+		// assemble simulation components (some of them being mocked)
+		Injector injector = Guice.createInjector(new TestSimulationModule(config));
+		SimulationManager manager = injector.getInstance(SimulationManager.class);
+
+		// set up custom measuring points
+		MeasurementFacade<?> measurementFacade = ((EventSimWorkloadModel) manager.getWorkload()).getMeasurementFacade();
+		MeasurementStorage measurementStorage = mock(MeasurementStorage.class);
+		measurementFacade.createCalculator(new TimeSpanBetweenUserActionsCalculator(Metric.TIME_SPAN))
+				.from(delay1, "before").to(delay1, "after").forEachMeasurement(m -> measurementStorage.putPair(m));
+		measurementFacade.createCalculator(new TimeSpanBetweenUserActionsCalculator(Metric.TIME_SPAN))
+				.from(delay2, "before").to(delay2, "after").forEachMeasurement(m -> measurementStorage.putPair(m));
+
+		// run simulation
+		manager.startSimulation();
+
+		// check simulation results
+		verify(measurementStorage, times(2)).putPair(measurementArgument.capture());
+		Measurement<?, ?> firstMeasurement = measurementArgument.getAllValues().get(0);
+		assertEquals(1.42, firstMeasurement.getValue(), DELTA);
+		assertEquals(1.42, firstMeasurement.getWhen(), DELTA);
+
+		Measurement<?, ?> secondMeasurement = measurementArgument.getAllValues().get(1);
+		assertEquals(1.42, secondMeasurement.getValue(), DELTA);
+		assertEquals(1.42, secondMeasurement.getWhen(), DELTA);
+
+		assertEquals(manager.getMiddleware().getSimulationControl().getCurrentSimulationTime(), 1.42, DELTA);
+	}
+
+	private Delay createStartDelayStopActionChainInBehaviour(ScenarioBehaviour b) {
 		Start start = UsagemodelFactory.eINSTANCE.createStart();
 		start.setScenarioBehaviour_AbstractUserAction(b);
 
@@ -79,41 +139,31 @@ public class TestDelay {
 		delay.setScenarioBehaviour_AbstractUserAction(b);
 		delay.setPredecessor(start);
 
-		PCMRandomVariable thinkTimeDelay = CoreFactory.eINSTANCE.createPCMRandomVariable();
-		thinkTimeDelay.setSpecification("1");
-		thinkTimeDelay.setDelay_TimeSpecification(delay);
+		PCMRandomVariable delayTime = CoreFactory.eINSTANCE.createPCMRandomVariable();
+		delayTime.setSpecification("1.42");
+		delayTime.setDelay_TimeSpecification(delay);
 
 		Stop stop = UsagemodelFactory.eINSTANCE.createStop();
 		stop.setScenarioBehaviour_AbstractUserAction(b);
 		stop.setPredecessor(delay);
+		return delay;
+	}
 
-		PCMModel model = new PCMModel(AllocationFactory.eINSTANCE.createAllocation(),
-				RepositoryFactory.eINSTANCE.createRepository(),
-				ResourceenvironmentFactory.eINSTANCE.createResourceEnvironment(),
-				SystemFactory.eINSTANCE.createSystem(), um, ResourcetypeFactory.eINSTANCE.createResourceRepository());
+	private ScenarioBehaviour createUsageScenarioWithClosedWorkloadInUsageModel(UsageModel um, int population) {
+		UsageScenario s = UsagemodelFactory.eINSTANCE.createUsageScenario();
+		s.setUsageModel_UsageScenario(um);
 
-		SimulationConfiguration config = new SimulationConfigurationBuilder(model).stopAtMeasurementCount(2)
-				.buildConfiguration();
-		
-		Injector injector = Guice.createInjector(new TestSimulationModule(config));
-		SimulationManager manager = injector.getInstance(SimulationManager.class);
+		ClosedWorkload w = UsagemodelFactory.eINSTANCE.createClosedWorkload();
+		w.setUsageScenario_Workload(s);
+		w.setPopulation(population);
 
-		MeasurementFacade<?> measurementFacade = ((EventSimWorkloadModel) manager.getWorkload()).getMeasurementFacade();
+		PCMRandomVariable thinkTime = CoreFactory.eINSTANCE.createPCMRandomVariable();
+		thinkTime.setSpecification("0");
+		thinkTime.setClosedWorkload_PCMRandomVariable(w);
 
-		MeasurementStorage measurementStorage = mock(MeasurementStorage.class);
-		measurementFacade.createCalculator(new TimeSpanBetweenUserActionsCalculator(Metric.TIME_SPAN))
-				.from(delay, "before").to(delay, "after").forEachMeasurement(m -> measurementStorage.putPair(m));
-
-		manager.startSimulation();
-
-		verify(measurementStorage, times(2)).putPair(measurementArgument.capture());
-		Measurement<?, ?> firstMeasurement = measurementArgument.getAllValues().get(0);
-		assertEquals(1.0, firstMeasurement.getValue(), DELTA);
-		assertEquals(1.0, firstMeasurement.getWhen(), DELTA);
-
-		Measurement<?, ?> secondMeasurement = measurementArgument.getAllValues().get(1);
-		assertEquals(1.0, secondMeasurement.getValue(), DELTA);
-		assertEquals(1.0, secondMeasurement.getWhen(), DELTA);
+		ScenarioBehaviour b = UsagemodelFactory.eINSTANCE.createScenarioBehaviour();
+		b.setUsageScenario_SenarioBehaviour(s);
+		return b;
 	}
 
 }

@@ -2,7 +2,6 @@
 <rm:rmap xmlns:bc="http://www.eclipse.org/buckminster/Common-1.0" xmlns:rm="http://www.eclipse.org/buckminster/RMap-1.0">
   <rm:locator pattern="^edu\.kit\.ipd\.sdq\.eventsim.*" searchPathRef="EventSim" failOnError="false"/>
   <rm:locator pattern="^com\.google\.inject.*" searchPathRef="EventSim" failOnError="false"/>
-  <rm:redirect pattern=".*" href="https://anonymous:anonymous@svnserver.informatik.kit.edu/i43/svn/code/Palladio/Analyzer/SimuCom/trunk/org.palladiosimulator.simucom.buckminster/simucom.rmap"/>
   <rm:searchPath name="EventSim">
     <rm:provider componentTypes="eclipse.feature,osgi.bundle" readerType="svn">
       <rm:uri format="https://anonymous:anonymous@svnserver.informatik.kit.edu/i43/svn/code/Palladio/Addons/EventSim/trunk/{0}">

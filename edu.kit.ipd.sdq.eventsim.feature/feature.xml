@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="kit.edu.ipd.sdq.eventsim.feature"
+      id="edu.kit.ipd.sdq.eventsim.feature"
       label="EventSim Analyzer Feature"
       version="1.0.0.qualifier">
 

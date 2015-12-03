@@ -28,6 +28,7 @@ public class ScenarioBehaviourBuilder {
 
 	public ScenarioBehaviourBuilder start(String name) {
 		Start start = UsagemodelFactory.eINSTANCE.createStart();
+		start.setEntityName(name);
 		enchain(start);
 		return this;
 	}
@@ -101,6 +102,10 @@ public class ScenarioBehaviourBuilder {
 		return UUID.randomUUID().toString();
 	}
 
+	public static AbstractUserAction actionByName(BranchTransition t, String actionName) {
+		return actionByName(t.getBranchedBehaviour_BranchTransition(), actionName);
+	}
+	
 	public static AbstractUserAction actionByName(ScenarioBehaviour b, String actionName) {
 		TreeIterator<EObject> it = b.eAllContents();
 		while (it.hasNext()) {

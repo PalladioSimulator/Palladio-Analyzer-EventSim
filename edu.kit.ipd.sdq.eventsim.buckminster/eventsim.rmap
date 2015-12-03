@@ -3,6 +3,7 @@
   <rm:locator pattern="^edu\.kit\.ipd\.sdq\.eventsim.*" searchPathRef="EventSim" failOnError="false"/>
   <rm:locator pattern="^com\.google\.inject\.guice.*" searchPathRef="EventSim" failOnError="false"/>
   <rm:locator pattern="^org\.rosuda.*" searchPathRef="ThirdPartyWrapper" failOnError="false"/>
+  <rm:locator pattern="^org\.eclipse.*" searchPathRef="EclipseMars"/>
   <rm:redirect pattern=".*" href="https://anonymous:anonymous@svnserver.informatik.kit.edu/i43/svn/code/Palladio/Analyzer/SimuCom/trunk/org.palladiosimulator.simucom.buckminster/simucom.rmap"/>
   <rm:searchPath name="EventSim">
     <rm:provider componentTypes="eclipse.feature,osgi.bundle" readerType="svn">
@@ -14,6 +15,11 @@
   <rm:searchPath name="ThirdPartyWrapper">
     <rm:provider componentTypes="osgi.bundle,eclipse.feature" readerType="p2">
       <rm:uri format="http://sdqweb.ipd.kit.edu/eclipse/thirdpartywrapper/nightly/"/>
+    </rm:provider>
+  </rm:searchPath>
+  <rm:searchPath name="EclipseMars">
+    <rm:provider componentTypes="eclipse.feature,osgi.bundle" readerType="p2">
+      <rm:uri format="http://download.eclipse.org/releases/mars"/>
     </rm:provider>
   </rm:searchPath>
 </rm:rmap>

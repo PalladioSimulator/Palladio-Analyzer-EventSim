@@ -101,15 +101,6 @@ public class DelayTests {
 		UsageScenario s2 = new UsageScenarioBuilder().closedWorkload(1, 0).buildIn(um);
 		ScenarioBehaviour b2 = new ScenarioBehaviourBuilder().start().delay(1.42).stop().buildIn(s2);
 		PCMModel model = new PCMModelBuilder().withUsageModel(um).build();
-		
-		
-//		UsageModel um = UsagemodelFactory.eINSTANCE.createUsageModel();
-//		int closedWorkloadPopulation = 1;
-//		ScenarioBehaviour b1 = createUsageScenarioWithClosedWorkloadInUsageModel(um, closedWorkloadPopulation);
-//		ScenarioBehaviour b2 = createUsageScenarioWithClosedWorkloadInUsageModel(um, closedWorkloadPopulation);
-//		Delay delay1 = createStartDelayStopActionChainInBehaviour(b1);
-//		Delay delay2 = createStartDelayStopActionChainInBehaviour(b2);
-//		PCMModel model = new PCMModelBuilder().withUsageModel(um).build();
 
 		// create simulation configuration
 		SimulationConfiguration config = new ConfigurationBuilder(model).stopAtMeasurementCount(2).build();

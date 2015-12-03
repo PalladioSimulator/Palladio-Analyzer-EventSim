@@ -7,7 +7,6 @@ import static org.mockito.Mockito.verify;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -18,7 +17,6 @@ import org.palladiosimulator.pcm.usagemodel.ScenarioBehaviour;
 import org.palladiosimulator.pcm.usagemodel.UsageModel;
 import org.palladiosimulator.pcm.usagemodel.UsageScenario;
 import org.palladiosimulator.pcm.usagemodel.UsagemodelFactory;
-import org.palladiosimulator.pcm.usagemodel.UsagemodelPackage;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -59,7 +57,7 @@ public class DelayTests {
 		// create PCM usage model
 		UsageModel um = UsagemodelFactory.eINSTANCE.createUsageModel();
 		UsageScenario s = new UsageScenarioBuilder().closedWorkload(2, 0).buildIn(um);
-		ScenarioBehaviour b = new ScenarioBehaviourBuilder().start().delay(1.42).stop().buildIn(s);
+		ScenarioBehaviour b = new ScenarioBehaviourBuilder().start().delay("delay", 1.42).stop().buildIn(s);
 		PCMModel model = new PCMModelBuilder().withUsageModel(um).build();
 
 		// create simulation configuration
@@ -70,7 +68,7 @@ public class DelayTests {
 		SimulationManager manager = injector.getInstance(SimulationManager.class);
 
 		// set up custom measuring points
-		Delay delay = (Delay) EcoreUtil.getObjectByType(b.eContents(), UsagemodelPackage.eINSTANCE.getDelay());
+		Delay delay = (Delay) ScenarioBehaviourBuilder.actionByName(b, "delay");
 		MeasurementFacade<?> measurementFacade = ((EventSimWorkloadModel) manager.getWorkload()).getMeasurementFacade();
 		MeasurementStorage measurementStorage = mock(MeasurementStorage.class);
 		measurementFacade.createCalculator(new TimeSpanBetweenUserActionsCalculator(Metric.TIME_SPAN))
@@ -97,9 +95,9 @@ public class DelayTests {
 		// create PCM usage model
 		UsageModel um = UsagemodelFactory.eINSTANCE.createUsageModel();
 		UsageScenario s1 = new UsageScenarioBuilder().closedWorkload(1, 0).buildIn(um);
-		ScenarioBehaviour b1 = new ScenarioBehaviourBuilder().start().delay(1.42).stop().buildIn(s1);
+		ScenarioBehaviour b1 = new ScenarioBehaviourBuilder().start().delay("delay1", 1.42).stop().buildIn(s1);
 		UsageScenario s2 = new UsageScenarioBuilder().closedWorkload(1, 0).buildIn(um);
-		ScenarioBehaviour b2 = new ScenarioBehaviourBuilder().start().delay(1.42).stop().buildIn(s2);
+		ScenarioBehaviour b2 = new ScenarioBehaviourBuilder().start().delay("delay2", 1.42).stop().buildIn(s2);
 		PCMModel model = new PCMModelBuilder().withUsageModel(um).build();
 
 		// create simulation configuration
@@ -110,8 +108,8 @@ public class DelayTests {
 		SimulationManager manager = injector.getInstance(SimulationManager.class);
 
 		// set up custom measuring points
-		Delay delay1 = (Delay) EcoreUtil.getObjectByType(b1.eContents(), UsagemodelPackage.eINSTANCE.getDelay());
-		Delay delay2 = (Delay) EcoreUtil.getObjectByType(b2.eContents(), UsagemodelPackage.eINSTANCE.getDelay());
+		Delay delay1 = (Delay) ScenarioBehaviourBuilder.actionByName(b1, "delay1");
+		Delay delay2 = (Delay) ScenarioBehaviourBuilder.actionByName(b2, "delay2");
 		MeasurementFacade<?> measurementFacade = ((EventSimWorkloadModel) manager.getWorkload()).getMeasurementFacade();
 		MeasurementStorage measurementStorage = mock(MeasurementStorage.class);
 		measurementFacade.createCalculator(new TimeSpanBetweenUserActionsCalculator(Metric.TIME_SPAN))

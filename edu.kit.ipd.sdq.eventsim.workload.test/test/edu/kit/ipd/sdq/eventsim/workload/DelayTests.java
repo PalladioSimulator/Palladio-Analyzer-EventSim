@@ -1,7 +1,5 @@
 package edu.kit.ipd.sdq.eventsim.workload;
 
-import static edu.kit.ipd.sdq.eventsim.workload.WorkloadModelHelper.createStartDelayStopActionChainInBehaviour;
-import static edu.kit.ipd.sdq.eventsim.workload.WorkloadModelHelper.createUsageScenarioWithClosedWorkloadInUsageModel;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -9,6 +7,7 @@ import static org.mockito.Mockito.verify;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -17,7 +16,9 @@ import org.mockito.MockitoAnnotations;
 import org.palladiosimulator.pcm.usagemodel.Delay;
 import org.palladiosimulator.pcm.usagemodel.ScenarioBehaviour;
 import org.palladiosimulator.pcm.usagemodel.UsageModel;
+import org.palladiosimulator.pcm.usagemodel.UsageScenario;
 import org.palladiosimulator.pcm.usagemodel.UsagemodelFactory;
+import org.palladiosimulator.pcm.usagemodel.UsagemodelPackage;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -31,6 +32,12 @@ import edu.kit.ipd.sdq.eventsim.measurement.Metric;
 import edu.kit.ipd.sdq.eventsim.middleware.simulation.config.SimulationConfiguration;
 import edu.kit.ipd.sdq.eventsim.workload.calculators.TimeSpanBetweenUserActionsCalculator;
 
+/**
+ * Tests simulation of {@link Delay} actions.
+ * 
+ * @author Philipp Merkle
+ *
+ */
 public class DelayTests {
 
 	private static final Level LOG_LEVEL = Level.DEBUG;
@@ -51,9 +58,8 @@ public class DelayTests {
 	public void delaysDontCauseContention_oneUsageScenario_twoConcurrentUsers() {
 		// create PCM usage model
 		UsageModel um = UsagemodelFactory.eINSTANCE.createUsageModel();
-		int closedWorkloadPopulation = 2;
-		ScenarioBehaviour b = createUsageScenarioWithClosedWorkloadInUsageModel(um, closedWorkloadPopulation);
-		Delay delay = createStartDelayStopActionChainInBehaviour(b);
+		UsageScenario s = new UsageScenarioBuilder().closedWorkload(2, 0).buildIn(um);
+		ScenarioBehaviour b = new ScenarioBehaviourBuilder().start().delay(1.42).stop().buildIn(s);
 		PCMModel model = new PCMModelBuilder().withUsageModel(um).build();
 
 		// create simulation configuration
@@ -64,6 +70,7 @@ public class DelayTests {
 		SimulationManager manager = injector.getInstance(SimulationManager.class);
 
 		// set up custom measuring points
+		Delay delay = (Delay) EcoreUtil.getObjectByType(b.eContents(), UsagemodelPackage.eINSTANCE.getDelay());
 		MeasurementFacade<?> measurementFacade = ((EventSimWorkloadModel) manager.getWorkload()).getMeasurementFacade();
 		MeasurementStorage measurementStorage = mock(MeasurementStorage.class);
 		measurementFacade.createCalculator(new TimeSpanBetweenUserActionsCalculator(Metric.TIME_SPAN))
@@ -89,12 +96,20 @@ public class DelayTests {
 	public void delaysDontCauseContention_twoUsageScenarios_oneUserPerScenario() {
 		// create PCM usage model
 		UsageModel um = UsagemodelFactory.eINSTANCE.createUsageModel();
-		int closedWorkloadPopulation = 1;
-		ScenarioBehaviour b1 = createUsageScenarioWithClosedWorkloadInUsageModel(um, closedWorkloadPopulation);
-		ScenarioBehaviour b2 = createUsageScenarioWithClosedWorkloadInUsageModel(um, closedWorkloadPopulation);
-		Delay delay1 = createStartDelayStopActionChainInBehaviour(b1);
-		Delay delay2 = createStartDelayStopActionChainInBehaviour(b2);
+		UsageScenario s1 = new UsageScenarioBuilder().closedWorkload(1, 0).buildIn(um);
+		ScenarioBehaviour b1 = new ScenarioBehaviourBuilder().start().delay(1.42).stop().buildIn(s1);
+		UsageScenario s2 = new UsageScenarioBuilder().closedWorkload(1, 0).buildIn(um);
+		ScenarioBehaviour b2 = new ScenarioBehaviourBuilder().start().delay(1.42).stop().buildIn(s2);
 		PCMModel model = new PCMModelBuilder().withUsageModel(um).build();
+		
+		
+//		UsageModel um = UsagemodelFactory.eINSTANCE.createUsageModel();
+//		int closedWorkloadPopulation = 1;
+//		ScenarioBehaviour b1 = createUsageScenarioWithClosedWorkloadInUsageModel(um, closedWorkloadPopulation);
+//		ScenarioBehaviour b2 = createUsageScenarioWithClosedWorkloadInUsageModel(um, closedWorkloadPopulation);
+//		Delay delay1 = createStartDelayStopActionChainInBehaviour(b1);
+//		Delay delay2 = createStartDelayStopActionChainInBehaviour(b2);
+//		PCMModel model = new PCMModelBuilder().withUsageModel(um).build();
 
 		// create simulation configuration
 		SimulationConfiguration config = new ConfigurationBuilder(model).stopAtMeasurementCount(2).build();
@@ -104,6 +119,8 @@ public class DelayTests {
 		SimulationManager manager = injector.getInstance(SimulationManager.class);
 
 		// set up custom measuring points
+		Delay delay1 = (Delay) EcoreUtil.getObjectByType(b1.eContents(), UsagemodelPackage.eINSTANCE.getDelay());
+		Delay delay2 = (Delay) EcoreUtil.getObjectByType(b2.eContents(), UsagemodelPackage.eINSTANCE.getDelay());
 		MeasurementFacade<?> measurementFacade = ((EventSimWorkloadModel) manager.getWorkload()).getMeasurementFacade();
 		MeasurementStorage measurementStorage = mock(MeasurementStorage.class);
 		measurementFacade.createCalculator(new TimeSpanBetweenUserActionsCalculator(Metric.TIME_SPAN))

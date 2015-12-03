@@ -1,5 +1,6 @@
 package edu.kit.ipd.sdq.eventsim.workload;
 
+import static edu.kit.ipd.sdq.eventsim.workload.ScenarioBehaviourBuilder.actionByName;
 import static edu.kit.ipd.sdq.eventsim.workload.ScenarioBehaviourBuilder.transition;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
@@ -73,10 +74,10 @@ public class BranchTests {
 		SimulationManager manager = injector.getInstance(SimulationManager.class);
 
 		// set up custom measuring points
-		Start outerStart = (Start) ScenarioBehaviourBuilder.actionByName(b, "outer_start");
-		Stop outerStop = (Stop) ScenarioBehaviourBuilder.actionByName(b, "outer_stop");
-		Start innerStart = (Start) ScenarioBehaviourBuilder.actionByName(t, "inner_start");
-		Stop innerStop = (Stop) ScenarioBehaviourBuilder.actionByName(t, "inner_stop");
+		Start outerStart = (Start) actionByName(b, "outer_start");
+		Stop outerStop = (Stop) actionByName(b, "outer_stop");
+		Start innerStart = (Start) actionByName(t, "inner_start");
+		Stop innerStop = (Stop) actionByName(t, "inner_stop");
 		MeasurementFacade<?> measurementFacade = ((EventSimWorkloadModel) manager.getWorkload()).getMeasurementFacade();
 		MeasurementStorage measurementStorage = mock(MeasurementStorage.class);
 		measurementFacade.createProbe(outerStart, "before").forEachMeasurement(m -> measurementStorage.put(m));

@@ -1,12 +1,10 @@
 package edu.kit.ipd.sdq.eventsim.workload.tests;
 
-import static edu.kit.ipd.sdq.eventsim.workload.tests.utils.ScenarioBehaviourBuilder.actionByName;
+import static edu.kit.ipd.sdq.eventsim.workload.tests.utils.BeforeMatcher.before;
 import static edu.kit.ipd.sdq.eventsim.workload.tests.utils.ScenarioBehaviourBuilder.transition;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -18,8 +16,6 @@ import org.mockito.MockitoAnnotations;
 import org.palladiosimulator.pcm.usagemodel.Branch;
 import org.palladiosimulator.pcm.usagemodel.BranchTransition;
 import org.palladiosimulator.pcm.usagemodel.ScenarioBehaviour;
-import org.palladiosimulator.pcm.usagemodel.Start;
-import org.palladiosimulator.pcm.usagemodel.Stop;
 import org.palladiosimulator.pcm.usagemodel.UsageModel;
 import org.palladiosimulator.pcm.usagemodel.UsageScenario;
 import org.palladiosimulator.pcm.usagemodel.UsagemodelFactory;
@@ -31,12 +27,12 @@ import edu.kit.ipd.sdq.eventsim.api.PCMModel;
 import edu.kit.ipd.sdq.eventsim.launch.SimulationManager;
 import edu.kit.ipd.sdq.eventsim.measurement.Measurement;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementFacade;
-import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 import edu.kit.ipd.sdq.eventsim.middleware.simulation.config.SimulationConfiguration;
 import edu.kit.ipd.sdq.eventsim.workload.EventSimWorkloadModel;
 import edu.kit.ipd.sdq.eventsim.workload.tests.utils.ConfigurationBuilder;
 import edu.kit.ipd.sdq.eventsim.workload.tests.utils.PCMModelBuilder;
 import edu.kit.ipd.sdq.eventsim.workload.tests.utils.ScenarioBehaviourBuilder;
+import edu.kit.ipd.sdq.eventsim.workload.tests.utils.Tracer;
 import edu.kit.ipd.sdq.eventsim.workload.tests.utils.UsageScenarioBuilder;
 
 /**
@@ -79,27 +75,19 @@ public class BranchTests {
 		SimulationManager manager = injector.getInstance(SimulationManager.class);
 
 		// set up custom measuring points
-		Start outerStart = (Start) actionByName(b, "outer_start");
-		Stop outerStop = (Stop) actionByName(b, "outer_stop");
-		Start innerStart = (Start) actionByName(t, "inner_start");
-		Stop innerStop = (Stop) actionByName(t, "inner_stop");
 		MeasurementFacade<?> measurementFacade = ((EventSimWorkloadModel) manager.getWorkload()).getMeasurementFacade();
-		MeasurementStorage measurementStorage = mock(MeasurementStorage.class);
-		measurementFacade.createProbe(outerStart, "before").forEachMeasurement(m -> measurementStorage.put(m));
-		measurementFacade.createProbe(innerStart, "before").forEachMeasurement(m -> measurementStorage.put(m));
-		measurementFacade.createProbe(innerStop, "before").forEachMeasurement(m -> measurementStorage.put(m));
-		measurementFacade.createProbe(outerStop, "before").forEachMeasurement(m -> measurementStorage.put(m));
+		Tracer trace = new Tracer(measurementFacade);
+		trace.instrumentAllUserActions(um);
 
 		// run simulation
 		manager.startSimulation();
 
-		// check that actions have been simulated entirely and in the expected order
-		verify(measurementStorage, times(4)).put(measurementArgument.capture());
-		assertSame(outerStart, measurementArgument.getAllValues().get(0).getWhere().getElement());
-		assertSame(innerStart, measurementArgument.getAllValues().get(1).getWhere().getElement());
-		assertSame(innerStop, measurementArgument.getAllValues().get(2).getWhere().getElement());
-		assertSame(outerStop, measurementArgument.getAllValues().get(3).getWhere().getElement());
-
+		// check that actions have been simulated entirely and in the expected order		
+		assertThat(trace.size(), equalTo(5));
+		assertThat(trace.firstInvocationOf("outer_start"), before(trace.firstInvocationOf("inner_start")));
+		assertThat(trace.firstInvocationOf("inner_start"), before(trace.firstInvocationOf("inner_stop")));
+		assertThat(trace.firstInvocationOf("inner_stop"), before(trace.firstInvocationOf("outer_stop")));
+		
 		// simulated time should not have advanced
 		assertEquals(manager.getMiddleware().getSimulationControl().getCurrentSimulationTime(), 0, DELTA);
 	}

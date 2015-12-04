@@ -59,6 +59,17 @@ public class Tracer {
 		throw new RuntimeException("Tracer did not encounter an element named " + name);
 	}
 	
+	public int invocationCount(String name) {
+		int count = 0;
+		for (TracedMeasurement m : trace) {
+			AbstractUserAction action = (AbstractUserAction) m.getMeasurement().getWhere().getElement();
+			if (action.getEntityName().equals(name)) {
+				count++;
+			}
+		}
+		return count;
+	}
+	
 	public int size() {
 		return trace.size();
 	}

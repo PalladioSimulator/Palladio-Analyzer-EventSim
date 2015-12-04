@@ -1,4 +1,4 @@
-package edu.kit.ipd.sdq.eventsim.workload.tests;
+package edu.kit.ipd.sdq.eventsim.workload.tests.utils;
 
 import java.util.HashMap;
 import java.util.Map;

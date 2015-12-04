@@ -1,7 +1,7 @@
 package edu.kit.ipd.sdq.eventsim.workload.tests;
 
-import static edu.kit.ipd.sdq.eventsim.workload.tests.ScenarioBehaviourBuilder.actionByName;
-import static edu.kit.ipd.sdq.eventsim.workload.tests.ScenarioBehaviourBuilder.transition;
+import static edu.kit.ipd.sdq.eventsim.workload.tests.utils.ScenarioBehaviourBuilder.actionByName;
+import static edu.kit.ipd.sdq.eventsim.workload.tests.utils.ScenarioBehaviourBuilder.transition;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.mock;
@@ -34,6 +34,10 @@ import edu.kit.ipd.sdq.eventsim.measurement.MeasurementFacade;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 import edu.kit.ipd.sdq.eventsim.middleware.simulation.config.SimulationConfiguration;
 import edu.kit.ipd.sdq.eventsim.workload.EventSimWorkloadModel;
+import edu.kit.ipd.sdq.eventsim.workload.tests.utils.ConfigurationBuilder;
+import edu.kit.ipd.sdq.eventsim.workload.tests.utils.PCMModelBuilder;
+import edu.kit.ipd.sdq.eventsim.workload.tests.utils.ScenarioBehaviourBuilder;
+import edu.kit.ipd.sdq.eventsim.workload.tests.utils.UsageScenarioBuilder;
 
 /**
  * Tests simulation of {@link Branch} actions.

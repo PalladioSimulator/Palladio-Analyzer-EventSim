@@ -1,4 +1,4 @@
-package edu.kit.ipd.sdq.eventsim.workload.tests;
+package edu.kit.ipd.sdq.eventsim.workload.tests.utils;
 
 import org.palladiosimulator.pcm.allocation.Allocation;
 import org.palladiosimulator.pcm.allocation.AllocationFactory;

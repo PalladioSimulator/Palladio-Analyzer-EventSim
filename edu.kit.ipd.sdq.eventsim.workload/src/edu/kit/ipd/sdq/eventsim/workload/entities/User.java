@@ -4,10 +4,10 @@ import org.apache.log4j.Logger;
 import org.palladiosimulator.pcm.usagemodel.UsageScenario;
 
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
-import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
 import edu.kit.ipd.sdq.eventsim.api.IUser;
 import edu.kit.ipd.sdq.eventsim.debug.DebugEntityListener;
 import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
+import edu.kit.ipd.sdq.eventsim.workload.EventSimWorkloadModel;
 import edu.kit.ipd.sdq.eventsim.workload.generator.IWorkloadGenerator;
 import edu.kit.ipd.sdq.eventsim.workload.interpreter.state.UserState;
 
@@ -37,7 +37,7 @@ public class User extends EventSimEntity implements IUser {
      * @param scenario
      *            the usage scenario
      */
-    public User(final AbstractEventSimModel model, final UsageScenario scenario) {
+    public User(final EventSimWorkloadModel model, final UsageScenario scenario) {
         super(model, "User");
         this.scenario = scenario;
 
@@ -75,6 +75,11 @@ public class User extends EventSimEntity implements IUser {
 	@Override
 	public StackContext getStochasticExpressionContext() {
 		return state.getStoExContext();
+	}
+
+	@Override
+	public EventSimWorkloadModel getEventSimModel() {
+		return (EventSimWorkloadModel) super.getEventSimModel();
 	}
 
 }

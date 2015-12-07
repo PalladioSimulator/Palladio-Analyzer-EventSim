@@ -1,6 +1,7 @@
 package edu.kit.ipd.sdq.eventsim.workload.command.usage;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
@@ -84,9 +85,9 @@ public class FindActionsInUsageScenario<A extends AbstractUserAction> implements
 	/**
 	 * Searches for and returns all system calls that are contained in the specified branch.
 	 */
-	private List<A> findActionsInBranch(Branch action, ICommandExecutor<PCMModel> executor) {
+	private List<A> findActionsInBranch(Branch branch, ICommandExecutor<PCMModel> executor) {
 		List<A> calls = new ArrayList<>();
-		for (BranchTransition t : action.getBranchTransitions_Branch()) {
+		for (BranchTransition t : branch.getBranchTransitions_Branch()) {
 			ScenarioBehaviour behaviour = t.getBranchedBehaviour_BranchTransition();
 			calls.addAll(findActionsByType(behaviour, executor));
 		}
@@ -96,8 +97,11 @@ public class FindActionsInUsageScenario<A extends AbstractUserAction> implements
 	/**
 	 * Searches for and returns all system calls that are contained in the specified loop.
 	 */
-	private List<A> findActionsInLoop(Loop action, ICommandExecutor<PCMModel> executor) {
-		ScenarioBehaviour behaviour = action.getBodyBehaviour_Loop();
+	private List<A> findActionsInLoop(Loop loop, ICommandExecutor<PCMModel> executor) {
+		ScenarioBehaviour behaviour = loop.getBodyBehaviour_Loop();
+		if (behaviour == null) {
+			return Collections.emptyList();
+		}
 		return findActionsByType(behaviour, executor);
 	}
 

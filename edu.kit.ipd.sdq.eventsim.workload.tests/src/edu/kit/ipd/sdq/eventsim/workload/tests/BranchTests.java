@@ -126,28 +126,63 @@ public class BranchTests {
 	}
 
 	@Test
+	public void delayInBranchTransitionShouldAdvanceSimulationTime() {
+		final double DELAY_TIME = 1.23;
+
+		// create PCM usage model
+		UsageModel um = UsagemodelFactory.eINSTANCE.createUsageModel();
+		UsageScenario s = new UsageScenarioBuilder().closedWorkload(1, 0).buildIn(um);
+		BranchTransition t = transition(1, new ScenarioBehaviourBuilder().start().delay(DELAY_TIME).stop().build());
+		new ScenarioBehaviourBuilder().start().branch(t).stop("stop").buildIn(s);
+		PCMModel model = new PCMModelBuilder().withUsageModel(um).build();
+
+		// create simulation configuration
+		SimulationConfiguration config = new ConfigurationBuilder(model).stopAtMeasurementCount(1).build();
+
+		// assemble simulation components (some of them being mocked)
+		Injector injector = Guice.createInjector(new TestSimulationModule(config));
+		SimulationManager manager = injector.getInstance(SimulationManager.class);
+
+		// set up custom measuring points
+		MeasurementFacade<?> measurementFacade = ((EventSimWorkloadModel) manager.getWorkload()).getMeasurementFacade();
+		Tracer trace = new Tracer(measurementFacade);
+		trace.instrumentAllUserActions(um);
+		
+		// TODO perhaps additionally check response time measurement results
+
+		// run simulation
+		manager.startSimulation();
+
+		// simulated time should have advanced
+		assertEquals(manager.getMiddleware().getSimulationControl().getCurrentSimulationTime(), DELAY_TIME, DELTA);
+		
+		// make sure that stop action has been visited
+		assertThat(trace.invocationCount("stop"), equalTo(1));
+	}
+
+	@Test
 	public void branchWithoutBranchTransitionsShouldBeSkippedWithoutException() {
 		// create PCM usage model
 		UsageModel um = UsagemodelFactory.eINSTANCE.createUsageModel();
 		UsageScenario s = new UsageScenarioBuilder().closedWorkload(1, 0).buildIn(um);
 		new ScenarioBehaviourBuilder().start("start").branch("branch").stop("stop").buildIn(s);
 		PCMModel model = new PCMModelBuilder().withUsageModel(um).build();
-	
+
 		// create simulation configuration
 		SimulationConfiguration config = new ConfigurationBuilder(model).stopAtMeasurementCount(1).build();
-	
+
 		// assemble simulation components (some of them being mocked)
 		Injector injector = Guice.createInjector(new TestSimulationModule(config));
 		SimulationManager manager = injector.getInstance(SimulationManager.class);
-	
+
 		// set up custom measuring points
 		MeasurementFacade<?> measurementFacade = ((EventSimWorkloadModel) manager.getWorkload()).getMeasurementFacade();
 		Tracer trace = new Tracer(measurementFacade);
 		trace.instrumentAllUserActions(um);
-	
+
 		// run simulation
 		manager.startSimulation();
-	
+
 		// check that actions have been simulated entirely and in the expected order
 		assertThat(trace.size(), equalTo(3));
 		assertThat(trace.firstInvocationOf("start"), before(trace.firstInvocationOf("branch")));

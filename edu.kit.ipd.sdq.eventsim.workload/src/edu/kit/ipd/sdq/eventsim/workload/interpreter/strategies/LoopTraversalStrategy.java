@@ -48,7 +48,7 @@ public class LoopTraversalStrategy implements ITraversalStrategy<AbstractUserAct
 			final ScenarioBehaviour behaviour = loop.getBodyBehaviour_Loop();
 			if (behaviour == null) {
 				WorkloadModelDiagnostics diagnostics = user.getEventSimModel().getUsageInterpreter().getDiagnostics();
-				diagnostics.missingLoopingBehaviourIn(loop);
+				diagnostics.reportMissingLoopingBehaviour(loop);
 				return new TraverseNextAction<>(loop.getSuccessor());
 			}
 			return new TraverseUsageBehaviourInstruction(user.getEventSimModel(), behaviour, loop);

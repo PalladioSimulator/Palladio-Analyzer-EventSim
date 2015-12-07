@@ -10,7 +10,7 @@ public class WorkloadModelDiagnostics extends ModelDiagnostics {
 		super(mode);
 	}
 	
-	public void missingLoopingBehaviourIn(Loop action) {
+	public void reportMissingLoopingBehaviour(Loop action) {
 		handle("Missing looping behaviour", action);
 	}
 

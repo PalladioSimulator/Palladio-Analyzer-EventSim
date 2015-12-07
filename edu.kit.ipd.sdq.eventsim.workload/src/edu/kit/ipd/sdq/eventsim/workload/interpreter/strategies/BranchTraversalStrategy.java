@@ -1,6 +1,5 @@
 package edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies;
 
-import org.apache.log4j.Logger;
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 import org.palladiosimulator.pcm.usagemodel.Branch;
 import org.palladiosimulator.pcm.usagemodel.BranchTransition;
@@ -14,6 +13,7 @@ import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.interpreter.instructions.TraverseNextAction;
 import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
+import edu.kit.ipd.sdq.eventsim.workload.interpreter.WorkloadModelDiagnostics;
 import edu.kit.ipd.sdq.eventsim.workload.interpreter.instructions.TraverseUsageBehaviourInstruction;
 import edu.kit.ipd.sdq.eventsim.workload.interpreter.state.UserState;
 
@@ -25,8 +25,7 @@ import edu.kit.ipd.sdq.eventsim.workload.interpreter.state.UserState;
  */
 public class BranchTraversalStrategy implements ITraversalStrategy<AbstractUserAction, Branch, User, UserState> {
 
-	private static final Logger log = Logger.getLogger(BranchTraversalStrategy.class);
-
+	// TODO revisit this tolerance; it's likely better to "fix" the branching probabilities as done in SimuCom.
 	private static final double SUM_OF_BRANCHING_PROBABILITES_TOLERANCE = 0.01;
 
 	@Override
@@ -37,9 +36,8 @@ public class BranchTraversalStrategy implements ITraversalStrategy<AbstractUserA
 
 		// no branch transitions? ignore branch and continue with successor.
 		if (branch.getBranchTransitions_Branch().size() == 0) {
-			log.warn(String.format(
-					"No branch transitions found for branch %s. Ignoring branch and continuing with successor.",
-					PCMEntityHelper.toString(branch)));
+			WorkloadModelDiagnostics diagnostics = user.getEventSimModel().getUsageInterpreter().getDiagnostics();
+			diagnostics.reportMissingBranchTransitions(branch);
 			return new TraverseNextAction<>(branch.getSuccessor());
 		}
 

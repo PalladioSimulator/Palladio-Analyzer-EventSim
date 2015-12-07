@@ -101,7 +101,7 @@ public class LoopTests {
 		UsageModel um = UsagemodelFactory.eINSTANCE.createUsageModel();
 		UsageScenario s = new UsageScenarioBuilder().closedWorkload(1, 0).buildIn(um);
 		ScenarioBehaviour b = new ScenarioBehaviourBuilder().start().delay(DELAY_TIME).stop().build();
-		new ScenarioBehaviourBuilder().start().loop(LOOP_ITERATIONS, b).stop().buildIn(s);
+		new ScenarioBehaviourBuilder().start().loop(LOOP_ITERATIONS, b).stop("stop").buildIn(s);
 		PCMModel model = new PCMModelBuilder().withUsageModel(um).build();
 
 		// create simulation configuration
@@ -111,6 +111,11 @@ public class LoopTests {
 		Injector injector = Guice.createInjector(new TestSimulationModule(config));
 		SimulationManager manager = injector.getInstance(SimulationManager.class);
 
+		// set up custom measuring points
+		MeasurementFacade<?> measurementFacade = ((EventSimWorkloadModel) manager.getWorkload()).getMeasurementFacade();
+		Tracer trace = new Tracer(measurementFacade);
+		trace.instrumentAllUserActions(um);
+
 		// TODO perhaps additionally check response time measurement results
 
 		// run simulation
@@ -119,6 +124,9 @@ public class LoopTests {
 		// simulated time should have advanced
 		assertEquals(manager.getMiddleware().getSimulationControl().getCurrentSimulationTime(),
 				LOOP_ITERATIONS * DELAY_TIME, DELTA);
+
+		// make sure that stop action has been visited
+		assertThat(trace.invocationCount("stop"), equalTo(1));
 	}
 
 	@Test

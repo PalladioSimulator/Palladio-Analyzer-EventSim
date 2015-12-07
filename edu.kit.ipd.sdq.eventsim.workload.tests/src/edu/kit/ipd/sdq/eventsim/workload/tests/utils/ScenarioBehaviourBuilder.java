@@ -10,6 +10,7 @@ import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 import org.palladiosimulator.pcm.usagemodel.Branch;
 import org.palladiosimulator.pcm.usagemodel.BranchTransition;
 import org.palladiosimulator.pcm.usagemodel.Delay;
+import org.palladiosimulator.pcm.usagemodel.Loop;
 import org.palladiosimulator.pcm.usagemodel.ScenarioBehaviour;
 import org.palladiosimulator.pcm.usagemodel.Start;
 import org.palladiosimulator.pcm.usagemodel.Stop;
@@ -74,6 +75,21 @@ public class ScenarioBehaviourBuilder {
 
 	public ScenarioBehaviourBuilder branch(BranchTransition... transitions) {
 		return branch(randomName(), transitions);
+	}
+	
+	public ScenarioBehaviourBuilder loop(String name, int iterations, ScenarioBehaviour behaviour) {
+		Loop loop = UsagemodelFactory.eINSTANCE.createLoop();
+		loop.setEntityName(name);
+		PCMRandomVariable loopIterations = CoreFactory.eINSTANCE.createPCMRandomVariable();
+		loopIterations.setSpecification(new Integer(iterations).toString());
+		loop.setLoopIteration_Loop(loopIterations);
+		loop.setBodyBehaviour_Loop(behaviour);
+		enchain(loop);
+		return this;
+	}
+	
+	public ScenarioBehaviourBuilder loop(int iterations, ScenarioBehaviour behaviour) {
+		return loop(randomName(), iterations, behaviour);
 	}
 
 	public static BranchTransition transition(double probability, ScenarioBehaviour behaviour) {

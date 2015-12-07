@@ -68,7 +68,7 @@ public class EventSimWorkloadModel extends AbstractEventSimModel implements IWor
 	 * This method prepares the EventSim workload simulator and creates the initial events to start the workload
 	 * generation.
 	 */
-	public void init() {		
+	private void init() {		
 		// initialise behaviour interpreters
 		usageInterpreter = new UsageBehaviourInterpreter(new UsageInterpreterConfiguration());
 	

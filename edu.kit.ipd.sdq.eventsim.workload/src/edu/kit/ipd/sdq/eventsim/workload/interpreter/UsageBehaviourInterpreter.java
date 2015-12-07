@@ -11,6 +11,7 @@ import org.palladiosimulator.pcm.usagemodel.UsageScenario;
 import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
 import edu.kit.ipd.sdq.eventsim.interpreter.BehaviourInterpreter;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalStrategy;
+import edu.kit.ipd.sdq.eventsim.interpreter.ModelDiagnostics.DiagnosticsMode;
 import edu.kit.ipd.sdq.eventsim.workload.command.usage.FindActionInUsageBehaviour;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
 import edu.kit.ipd.sdq.eventsim.workload.interpreter.listener.IUsageTraversalListener;
@@ -26,9 +27,13 @@ import edu.kit.ipd.sdq.eventsim.workload.interpreter.state.UserState;
 public class UsageBehaviourInterpreter extends BehaviourInterpreter<AbstractUserAction, User, UserState> {
 
 	private UsageInterpreterConfiguration configuration;
+	
+	private WorkloadModelDiagnostics diagnostics;
 
 	public UsageBehaviourInterpreter(UsageInterpreterConfiguration configuration) {
 		this.configuration = configuration;
+		// TODO make configurable
+		this.diagnostics = new WorkloadModelDiagnostics(DiagnosticsMode.LOG_WARNING_AND_CONTINUE);
 	}
 
 	/**
@@ -104,6 +109,10 @@ public class UsageBehaviourInterpreter extends BehaviourInterpreter<AbstractUser
 				l.before(action, user, state);
 			}
 		}
+	}
+	
+	public WorkloadModelDiagnostics getDiagnostics() {
+		return diagnostics;
 	}
 
 }

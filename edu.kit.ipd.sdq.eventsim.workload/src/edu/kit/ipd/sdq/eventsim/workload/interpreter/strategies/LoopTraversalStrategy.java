@@ -12,6 +12,7 @@ import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.interpreter.instructions.TraverseNextAction;
 import edu.kit.ipd.sdq.eventsim.interpreter.state.ITraversalStrategyState;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
+import edu.kit.ipd.sdq.eventsim.workload.interpreter.WorkloadModelDiagnostics;
 import edu.kit.ipd.sdq.eventsim.workload.interpreter.instructions.TraverseUsageBehaviourInstruction;
 import edu.kit.ipd.sdq.eventsim.workload.interpreter.state.UserState;
 
@@ -42,10 +43,15 @@ public class LoopTraversalStrategy implements ITraversalStrategy<AbstractUserAct
                         + internalState.getOverallIterations());
             }
 
-            // traverse the body behaviour
-            internalState.incrementCurrentIteration();
-            final ScenarioBehaviour bheaviour = loop.getBodyBehaviour_Loop();
-            return new TraverseUsageBehaviourInstruction(user.getEventSimModel(), bheaviour, loop);
+			// traverse the body behaviour
+			internalState.incrementCurrentIteration();
+			final ScenarioBehaviour behaviour = loop.getBodyBehaviour_Loop();
+			if (behaviour == null) {
+				WorkloadModelDiagnostics diagnostics = user.getEventSimModel().getUsageInterpreter().getDiagnostics();
+				diagnostics.missingLoopingBehaviourIn(loop);
+				return new TraverseNextAction<>(loop.getSuccessor());
+			}
+			return new TraverseUsageBehaviourInstruction(user.getEventSimModel(), behaviour, loop);
         } else {
             if (logger.isDebugEnabled()) {
                 logger.debug("Completed loop traversal");

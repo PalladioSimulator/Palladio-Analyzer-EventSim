@@ -1,6 +1,6 @@
 package edu.kit.ipd.sdq.eventsim.workload.tests;
 
-import static edu.kit.ipd.sdq.eventsim.workload.tests.utils.BeforeMatcher.before;
+import static edu.kit.ipd.sdq.eventsim.test.util.matcher.BeforeMatcher.before;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -24,12 +24,12 @@ import edu.kit.ipd.sdq.eventsim.api.PCMModel;
 import edu.kit.ipd.sdq.eventsim.launch.SimulationManager;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementFacade;
 import edu.kit.ipd.sdq.eventsim.middleware.simulation.config.SimulationConfiguration;
+import edu.kit.ipd.sdq.eventsim.test.util.Tracer;
+import edu.kit.ipd.sdq.eventsim.test.util.builder.ConfigurationBuilder;
+import edu.kit.ipd.sdq.eventsim.test.util.builder.PCMModelBuilder;
+import edu.kit.ipd.sdq.eventsim.test.util.builder.usage.ScenarioBehaviourBuilder;
+import edu.kit.ipd.sdq.eventsim.test.util.builder.usage.UsageScenarioBuilder;
 import edu.kit.ipd.sdq.eventsim.workload.EventSimWorkloadModel;
-import edu.kit.ipd.sdq.eventsim.workload.tests.utils.ConfigurationBuilder;
-import edu.kit.ipd.sdq.eventsim.workload.tests.utils.PCMModelBuilder;
-import edu.kit.ipd.sdq.eventsim.workload.tests.utils.ScenarioBehaviourBuilder;
-import edu.kit.ipd.sdq.eventsim.workload.tests.utils.Tracer;
-import edu.kit.ipd.sdq.eventsim.workload.tests.utils.UsageScenarioBuilder;
 
 /**
  * Tests simulation of {@link Loop} actions.

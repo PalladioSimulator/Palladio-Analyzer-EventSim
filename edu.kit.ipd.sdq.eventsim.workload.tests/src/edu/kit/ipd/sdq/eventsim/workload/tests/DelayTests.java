@@ -28,12 +28,12 @@ import edu.kit.ipd.sdq.eventsim.measurement.MeasurementFacade;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 import edu.kit.ipd.sdq.eventsim.measurement.Metric;
 import edu.kit.ipd.sdq.eventsim.middleware.simulation.config.SimulationConfiguration;
+import edu.kit.ipd.sdq.eventsim.test.util.builder.ConfigurationBuilder;
+import edu.kit.ipd.sdq.eventsim.test.util.builder.PCMModelBuilder;
+import edu.kit.ipd.sdq.eventsim.test.util.builder.usage.ScenarioBehaviourBuilder;
+import edu.kit.ipd.sdq.eventsim.test.util.builder.usage.UsageScenarioBuilder;
 import edu.kit.ipd.sdq.eventsim.workload.EventSimWorkloadModel;
 import edu.kit.ipd.sdq.eventsim.workload.calculators.TimeSpanBetweenUserActionsCalculator;
-import edu.kit.ipd.sdq.eventsim.workload.tests.utils.ConfigurationBuilder;
-import edu.kit.ipd.sdq.eventsim.workload.tests.utils.PCMModelBuilder;
-import edu.kit.ipd.sdq.eventsim.workload.tests.utils.ScenarioBehaviourBuilder;
-import edu.kit.ipd.sdq.eventsim.workload.tests.utils.UsageScenarioBuilder;
 
 /**
  * Tests simulation of {@link Delay} actions.

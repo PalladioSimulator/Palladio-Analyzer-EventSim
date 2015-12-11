@@ -7,13 +7,18 @@ import org.palladiosimulator.pcm.usagemodel.UsageModel;
 import org.palladiosimulator.pcm.usagemodel.UsageScenario;
 import org.palladiosimulator.pcm.usagemodel.UsagemodelFactory;
 
+import edu.kit.ipd.sdq.eventsim.test.util.builder.BuildingContext;
+
 public class UsageScenarioBuilder {
 
+	private BuildingContext context;
+	
 	private final UsageScenario scenario;
 	
-	public UsageScenarioBuilder() {
-		UsageScenario scenario = UsagemodelFactory.eINSTANCE.createUsageScenario();
-		this.scenario = scenario;
+	public UsageScenarioBuilder(BuildingContext context) {
+		this.context = context;
+		scenario = UsagemodelFactory.eINSTANCE.createUsageScenario();
+		context.add(scenario);
 	}
 	
 	public UsageScenarioBuilder closedWorkload(int population, double thinkTime) {

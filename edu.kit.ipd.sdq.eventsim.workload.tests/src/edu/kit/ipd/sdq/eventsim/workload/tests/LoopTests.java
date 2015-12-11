@@ -12,10 +12,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.palladiosimulator.pcm.usagemodel.Loop;
-import org.palladiosimulator.pcm.usagemodel.ScenarioBehaviour;
 import org.palladiosimulator.pcm.usagemodel.UsageModel;
 import org.palladiosimulator.pcm.usagemodel.UsageScenario;
-import org.palladiosimulator.pcm.usagemodel.UsagemodelFactory;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -25,10 +23,10 @@ import edu.kit.ipd.sdq.eventsim.launch.SimulationManager;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementFacade;
 import edu.kit.ipd.sdq.eventsim.middleware.simulation.config.SimulationConfiguration;
 import edu.kit.ipd.sdq.eventsim.test.util.Tracer;
+import edu.kit.ipd.sdq.eventsim.test.util.builder.BuildingContext;
 import edu.kit.ipd.sdq.eventsim.test.util.builder.ConfigurationBuilder;
 import edu.kit.ipd.sdq.eventsim.test.util.builder.PCMModelBuilder;
-import edu.kit.ipd.sdq.eventsim.test.util.builder.usage.ScenarioBehaviourBuilder;
-import edu.kit.ipd.sdq.eventsim.test.util.builder.usage.UsageScenarioBuilder;
+import edu.kit.ipd.sdq.eventsim.test.util.builder.usage.UsageBuilder;
 import edu.kit.ipd.sdq.eventsim.workload.EventSimWorkloadModel;
 
 /**
@@ -56,11 +54,11 @@ public class LoopTests {
 		final int LOOP_ITERATIONS = 23;
 
 		// create PCM usage model
-		UsageModel um = UsagemodelFactory.eINSTANCE.createUsageModel();
-		UsageScenario s = new UsageScenarioBuilder().closedWorkload(1, 0).buildIn(um);
-		ScenarioBehaviour b = new ScenarioBehaviourBuilder().start("inner_start").stop("inner_stop").build();
-		new ScenarioBehaviourBuilder().start("outer_start").loop("loop", LOOP_ITERATIONS, b).stop("outer_stop")
-				.buildIn(s);
+		UsageBuilder ub = new BuildingContext().usageBuilder();
+		UsageModel um = ub.build();
+		UsageScenario s = ub.scenarioBuilder().closedWorkload(1, 0).buildIn(um);
+		ub.behaviourBuilder().start("outer_start").loop("loop", LOOP_ITERATIONS).stop("outer_stop").buildIn(s);
+		ub.behaviourBuilder().start("inner_start").stop("inner_stop").buildAsLoopBehaviourIn("loop");
 		PCMModel model = new PCMModelBuilder().withUsageModel(um).build();
 
 		// create simulation configuration
@@ -98,10 +96,11 @@ public class LoopTests {
 		final int LOOP_ITERATIONS = 23;
 
 		// create PCM usage model
-		UsageModel um = UsagemodelFactory.eINSTANCE.createUsageModel();
-		UsageScenario s = new UsageScenarioBuilder().closedWorkload(1, 0).buildIn(um);
-		ScenarioBehaviour b = new ScenarioBehaviourBuilder().start().delay(DELAY_TIME).stop().build();
-		new ScenarioBehaviourBuilder().start().loop(LOOP_ITERATIONS, b).stop("stop").buildIn(s);
+		UsageBuilder ub = new BuildingContext().usageBuilder();
+		UsageModel um = ub.build();
+		UsageScenario s = ub.scenarioBuilder().closedWorkload(1, 0).buildIn(um);
+		ub.behaviourBuilder().start().loop("loop", LOOP_ITERATIONS).stop("stop").buildIn(s);
+		ub.behaviourBuilder().start().delay(DELAY_TIME).stop().buildAsLoopBehaviourIn("loop");
 		PCMModel model = new PCMModelBuilder().withUsageModel(um).build();
 
 		// create simulation configuration
@@ -134,9 +133,10 @@ public class LoopTests {
 		final int LOOP_ITERATIONS = 23;
 
 		// create PCM usage model
-		UsageModel um = UsagemodelFactory.eINSTANCE.createUsageModel();
-		UsageScenario s = new UsageScenarioBuilder().closedWorkload(1, 0).buildIn(um);
-		new ScenarioBehaviourBuilder().start("start").loop("loop", LOOP_ITERATIONS, null).stop("stop").buildIn(s);
+		UsageBuilder ub = new BuildingContext().usageBuilder();
+		UsageModel um = ub.build();
+		UsageScenario s = ub.scenarioBuilder().closedWorkload(1, 0).buildIn(um);
+		ub.behaviourBuilder().start("start").loop("loop", LOOP_ITERATIONS).stop("stop").buildIn(s);
 		PCMModel model = new PCMModelBuilder().withUsageModel(um).build();
 
 		// create simulation configuration

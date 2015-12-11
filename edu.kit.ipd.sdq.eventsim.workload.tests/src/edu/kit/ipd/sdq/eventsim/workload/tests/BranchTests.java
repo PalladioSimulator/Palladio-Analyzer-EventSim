@@ -1,6 +1,5 @@
 package edu.kit.ipd.sdq.eventsim.workload.tests;
 
-import static edu.kit.ipd.sdq.eventsim.test.util.builder.usage.ScenarioBehaviourBuilder.transition;
 import static edu.kit.ipd.sdq.eventsim.test.util.matcher.ApproximatelyMatcher.approximately;
 import static edu.kit.ipd.sdq.eventsim.test.util.matcher.BeforeMatcher.before;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -14,10 +13,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.palladiosimulator.pcm.usagemodel.Branch;
-import org.palladiosimulator.pcm.usagemodel.BranchTransition;
 import org.palladiosimulator.pcm.usagemodel.UsageModel;
 import org.palladiosimulator.pcm.usagemodel.UsageScenario;
-import org.palladiosimulator.pcm.usagemodel.UsagemodelFactory;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -28,10 +25,10 @@ import edu.kit.ipd.sdq.eventsim.launch.SimulationManager;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementFacade;
 import edu.kit.ipd.sdq.eventsim.middleware.simulation.config.SimulationConfiguration;
 import edu.kit.ipd.sdq.eventsim.test.util.Tracer;
+import edu.kit.ipd.sdq.eventsim.test.util.builder.BuildingContext;
 import edu.kit.ipd.sdq.eventsim.test.util.builder.ConfigurationBuilder;
 import edu.kit.ipd.sdq.eventsim.test.util.builder.PCMModelBuilder;
-import edu.kit.ipd.sdq.eventsim.test.util.builder.usage.ScenarioBehaviourBuilder;
-import edu.kit.ipd.sdq.eventsim.test.util.builder.usage.UsageScenarioBuilder;
+import edu.kit.ipd.sdq.eventsim.test.util.builder.usage.UsageBuilder;
 import edu.kit.ipd.sdq.eventsim.workload.EventSimWorkloadModel;
 
 /**
@@ -57,11 +54,11 @@ public class BranchTests {
 	@Test
 	public void oneBranchTransition() {
 		// create PCM usage model
-		UsageModel um = UsagemodelFactory.eINSTANCE.createUsageModel();
-		UsageScenario s = new UsageScenarioBuilder().closedWorkload(1, 0).buildIn(um);
-		BranchTransition t = transition(1,
-				new ScenarioBehaviourBuilder().start("inner_start").stop("inner_stop").build());
-		new ScenarioBehaviourBuilder().start("outer_start").branch(t).stop("outer_stop").buildIn(s);
+		UsageBuilder ub = new BuildingContext().usageBuilder();
+		UsageModel um = ub.build();
+		UsageScenario s = ub.scenarioBuilder().closedWorkload(1, 0).buildIn(um);
+		ub.behaviourBuilder().start("outer_start").branch("branch").stop("outer_stop").buildIn(s);
+		ub.behaviourBuilder().start("inner_start").stop("inner_stop").buildAsTransitionIn("branch", 1);
 		PCMModel model = new PCMModelBuilder().withUsageModel(um).build();
 
 		// create simulation configuration
@@ -90,13 +87,14 @@ public class BranchTests {
 	}
 
 	@Test
-	public void twoBranchTransition() {
+	public void twoBranchTransitions() {
 		// create PCM usage model
-		UsageModel um = UsagemodelFactory.eINSTANCE.createUsageModel();
-		UsageScenario s = new UsageScenarioBuilder().closedWorkload(1, 0).buildIn(um);
-		BranchTransition t1 = transition(0.75, new ScenarioBehaviourBuilder().start("start_left").stop().build());
-		BranchTransition t2 = transition(0.25, new ScenarioBehaviourBuilder().start("start_right").stop().build());
-		new ScenarioBehaviourBuilder().start().branch(t1, t2).stop().buildIn(s);
+		UsageBuilder ub = new BuildingContext().usageBuilder();
+		UsageModel um = ub.build();
+		UsageScenario s = ub.scenarioBuilder().closedWorkload(1, 0).buildIn(um);
+		ub.behaviourBuilder().start().branch("branch").stop().buildIn(s);
+		ub.behaviourBuilder().start("start_left").stop().buildAsTransitionIn("branch", 0.75);
+		ub.behaviourBuilder().start("start_right").stop().buildAsTransitionIn("branch", 0.25);
 		PCMModel model = new PCMModelBuilder().withUsageModel(um).build();
 
 		// create simulation configuration
@@ -130,10 +128,11 @@ public class BranchTests {
 		final double DELAY_TIME = 1.23;
 
 		// create PCM usage model
-		UsageModel um = UsagemodelFactory.eINSTANCE.createUsageModel();
-		UsageScenario s = new UsageScenarioBuilder().closedWorkload(1, 0).buildIn(um);
-		BranchTransition t = transition(1, new ScenarioBehaviourBuilder().start().delay(DELAY_TIME).stop().build());
-		new ScenarioBehaviourBuilder().start().branch(t).stop("stop").buildIn(s);
+		UsageBuilder ub = new BuildingContext().usageBuilder();
+		UsageModel um = ub.build();
+		UsageScenario s = ub.scenarioBuilder().closedWorkload(1, 0).buildIn(um);
+		ub.behaviourBuilder().start().branch("branch").stop("stop").buildIn(s);
+		ub.behaviourBuilder().start().delay(DELAY_TIME).stop().buildAsTransitionIn("branch", 1);
 		PCMModel model = new PCMModelBuilder().withUsageModel(um).build();
 
 		// create simulation configuration
@@ -147,7 +146,7 @@ public class BranchTests {
 		MeasurementFacade<?> measurementFacade = ((EventSimWorkloadModel) manager.getWorkload()).getMeasurementFacade();
 		Tracer trace = new Tracer(measurementFacade);
 		trace.instrumentAllUserActions(um);
-		
+
 		// TODO perhaps additionally check response time measurement results
 
 		// run simulation
@@ -155,7 +154,7 @@ public class BranchTests {
 
 		// simulated time should have advanced
 		assertEquals(manager.getMiddleware().getSimulationControl().getCurrentSimulationTime(), DELAY_TIME, DELTA);
-		
+
 		// make sure that stop action has been visited
 		assertThat(trace.invocationCount("stop"), equalTo(1));
 	}
@@ -163,9 +162,10 @@ public class BranchTests {
 	@Test
 	public void branchWithoutBranchTransitionsShouldBeSkippedWithoutException() {
 		// create PCM usage model
-		UsageModel um = UsagemodelFactory.eINSTANCE.createUsageModel();
-		UsageScenario s = new UsageScenarioBuilder().closedWorkload(1, 0).buildIn(um);
-		new ScenarioBehaviourBuilder().start("start").branch("branch").stop("stop").buildIn(s);
+		UsageBuilder ub = new BuildingContext().usageBuilder();
+		UsageModel um = ub.build();
+		UsageScenario s = ub.scenarioBuilder().closedWorkload(1, 0).buildIn(um);
+		ub.behaviourBuilder().start("start").branch("branch").stop("stop").buildIn(s);
 		PCMModel model = new PCMModelBuilder().withUsageModel(um).build();
 
 		// create simulation configuration
@@ -192,11 +192,12 @@ public class BranchTests {
 	@Test
 	public void throwExceptionWhenSumOfBranchingProbabilitiesIsSmallerOne() {
 		// create PCM usage model
-		UsageModel um = UsagemodelFactory.eINSTANCE.createUsageModel();
-		UsageScenario s = new UsageScenarioBuilder().closedWorkload(1, 0).buildIn(um);
-		BranchTransition t1 = transition(0.5, new ScenarioBehaviourBuilder().start().stop().build());
-		BranchTransition t2 = transition(0.4, new ScenarioBehaviourBuilder().start().stop().build());
-		new ScenarioBehaviourBuilder().start().branch(t1, t2).stop().buildIn(s);
+		UsageBuilder ub = new BuildingContext().usageBuilder();
+		UsageModel um = ub.build();
+		UsageScenario s = ub.scenarioBuilder().closedWorkload(1, 0).buildIn(um);
+		ub.behaviourBuilder().start().branch("branch").stop().buildIn(s);
+		ub.behaviourBuilder().start().stop().buildAsTransitionIn("branch", 0.5);
+		ub.behaviourBuilder().start().stop().buildAsTransitionIn("branch", 0.4);
 		PCMModel model = new PCMModelBuilder().withUsageModel(um).build();
 
 		// create simulation configuration
@@ -214,11 +215,12 @@ public class BranchTests {
 	@Test
 	public void throwExceptionWhenSumOfBranchingProbabilitiesIsLargerOne() {
 		// create PCM usage model
-		UsageModel um = UsagemodelFactory.eINSTANCE.createUsageModel();
-		UsageScenario s = new UsageScenarioBuilder().closedWorkload(1, 0).buildIn(um);
-		BranchTransition t1 = transition(0.5, new ScenarioBehaviourBuilder().start().stop().build());
-		BranchTransition t2 = transition(0.6, new ScenarioBehaviourBuilder().start().stop().build());
-		new ScenarioBehaviourBuilder().start().branch(t1, t2).stop().buildIn(s);
+		UsageBuilder ub = new BuildingContext().usageBuilder();
+		UsageModel um = ub.build();
+		UsageScenario s = ub.scenarioBuilder().closedWorkload(1, 0).buildIn(um);
+		ub.behaviourBuilder().start().branch("branch").stop().buildIn(s);
+		ub.behaviourBuilder().start().stop().buildAsTransitionIn("branch", 0.5);
+		ub.behaviourBuilder().start().stop().buildAsTransitionIn("branch", 0.6);
 		PCMModel model = new PCMModelBuilder().withUsageModel(um).build();
 
 		// create simulation configuration

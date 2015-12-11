@@ -3,13 +3,11 @@ package edu.kit.ipd.sdq.eventsim.test.util.builder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.palladiosimulator.pcm.core.entity.Entity;
-import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 
 import edu.kit.ipd.sdq.eventsim.test.util.builder.repository.RepositoryBuilder;
 import edu.kit.ipd.sdq.eventsim.test.util.builder.system.SystemBuilder;
@@ -51,7 +49,8 @@ public class BuildingContext {
 				}
 			}
 		}
-		throw new RuntimeException(String.format("Lookup could not find entity of type %s named %s", type.getName(), name));
+		throw new RuntimeException(
+				String.format("Lookup could not find entity of type %s named %s", type.getName(), name));
 	}
 
 }

@@ -13,8 +13,6 @@ import edu.kit.ipd.sdq.eventsim.test.util.builder.ModelBuilderUtil;
 
 public class BasicComponentBuilder {
 
-	private BuildingContext context;
-	
 	private BasicComponent component;
 
 	public BasicComponentBuilder(BuildingContext context) {
@@ -22,7 +20,6 @@ public class BasicComponentBuilder {
 	}
 
 	public BasicComponentBuilder(String name, BuildingContext context) {
-		this.context = context;
 		component = RepositoryFactory.eINSTANCE.createBasicComponent();
 		component.setEntityName(name);
 		context.add(component);

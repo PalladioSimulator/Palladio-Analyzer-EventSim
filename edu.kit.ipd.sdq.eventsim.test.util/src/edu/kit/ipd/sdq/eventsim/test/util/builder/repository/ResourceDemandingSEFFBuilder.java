@@ -3,7 +3,6 @@ package edu.kit.ipd.sdq.eventsim.test.util.builder.repository;
 import java.util.UUID;
 
 import org.palladiosimulator.pcm.repository.OperationSignature;
-import org.palladiosimulator.pcm.repository.RepositoryFactory;
 import org.palladiosimulator.pcm.seff.AbstractAction;
 import org.palladiosimulator.pcm.seff.ResourceDemandingSEFF;
 import org.palladiosimulator.pcm.seff.SeffFactory;
@@ -14,8 +13,6 @@ import edu.kit.ipd.sdq.eventsim.test.util.builder.BuildingContext;
 
 public class ResourceDemandingSEFFBuilder {
 
-	private BuildingContext context;
-	
 	private AbstractAction lastAction;
 
 	private ResourceDemandingSEFF seff;
@@ -25,7 +22,6 @@ public class ResourceDemandingSEFFBuilder {
 	 *            the signature of the service described by the SEFF under creation.
 	 */
 	public ResourceDemandingSEFFBuilder(OperationSignature signature, BuildingContext context) {
-		this.context = context;
 		seff = SeffFactory.eINSTANCE.createResourceDemandingSEFF();
 		seff.setDescribedService__SEFF(signature);
 		context.add(seff);

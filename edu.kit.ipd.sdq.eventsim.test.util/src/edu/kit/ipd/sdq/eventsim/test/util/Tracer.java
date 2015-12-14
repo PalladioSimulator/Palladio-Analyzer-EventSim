@@ -20,12 +20,14 @@ public class Tracer {
 
 	private List<TracedMeasurement> trace;
 
-	public Tracer(MeasurementFacade<?> measurementFacade) {
+	private Tracer(MeasurementFacade<?> measurementFacade) {
 		this.measurementFacade = measurementFacade;
 		this.trace = new ArrayList<>();
 	}
 
-	public void instrumentAllUserActions(UsageModel model) {
+	public static Tracer forUserActions(UsageModel model, MeasurementFacade<?> measurementFacade) {
+		Tracer tracer = new Tracer(measurementFacade);
+		
 		// recursively collect all EObjects contained in the UsageModel
 		List<EObject> allEObjects = new ArrayList<>();
 		model.eAllContents().forEachRemaining(allEObjects::add);
@@ -36,8 +38,10 @@ public class Tracer {
 
 		// instrument each user action
 		for (AbstractUserAction a : actions) {
-			measurementFacade.createProbe(a, "before").forEachMeasurement(this::processMeasurement);
+			measurementFacade.createProbe(a, "before").forEachMeasurement(tracer::processMeasurement);
 		}
+		
+		return tracer;
 	}
 
 	private void processMeasurement(Measurement<?, ?> measurement) {

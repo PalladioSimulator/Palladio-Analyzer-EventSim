@@ -107,8 +107,7 @@ public class EntryLevelSystemCallTests {
 
 		// set up custom measuring points
 		MeasurementFacade<?> measurementFacade = ((EventSimWorkloadModel) manager.getWorkload()).getMeasurementFacade();
-		Tracer trace = new Tracer(measurementFacade);
-		trace.instrumentAllUserActions(um);
+		Tracer trace = Tracer.forUserActions(um, measurementFacade);
 
 		// run simulation
 		manager.startSimulation();

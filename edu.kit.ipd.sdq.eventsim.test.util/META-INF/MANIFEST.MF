@@ -17,6 +17,7 @@ Require-Bundle: org.junit;bundle-version="4.12.0",
 Export-Package: edu.kit.ipd.sdq.eventsim.test.util,
  edu.kit.ipd.sdq.eventsim.test.util.builder,
  edu.kit.ipd.sdq.eventsim.test.util.builder.repository,
+ edu.kit.ipd.sdq.eventsim.test.util.builder.resourceenvironment,
  edu.kit.ipd.sdq.eventsim.test.util.builder.system,
  edu.kit.ipd.sdq.eventsim.test.util.builder.usage,
  edu.kit.ipd.sdq.eventsim.test.util.matcher

@@ -38,6 +38,7 @@ import edu.kit.ipd.sdq.eventsim.test.util.builder.BuildingContext;
 import edu.kit.ipd.sdq.eventsim.test.util.builder.ConfigurationBuilder;
 import edu.kit.ipd.sdq.eventsim.test.util.builder.PCMModelBuilder;
 import edu.kit.ipd.sdq.eventsim.test.util.builder.repository.RepositoryBuilder;
+import edu.kit.ipd.sdq.eventsim.test.util.builder.resourceenvironment.ResourceEnvironmentBuilder;
 import edu.kit.ipd.sdq.eventsim.test.util.builder.system.SystemBuilder;
 import edu.kit.ipd.sdq.eventsim.test.util.builder.usage.UsageBuilder;
 
@@ -79,9 +80,9 @@ public class EntryLevelSystemCallTests {
 		sb.assemble("context", comp).exposeRole("outer_role", "inner_role", "context");
 
 		// resource environment model
-		ResourceEnvironment re = ResourceenvironmentFactory.eINSTANCE.createResourceEnvironment();
-		ResourceContainer rc = ResourceenvironmentFactory.eINSTANCE.createResourceContainer();
-		rc.setResourceEnvironment_ResourceContainer(re);
+		ResourceEnvironmentBuilder reb = ctx.newResourceEnvironment();
+		ResourceEnvironment re = reb.build();
+		ResourceContainer rc = reb.newResourceContainer().buildIn(re);
 
 		// allocation model
 		Allocation a = AllocationFactory.eINSTANCE.createAllocation();

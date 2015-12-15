@@ -10,6 +10,7 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.palladiosimulator.pcm.core.entity.Entity;
 
 import edu.kit.ipd.sdq.eventsim.test.util.builder.repository.RepositoryBuilder;
+import edu.kit.ipd.sdq.eventsim.test.util.builder.resourceenvironment.ResourceEnvironmentBuilder;
 import edu.kit.ipd.sdq.eventsim.test.util.builder.system.SystemBuilder;
 import edu.kit.ipd.sdq.eventsim.test.util.builder.usage.UsageBuilder;
 
@@ -31,6 +32,10 @@ public class BuildingContext {
 
 	public UsageBuilder newUsageModel() {
 		return new UsageBuilder(this);
+	}
+
+	public ResourceEnvironmentBuilder newResourceEnvironment() {
+		return new ResourceEnvironmentBuilder(this);
 	}
 
 	public void add(EObject object) {

@@ -25,7 +25,7 @@ public class SystemBuilder {
 		context.add(system);
 	}
 
-	public SystemBuilder deploy(String assemblyContextName, BasicComponent c) {
+	public SystemBuilder assemble(String assemblyContextName, BasicComponent c) {
 		AssemblyContext ctx = CompositionFactory.eINSTANCE.createAssemblyContext();
 		ctx.setEntityName(assemblyContextName);
 		ctx.setEncapsulatedComponent__AssemblyContext(c);
@@ -33,7 +33,7 @@ public class SystemBuilder {
 		return this;
 	}
 
-	public SystemBuilder provide(String outerRoleName, String innerRoleName, String providingCtxName) {
+	public SystemBuilder exposeRole(String outerRoleName, String innerRoleName, String providingCtxName) {
 		OperationProvidedRole innerRole = context.lookup(RepositoryPackage.eINSTANCE.getOperationProvidedRole(), innerRoleName);
 		AssemblyContext providingCtx = context.lookup(CompositionPackage.eINSTANCE.getAssemblyContext(), providingCtxName);
 		

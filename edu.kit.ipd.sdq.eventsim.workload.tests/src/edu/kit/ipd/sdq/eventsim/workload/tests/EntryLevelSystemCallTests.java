@@ -76,7 +76,7 @@ public class EntryLevelSystemCallTests {
 		// system model
 		SystemBuilder sb = ctx.newSystemModel();
 		System sys = sb.build();
-		sb.deploy("context", comp).provide("outer_role", "inner_role", "context");
+		sb.assemble("context", comp).exposeRole("outer_role", "inner_role", "context");
 
 		// resource environment model
 		ResourceEnvironment re = ResourceenvironmentFactory.eINSTANCE.createResourceEnvironment();

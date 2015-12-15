@@ -10,6 +10,7 @@ import org.palladiosimulator.pcm.seff.ExternalCallAction;
 import org.palladiosimulator.pcm.usagemodel.EntryLevelSystemCall;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
 import edu.kit.ipd.sdq.eventsim.api.IActiveResource;
@@ -57,6 +58,7 @@ import edu.kit.ipd.sdq.eventsim.system.staticstructure.commands.BuildSimulatedRe
  * @author Philipp Merkle
  * 
  */
+@Singleton
 public class EventSimSystemModel extends AbstractEventSimModel implements ISystem {
 
 	private static final Logger logger = Logger.getLogger(EventSimSystemModel.class);
@@ -234,6 +236,10 @@ public class EventSimSystemModel extends AbstractEventSimModel implements ISyste
 	 */
 	public ComponentInstance getComponent(final AssemblyContext assemblyContext) {
 		return this.componentRegistry.get(assemblyContext.getId());
+	}
+	
+	public MeasurementFacade<SystemMeasurementConfiguration> getMeasurementFacade() {
+		return measurementFacade;
 	}
 
 }

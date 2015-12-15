@@ -9,6 +9,7 @@ import org.palladiosimulator.pcm.usagemodel.Start;
 import org.palladiosimulator.pcm.usagemodel.Stop;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 import de.uka.ipd.sdq.probfunction.math.IProbabilityFunctionFactory;
 import de.uka.ipd.sdq.probfunction.math.impl.ProbabilityFunctionFactoryImpl;
@@ -46,6 +47,7 @@ import edu.kit.ipd.sdq.eventsim.workload.interpreter.UsageInterpreterConfigurati
  * @author Christoph Föhrdes
  * 
  */
+@Singleton
 public class EventSimWorkloadModel extends AbstractEventSimModel implements IWorkload {
 
 	private static final Logger logger = Logger.getLogger(EventSimWorkloadModel.class);

@@ -8,6 +8,7 @@ import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 import org.palladiosimulator.pcm.repository.PassiveResource;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
 import edu.kit.ipd.sdq.eventsim.api.IPassiveResource;
@@ -22,6 +23,7 @@ import edu.kit.ipd.sdq.eventsim.resources.entities.SimPassiveResource;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimulatedProcess;
 import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
 
+@Singleton
 public class EventSimPassiveResourceModel extends AbstractEventSimModel implements IPassiveResource {
 
     // maps (AssemblyContext ID, PassiveResource ID) -> SimPassiveResource

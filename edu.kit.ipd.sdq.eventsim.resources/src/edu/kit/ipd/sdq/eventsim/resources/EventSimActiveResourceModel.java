@@ -13,6 +13,7 @@ import org.palladiosimulator.pcm.resourceenvironment.ResourceContainer;
 import org.palladiosimulator.pcm.resourcetype.ResourceType;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 import de.uka.ipd.sdq.scheduler.ISchedulingFactory;
 import de.uka.ipd.sdq.scheduler.SchedulerModel;
@@ -32,6 +33,7 @@ import edu.kit.ipd.sdq.eventsim.resources.entities.SimActiveResource;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimulatedProcess;
 import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
 
+@Singleton
 public class EventSimActiveResourceModel extends AbstractEventSimModel implements IActiveResource {
 
 	private static final Logger logger = Logger.getLogger(EventSimActiveResourceModel.class);

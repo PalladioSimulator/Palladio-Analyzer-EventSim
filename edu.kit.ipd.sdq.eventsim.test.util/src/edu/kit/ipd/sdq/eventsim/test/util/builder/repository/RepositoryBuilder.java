@@ -16,6 +16,7 @@ public class RepositoryBuilder {
 	public RepositoryBuilder(BuildingContext context) {
 		this.context = context;
 		repository = RepositoryFactory.eINSTANCE.createRepository();
+		context.add(repository);
 	}
 
 	public BasicComponentBuilder basicComponent(String name) {

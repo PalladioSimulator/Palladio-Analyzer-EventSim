@@ -17,4 +17,5 @@ Require-Bundle: org.junit;bundle-version="4.12.0",
  org.mockito;bundle-version="1.0.0",
  com.google.inject.guice;bundle-version="1.0.0",
  edu.kit.ipd.sdq.eventsim.launch;bundle-version="1.0.0",
- edu.kit.ipd.sdq.eventsim.test.util;bundle-version="1.0.0"
+ edu.kit.ipd.sdq.eventsim.test.util;bundle-version="1.0.0",
+ edu.kit.ipd.sdq.eventsim.system;bundle-version="2.0.0"

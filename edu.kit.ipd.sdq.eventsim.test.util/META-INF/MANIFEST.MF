@@ -9,7 +9,11 @@ Require-Bundle: org.junit;bundle-version="4.12.0",
  org.palladiosimulator.pcm,
  edu.kit.ipd.sdq.eventsim.api,
  de.uka.ipd.sdq.simulation,
- edu.kit.ipd.sdq.eventsim.middleware
+ edu.kit.ipd.sdq.eventsim.middleware,
+ edu.kit.ipd.sdq.eventsim.launch;bundle-version="2.0.0",
+ edu.kit.ipd.sdq.eventsim.workload;bundle-version="2.0.0",
+ edu.kit.ipd.sdq.eventsim.system;bundle-version="2.0.0",
+ edu.kit.ipd.sdq.eventsim.core;bundle-version="2.0.0"
 Export-Package: edu.kit.ipd.sdq.eventsim.test.util,
  edu.kit.ipd.sdq.eventsim.test.util.builder,
  edu.kit.ipd.sdq.eventsim.test.util.builder.repository,

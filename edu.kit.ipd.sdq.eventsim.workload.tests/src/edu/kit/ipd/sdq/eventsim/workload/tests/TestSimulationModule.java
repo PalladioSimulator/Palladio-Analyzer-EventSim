@@ -8,9 +8,9 @@ import edu.kit.ipd.sdq.eventsim.api.IActiveResource;
 import edu.kit.ipd.sdq.eventsim.api.IPassiveResource;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationConfiguration;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
-import edu.kit.ipd.sdq.eventsim.api.ISystem;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 import edu.kit.ipd.sdq.eventsim.middleware.SimulationMiddleware;
+import edu.kit.ipd.sdq.eventsim.system.EventSimSystem;
 import edu.kit.ipd.sdq.eventsim.workload.EventSimWorkload;
 
 public class TestSimulationModule extends AbstractModule {
@@ -24,8 +24,8 @@ public class TestSimulationModule extends AbstractModule {
 	@Override
 	protected void configure() {
 		install(new EventSimWorkload());
-
-		bind(ISystem.class).toInstance(Mockito.mock(ISystem.class));
+		install(new EventSimSystem());
+		
 		bind(IActiveResource.class).toInstance(Mockito.mock(IActiveResource.class));
 		bind(IPassiveResource.class).toInstance(Mockito.mock(IPassiveResource.class));
 

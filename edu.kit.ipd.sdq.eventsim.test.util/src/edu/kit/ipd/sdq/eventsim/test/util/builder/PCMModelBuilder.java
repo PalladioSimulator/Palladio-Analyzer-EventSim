@@ -45,6 +45,13 @@ public class PCMModelBuilder {
 		this.usageModel = usageModel;
 		return this;
 	}
+	
+	public PCMModelBuilder withAllocationModel(Allocation allocationModel) {
+		this.allocationModel = allocationModel;
+		this.systemModel = allocationModel.getSystem_Allocation();
+		this.resourceModel = allocationModel.getTargetResourceEnvironment_Allocation();
+		return this;
+	}
 
 	public PCMModel build() {
 		return new PCMModel(allocationModel, repositoryModel, resourceModel, systemModel, usageModel,

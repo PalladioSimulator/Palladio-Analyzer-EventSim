@@ -22,14 +22,12 @@ import com.google.inject.Injector;
 import edu.kit.ipd.sdq.eventsim.api.PCMModel;
 import edu.kit.ipd.sdq.eventsim.exceptions.unchecked.InvalidModelParametersException;
 import edu.kit.ipd.sdq.eventsim.launch.SimulationManager;
-import edu.kit.ipd.sdq.eventsim.measurement.MeasurementFacade;
 import edu.kit.ipd.sdq.eventsim.middleware.simulation.config.SimulationConfiguration;
 import edu.kit.ipd.sdq.eventsim.test.util.Tracer;
 import edu.kit.ipd.sdq.eventsim.test.util.builder.BuildingContext;
 import edu.kit.ipd.sdq.eventsim.test.util.builder.ConfigurationBuilder;
 import edu.kit.ipd.sdq.eventsim.test.util.builder.PCMModelBuilder;
 import edu.kit.ipd.sdq.eventsim.test.util.builder.usage.UsageBuilder;
-import edu.kit.ipd.sdq.eventsim.workload.EventSimWorkloadModel;
 
 /**
  * Tests simulation of {@link Branch} actions.
@@ -69,8 +67,7 @@ public class BranchTests {
 		SimulationManager manager = injector.getInstance(SimulationManager.class);
 
 		// set up custom measuring points
-		MeasurementFacade<?> measurementFacade = ((EventSimWorkloadModel) manager.getWorkload()).getMeasurementFacade();
-		Tracer trace = Tracer.forUserActions(um, measurementFacade);
+		Tracer trace = new Tracer(manager).instrumentUserActions(um);
 
 		// run simulation
 		manager.startSimulation();
@@ -104,8 +101,7 @@ public class BranchTests {
 		SimulationManager manager = injector.getInstance(SimulationManager.class);
 
 		// set up custom measuring points
-		MeasurementFacade<?> measurementFacade = ((EventSimWorkloadModel) manager.getWorkload()).getMeasurementFacade();
-		Tracer trace = Tracer.forUserActions(um, measurementFacade);
+		Tracer trace = new Tracer(manager).instrumentUserActions(um);
 
 		// run simulation
 		manager.startSimulation();
@@ -141,8 +137,7 @@ public class BranchTests {
 		SimulationManager manager = injector.getInstance(SimulationManager.class);
 
 		// set up custom measuring points
-		MeasurementFacade<?> measurementFacade = ((EventSimWorkloadModel) manager.getWorkload()).getMeasurementFacade();
-		Tracer trace = Tracer.forUserActions(um, measurementFacade);
+		Tracer trace = new Tracer(manager).instrumentUserActions(um);
 
 		// TODO perhaps additionally check response time measurement results
 
@@ -173,8 +168,7 @@ public class BranchTests {
 		SimulationManager manager = injector.getInstance(SimulationManager.class);
 
 		// set up custom measuring points
-		MeasurementFacade<?> measurementFacade = ((EventSimWorkloadModel) manager.getWorkload()).getMeasurementFacade();
-		Tracer trace = Tracer.forUserActions(um, measurementFacade);
+		Tracer trace = new Tracer(manager).instrumentUserActions(um);
 
 		// run simulation
 		manager.startSimulation();

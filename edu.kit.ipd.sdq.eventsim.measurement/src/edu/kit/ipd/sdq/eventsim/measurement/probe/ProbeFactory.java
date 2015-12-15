@@ -89,9 +89,14 @@ public class ProbeFactory<C extends ProbeConfiguration> {
 			URL classURL = bundle.getEntry(classString);
 			if (classURL != null) {
 				String className = classURL.getPath().replaceAll("/", ".").replace(".class", "").replace(".bin.", "");
+				if (className.startsWith(".")) {
+					// remove first character
+					className = className.substring(1);
+				}
 
 				Class<?> clazz = null;
 				try {
+					log.debug("Try loading class " + className);
 					clazz = bundle.loadClass(className);
 				} catch (ClassNotFoundException e) {
 					log.error("Local bundle classloader could not find class " + className);

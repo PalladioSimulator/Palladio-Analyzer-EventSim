@@ -52,11 +52,11 @@ public class LoopTests {
 		final int LOOP_ITERATIONS = 23;
 
 		// create PCM usage model
-		UsageBuilder ub = new BuildingContext().usageBuilder();
+		UsageBuilder ub = new BuildingContext().newUsageModel();
 		UsageModel um = ub.build();
-		UsageScenario s = ub.scenarioBuilder().closedWorkload(1, 0).buildIn(um);
-		ub.behaviourBuilder().start("outer_start").loop("loop", LOOP_ITERATIONS).stop("outer_stop").buildIn(s);
-		ub.behaviourBuilder().start("inner_start").stop("inner_stop").buildAsLoopBehaviourIn("loop");
+		UsageScenario s = ub.newScenario().closedWorkload(1, 0).buildIn(um);
+		ub.newBehaviour().start("outer_start").loop("loop", LOOP_ITERATIONS).stop("outer_stop").buildIn(s);
+		ub.newBehaviour().start("inner_start").stop("inner_stop").buildAsLoopBehaviourIn("loop");
 		PCMModel model = new PCMModelBuilder().withUsageModel(um).build();
 
 		// create simulation configuration
@@ -92,11 +92,11 @@ public class LoopTests {
 		final int LOOP_ITERATIONS = 23;
 
 		// create PCM usage model
-		UsageBuilder ub = new BuildingContext().usageBuilder();
+		UsageBuilder ub = new BuildingContext().newUsageModel();
 		UsageModel um = ub.build();
-		UsageScenario s = ub.scenarioBuilder().closedWorkload(1, 0).buildIn(um);
-		ub.behaviourBuilder().start().loop("loop", LOOP_ITERATIONS).stop("stop").buildIn(s);
-		ub.behaviourBuilder().start().delay(DELAY_TIME).stop().buildAsLoopBehaviourIn("loop");
+		UsageScenario s = ub.newScenario().closedWorkload(1, 0).buildIn(um);
+		ub.newBehaviour().start().loop("loop", LOOP_ITERATIONS).stop("stop").buildIn(s);
+		ub.newBehaviour().start().delay(DELAY_TIME).stop().buildAsLoopBehaviourIn("loop");
 		PCMModel model = new PCMModelBuilder().withUsageModel(um).build();
 
 		// create simulation configuration
@@ -127,10 +127,10 @@ public class LoopTests {
 		final int LOOP_ITERATIONS = 23;
 
 		// create PCM usage model
-		UsageBuilder ub = new BuildingContext().usageBuilder();
+		UsageBuilder ub = new BuildingContext().newUsageModel();
 		UsageModel um = ub.build();
-		UsageScenario s = ub.scenarioBuilder().closedWorkload(1, 0).buildIn(um);
-		ub.behaviourBuilder().start("start").loop("loop", LOOP_ITERATIONS).stop("stop").buildIn(s);
+		UsageScenario s = ub.newScenario().closedWorkload(1, 0).buildIn(um);
+		ub.newBehaviour().start("start").loop("loop", LOOP_ITERATIONS).stop("stop").buildIn(s);
 		PCMModel model = new PCMModelBuilder().withUsageModel(um).build();
 
 		// create simulation configuration

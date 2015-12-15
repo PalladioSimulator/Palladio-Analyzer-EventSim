@@ -60,10 +60,10 @@ public class DelayTests {
 	public void delaysDontCauseContention_oneUsageScenario_twoConcurrentUsers() {
 		// create PCM usage model
 		BuildingContext ctx = new BuildingContext();
-		UsageBuilder ub = ctx.usageBuilder();
+		UsageBuilder ub = ctx.newUsageModel();
 		UsageModel um = ub.build();
-		UsageScenario s = ub.scenarioBuilder().closedWorkload(2, 0).buildIn(um);
-		ub.behaviourBuilder().start().delay("delay", 1.42).stop().buildIn(s);
+		UsageScenario s = ub.newScenario().closedWorkload(2, 0).buildIn(um);
+		ub.newBehaviour().start().delay("delay", 1.42).stop().buildIn(s);
 		PCMModel model = new PCMModelBuilder().withUsageModel(um).build();
 
 		// create simulation configuration
@@ -100,12 +100,12 @@ public class DelayTests {
 	public void delaysDontCauseContention_twoUsageScenarios_oneUserPerScenario() {
 		// create PCM usage model
 		BuildingContext ctx = new BuildingContext();
-		UsageBuilder ub = ctx.usageBuilder();
+		UsageBuilder ub = ctx.newUsageModel();
 		UsageModel um = ub.build();
-		UsageScenario s1 = ub.scenarioBuilder().closedWorkload(1, 0).buildIn(um);
-		ub.behaviourBuilder().start().delay("delay1", 1.42).stop().buildIn(s1);
-		UsageScenario s2 = ub.scenarioBuilder().closedWorkload(1, 0).buildIn(um);
-		ub.behaviourBuilder().start().delay("delay2", 1.42).stop().buildIn(s2);
+		UsageScenario s1 = ub.newScenario().closedWorkload(1, 0).buildIn(um);
+		ub.newBehaviour().start().delay("delay1", 1.42).stop().buildIn(s1);
+		UsageScenario s2 = ub.newScenario().closedWorkload(1, 0).buildIn(um);
+		ub.newBehaviour().start().delay("delay2", 1.42).stop().buildIn(s2);
 		PCMModel model = new PCMModelBuilder().withUsageModel(um).build();
 
 		// create simulation configuration

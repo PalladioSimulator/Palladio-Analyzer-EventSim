@@ -21,11 +21,11 @@ public class UsageBuilder {
 		return usage;
 	}
 	
-	public UsageScenarioBuilder scenarioBuilder() {
+	public UsageScenarioBuilder newScenario() {
 		return new UsageScenarioBuilder(context);
 	}
 	
-	public ScenarioBehaviourBuilder behaviourBuilder() {
+	public ScenarioBehaviourBuilder newBehaviour() {
 		return new ScenarioBehaviourBuilder(context);
 	}
 	

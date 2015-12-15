@@ -66,15 +66,15 @@ public class EntryLevelSystemCallTests {
 		BuildingContext ctx = new BuildingContext();
 
 		// repository model
-		RepositoryBuilder rb = ctx.repositoryBuilder();
+		RepositoryBuilder rb = ctx.newRepositoryModel();
 		Repository r = rb.build();
-		OperationInterface iface = rb.interfaze().buildIn(r);
-		OperationSignature signature = rb.signature().buildIn(iface);
-		ResourceDemandingSEFF seff = rb.seff(signature).start("seff_start").stop("seff_stop").buildSeff();
-		BasicComponent comp = rb.basicComponent().provide("inner_role", iface).seff(seff).buildIn(r);
+		OperationInterface iface = rb.newInterface().buildIn(r);
+		OperationSignature signature = rb.newSignature().buildIn(iface);
+		ResourceDemandingSEFF seff = rb.newSEFF(signature).start("seff_start").stop("seff_stop").buildSeff();
+		BasicComponent comp = rb.newBasicComponent().provide("inner_role", iface).seff(seff).buildIn(r);
 
 		// system model
-		SystemBuilder sb = ctx.systemBuilder();
+		SystemBuilder sb = ctx.newSystemModel();
 		System sys = sb.build();
 		sb.deploy("context", comp).provide("outer_role", "inner_role", "context");
 
@@ -95,10 +95,10 @@ public class EntryLevelSystemCallTests {
 		allocCtx.setResourceContainer_AllocationContext(rc);
 
 		// usage model
-		UsageBuilder ub = ctx.usageBuilder();
+		UsageBuilder ub = ctx.newUsageModel();
 		UsageModel um = ub.build();
-		UsageScenario s = ub.scenarioBuilder().closedWorkload(1, 0).buildIn(um);
-		ub.behaviourBuilder().start("usage_start").call(signature, "outer_role").stop("usage_stop").buildIn(s);
+		UsageScenario s = ub.newScenario().closedWorkload(1, 0).buildIn(um);
+		ub.newBehaviour().start("usage_start").call(signature, "outer_role").stop("usage_stop").buildIn(s);
 		PCMModel model = new PCMModelBuilder().withUsageModel(um).withAllocationModel(a).build();
 
 		// create simulation configuration

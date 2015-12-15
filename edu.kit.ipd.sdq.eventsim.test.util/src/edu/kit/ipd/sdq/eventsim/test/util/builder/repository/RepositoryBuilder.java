@@ -19,32 +19,32 @@ public class RepositoryBuilder {
 		context.add(repository);
 	}
 
-	public BasicComponentBuilder basicComponent(String name) {
+	public BasicComponentBuilder newBasicComponent(String name) {
 		return new BasicComponentBuilder(name, context);
 	}
 
-	public BasicComponentBuilder basicComponent() {
-		return basicComponent(ModelBuilderUtil.randomName());
+	public BasicComponentBuilder newBasicComponent() {
+		return newBasicComponent(ModelBuilderUtil.randomName());
 	}
 
-	public ResourceDemandingSEFFBuilder seff(OperationSignature signature) {
+	public ResourceDemandingSEFFBuilder newSEFF(OperationSignature signature) {
 		return new ResourceDemandingSEFFBuilder(signature, context);
 	}
 
-	public OperationSignatureBuilder signature(String name) {
+	public OperationSignatureBuilder newSignature(String name) {
 		return new OperationSignatureBuilder(name, context);
 	}
 
-	public OperationSignatureBuilder signature() {
-		return signature(ModelBuilderUtil.randomName());
+	public OperationSignatureBuilder newSignature() {
+		return newSignature(ModelBuilderUtil.randomName());
 	}
 
-	public OperationInterfaceBuilder interfaze(String name) {
+	public OperationInterfaceBuilder newInterface(String name) {
 		return new OperationInterfaceBuilder(name, context);
 	}
 
-	public OperationInterfaceBuilder interfaze() {
-		return interfaze(ModelBuilderUtil.randomName());
+	public OperationInterfaceBuilder newInterface() {
+		return newInterface(ModelBuilderUtil.randomName());
 	}
 
 	public Repository build() {

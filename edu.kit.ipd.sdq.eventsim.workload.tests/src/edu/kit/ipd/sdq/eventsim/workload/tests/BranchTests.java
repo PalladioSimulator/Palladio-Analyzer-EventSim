@@ -52,11 +52,11 @@ public class BranchTests {
 	@Test
 	public void oneBranchTransition() {
 		// create PCM usage model
-		UsageBuilder ub = new BuildingContext().usageBuilder();
+		UsageBuilder ub = new BuildingContext().newUsageModel();
 		UsageModel um = ub.build();
-		UsageScenario s = ub.scenarioBuilder().closedWorkload(1, 0).buildIn(um);
-		ub.behaviourBuilder().start("outer_start").branch("branch").stop("outer_stop").buildIn(s);
-		ub.behaviourBuilder().start("inner_start").stop("inner_stop").buildAsTransitionIn("branch", 1);
+		UsageScenario s = ub.newScenario().closedWorkload(1, 0).buildIn(um);
+		ub.newBehaviour().start("outer_start").branch("branch").stop("outer_stop").buildIn(s);
+		ub.newBehaviour().start("inner_start").stop("inner_stop").buildAsTransitionIn("branch", 1);
 		PCMModel model = new PCMModelBuilder().withUsageModel(um).build();
 
 		// create simulation configuration
@@ -85,12 +85,12 @@ public class BranchTests {
 	@Test
 	public void twoBranchTransitions() {
 		// create PCM usage model
-		UsageBuilder ub = new BuildingContext().usageBuilder();
+		UsageBuilder ub = new BuildingContext().newUsageModel();
 		UsageModel um = ub.build();
-		UsageScenario s = ub.scenarioBuilder().closedWorkload(1, 0).buildIn(um);
-		ub.behaviourBuilder().start().branch("branch").stop().buildIn(s);
-		ub.behaviourBuilder().start("start_left").stop().buildAsTransitionIn("branch", 0.75);
-		ub.behaviourBuilder().start("start_right").stop().buildAsTransitionIn("branch", 0.25);
+		UsageScenario s = ub.newScenario().closedWorkload(1, 0).buildIn(um);
+		ub.newBehaviour().start().branch("branch").stop().buildIn(s);
+		ub.newBehaviour().start("start_left").stop().buildAsTransitionIn("branch", 0.75);
+		ub.newBehaviour().start("start_right").stop().buildAsTransitionIn("branch", 0.25);
 		PCMModel model = new PCMModelBuilder().withUsageModel(um).build();
 
 		// create simulation configuration
@@ -122,11 +122,11 @@ public class BranchTests {
 		final double DELAY_TIME = 1.23;
 
 		// create PCM usage model
-		UsageBuilder ub = new BuildingContext().usageBuilder();
+		UsageBuilder ub = new BuildingContext().newUsageModel();
 		UsageModel um = ub.build();
-		UsageScenario s = ub.scenarioBuilder().closedWorkload(1, 0).buildIn(um);
-		ub.behaviourBuilder().start().branch("branch").stop("stop").buildIn(s);
-		ub.behaviourBuilder().start().delay(DELAY_TIME).stop().buildAsTransitionIn("branch", 1);
+		UsageScenario s = ub.newScenario().closedWorkload(1, 0).buildIn(um);
+		ub.newBehaviour().start().branch("branch").stop("stop").buildIn(s);
+		ub.newBehaviour().start().delay(DELAY_TIME).stop().buildAsTransitionIn("branch", 1);
 		PCMModel model = new PCMModelBuilder().withUsageModel(um).build();
 
 		// create simulation configuration
@@ -154,10 +154,10 @@ public class BranchTests {
 	@Test
 	public void branchWithoutBranchTransitionsShouldBeSkippedWithoutException() {
 		// create PCM usage model
-		UsageBuilder ub = new BuildingContext().usageBuilder();
+		UsageBuilder ub = new BuildingContext().newUsageModel();
 		UsageModel um = ub.build();
-		UsageScenario s = ub.scenarioBuilder().closedWorkload(1, 0).buildIn(um);
-		ub.behaviourBuilder().start("start").branch("branch").stop("stop").buildIn(s);
+		UsageScenario s = ub.newScenario().closedWorkload(1, 0).buildIn(um);
+		ub.newBehaviour().start("start").branch("branch").stop("stop").buildIn(s);
 		PCMModel model = new PCMModelBuilder().withUsageModel(um).build();
 
 		// create simulation configuration
@@ -182,12 +182,12 @@ public class BranchTests {
 	@Test
 	public void throwExceptionWhenSumOfBranchingProbabilitiesIsSmallerOne() {
 		// create PCM usage model
-		UsageBuilder ub = new BuildingContext().usageBuilder();
+		UsageBuilder ub = new BuildingContext().newUsageModel();
 		UsageModel um = ub.build();
-		UsageScenario s = ub.scenarioBuilder().closedWorkload(1, 0).buildIn(um);
-		ub.behaviourBuilder().start().branch("branch").stop().buildIn(s);
-		ub.behaviourBuilder().start().stop().buildAsTransitionIn("branch", 0.5);
-		ub.behaviourBuilder().start().stop().buildAsTransitionIn("branch", 0.4);
+		UsageScenario s = ub.newScenario().closedWorkload(1, 0).buildIn(um);
+		ub.newBehaviour().start().branch("branch").stop().buildIn(s);
+		ub.newBehaviour().start().stop().buildAsTransitionIn("branch", 0.5);
+		ub.newBehaviour().start().stop().buildAsTransitionIn("branch", 0.4);
 		PCMModel model = new PCMModelBuilder().withUsageModel(um).build();
 
 		// create simulation configuration
@@ -205,12 +205,12 @@ public class BranchTests {
 	@Test
 	public void throwExceptionWhenSumOfBranchingProbabilitiesIsLargerOne() {
 		// create PCM usage model
-		UsageBuilder ub = new BuildingContext().usageBuilder();
+		UsageBuilder ub = new BuildingContext().newUsageModel();
 		UsageModel um = ub.build();
-		UsageScenario s = ub.scenarioBuilder().closedWorkload(1, 0).buildIn(um);
-		ub.behaviourBuilder().start().branch("branch").stop().buildIn(s);
-		ub.behaviourBuilder().start().stop().buildAsTransitionIn("branch", 0.5);
-		ub.behaviourBuilder().start().stop().buildAsTransitionIn("branch", 0.6);
+		UsageScenario s = ub.newScenario().closedWorkload(1, 0).buildIn(um);
+		ub.newBehaviour().start().branch("branch").stop().buildIn(s);
+		ub.newBehaviour().start().stop().buildAsTransitionIn("branch", 0.5);
+		ub.newBehaviour().start().stop().buildAsTransitionIn("branch", 0.6);
 		PCMModel model = new PCMModelBuilder().withUsageModel(um).build();
 
 		// create simulation configuration

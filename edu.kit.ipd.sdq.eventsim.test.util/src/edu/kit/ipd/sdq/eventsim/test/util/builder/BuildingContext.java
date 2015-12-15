@@ -21,15 +21,15 @@ public class BuildingContext {
 		eObjectRoots = new ArrayList<>();
 	}
 
-	public RepositoryBuilder repositoryBuilder() {
+	public RepositoryBuilder newRepositoryModel() {
 		return new RepositoryBuilder(this);
 	}
 
-	public SystemBuilder systemBuilder() {
+	public SystemBuilder newSystemModel() {
 		return new SystemBuilder(this);
 	}
 
-	public UsageBuilder usageBuilder() {
+	public UsageBuilder newUsageModel() {
 		return new UsageBuilder(this);
 	}
 

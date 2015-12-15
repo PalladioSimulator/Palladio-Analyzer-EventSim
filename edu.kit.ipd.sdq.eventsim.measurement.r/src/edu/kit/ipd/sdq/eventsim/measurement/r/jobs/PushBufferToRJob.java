@@ -71,6 +71,7 @@ public class PushBufferToRJob implements RJob {
 			connection.voidEval("buffer$where.second.id <- as.factor(buffer$where.second.id)");
 			connection.voidEval("buffer$where.property <- as.factor(buffer$where.property)");
 			connection.voidEval("buffer$who.type <- as.factor(buffer$who.type)");
+			connection.voidEval("buffer$who.id <- as.factor(buffer$who.id)");
 		} catch (RserveException e) {
 			log.error("Rserve reported an error while converting categorical columns to factors", e);
 		}

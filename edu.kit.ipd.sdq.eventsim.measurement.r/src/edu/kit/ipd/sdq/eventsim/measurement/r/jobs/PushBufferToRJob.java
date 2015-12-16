@@ -72,6 +72,11 @@ public class PushBufferToRJob implements RJob {
 			connection.voidEval("buffer$where.property <- as.factor(buffer$where.property)");
 			connection.voidEval("buffer$who.type <- as.factor(buffer$who.type)");
 			connection.voidEval("buffer$who.id <- as.factor(buffer$who.id)");
+			// next two entries in buffer list are "value" and "when" -- not categorical
+
+			// if there are additional columns for the measurement context, do also convert these into factors
+			connection.voidEval("if (length(mm) >= 11) { "
+					+ "for (i in 11:length(buffer)) { buffer[[i]] <- as.factor(buffer[[i]]) } }");
 		} catch (RserveException e) {
 			log.error("Rserve reported an error while converting categorical columns to factors", e);
 		}

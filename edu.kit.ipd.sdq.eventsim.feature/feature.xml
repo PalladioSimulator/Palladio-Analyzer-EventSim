@@ -134,6 +134,7 @@ This Agreement is governed by the laws of the State of New York and the intellec
       <import plugin="org.eclipse.swt" version="3.104.1" match="greaterOrEqual"/>
       <import plugin="de.uka.ipd.sdq.scheduler" version="1.0.0" match="greaterOrEqual"/>
       <import plugin="de.uka.ipd.sdq.simucomframework" version="2.0.0" match="greaterOrEqual"/>
+      <import plugin="de.uka.ipd.sdq.simulation.abstractsimengine.desmoj"/>
    </requires>
 
    <plugin
@@ -208,19 +209,6 @@ This Agreement is governed by the laws of the State of New York and the intellec
 
    <plugin
          id="com.google.inject.guice"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.rosuda.rJavaAndRserve"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="de.uka.ipd.sdq.simulation.abstractsimengine.desmoj"
          download-size="0"
          install-size="0"
          version="0.0.0"

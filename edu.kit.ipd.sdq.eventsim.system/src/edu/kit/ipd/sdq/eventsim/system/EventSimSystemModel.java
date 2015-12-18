@@ -170,9 +170,12 @@ public class EventSimSystemModel extends AbstractEventSimModel implements ISyste
 				SystemMeasurementConfiguration.from(this), Activator.getContext().getBundle());
 
 		MeasurementStorage measurementStorage = getMeasurementStorage();
-		measurementStorage.addIdProvider(Request.class, c -> Long.toString(((Request)c).getId()));
-		measurementStorage.addIdProvider(ForkedRequest.class, c -> Long.toString(((ForkedRequest)c).getEntityId()));
-		measurementStorage.addIdProvider(Entity.class, c -> ((Entity)c).getId());
+		measurementStorage.addIdExtractor(Request.class, c -> Long.toString(((Request)c).getId()));
+		measurementStorage.addNameExtractor(Request.class, c -> ((Request)c).getName());
+		measurementStorage.addIdExtractor(ForkedRequest.class, c -> Long.toString(((ForkedRequest)c).getEntityId()));
+		measurementStorage.addNameExtractor(ForkedRequest.class, c -> ((ForkedRequest)c).getName());
+		measurementStorage.addIdExtractor(Entity.class, c -> ((Entity)c).getId());
+		measurementStorage.addNameExtractor(Entity.class, c -> ((Entity)c).getEntityName());
 		
 		// response time of external calls
 		execute(new FindAllActionsByType<>(ExternalCallAction.class)).forEach(

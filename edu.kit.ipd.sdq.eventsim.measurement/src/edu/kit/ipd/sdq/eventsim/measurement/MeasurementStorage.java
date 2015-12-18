@@ -6,9 +6,9 @@ import org.palladiosimulator.pcm.core.entity.Entity;
 
 public interface MeasurementStorage {
 
-	IdProvider getIdProvider();
-
-	void addIdProvider(Class<? extends Object> elementClass, Function<Object, String> extractionFunction);
+	void addIdExtractor(Class<? extends Object> elementClass, Function<Object, String> extractionFunction);
+	
+	void addNameExtractor(Class<? extends Object> elementClass, Function<Object, String> extractionFunction);
 
 	<E> void put(Measurement<E, ?> m);
 

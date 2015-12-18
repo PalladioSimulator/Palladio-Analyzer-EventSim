@@ -9,7 +9,7 @@ import org.rosuda.REngine.Rserve.RConnection;
 import org.rosuda.REngine.Rserve.RserveException;
 
 import edu.kit.ipd.sdq.eventsim.components.AbstractComponentFacade;
-import edu.kit.ipd.sdq.eventsim.measurement.IdProvider;
+import edu.kit.ipd.sdq.eventsim.measurement.PropertyExtractor;
 import edu.kit.ipd.sdq.eventsim.measurement.Measurement;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 import edu.kit.ipd.sdq.eventsim.measurement.Pair;
@@ -40,7 +40,9 @@ public class RMeasurementStore extends AbstractComponentFacade implements Measur
 
 	private Buffer buffer;
 
-	private IdProvider idProvider;
+	private PropertyExtractor idExtractor;
+	
+	private PropertyExtractor nameExtractor;
 
 	private RConnection connection;
 	
@@ -68,11 +70,12 @@ public class RMeasurementStore extends AbstractComponentFacade implements Measur
 	public RMeasurementStore(String rdsFilePath) {
 		this.storeRds = true;
 		this.rdsFilePath = rdsFilePath;
-		idProvider = new IdProvider();
+		idExtractor = new PropertyExtractor();
+		nameExtractor = new PropertyExtractor();
 		connection = connectToR();
 		rJobProcessor = new RJobProcessor(connection);
 		rJobProcessor.start();
-		buffer = new Buffer(BUFFER_CAPACITY, idProvider);
+		buffer = new Buffer(BUFFER_CAPACITY, idExtractor, nameExtractor);
 		
 		provide(MeasurementStorage.class, this);
 	}
@@ -98,49 +101,34 @@ public class RMeasurementStore extends AbstractComponentFacade implements Measur
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see edu.kit.ipd.sdq.eventsim.measurement.r.MeasurementProcessor#getIdProvider()
-	 */
 	@Override
-	public IdProvider getIdProvider() {
-		return idProvider;
+	public void addIdExtractor(Class<? extends Object> elementClass, Function<Object, String> extractionFunction) {
+		idExtractor.add(elementClass, extractionFunction);
+	}
+	
+	@Override
+	public void addNameExtractor(Class<? extends Object> elementClass, Function<Object, String> extractionFunction) {
+		nameExtractor.add(elementClass, extractionFunction);
 	}
 
-	/* (non-Javadoc)
-	 * @see edu.kit.ipd.sdq.eventsim.measurement.r.MeasurementProcessor#addIdProvider(java.lang.Class, java.util.function.Function)
-	 */
-	@Override
-	public void addIdProvider(Class<? extends Object> elementClass, Function<Object, String> extractionFunction) {
-		idProvider.add(elementClass, extractionFunction);
-	}
-
-	/* (non-Javadoc)
-	 * @see edu.kit.ipd.sdq.eventsim.measurement.r.MeasurementProcessor#put(edu.kit.ipd.sdq.eventsim.measurement.Measurement)
-	 */
 	@Override
 	public <E> void put(Measurement<E, ?> m) {
 		buffer.put(m);
 		if (buffer.isFull()) {
 			rJobProcessor.enqueue(new PushBufferToRJob(buffer, bufferNumber++));
-			buffer = new Buffer(BUFFER_CAPACITY, idProvider);
+			buffer = new Buffer(BUFFER_CAPACITY, idExtractor, nameExtractor);
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see edu.kit.ipd.sdq.eventsim.measurement.r.MeasurementProcessor#putPair(edu.kit.ipd.sdq.eventsim.measurement.Measurement)
-	 */
 	@Override
 	public <F extends Entity, S extends Entity, T> void putPair(Measurement<Pair<F, S>, T> m) {
 		buffer.putPair(m);
 		if (buffer.isFull()) {
 			rJobProcessor.enqueue(new PushBufferToRJob(buffer, bufferNumber++));
-			buffer = new Buffer(BUFFER_CAPACITY, idProvider);
+			buffer = new Buffer(BUFFER_CAPACITY, idExtractor, nameExtractor);
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see edu.kit.ipd.sdq.eventsim.measurement.r.MeasurementProcessor#finish()
-	 */
 	@Override
 	public void finish() {
 		buffer.shrinkToSize();
@@ -158,8 +146,9 @@ public class RMeasurementStore extends AbstractComponentFacade implements Measur
 		rJobProcessor.waitUntilFinished();
 				
 		// clean up
+		// TODO really needed?
 		connection.close();
-		buffer = new Buffer(BUFFER_CAPACITY, idProvider);
+		buffer = new Buffer(BUFFER_CAPACITY, idExtractor, nameExtractor);
 		bufferNumber = 0;
 	}
 

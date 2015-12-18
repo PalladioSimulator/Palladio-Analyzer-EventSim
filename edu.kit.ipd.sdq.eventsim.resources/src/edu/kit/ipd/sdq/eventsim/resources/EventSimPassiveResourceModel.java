@@ -45,7 +45,8 @@ public class EventSimPassiveResourceModel extends AbstractEventSimModel implemen
 				.getBundle());
 		
 		MeasurementStorage measurementStorage = getMeasurementStorage();
-		measurementStorage.addIdProvider(SimPassiveResource.class, c -> ((SimPassiveResource)c).getSpecification().getId());
+		measurementStorage.addIdExtractor(SimPassiveResource.class, c -> ((SimPassiveResource)c).getSpecification().getId());
+		measurementStorage.addNameExtractor(SimPassiveResource.class, c -> ((SimPassiveResource)c).getName());
 		
 		registerEventHandler();
 	}

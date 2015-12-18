@@ -6,9 +6,9 @@ import java.util.Map;
 import org.eclipse.emf.ecore.EObject;
 import org.palladiosimulator.pcm.core.entity.Entity;
 
-import edu.kit.ipd.sdq.eventsim.measurement.IdProvider;
 import edu.kit.ipd.sdq.eventsim.measurement.Measurement;
 import edu.kit.ipd.sdq.eventsim.measurement.Pair;
+import edu.kit.ipd.sdq.eventsim.measurement.PropertyExtractor;
 
 /**
  * Buffers multiple measurements waiting to be transferred to R later on.
@@ -19,19 +19,17 @@ import edu.kit.ipd.sdq.eventsim.measurement.Pair;
 public class Buffer {
 
 	private String[] what;
-	private String[] whereFirstId;
-	private String[] whereFirstType;
-	private String[] whereSecondId;
-	private String[] whereSecondType;
+	private BufferPart whereFirst;
+	private BufferPart whereSecond;
 	private String[] whereProperty;
-	private String[] whoType;
-	private String[] whoId;
+	private BufferPart who;
 	private double[] value;
 	private double[] when;
 
-	private Map<String, String[]> contexts;
+	private Map<String, BufferPart> contexts;
 
-	private IdProvider extractors;
+	private PropertyExtractor idExtractors;
+	private PropertyExtractor nameExtractors;
 
 	/**
 	 * the number of elements effectively contained in this buffer. Once this number equals the buffer size, the buffer
@@ -41,18 +39,16 @@ public class Buffer {
 
 	private final int capacity;
 
-	public Buffer(int capacity, IdProvider extractors) {
+	public Buffer(int capacity, PropertyExtractor idExtractors, PropertyExtractor nameExtractors) {
 		this.capacity = capacity;
-		this.extractors = extractors;
+		this.idExtractors = idExtractors;
+		this.nameExtractors = nameExtractors;
 
 		what = new String[capacity];
-		whereFirstId = new String[capacity];
-		whereFirstType = new String[capacity];
-		whereSecondId = new String[capacity];
-		whereSecondType = new String[capacity];
+		whereFirst = new BufferPart(capacity);
+		whereSecond = new BufferPart(capacity);
 		whereProperty = new String[capacity];
-		whoType = new String[capacity];
-		whoId = new String[capacity];
+		who = new BufferPart(capacity);
 		value = new double[capacity];
 		when = new double[capacity];
 
@@ -62,10 +58,12 @@ public class Buffer {
 	public <F extends Entity, S extends Entity, T> void putPair(Measurement<Pair<F, S>, T> m) {
 		F first = m.getWhere().getElement().getFirst();
 		S second = m.getWhere().getElement().getSecond();
-		whereFirstId[size] = extractors.toIdString(first);
-		whereFirstType[size] = toTypeString(first);
-		whereSecondId[size] = extractors.toIdString(second);
-		whereSecondType[size] = toTypeString(second);
+		whereFirst.id[size] = idExtractors.extractFrom(first);
+		whereFirst.type[size] = toTypeString(first);
+		whereFirst.name[size] = nameExtractors.extractFrom(first);
+		whereSecond.id[size] = idExtractors.extractFrom(second);
+		whereSecond.type[size] = toTypeString(second);
+		whereSecond.name[size] = nameExtractors.extractFrom(second);
 
 		whereProperty[size] = m.getWhere().getProperty();
 
@@ -88,10 +86,12 @@ public class Buffer {
 	}
 
 	public <E> void put(Measurement<E, ?> m) {
-		whereFirstId[size] = extractors.toIdString(m.getWhere().getElement());
-		whereFirstType[size] = toTypeString(m.getWhere().getElement());
-		whereSecondId[size] = null;
-		whereSecondType[size] = null;
+		whereFirst.id[size] = idExtractors.extractFrom(m.getWhere().getElement());
+		whereFirst.type[size] = toTypeString(m.getWhere().getElement());
+		whereFirst.name[size] = nameExtractors.extractFrom(m.getWhere().getElement());
+		whereSecond.id[size] = null;
+		whereSecond.type[size] = null;
+		whereSecond.name[size] = null;
 		whereProperty[size] = m.getWhere().getProperty();
 
 		putCommonProperties(m);
@@ -102,19 +102,23 @@ public class Buffer {
 		what[size] = m.getWhat().toString();
 
 		for (Object o : m.getWhere().getContexts()) {
-			String key = toTypeString(o);
+			String key = toTypeString(o).toLowerCase();
 			if (!contexts.containsKey(key)) {
-				contexts.put(key, new String[capacity]);
+				contexts.put(key, new BufferPart(capacity));
 			}
-			contexts.get(key)[size] = extractors.toIdString(o);
+			contexts.get(key).id[size] = idExtractors.extractFrom(o);
+			contexts.get(key).type[size] = toTypeString(o);
+			contexts.get(key).name[size] = nameExtractors.extractFrom(o);
 		}
 
 		if (m.getWho() != null) {
-			whoType[size] = toTypeString(m.getWho());
-			whoId[size] = extractors.toIdString(m.getWho());
+			who.type[size] = toTypeString(m.getWho());
+			who.id[size] = idExtractors.extractFrom(m.getWho());
+			who.name[size] = nameExtractors.extractFrom(m.getWho());
 		} else {
-			whoType[size] = null;
-			whoId[size] = null;
+			who.type[size] = null;
+			who.id[size] = null;
+			who.name[size] = null;
 		}
 		value[size] = m.getValue();
 		when[size] = m.getWhen();
@@ -122,23 +126,19 @@ public class Buffer {
 
 	public void shrinkToSize() {
 		what = shrinkArray(what, size);
-		whereFirstId = shrinkArray(whereFirstId, size);
-		whereFirstType = shrinkArray(whereFirstType, size);
-		whereSecondId = shrinkArray(whereSecondId, size);
-		whereSecondType = shrinkArray(whereSecondType, size);
+		whereFirst.shrink(size);
+		whereSecond.shrink(size);
 		whereProperty = shrinkArray(whereProperty, size);
-
-		whoType = shrinkArray(whoType, size);
-		whoId = shrinkArray(whoId, size);
+		who.shrink(size);
 		value = shrinkArray(value, size);
 		when = shrinkArray(when, size);
 
-		for (String key : contexts.keySet()) {
-			contexts.put(key, shrinkArray(contexts.get(key), size));
+		for (BufferPart p : contexts.values()) {
+			p.shrink(size);
 		}
 	}
 
-	private static String[] shrinkArray(String[] src, int size) {
+	protected static String[] shrinkArray(String[] src, int size) {
 		String[] dest = new String[size];
 		System.arraycopy(src, 0, dest, 0, size);
 		return dest;
@@ -158,32 +158,20 @@ public class Buffer {
 		return what;
 	}
 
-	public String[] getWhereFirstId() {
-		return whereFirstId;
+	public BufferPart getWhereFirst() {
+		return whereFirst;
 	}
 
-	public String[] getWhereFirstType() {
-		return whereFirstType;
-	}
-
-	public String[] getWhereSecondId() {
-		return whereSecondId;
-	}
-
-	public String[] getWhereSecondType() {
-		return whereSecondType;
+	public BufferPart getWhereSecond() {
+		return whereSecond;
 	}
 
 	public String[] getWhereProperty() {
 		return whereProperty;
 	}
 
-	public String[] getWhoType() {
-		return whoType;
-	}
-
-	public String[] getWhoId() {
-		return whoId;
+	public BufferPart getWho() {
+		return who;
 	}
 
 	public double[] getValue() {
@@ -194,14 +182,12 @@ public class Buffer {
 		return when;
 	}
 
-	public Map<String, String[]> getContexts() {
+	public Map<String, BufferPart> getContexts() {
 		return contexts;
 	}
 
 	public int getSize() {
 		return size;
 	}
-	
-	
 
 }

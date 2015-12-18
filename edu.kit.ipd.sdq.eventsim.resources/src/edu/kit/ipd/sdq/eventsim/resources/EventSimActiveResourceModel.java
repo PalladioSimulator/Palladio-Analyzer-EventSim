@@ -65,8 +65,10 @@ public class EventSimActiveResourceModel extends AbstractEventSimModel implement
 				.getBundle());
 		
 		MeasurementStorage measurementStorage = getMeasurementStorage();
-		measurementStorage.addIdProvider(SimActiveResource.class, c -> ((SimActiveResource)c).getSpecification().getId());
-		measurementStorage.addIdProvider(SimulatedProcess.class, c -> Long.toString(((SimulatedProcess)c).getEntityId()));
+		measurementStorage.addIdExtractor(SimActiveResource.class, c -> ((SimActiveResource)c).getSpecification().getId());
+		measurementStorage.addNameExtractor(SimActiveResource.class, c -> ((SimActiveResource)c).getName());
+		measurementStorage.addIdExtractor(SimulatedProcess.class, c -> Long.toString(((SimulatedProcess)c).getEntityId()));
+		measurementStorage.addNameExtractor(SimulatedProcess.class, c -> ((SimulatedProcess)c).getName());
 		
 		registerEventHandler();
 	}

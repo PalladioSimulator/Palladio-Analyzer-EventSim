@@ -121,8 +121,10 @@ public class EventSimWorkloadModel extends AbstractEventSimModel implements IWor
 				WorkloadMeasurementConfiguration.from(this), Activator.getContext().getBundle());
 		
 		MeasurementStorage measurementStorage = getMeasurementStorage();
-		measurementStorage.addIdProvider(User.class, c -> Long.toString(((User)c).getEntityId()));
-		measurementStorage.addIdProvider(AbstractUserAction.class, c -> ((AbstractUserAction)c).getId());
+		measurementStorage.addIdExtractor(User.class, c -> Long.toString(((User)c).getEntityId()));
+		measurementStorage.addNameExtractor(User.class, c -> ((User)c).getName());
+		measurementStorage.addIdExtractor(AbstractUserAction.class, c -> ((AbstractUserAction)c).getId());
+		measurementStorage.addNameExtractor(AbstractUserAction.class, c -> ((AbstractUserAction)c).getEntityName());
 
 		// response time of system calls
 		execute(new FindAllUserActionsByType<>(EntryLevelSystemCall.class)).forEach(

@@ -12,6 +12,7 @@ import org.rosuda.REngine.Rserve.RConnection;
 import org.rosuda.REngine.Rserve.RserveException;
 
 import edu.kit.ipd.sdq.eventsim.measurement.r.Buffer;
+import edu.kit.ipd.sdq.eventsim.measurement.r.BufferPart;
 import edu.kit.ipd.sdq.eventsim.measurement.r.RContext;
 import edu.kit.ipd.sdq.eventsim.measurement.r.RJob;
 
@@ -67,16 +68,19 @@ public class PushBufferToRJob implements RJob {
 			connection.voidEval("buffer$what <- as.factor(buffer$what)");
 			connection.voidEval("buffer$where.first.type <- as.factor(buffer$where.first.type)");
 			connection.voidEval("buffer$where.first.id <- as.factor(buffer$where.first.id)");
+			connection.voidEval("buffer$where.first.name <- as.factor(buffer$where.first.name)");
 			connection.voidEval("buffer$where.second.type <- as.factor(buffer$where.second.type)");
 			connection.voidEval("buffer$where.second.id <- as.factor(buffer$where.second.id)");
+			connection.voidEval("buffer$where.second.name <- as.factor(buffer$where.second.name)");
 			connection.voidEval("buffer$where.property <- as.factor(buffer$where.property)");
 			connection.voidEval("buffer$who.type <- as.factor(buffer$who.type)");
 			connection.voidEval("buffer$who.id <- as.factor(buffer$who.id)");
+			connection.voidEval("buffer$who.name <- as.factor(buffer$who.name)");
 			// next two entries in buffer list are "value" and "when" -- not categorical
 
 			// if there are additional columns for the measurement context, do also convert these into factors
-			connection.voidEval("if (length(mm) >= 11) { "
-					+ "for (i in 11:length(buffer)) { buffer[[i]] <- as.factor(buffer[[i]]) } }");
+			connection.voidEval("if (length(mm) >= 14) { "
+					+ "for (i in 14:length(buffer)) { buffer[[i]] <- as.factor(buffer[[i]]) } }");
 		} catch (RserveException e) {
 			log.error("Rserve reported an error while converting categorical columns to factors", e);
 		}
@@ -86,18 +90,23 @@ public class PushBufferToRJob implements RJob {
 		try {
 			RList rList = new RList(6, true);
 			rList.put("what", new REXPString(buffer.getWhat()));
-			rList.put("where.first.type", new REXPString(buffer.getWhereFirstType()));
-			rList.put("where.first.id", new REXPString(buffer.getWhereFirstId()));
-			rList.put("where.second.type", new REXPString(buffer.getWhereSecondType()));
-			rList.put("where.second.id", new REXPString(buffer.getWhereSecondId()));
+			rList.put("where.first.type", new REXPString(buffer.getWhereFirst().getType()));
+			rList.put("where.first.id", new REXPString(buffer.getWhereFirst().getId()));
+			rList.put("where.first.name", new REXPString(buffer.getWhereFirst().getName()));
+			rList.put("where.second.type", new REXPString(buffer.getWhereSecond().getType()));
+			rList.put("where.second.id", new REXPString(buffer.getWhereSecond().getId()));
+			rList.put("where.second.name", new REXPString(buffer.getWhereSecond().getName()));
 			rList.put("where.property", new REXPString(buffer.getWhereProperty()));
-			rList.put("who.type", new REXPString(buffer.getWhoType()));
-			rList.put("who.id", new REXPString(buffer.getWhoId()));
+			rList.put("who.type", new REXPString(buffer.getWho().getType()));
+			rList.put("who.id", new REXPString(buffer.getWho().getId()));
+			rList.put("who.name", new REXPString(buffer.getWho().getName()));
 			rList.put("value", new REXPDouble(buffer.getValue()));
 			rList.put("when", new REXPDouble(buffer.getWhen()));
 
-			for (Entry<String, String[]> context : buffer.getContexts().entrySet()) {
-				rList.put(context.getKey(), new REXPString(context.getValue()));
+			for (Entry<String, BufferPart> context : buffer.getContexts().entrySet()) {
+				rList.put(context.getKey() + ".type", new REXPString(context.getValue().type));
+				rList.put(context.getKey() + ".id", new REXPString(context.getValue().id));
+				rList.put(context.getKey() + ".name", new REXPString(context.getValue().name));
 			}
 			return REXP.createDataFrame(rList);
 		} catch (REXPMismatchException e) {

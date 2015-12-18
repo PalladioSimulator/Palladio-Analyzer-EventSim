@@ -117,7 +117,7 @@ public class ResourceFactory {
 		IPassiveResource schedulerResource = new SimSimpleFairPassiveResource(specification, assemblyCtx,
 				(SchedulerModel) simulationModel, new Long(capacity)); // TODO get rid of cast
 
-		return new SimPassiveResource(model, schedulerResource);
+		return new SimPassiveResource(model, schedulerResource, specification);
 	}
 
 	/**

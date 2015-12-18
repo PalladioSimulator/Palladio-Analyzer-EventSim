@@ -194,7 +194,6 @@ public class EventSimActiveResourceModel extends AbstractEventSimModel implement
 			}
 
 			SimActiveResource resource = ResourceFactory.createActiveResource(this, schedulingFactory, s);
-			resource.setDescription(specification.getEntityName() + " [" + resourceType.getEntityName() + "] <" + specification.getId() + ">");
 
 			// register the created resource
 			registerResource(specification, resource, resourceType);

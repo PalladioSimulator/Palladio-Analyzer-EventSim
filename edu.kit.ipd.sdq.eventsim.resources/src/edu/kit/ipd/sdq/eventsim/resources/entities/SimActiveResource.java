@@ -30,217 +30,209 @@ import edu.kit.ipd.sdq.eventsim.resources.listener.IStateListener;
  */
 public class SimActiveResource extends EventSimEntity {
 
-    private static Logger logger = Logger.getLogger(SimActiveResource.class);
+	private static Logger logger = Logger.getLogger(SimActiveResource.class);
 
-    /** the encapsulated scheduler resource */
-    private IActiveResource schedulerResource;
-    private String processingRate;
-    private int numberOfInstances;
-    private String description;
-    private Map<Integer, List<IStateListener>> stateListener;
-    private List<IDemandListener> demandListener;
-    private List<IOverallUtilizationListener> overallUtilizationListener;
-    private SchedulingPolicy schedulingStrategy;
-    private double totalDemandedTime;
-    private long[] queueLength;
+	/** the encapsulated scheduler resource */
+	private IActiveResource schedulerResource;
+	private String processingRate;
+	private int numberOfInstances;
+	private Map<Integer, List<IStateListener>> stateListener;
+	private List<IDemandListener> demandListener;
+	private List<IOverallUtilizationListener> overallUtilizationListener;
+	private SchedulingPolicy schedulingStrategy;
+	private double totalDemandedTime;
+	private long[] queueLength;
 	private ProcessingResourceSpecification specification;
-    
-    /**
-     * Constructs an active resource that wraps the specified resource.
-     * 
-     * @param model
-     *            the simulation model
-     * @param resource
-     *            the wrapped scheduler resource
-     * @param processingRate
-     * @param numberOfInstances
-     * @param specification 
-     */
-    public SimActiveResource(AbstractEventSimModel model, IActiveResource resource, String processingRate,
-            int numberOfInstances, SchedulingPolicy schedulingStrategy, ProcessingResourceSpecification specification) {
-        super(model, "SimActiveResource");
-        this.schedulerResource = resource;
-        this.processingRate = processingRate;
-        this.numberOfInstances = numberOfInstances;
-        this.schedulingStrategy = schedulingStrategy;
-        this.specification = specification;
 
-        this.setupStateListenerAdapter(this.schedulerResource);
-        stateListener = new HashMap<Integer, List<IStateListener>>();
-        for (int instance = 0; instance < numberOfInstances; instance++) {
-            stateListener.put(instance, new ArrayList<IStateListener>());
-        }
-        overallUtilizationListener = new ArrayList<IOverallUtilizationListener>();
-        demandListener = new ArrayList<IDemandListener>();
-        queueLength = new long[numberOfInstances];
-    }
+	/**
+	 * Constructs an active resource that wraps the specified resource.
+	 * 
+	 * @param model
+	 *            the simulation model
+	 * @param resource
+	 *            the wrapped scheduler resource
+	 * @param processingRate
+	 * @param numberOfInstances
+	 * @param specification
+	 */
+	public SimActiveResource(AbstractEventSimModel model, IActiveResource resource, String processingRate,
+			int numberOfInstances, SchedulingPolicy schedulingStrategy, ProcessingResourceSpecification specification) {
+		super(model, "SimActiveResource");
+		this.schedulerResource = resource;
+		this.processingRate = processingRate;
+		this.numberOfInstances = numberOfInstances;
+		this.schedulingStrategy = schedulingStrategy;
+		this.specification = specification;
 
-    /**
-     * Translates the {@link IActiveResourceStateSensor} listener to the {@link IStateListener}. As
-     * a result, all {@link IStateListener} of this resource get notified if the encapsulated
-     * scheduler resource fires a {@link IActiveResourceStateSensor} event.
-     */
-    private void setupStateListenerAdapter(IActiveResource resource) {
-        resource.addObserver(new IActiveResourceStateSensor() {
-            @Override
-            public void update(long state, int instanceId) {
-            	queueLength[instanceId] = state;
-                fireStateEvent(state, instanceId);
-            }
+		this.setupStateListenerAdapter(this.schedulerResource);
+		stateListener = new HashMap<Integer, List<IStateListener>>();
+		for (int instance = 0; instance < numberOfInstances; instance++) {
+			stateListener.put(instance, new ArrayList<IStateListener>());
+		}
+		overallUtilizationListener = new ArrayList<IOverallUtilizationListener>();
+		demandListener = new ArrayList<IDemandListener>();
+		queueLength = new long[numberOfInstances];
+	}
 
-            @Override
-            public void demandCompleted(ISchedulableProcess simProcess) {
-                // do nothing
-            }
-        });
-    }
+	/**
+	 * Translates the {@link IActiveResourceStateSensor} listener to the {@link IStateListener}. As a result, all
+	 * {@link IStateListener} of this resource get notified if the encapsulated scheduler resource fires a
+	 * {@link IActiveResourceStateSensor} event.
+	 */
+	private void setupStateListenerAdapter(IActiveResource resource) {
+		resource.addObserver(new IActiveResourceStateSensor() {
+			@Override
+			public void update(long state, int instanceId) {
+				queueLength[instanceId] = state;
+				fireStateEvent(state, instanceId);
+			}
 
-    /**
-     * Processes the specified demand issued by the given process.
-     * 
-     * @param process
-     *            the process that has requested the demand
-     * @param abstractDemand
-     *            the demand
-     */
-    public void consumeResource(ISchedulableProcess process, double abstractDemand) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Requested resource " + schedulerResource + " with an abstract demand of " + abstractDemand);
-        }
-        double concreteDemand = calculateConcreteDemand(abstractDemand);
-        this.totalDemandedTime += concreteDemand;
-        
-        // TODO What resource service ID has to passed here?
-        schedulerResource.process(process, 1, Collections.<String, Serializable> emptyMap(), concreteDemand);
+			@Override
+			public void demandCompleted(ISchedulableProcess simProcess) {
+				// do nothing
+			}
+		});
+	}
 
-        // notify demands listeners
-        fireDemand(concreteDemand);
-    }
+	/**
+	 * Processes the specified demand issued by the given process.
+	 * 
+	 * @param process
+	 *            the process that has requested the demand
+	 * @param abstractDemand
+	 *            the demand
+	 */
+	public void consumeResource(ISchedulableProcess process, double abstractDemand) {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Requested resource " + schedulerResource + " with an abstract demand of " + abstractDemand);
+		}
+		double concreteDemand = calculateConcreteDemand(abstractDemand);
+		this.totalDemandedTime += concreteDemand;
 
-    protected double calculateConcreteDemand(double abstractDemand) {
-        return abstractDemand / Context.evaluateStatic(processingRate, Double.class);
-    }
+		// TODO What resource service ID has to passed here?
+		schedulerResource.process(process, 1, Collections.<String, Serializable> emptyMap(), concreteDemand);
 
-    /**
-     * Returns the resource ID. The ID of the resource is the ID of the encapsulated scheduler
-     * resource.
-     * 
-     * @return the resource's ID
-     * 
-     * @see IActiveResource#getId()
-     */
-    public String getId() {
-        return schedulerResource.getId();
-    }
+		// notify demands listeners
+		fireDemand(concreteDemand);
+	}
 
-    /**
-     * Returns the name of the resource. The resource name is the name of the encapsulated scheduler
-     * resource.
-     * 
-     * @return the resource's name
-     * 
-     * @see IActiveResource#getName()
-     */
-    public String getName() {
-        return schedulerResource.getName();
-    }
+	protected double calculateConcreteDemand(double abstractDemand) {
+		return abstractDemand / Context.evaluateStatic(processingRate, Double.class);
+	}
 
-    public String getDescription() {
-        return description;
-    }
+	/**
+	 * Returns the resource ID.
+	 * 
+	 * @return the resource's ID
+	 * 
+	 * @see IActiveResource#getId()
+	 */
+	public String getId() {
+		return specification.getId();
+	}
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+	/**
+	 * Returns the name of the resource.
+	 * 
+	 * @return the resource's name
+	 * 
+	 * @see IActiveResource#getName()
+	 */
+	public String getName() {
+		// obtain entity name (HDD, CPU, ...) from specification
+		String resourceContainerName = specification.getResourceContainer_ProcessingResourceSpecification()
+				.getEntityName();
+		String resourceTypeName = specification.getActiveResourceType_ActiveResourceSpecification().getEntityName();
+		return resourceContainerName + " [" + resourceTypeName + "]";
+	}
 
-    /**
-     * @return the number of instances (e.g., cores in case of a processor) that constitute this
-     *         resource.
-     */
-    public int getNumberOfInstances() {
-        return numberOfInstances;
-    }
+	/**
+	 * @return the number of instances (e.g., cores in case of a processor) that constitute this resource.
+	 */
+	public int getNumberOfInstances() {
+		return numberOfInstances;
+	}
 
-    /**
-     * @return the number of jobs in the resource's queue waiting to be processed. TODO: check, if
-     *         this value is rather the queue length plus (!) the number of jobs being processed at
-     *         the moment.
-     */
-    public long getQueueLength(int instanceId) {
-        return queueLength[instanceId];
-    }
+	/**
+	 * @return the number of jobs in the resource's queue waiting to be processed. TODO: check, if this value is rather
+	 *         the queue length plus (!) the number of jobs being processed at the moment.
+	 */
+	public long getQueueLength(int instanceId) {
+		return queueLength[instanceId];
+	}
 
-    public SchedulingPolicy getSchedulingStrategy() {
-        return schedulingStrategy;
-    }
+	public SchedulingPolicy getSchedulingStrategy() {
+		return schedulingStrategy;
+	}
 
-    public ProcessingResourceSpecification getSpecification() {
-    	return specification;
-    }
-    
-    public void addDemandListener(IDemandListener listener) {
-        demandListener.add(listener);
-    }
+	public ProcessingResourceSpecification getSpecification() {
+		return specification;
+	}
 
-    public void addOverallUtilizationListener(IOverallUtilizationListener listener) {
-        overallUtilizationListener.add(listener);
-    }
+	public void addDemandListener(IDemandListener listener) {
+		demandListener.add(listener);
+	}
 
-    public void addStateListener(final IStateListener listener, int instance) {
-        stateListener.get(instance).add(listener);
-    }
+	public void addOverallUtilizationListener(IOverallUtilizationListener listener) {
+		overallUtilizationListener.add(listener);
+	}
 
-    /**
-     * Notifies the demand listeners that the specified demand has been requested.
-     * 
-     * @param demand
-     *            the requested demand
-     */
-    protected void fireDemand(double demand) {
-        for (IDemandListener l : demandListener) {
-            l.demand(demand);
-        }
-    }
+	public void addStateListener(final IStateListener listener, int instance) {
+		stateListener.get(instance).add(listener);
+	}
 
-    /**
-     * Notifies the overall utilisation listeners.
-     * 
-     * @param resourceDemand
-     *            the cumulative resource demand
-     * @param totalTime
-     *            the total simulation time
-     */
-    protected void fireOverallUtilization(double resourceDemand, double totalTime) {
-        for (IOverallUtilizationListener l : overallUtilizationListener) {
-            l.utilizationChanged(resourceDemand, totalTime);
-        }
-    }
+	/**
+	 * Notifies the demand listeners that the specified demand has been requested.
+	 * 
+	 * @param demand
+	 *            the requested demand
+	 */
+	protected void fireDemand(double demand) {
+		for (IDemandListener l : demandListener) {
+			l.demand(demand);
+		}
+	}
 
-    /**
-     * Notifies the state listeners that the state of the specified instance has changed.
-     * 
-     * @param state
-     *            the resource's queue length
-     * @param instance
-     *            the affected resource instance
-     */
-    protected void fireStateEvent(long state, int instance) {
-        for (IStateListener l : stateListener.get(instance)) {
-            l.stateChanged(state, instance);
-        }
-    }
+	/**
+	 * Notifies the overall utilisation listeners.
+	 * 
+	 * @param resourceDemand
+	 *            the cumulative resource demand
+	 * @param totalTime
+	 *            the total simulation time
+	 */
+	protected void fireOverallUtilization(double resourceDemand, double totalTime) {
+		for (IOverallUtilizationListener l : overallUtilizationListener) {
+			l.utilizationChanged(resourceDemand, totalTime);
+		}
+	}
 
-    /**
-     * Called to notify this resource that the simulation run has stopped.
-     */
-    public void deactivateResource() {
-        double totalTime = getEventSimModel().getSimulationMiddleware().getSimulationControl().getCurrentSimulationTime() * numberOfInstances;
-        if (totalDemandedTime > totalTime) {
-            totalDemandedTime = totalTime;
-        }
-        fireOverallUtilization(totalDemandedTime, totalTime);
+	/**
+	 * Notifies the state listeners that the state of the specified instance has changed.
+	 * 
+	 * @param state
+	 *            the resource's queue length
+	 * @param instance
+	 *            the affected resource instance
+	 */
+	protected void fireStateEvent(long state, int instance) {
+		for (IStateListener l : stateListener.get(instance)) {
+			l.stateChanged(state, instance);
+		}
+	}
 
-        schedulerResource.stop();
-    }
+	/**
+	 * Called to notify this resource that the simulation run has stopped.
+	 */
+	public void deactivateResource() {
+		double totalTime = getEventSimModel().getSimulationMiddleware().getSimulationControl()
+				.getCurrentSimulationTime() * numberOfInstances;
+		if (totalDemandedTime > totalTime) {
+			totalDemandedTime = totalTime;
+		}
+		fireOverallUtilization(totalDemandedTime, totalTime);
+
+		schedulerResource.stop();
+	}
 
 }

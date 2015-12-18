@@ -30,22 +30,27 @@ import edu.kit.ipd.sdq.eventsim.resources.listener.IPassiveResourceListener;
 public class SimPassiveResource extends EventSimEntity {
 
     /** the encapsulated scheduler resource */
-    private IPassiveResource schedulerResource;
+    private final IPassiveResource schedulerResource;
 
-    private List<IPassiveResourceListener> listeners;
+    private final List<IPassiveResourceListener> listeners;
+    
+    private final PassiveResource specification;
 
     /**
-     * Construct a passive resource that wraps the specified resource.
-     * 
-     * @param model
-     *            the simulation model
-     * @param resource
-     *            the wrapped scheduler resource
-     */
-    public SimPassiveResource(AbstractEventSimModel model, IPassiveResource resource) {
+	 * Construct a passive resource that wraps the specified resource.
+	 * 
+	 * @param model
+	 *            the simulation model
+	 * @param resource
+	 *            the wrapped scheduler resource
+	 * @param specification
+	 *            the specification of this resource
+	 */
+    public SimPassiveResource(AbstractEventSimModel model, IPassiveResource resource, PassiveResource specification) {
         super(model, "SimPassiveResource");
         this.schedulerResource = resource;
         this.listeners = new ArrayList<IPassiveResourceListener>();
+        this.specification = specification;
         
         this.setupListenerAdapter(this.schedulerResource);
     }
@@ -88,8 +93,8 @@ public class SimPassiveResource extends EventSimEntity {
      * 
      * @return the unique identifier
      */
-    public String getResourceId() {
-        return schedulerResource.getId();
+    public String getId() {
+        return specification.getId();
     }
 
     /**
@@ -97,8 +102,8 @@ public class SimPassiveResource extends EventSimEntity {
      * 
      * @return the resource's name
      */
-    public String getResourceName() {
-        return schedulerResource.getName();
+    public String getName() {
+    	return specification.getEntityName();
     }
     
     public AssemblyContext getAssemblyContext() {

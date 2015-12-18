@@ -41,7 +41,7 @@ public class SimulatedProcess extends EventSimEntity implements ISchedulableProc
      *            or passivated
      */
     public SimulatedProcess(AbstractEventSimModel model, SimulatedProcess parent, final IRequest request) {
-    	super(model, SimulatedProcess.class.getName());
+    	super(model, "SimulatedProcess");
     	this.parent = parent;
         this.request = request;
         this.terminatedObservers = new ArrayList<IActiveResource>();

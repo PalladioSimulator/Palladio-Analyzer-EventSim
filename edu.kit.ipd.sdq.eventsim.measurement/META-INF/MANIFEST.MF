@@ -9,5 +9,4 @@ Export-Package: edu.kit.ipd.sdq.eventsim.measurement,
  edu.kit.ipd.sdq.eventsim.measurement.calculator,
  edu.kit.ipd.sdq.eventsim.measurement.probe
 Require-Bundle: org.palladiosimulator.pcm;bundle-version="4.0.0",
- org.apache.log4j;bundle-version="1.2.15",
- de.uka.ipd.sdq.workflow.launchconfig;bundle-version="2.1.0"
+ org.apache.log4j;bundle-version="1.2.15"

@@ -135,6 +135,7 @@ This Agreement is governed by the laws of the State of New York and the intellec
       <import plugin="de.uka.ipd.sdq.scheduler" version="1.0.0" match="greaterOrEqual"/>
       <import plugin="de.uka.ipd.sdq.simucomframework" version="2.0.0" match="greaterOrEqual"/>
       <import plugin="de.uka.ipd.sdq.simulation.abstractsimengine.desmoj"/>
+      <import plugin="edu.kit.ipd.sdq.eventsim.measurement.r.launch"/>
    </requires>
 
    <plugin
@@ -209,6 +210,13 @@ This Agreement is governed by the laws of the State of New York and the intellec
 
    <plugin
          id="com.google.inject.guice"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.kit.ipd.sdq.eventsim.measurement.r.launch"
          download-size="0"
          install-size="0"
          version="0.0.0"

@@ -1,4 +1,4 @@
-package edu.kit.ipd.sdq.eventsim.measurement.r.launch;
+package edu.kit.ipd.sdq.eventsim.measurement.r;
 
 public interface RConfigurationConstants {
 

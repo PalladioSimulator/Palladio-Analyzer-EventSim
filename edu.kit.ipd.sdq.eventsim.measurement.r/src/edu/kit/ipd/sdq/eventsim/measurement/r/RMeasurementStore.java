@@ -16,7 +16,6 @@ import edu.kit.ipd.sdq.eventsim.measurement.r.jobs.FinalizeRProcessingJob;
 import edu.kit.ipd.sdq.eventsim.measurement.r.jobs.MergeBufferedDataFramesJob;
 import edu.kit.ipd.sdq.eventsim.measurement.r.jobs.PushBufferToRJob;
 import edu.kit.ipd.sdq.eventsim.measurement.r.jobs.StoreRDSFileJob;
-import edu.kit.ipd.sdq.eventsim.measurement.r.launch.RConfigurationConstants;
 
 /**
  * Stores {@link Measurement}s into R using Rserve (for details on Rserve see https://rforge.net/Rserve).

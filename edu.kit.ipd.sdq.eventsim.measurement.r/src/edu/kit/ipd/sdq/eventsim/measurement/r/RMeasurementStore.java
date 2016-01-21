@@ -8,11 +8,10 @@ import org.palladiosimulator.pcm.core.entity.Entity;
 import org.rosuda.REngine.Rserve.RConnection;
 import org.rosuda.REngine.Rserve.RserveException;
 
-import edu.kit.ipd.sdq.eventsim.components.AbstractComponentFacade;
-import edu.kit.ipd.sdq.eventsim.measurement.PropertyExtractor;
 import edu.kit.ipd.sdq.eventsim.measurement.Measurement;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 import edu.kit.ipd.sdq.eventsim.measurement.Pair;
+import edu.kit.ipd.sdq.eventsim.measurement.PropertyExtractor;
 import edu.kit.ipd.sdq.eventsim.measurement.r.jobs.FinalizeRProcessingJob;
 import edu.kit.ipd.sdq.eventsim.measurement.r.jobs.MergeBufferedDataFramesJob;
 import edu.kit.ipd.sdq.eventsim.measurement.r.jobs.PushBufferToRJob;
@@ -28,7 +27,7 @@ import edu.kit.ipd.sdq.eventsim.measurement.r.launch.RConfigurationConstants;
  * @author Philipp Merkle
  *
  */
-public class RMeasurementStore extends AbstractComponentFacade implements MeasurementStorage {
+public class RMeasurementStore implements MeasurementStorage {
 
 	static final Logger log = Logger.getLogger(RMeasurementStore.class);
 
@@ -76,8 +75,6 @@ public class RMeasurementStore extends AbstractComponentFacade implements Measur
 		rJobProcessor = new RJobProcessor(connection);
 		rJobProcessor.start();
 		buffer = new Buffer(BUFFER_CAPACITY, idExtractor, nameExtractor);
-		
-		provide(MeasurementStorage.class, this);
 	}
 
 	/**

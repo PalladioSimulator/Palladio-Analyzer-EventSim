@@ -1,5 +1,6 @@
 package edu.kit.ipd.sdq.eventsim.resources.probes.active;
 
+import de.uka.ipd.sdq.scheduler.ISchedulableProcess;
 import edu.kit.ipd.sdq.eventsim.measurement.Measurement;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasuringPoint;
 import edu.kit.ipd.sdq.eventsim.measurement.Metric;
@@ -10,7 +11,7 @@ import edu.kit.ipd.sdq.eventsim.resources.entities.SimActiveResource;
 import edu.kit.ipd.sdq.eventsim.resources.listener.IDemandListener;
 
 @Probe(type = SimActiveResource.class, property = "resource_demand")
-public class ResourceDemandProbe extends AbstractProbe<SimActiveResource, Void, ResourceProbeConfiguration> {
+public class ResourceDemandProbe extends AbstractProbe<SimActiveResource, ISchedulableProcess, ResourceProbeConfiguration> {
 
 	public ResourceDemandProbe(MeasuringPoint<SimActiveResource> p, ResourceProbeConfiguration configuration) {
 		super(p, configuration);
@@ -20,11 +21,11 @@ public class ResourceDemandProbe extends AbstractProbe<SimActiveResource, Void, 
 			resource.addDemandListener(new IDemandListener() {
 				// TODO account for instanceid in measuring point (property suffix? explicit objects?)
 				@Override
-				public void demand(double demand) {
+				public void demand(ISchedulableProcess process, double demand) {
 					// build measurement
 					double simTime = resource.getModel().getSimulationControl().getCurrentSimulationTime();
-					Measurement<SimActiveResource, Void> m = new Measurement<>(Metric.RESOURCE_DEMAND,
-							getMeasuringPoint(), null, demand, simTime);
+					Measurement<SimActiveResource, ISchedulableProcess> m = new Measurement<>(Metric.RESOURCE_DEMAND,
+							getMeasuringPoint(), process, demand, simTime);
 
 					// store
 					// cache.put(m); TODO cache not needed! --> account for in abstract superclass/constructor? or

@@ -113,7 +113,7 @@ public class SimActiveResource extends EventSimEntity {
 		schedulerResource.process(process, 1, Collections.<String, Serializable> emptyMap(), concreteDemand);
 
 		// notify demands listeners
-		fireDemand(concreteDemand);
+		fireDemand(process, concreteDemand);
 	}
 
 	protected double calculateConcreteDemand(double abstractDemand) {
@@ -183,13 +183,14 @@ public class SimActiveResource extends EventSimEntity {
 
 	/**
 	 * Notifies the demand listeners that the specified demand has been requested.
+	 * @param process 
 	 * 
 	 * @param demand
 	 *            the requested demand
 	 */
-	protected void fireDemand(double demand) {
+	protected void fireDemand(ISchedulableProcess process, double demand) {
 		for (IDemandListener l : demandListener) {
-			l.demand(demand);
+			l.demand(process, demand);
 		}
 	}
 

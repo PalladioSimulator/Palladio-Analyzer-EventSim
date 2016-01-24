@@ -11,7 +11,7 @@ import edu.kit.ipd.sdq.eventsim.measurement.calculator.AbstractBinaryCalculator;
 import edu.kit.ipd.sdq.eventsim.measurement.probe.IProbe;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
 
-@Calculator(property = "responsetime_of_external_calls", type = Pair.class, fromType = ExternalCallAction.class, toType = ExternalCallAction.class)
+@Calculator(metric = "responsetime_of_external_calls", type = Pair.class, fromType = ExternalCallAction.class, toType = ExternalCallAction.class)
 public class ResponseTimeOfExternalCallsCalculator extends
 		AbstractBinaryCalculator<Pair<ExternalCallAction, ExternalCallAction>, ExternalCallAction, ExternalCallAction, Request> {
 

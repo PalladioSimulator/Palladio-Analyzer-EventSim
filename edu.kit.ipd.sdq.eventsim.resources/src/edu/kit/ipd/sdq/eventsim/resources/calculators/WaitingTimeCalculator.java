@@ -11,7 +11,7 @@ import edu.kit.ipd.sdq.eventsim.measurement.probe.IProbe;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimPassiveResource;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimulatedProcess;
 
-@Calculator(property = "waiting_time", type = SimPassiveResource.class)
+@Calculator(metric = "waiting_time", type = SimPassiveResource.class)
 public class WaitingTimeCalculator extends
 		AbstractBinaryCalculator<SimPassiveResource, SimPassiveResource, SimPassiveResource, SimulatedProcess> {
 

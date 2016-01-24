@@ -12,7 +12,7 @@ import edu.kit.ipd.sdq.eventsim.measurement.calculator.AbstractBinaryCalculator;
 import edu.kit.ipd.sdq.eventsim.measurement.probe.IProbe;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
 
-@Calculator(property = "timespan_between_actions", type = Pair.class, fromType = AbstractAction.class, toType = AbstractAction.class)
+@Calculator(metric = "timespan_between_actions", type = Pair.class, fromType = AbstractAction.class, toType = AbstractAction.class)
 public class TimeSpanBetweenAbstractActionsCalculator extends
 		AbstractBinaryCalculator<Pair<AbstractAction, AbstractAction>, AbstractAction, AbstractAction, Request> {
 

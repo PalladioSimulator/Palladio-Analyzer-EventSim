@@ -8,11 +8,13 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Calculator {
-	
+
 	Class<?> type();
-	Class<?> fromType() default Object.class;
-	Class<?> toType() default Object.class;
-	
-	String property();
-	
+
+	Class<?> fromType() default Void.class;
+
+	Class<?> toType() default Void.class;
+
+	String metric();
+
 }

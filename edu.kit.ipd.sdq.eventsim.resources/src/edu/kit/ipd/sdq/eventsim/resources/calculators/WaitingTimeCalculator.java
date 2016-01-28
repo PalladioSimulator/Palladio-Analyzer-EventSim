@@ -6,14 +6,16 @@ import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 import edu.kit.ipd.sdq.eventsim.measurement.Measurement;
 import edu.kit.ipd.sdq.eventsim.measurement.Metric;
 import edu.kit.ipd.sdq.eventsim.measurement.annotation.Calculator;
+import edu.kit.ipd.sdq.eventsim.measurement.annotation.ProbePair;
 import edu.kit.ipd.sdq.eventsim.measurement.calculator.AbstractBinaryCalculator;
 import edu.kit.ipd.sdq.eventsim.measurement.probe.IProbe;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimPassiveResource;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimulatedProcess;
 
-@Calculator(metric = "waiting_time", type = SimPassiveResource.class)
-public class WaitingTimeCalculator extends
-		AbstractBinaryCalculator<SimPassiveResource, SimPassiveResource, SimPassiveResource, SimulatedProcess> {
+@Calculator(metric = "waiting_time", type = SimPassiveResource.class, intendedProbes = {
+		@ProbePair(from = "request", to = "aquire") })
+public class WaitingTimeCalculator
+		extends AbstractBinaryCalculator<SimPassiveResource, SimPassiveResource, SimPassiveResource, SimulatedProcess> {
 
 	private static final Logger log = Logger.getLogger(WaitingTimeCalculator.class);
 
@@ -33,7 +35,8 @@ public class WaitingTimeCalculator extends
 			if (fromMeasurement != null) {
 				notify(calculate(fromMeasurement, m));
 			} else {
-				// TODO improve warning, give hits on how to resolve this problem
+				// TODO improve warning, give hits on how to resolve this
+				// problem
 				log.warn(String.format("Could not find last measurement triggered by %s or a parent request. "
 						+ "Skipping calculation.", m.getWho()));
 			}
@@ -43,7 +46,8 @@ public class WaitingTimeCalculator extends
 
 	@Override
 	public Measurement<SimPassiveResource, SimulatedProcess> calculate(
-			Measurement<SimPassiveResource, SimulatedProcess> from, Measurement<SimPassiveResource, SimulatedProcess> to) {
+			Measurement<SimPassiveResource, SimulatedProcess> from,
+			Measurement<SimPassiveResource, SimulatedProcess> to) {
 		if (from == null) {
 			return null;
 		}
@@ -53,10 +57,12 @@ public class WaitingTimeCalculator extends
 
 		AssemblyContext assemblyCtx = from.getWhere().getElement().getAssemblyContext();
 		// TODO current position not yet accurate
-		return new Measurement<SimPassiveResource, SimulatedProcess>(Metric.WAITING_TIME, to.getWhere()
-				.withProperty("waiting_time").withAddedContexts(assemblyCtx), to.getWho(), waitingTime, when);
-		
-		// TODO add request as metadata? from.getWho().getCurrentPosition().getId()
+		return new Measurement<SimPassiveResource, SimulatedProcess>(Metric.WAITING_TIME,
+				to.getWhere().withProperty("waiting_time").withAddedContexts(assemblyCtx), to.getWho(), waitingTime,
+				when);
+
+		// TODO add request as metadata?
+		// from.getWho().getCurrentPosition().getId()
 	}
 
 }

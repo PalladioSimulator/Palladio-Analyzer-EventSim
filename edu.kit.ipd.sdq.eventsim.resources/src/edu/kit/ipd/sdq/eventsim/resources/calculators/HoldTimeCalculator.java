@@ -6,14 +6,16 @@ import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 import edu.kit.ipd.sdq.eventsim.measurement.Measurement;
 import edu.kit.ipd.sdq.eventsim.measurement.Metric;
 import edu.kit.ipd.sdq.eventsim.measurement.annotation.Calculator;
+import edu.kit.ipd.sdq.eventsim.measurement.annotation.ProbePair;
 import edu.kit.ipd.sdq.eventsim.measurement.calculator.AbstractBinaryCalculator;
 import edu.kit.ipd.sdq.eventsim.measurement.probe.IProbe;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimPassiveResource;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimulatedProcess;
 
-@Calculator(metric = "hold_time", type = SimPassiveResource.class)
-public class HoldTimeCalculator extends
-		AbstractBinaryCalculator<SimPassiveResource, SimPassiveResource, SimPassiveResource, SimulatedProcess> {
+@Calculator(metric = "hold_time", type = SimPassiveResource.class, intendedProbes = {
+		@ProbePair(from = "aquire", to = "release") })
+public class HoldTimeCalculator
+		extends AbstractBinaryCalculator<SimPassiveResource, SimPassiveResource, SimPassiveResource, SimulatedProcess> {
 
 	private static final Logger log = Logger.getLogger(HoldTimeCalculator.class);
 
@@ -33,7 +35,8 @@ public class HoldTimeCalculator extends
 			if (fromMeasurement != null) {
 				notify(calculate(fromMeasurement, m));
 			} else {
-				// TODO improve warning, give hits on how to resolve this problem
+				// TODO improve warning, give hits on how to resolve this
+				// problem
 				log.warn(String.format("Could not find last measurement triggered by %s or a parent request. "
 						+ "Skipping calculation.", m.getWho()));
 			}
@@ -43,7 +46,8 @@ public class HoldTimeCalculator extends
 
 	@Override
 	public Measurement<SimPassiveResource, SimulatedProcess> calculate(
-			Measurement<SimPassiveResource, SimulatedProcess> from, Measurement<SimPassiveResource, SimulatedProcess> to) {
+			Measurement<SimPassiveResource, SimulatedProcess> from,
+			Measurement<SimPassiveResource, SimulatedProcess> to) {
 		if (from == null) {
 			return null;
 		}
@@ -52,8 +56,8 @@ public class HoldTimeCalculator extends
 		double holdTime = to.getValue() - from.getValue();
 
 		AssemblyContext assemblyCtx = from.getWhere().getElement().getAssemblyContext();
-		return new Measurement<SimPassiveResource, SimulatedProcess>(Metric.HOLD_TIME, from.getWhere()
-				.withProperty("hold_time").withAddedContexts(assemblyCtx), to.getWho(), holdTime, when);
+		return new Measurement<SimPassiveResource, SimulatedProcess>(Metric.HOLD_TIME,
+				from.getWhere().withProperty("hold_time").withAddedContexts(assemblyCtx), to.getWho(), holdTime, when);
 	}
 
 }

@@ -7,11 +7,13 @@ import edu.kit.ipd.sdq.eventsim.measurement.MeasuringPointPair;
 import edu.kit.ipd.sdq.eventsim.measurement.Metric;
 import edu.kit.ipd.sdq.eventsim.measurement.Pair;
 import edu.kit.ipd.sdq.eventsim.measurement.annotation.Calculator;
+import edu.kit.ipd.sdq.eventsim.measurement.annotation.ProbePair;
 import edu.kit.ipd.sdq.eventsim.measurement.calculator.AbstractBinaryCalculator;
 import edu.kit.ipd.sdq.eventsim.measurement.probe.IProbe;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
 
-@Calculator(metric = "responsetime_of_external_calls", type = Pair.class, fromType = ExternalCallAction.class, toType = ExternalCallAction.class)
+@Calculator(metric = "responsetime_of_external_calls", type = Pair.class, fromType = ExternalCallAction.class, toType = ExternalCallAction.class, intendedProbes = {
+		@ProbePair(from = "before", to = "after") })
 public class ResponseTimeOfExternalCallsCalculator extends
 		AbstractBinaryCalculator<Pair<ExternalCallAction, ExternalCallAction>, ExternalCallAction, ExternalCallAction, Request> {
 
@@ -24,18 +26,19 @@ public class ResponseTimeOfExternalCallsCalculator extends
 	}
 
 	@Override
-	public Measurement<Pair<ExternalCallAction, ExternalCallAction>, Request> calculate(Measurement<ExternalCallAction, Request> from,
-			Measurement<ExternalCallAction, Request> to) {
-		if(from == null) {
+	public Measurement<Pair<ExternalCallAction, ExternalCallAction>, Request> calculate(
+			Measurement<ExternalCallAction, Request> from, Measurement<ExternalCallAction, Request> to) {
+		if (from == null) {
 			return null;
 		}
-		
+
 		double when = to.getWhen();
 		double responseTime = to.getValue() - from.getValue();
 
 		return new Measurement<Pair<ExternalCallAction, ExternalCallAction>, Request>(Metric.TIME_SPAN,
-				new MeasuringPointPair<>(from.getWhere().getElement(), to.getWhere().getElement(), "responsetime", to
-						.getWhere().getContexts()), to.getWho(), responseTime, when);
+				new MeasuringPointPair<>(from.getWhere().getElement(), to.getWhere().getElement(), "responsetime",
+						to.getWhere().getContexts()),
+				to.getWho(), responseTime, when);
 	}
 
 }

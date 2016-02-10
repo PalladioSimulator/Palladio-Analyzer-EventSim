@@ -4,11 +4,8 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.function.Function;
 
-import javax.inject.Singleton;
-
 import org.apache.log4j.Logger;
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.swt.internal.win32.MEASUREITEMSTRUCT;
 
 import de.uka.ipd.sdq.probfunction.math.IRandomGenerator;
 import de.uka.ipd.sdq.simucomframework.SimuComDefaultRandomNumberGenerator;

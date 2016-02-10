@@ -17,6 +17,7 @@ import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
 import edu.kit.ipd.sdq.eventsim.api.events.SimulationStopEvent;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementFacade;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
+import edu.kit.ipd.sdq.eventsim.measurement.osgi.BundleProbeLocator;
 import edu.kit.ipd.sdq.eventsim.resources.calculators.HoldTimeCalculator;
 import edu.kit.ipd.sdq.eventsim.resources.calculators.WaitingTimeCalculator;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimPassiveResource;
@@ -41,8 +42,8 @@ public class EventSimPassiveResourceModel extends AbstractEventSimModel implemen
 	}
 
 	public void init() {		
-		measurementFacade = new MeasurementFacade<>(new ResourceProbeConfiguration(), Activator.getContext()
-				.getBundle());
+		measurementFacade = new MeasurementFacade<>(new ResourceProbeConfiguration(),
+				new BundleProbeLocator<>(Activator.getContext().getBundle()));
 		
 		MeasurementStorage measurementStorage = getMeasurementStorage();
 		measurementStorage.addIdExtractor(SimPassiveResource.class, c -> ((SimPassiveResource)c).getSpecification().getId());

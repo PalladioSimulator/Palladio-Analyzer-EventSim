@@ -24,6 +24,7 @@ import edu.kit.ipd.sdq.eventsim.api.events.WorkloadUserFinishedEvent;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementFacade;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 import edu.kit.ipd.sdq.eventsim.measurement.Metric;
+import edu.kit.ipd.sdq.eventsim.measurement.osgi.BundleProbeLocator;
 import edu.kit.ipd.sdq.eventsim.workload.calculators.TimeSpanBetweenUserActionsCalculator;
 import edu.kit.ipd.sdq.eventsim.workload.command.usage.FindActionsInUsageScenario;
 import edu.kit.ipd.sdq.eventsim.workload.command.usage.FindAllUserActionsByType;
@@ -117,8 +118,8 @@ public class EventSimWorkloadModel extends AbstractEventSimModel implements IWor
 
 	private void setupMeasurements() {
 		// initialize measurement facade
-		measurementFacade = new MeasurementFacade<>(
-				WorkloadMeasurementConfiguration.from(this), Activator.getContext().getBundle());
+		measurementFacade = new MeasurementFacade<>(WorkloadMeasurementConfiguration.from(this),
+				new BundleProbeLocator<>(Activator.getContext().getBundle()));
 		
 		MeasurementStorage measurementStorage = getMeasurementStorage();
 		measurementStorage.addIdExtractor(User.class, c -> Long.toString(((User)c).getEntityId()));

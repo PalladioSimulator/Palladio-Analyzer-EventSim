@@ -23,6 +23,7 @@ import edu.kit.ipd.sdq.eventsim.api.events.SystemRequestFinishedEvent;
 import edu.kit.ipd.sdq.eventsim.api.events.SystemRequestSpawnEvent;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementFacade;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
+import edu.kit.ipd.sdq.eventsim.measurement.osgi.BundleProbeLocator;
 import edu.kit.ipd.sdq.eventsim.system.calculators.ResponseTimeOfExternalCallsCalculator;
 import edu.kit.ipd.sdq.eventsim.system.command.BuildComponentInstances;
 import edu.kit.ipd.sdq.eventsim.system.command.FindAssemblyContextForSystemCall;
@@ -166,8 +167,8 @@ public class EventSimSystemModel extends AbstractEventSimModel implements ISyste
 
 	private void setupMeasurements() {
 		// initialize measurement facade
-		measurementFacade = new MeasurementFacade<>(
-				SystemMeasurementConfiguration.from(this), Activator.getContext().getBundle());
+		measurementFacade = new MeasurementFacade<>(SystemMeasurementConfiguration.from(this),
+				new BundleProbeLocator<>(Activator.getContext().getBundle()));
 
 		MeasurementStorage measurementStorage = getMeasurementStorage();
 		measurementStorage.addIdExtractor(Request.class, c -> Long.toString(((Request)c).getId()));

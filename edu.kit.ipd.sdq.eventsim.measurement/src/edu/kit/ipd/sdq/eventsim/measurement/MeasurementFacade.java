@@ -3,13 +3,12 @@ package edu.kit.ipd.sdq.eventsim.measurement;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.osgi.framework.Bundle;
-
 import edu.kit.ipd.sdq.eventsim.measurement.calculator.BinaryCalculator;
 import edu.kit.ipd.sdq.eventsim.measurement.calculator.CalculatorBuilder;
 import edu.kit.ipd.sdq.eventsim.measurement.calculator.IntermediateCalculatorFrom;
 import edu.kit.ipd.sdq.eventsim.measurement.probe.IProbe;
 import edu.kit.ipd.sdq.eventsim.measurement.probe.ProbeFactory;
+import edu.kit.ipd.sdq.eventsim.measurement.probe.ProbeLocator;
 
 public class MeasurementFacade<C extends ProbeConfiguration> {
 
@@ -17,8 +16,8 @@ public class MeasurementFacade<C extends ProbeConfiguration> {
 
 	private Set<IProbe<?, ?>> existingProbesSet;
 
-	public MeasurementFacade(C configuration, Bundle bundle) {
-		this.probeFactory = new ProbeFactory<>(configuration, bundle);
+	public MeasurementFacade(C configuration, ProbeLocator<C> probeLocator) {
+		this.probeFactory = new ProbeFactory<>(configuration, probeLocator);
 		this.existingProbesSet = new HashSet<>();
 	}
 

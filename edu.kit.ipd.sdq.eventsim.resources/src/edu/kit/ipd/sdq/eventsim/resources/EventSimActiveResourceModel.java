@@ -29,6 +29,7 @@ import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
 import edu.kit.ipd.sdq.eventsim.entities.IEntityListener;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementFacade;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
+import edu.kit.ipd.sdq.eventsim.measurement.osgi.BundleProbeLocator;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimActiveResource;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimulatedProcess;
 import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
@@ -61,8 +62,8 @@ public class EventSimActiveResourceModel extends AbstractEventSimModel implement
 		ISimulationModel simModel = getSimulationMiddleware().getSimulationModel();
 		this.schedulingFactory = new SchedulingFactory((SchedulerModel) simModel); // TODO get rid of cast
 
-		measurementFacade = new MeasurementFacade<>(new ResourceProbeConfiguration(), Activator.getContext()
-				.getBundle());
+		measurementFacade = new MeasurementFacade<>(new ResourceProbeConfiguration(),
+				new BundleProbeLocator<>(Activator.getContext().getBundle()));
 		
 		MeasurementStorage measurementStorage = getMeasurementStorage();
 		measurementStorage.addIdExtractor(SimActiveResource.class, c -> ((SimActiveResource)c).getSpecification().getId());

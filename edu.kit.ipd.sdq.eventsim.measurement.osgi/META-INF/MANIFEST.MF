@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: EventSim Measurements OSGi
+Bundle-SymbolicName: edu.kit.ipd.sdq.eventsim.measurement.osgi
+Bundle-Version: 2.0.0.qualifier
+Require-Bundle: edu.kit.ipd.sdq.eventsim.measurement;bundle-version="2.0.0",
+ org.apache.log4j,
+ org.eclipse.osgi
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: edu.kit.ipd.sdq.eventsim.measurement.osgi

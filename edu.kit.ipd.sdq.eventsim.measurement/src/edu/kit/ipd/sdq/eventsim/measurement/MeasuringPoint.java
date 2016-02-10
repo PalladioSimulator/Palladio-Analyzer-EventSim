@@ -5,8 +5,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.palladiosimulator.pcm.core.entity.Entity;
-
 public class MeasuringPoint<E> {
 
 	private E element;
@@ -69,37 +67,9 @@ public class MeasuringPoint<E> {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("MeasuringPoint [element=").append(objectToString(element)).append(", property=")
-				.append(property).append(", contexts=").append(objectArrayToString(contexts)).append("]");
+		builder.append("MeasuringPoint [element=").append(element).append(", property=").append(property)
+				.append(", contexts=").append(Arrays.toString(contexts)).append("]");
 		return builder.toString();
-	}
-
-	private String objectToString(Object o) {
-		if (Entity.class.isInstance(o)) {
-			Entity entity = (Entity) o;
-			final StringBuilder builder = new StringBuilder();
-			builder.append(entity.getEntityName());
-			builder.append(" <");
-			builder.append(entity.eClass().getName());
-			builder.append("> ");
-			builder.append(" [ID: ");
-			builder.append(entity.getId());
-			builder.append("]");
-			return builder.toString();
-		} else {
-			return o.toString();
-		}
-	}
-
-	private String objectArrayToString(Object[] objects) {
-		StringBuilder b = new StringBuilder().append("[");
-		for (Object o : objects) {
-			b.append(objectToString(o)).append(",");
-		}
-		if (b.length() > 1)
-			b.deleteCharAt(b.length() - 1);
-		b.append("]");
-		return b.toString();
 	}
 
 	@Override

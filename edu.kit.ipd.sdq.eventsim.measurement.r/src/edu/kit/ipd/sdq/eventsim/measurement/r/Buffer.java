@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.emf.ecore.EObject;
-import org.palladiosimulator.pcm.core.entity.Entity;
 
 import edu.kit.ipd.sdq.eventsim.measurement.Measurement;
 import edu.kit.ipd.sdq.eventsim.measurement.Pair;
@@ -55,7 +54,7 @@ public class Buffer {
 		contexts = new HashMap<>();
 	}
 
-	public <F extends Entity, S extends Entity, T> void putPair(Measurement<Pair<F, S>, T> m) {
+	public <F, S> void putPair(Measurement<Pair<F, S>, ?> m) {
 		F first = m.getWhere().getElement().getFirst();
 		S second = m.getWhere().getElement().getSecond();
 		whereFirst.id[size] = idExtractors.extractFrom(first);

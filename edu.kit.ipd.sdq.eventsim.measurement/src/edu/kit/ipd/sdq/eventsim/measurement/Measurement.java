@@ -5,6 +5,16 @@ import java.util.Arrays;
 
 import org.apache.log4j.Logger;
 
+/**
+ * 
+ * @author Philipp Merkle
+ *
+ * @param <E>
+ *            the measuring point's type (i.e. the type of the probed element)
+ * @param <T>
+ *            the trigger's type (i.e. the type of the element that caused/triggered this measurement, like a
+ *            request/process/thread)
+ */
 public class Measurement<E, T> {
 
 	private static final Logger log = Logger.getLogger(Measurement.class);

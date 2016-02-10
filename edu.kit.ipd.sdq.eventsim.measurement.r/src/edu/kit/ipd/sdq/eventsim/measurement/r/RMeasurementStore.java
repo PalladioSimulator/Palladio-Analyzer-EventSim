@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.function.Function;
 
 import org.apache.log4j.Logger;
-import org.palladiosimulator.pcm.core.entity.Entity;
 import org.rosuda.REngine.Rserve.RConnection;
 import org.rosuda.REngine.Rserve.RserveException;
 
@@ -117,7 +116,7 @@ public class RMeasurementStore implements MeasurementStorage {
 	}
 
 	@Override
-	public <F extends Entity, S extends Entity, T> void putPair(Measurement<Pair<F, S>, T> m) {
+	public <F, S> void putPair(Measurement<Pair<F, S>, ?> m) {
 		buffer.putPair(m);
 		if (buffer.isFull()) {
 			rJobProcessor.enqueue(new PushBufferToRJob(buffer, bufferNumber++));

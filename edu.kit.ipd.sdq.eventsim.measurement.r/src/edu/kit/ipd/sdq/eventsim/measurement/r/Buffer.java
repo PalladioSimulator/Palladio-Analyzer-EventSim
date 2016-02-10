@@ -3,8 +3,6 @@ package edu.kit.ipd.sdq.eventsim.measurement.r;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.emf.ecore.EObject;
-
 import edu.kit.ipd.sdq.eventsim.measurement.Measurement;
 import edu.kit.ipd.sdq.eventsim.measurement.Pair;
 import edu.kit.ipd.sdq.eventsim.measurement.PropertyExtractor;
@@ -29,6 +27,7 @@ public class Buffer {
 
 	private PropertyExtractor idExtractors;
 	private PropertyExtractor nameExtractors;
+	private PropertyExtractor typeExtractors;
 
 	/**
 	 * the number of elements effectively contained in this buffer. Once this number equals the buffer size, the buffer
@@ -38,10 +37,12 @@ public class Buffer {
 
 	private final int capacity;
 
-	public Buffer(int capacity, PropertyExtractor idExtractors, PropertyExtractor nameExtractors) {
+	public Buffer(int capacity, PropertyExtractor idExtractors, PropertyExtractor nameExtractors, PropertyExtractor typeExtractors) {
 		this.capacity = capacity;
+		
 		this.idExtractors = idExtractors;
 		this.nameExtractors = nameExtractors;
+		this.typeExtractors = typeExtractors; 
 
 		what = new String[capacity];
 		whereFirst = new BufferPart(capacity);
@@ -58,10 +59,10 @@ public class Buffer {
 		F first = m.getWhere().getElement().getFirst();
 		S second = m.getWhere().getElement().getSecond();
 		whereFirst.id[size] = idExtractors.extractFrom(first);
-		whereFirst.type[size] = toTypeString(first);
+		whereFirst.type[size] = typeExtractors.extractFrom(first);
 		whereFirst.name[size] = nameExtractors.extractFrom(first);
 		whereSecond.id[size] = idExtractors.extractFrom(second);
-		whereSecond.type[size] = toTypeString(second);
+		whereSecond.type[size] = typeExtractors.extractFrom(second);
 		whereSecond.name[size] = nameExtractors.extractFrom(second);
 
 		whereProperty[size] = m.getWhere().getProperty();
@@ -70,23 +71,9 @@ public class Buffer {
 		size++;
 	}
 
-	private String toTypeString(Object o) {
-		if (EObject.class.isInstance(o)) {
-			return stripNamespace(((EObject) o).eClass().getInstanceClassName());
-
-		} else {
-			return stripNamespace(o.getClass().getName());
-		}
-	}
-
-	private String stripNamespace(String fqn) {
-		int startOfClassName = fqn.lastIndexOf(".");
-		return fqn.substring(startOfClassName + 1, fqn.length());
-	}
-
 	public <E> void put(Measurement<E, ?> m) {
 		whereFirst.id[size] = idExtractors.extractFrom(m.getWhere().getElement());
-		whereFirst.type[size] = toTypeString(m.getWhere().getElement());
+		whereFirst.type[size] = typeExtractors.extractFrom(m.getWhere().getElement());
 		whereFirst.name[size] = nameExtractors.extractFrom(m.getWhere().getElement());
 		whereSecond.id[size] = null;
 		whereSecond.type[size] = null;
@@ -101,17 +88,17 @@ public class Buffer {
 		what[size] = m.getWhat().toString();
 
 		for (Object o : m.getWhere().getContexts()) {
-			String key = toTypeString(o).toLowerCase();
+			String key = typeExtractors.extractFrom(o).toLowerCase();
 			if (!contexts.containsKey(key)) {
 				contexts.put(key, new BufferPart(capacity));
 			}
 			contexts.get(key).id[size] = idExtractors.extractFrom(o);
-			contexts.get(key).type[size] = toTypeString(o);
+			contexts.get(key).type[size] = typeExtractors.extractFrom(o);
 			contexts.get(key).name[size] = nameExtractors.extractFrom(o);
 		}
 
 		if (m.getWho() != null) {
-			who.type[size] = toTypeString(m.getWho());
+			who.type[size] = typeExtractors.extractFrom(m.getWho());
 			who.id[size] = idExtractors.extractFrom(m.getWho());
 			who.name[size] = nameExtractors.extractFrom(m.getWho());
 		} else {

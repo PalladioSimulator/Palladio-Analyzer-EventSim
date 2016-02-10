@@ -24,15 +24,17 @@ public class DefaultSimulationModule extends AbstractModule {
 		install(new EventSimWorkload());
 		install(new EventSimSystem());
 		install(new EventSimResource());
-		
-		ISimulationMiddleware middleware = new SimulationMiddleware(config);
-		bind(ISimulationMiddleware.class).toInstance(middleware);
-		
+
+		// bind measurement storage; currently fixed to RMeasurementStore
 		MeasurementStorage measurementStorage = RMeasurementStore.fromLaunchConfiguration(config.getConfigurationMap());
 		if (measurementStorage == null) {
 			throw new RuntimeException("R measurement store could not bet constructed from launch configuration.");
 		}
 		bind(MeasurementStorage.class).toInstance(measurementStorage);
+
+		// bind middleware to single instance to ensure that all simulation components use the same instance
+		ISimulationMiddleware middleware = new SimulationMiddleware(config, measurementStorage);
+		bind(ISimulationMiddleware.class).toInstance(middleware);
 	}
 
 }

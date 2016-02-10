@@ -2,10 +2,13 @@ package edu.kit.ipd.sdq.eventsim.middleware;
 
 import java.util.Observable;
 import java.util.Observer;
+import java.util.function.Function;
 
 import javax.inject.Singleton;
 
 import org.apache.log4j.Logger;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.swt.internal.win32.MEASUREITEMSTRUCT;
 
 import de.uka.ipd.sdq.probfunction.math.IRandomGenerator;
 import de.uka.ipd.sdq.simucomframework.SimuComDefaultRandomNumberGenerator;
@@ -21,6 +24,7 @@ import edu.kit.ipd.sdq.eventsim.api.events.SimulationStopEvent;
 import edu.kit.ipd.sdq.eventsim.components.events.EventManager;
 import edu.kit.ipd.sdq.eventsim.components.events.IEventHandler;
 import edu.kit.ipd.sdq.eventsim.components.events.SimulationEvent;
+import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 import edu.kit.ipd.sdq.eventsim.middleware.simulation.MaxMeasurementsStopCondition;
 import edu.kit.ipd.sdq.eventsim.middleware.simulation.SimulationModel;
 import edu.kit.ipd.sdq.eventsim.middleware.simulation.config.SimulationConfiguration;
@@ -43,10 +47,23 @@ public class SimulationMiddleware implements ISimulationMiddleware {
 	private IRandomGenerator randomNumberGenerator;
 	private EventManager eventManager;
 
-	public SimulationMiddleware(ISimulationConfiguration config) {		
+	public SimulationMiddleware(ISimulationConfiguration config, MeasurementStorage measurementStorage) {
 		eventManager = new EventManager();
 		registerEventHandler();
 		initialize(config);
+
+		// TODO find better place for the following code block: middleware?
+		measurementStorage.addTypeExtractor(EObject.class, new Function<Object, String>() {
+			@Override
+			public String apply(Object o) {
+				return stripNamespace(((EObject) o).eClass().getInstanceClassName());
+			}
+
+			private String stripNamespace(String fqn) {
+				int startOfClassName = fqn.lastIndexOf(".");
+				return fqn.substring(startOfClassName + 1, fqn.length());
+			}
+		});
 	}
 
 	private void initialize(ISimulationConfiguration config) {

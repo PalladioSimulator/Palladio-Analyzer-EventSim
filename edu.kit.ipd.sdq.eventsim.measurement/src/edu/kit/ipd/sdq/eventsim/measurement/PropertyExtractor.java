@@ -32,25 +32,18 @@ public class PropertyExtractor {
 		if (type == null) {
 			return null;
 		}
-		if (type.equals(Object.class)) {
-			return null;
-		}
 		if (contains(type)) {
 			return get(type);
 		} else {
-			Function<Object, String> x = extractorForType(type.getSuperclass());
-			if (x != null) {
-				return x;
-			}
-
 			for (Class<?> iface : type.getInterfaces()) {
-				x = extractorForType(iface);
-				if (x != null) {
-					return x;
+				Function<Object, String>  extractor = extractorForType(iface);
+				if (extractor != null) {
+					return extractor;
 				}
 			}
+			return extractorForType(type.getSuperclass());
 		}
-		return null;
+		
 	}
 
 	public String extractFrom(Object o) {

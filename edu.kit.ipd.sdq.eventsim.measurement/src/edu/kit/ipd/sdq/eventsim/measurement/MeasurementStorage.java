@@ -27,6 +27,16 @@ public interface MeasurementStorage {
 	void addNameExtractor(Class<? extends Object> type, Function<Object, String> extractionFunction);
 
 	/**
+	 * @see #addIdExtractor(Class, Function)
+	 * 
+	 * @param type
+	 *            the type's class
+	 * @param extractionFunction
+	 *            the function that maps {@code type} instances to type-Strings.
+	 */
+	void addTypeExtractor(Class<? extends Object> elementClass, Function<Object, String> extractionFunction);
+
+	/**
 	 * Stores the given measurement.
 	 * 
 	 * @param m

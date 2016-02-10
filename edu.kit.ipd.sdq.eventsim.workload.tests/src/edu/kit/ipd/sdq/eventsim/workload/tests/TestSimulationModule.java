@@ -25,14 +25,15 @@ public class TestSimulationModule extends AbstractModule {
 	protected void configure() {
 		install(new EventSimWorkload());
 		install(new EventSimSystem());
-		
+
 		bind(IActiveResource.class).toInstance(Mockito.mock(IActiveResource.class));
 		bind(IPassiveResource.class).toInstance(Mockito.mock(IPassiveResource.class));
 
-		ISimulationMiddleware middleware = new SimulationMiddleware(config);
-		bind(ISimulationMiddleware.class).toInstance(middleware);
+		MeasurementStorage measurementStorage = Mockito.mock(MeasurementStorage.class);
+		bind(MeasurementStorage.class).toInstance(measurementStorage);
 
-		bind(MeasurementStorage.class).toInstance(Mockito.mock(MeasurementStorage.class));
+		ISimulationMiddleware middleware = new SimulationMiddleware(config, measurementStorage);
+		bind(ISimulationMiddleware.class).toInstance(middleware);
 	}
 
 }

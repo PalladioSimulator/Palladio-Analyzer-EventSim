@@ -38,11 +38,13 @@ public class RMeasurementStore implements MeasurementStorage {
 	private Buffer buffer;
 
 	private PropertyExtractor idExtractor;
-	
+
 	private PropertyExtractor nameExtractor;
 
+	private PropertyExtractor typeExtractor;
+
 	private RConnection connection;
-	
+
 	private RJobProcessor rJobProcessor;
 
 	private int bufferNumber;
@@ -69,10 +71,25 @@ public class RMeasurementStore implements MeasurementStorage {
 		this.rdsFilePath = rdsFilePath;
 		idExtractor = new PropertyExtractor();
 		nameExtractor = new PropertyExtractor();
+		typeExtractor = new PropertyExtractor();
 		connection = connectToR();
 		rJobProcessor = new RJobProcessor(connection);
 		rJobProcessor.start();
-		buffer = new Buffer(BUFFER_CAPACITY, idExtractor, nameExtractor);
+
+		// add simple type extractor as a default
+		typeExtractor.add(Object.class, new Function<Object, String>() {
+			@Override
+			public String apply(Object o) {
+				return stripNamespace(o.getClass().getName());
+			}
+
+			private String stripNamespace(String fqn) {
+				int startOfClassName = fqn.lastIndexOf(".");
+				return fqn.substring(startOfClassName + 1, fqn.length());
+			}
+		});
+		
+		buffer = new Buffer(BUFFER_CAPACITY, idExtractor, nameExtractor, typeExtractor);
 	}
 
 	/**
@@ -100,10 +117,15 @@ public class RMeasurementStore implements MeasurementStorage {
 	public void addIdExtractor(Class<? extends Object> elementClass, Function<Object, String> extractionFunction) {
 		idExtractor.add(elementClass, extractionFunction);
 	}
-	
+
 	@Override
 	public void addNameExtractor(Class<? extends Object> elementClass, Function<Object, String> extractionFunction) {
 		nameExtractor.add(elementClass, extractionFunction);
+	}
+
+	@Override
+	public void addTypeExtractor(Class<? extends Object> elementClass, Function<Object, String> extractionFunction) {
+		typeExtractor.add(elementClass, extractionFunction);
 	}
 
 	@Override
@@ -111,7 +133,7 @@ public class RMeasurementStore implements MeasurementStorage {
 		buffer.put(m);
 		if (buffer.isFull()) {
 			rJobProcessor.enqueue(new PushBufferToRJob(buffer, bufferNumber++));
-			buffer = new Buffer(BUFFER_CAPACITY, idExtractor, nameExtractor);
+			buffer = new Buffer(BUFFER_CAPACITY, idExtractor, nameExtractor, typeExtractor);
 		}
 	}
 
@@ -120,7 +142,7 @@ public class RMeasurementStore implements MeasurementStorage {
 		buffer.putPair(m);
 		if (buffer.isFull()) {
 			rJobProcessor.enqueue(new PushBufferToRJob(buffer, bufferNumber++));
-			buffer = new Buffer(BUFFER_CAPACITY, idExtractor, nameExtractor);
+			buffer = new Buffer(BUFFER_CAPACITY, idExtractor, nameExtractor, typeExtractor);
 		}
 	}
 
@@ -139,11 +161,11 @@ public class RMeasurementStore implements MeasurementStorage {
 
 		// wait until R processing is finished
 		rJobProcessor.waitUntilFinished();
-				
+
 		// clean up
 		// TODO really needed?
 		connection.close();
-		buffer = new Buffer(BUFFER_CAPACITY, idExtractor, nameExtractor);
+		buffer = new Buffer(BUFFER_CAPACITY, idExtractor, nameExtractor, typeExtractor);
 		bufferNumber = 0;
 	}
 
@@ -183,7 +205,7 @@ public class RMeasurementStore implements MeasurementStorage {
 					+ " attempts. Giving up now.");
 		}
 
-		// try loading "data.table" library 
+		// try loading "data.table" library
 		try {
 			connection.voidEval("library(data.table)");
 		} catch (RserveException e) {

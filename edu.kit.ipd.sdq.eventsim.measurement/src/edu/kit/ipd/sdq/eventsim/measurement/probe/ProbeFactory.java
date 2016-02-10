@@ -3,15 +3,11 @@ package edu.kit.ipd.sdq.eventsim.measurement.probe;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.EObject;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.wiring.BundleWiring;
 
@@ -46,22 +42,12 @@ public class ProbeFactory<C extends ProbeConfiguration> {
 	public <E, T> IProbe<E, T> create(E element, String property, Object... measurementContexts) {
 		// try finding a probe capable of probing elements of the given type.
 		// start with the most specific element type.
-		Class<? extends AbstractProbe<?, ?, C>> probeClass = probesMap.get(new MeasuredElementAndProperty(
-				getInstanceClass(element), property));
-		// if no probe is responsible for elements of the given type, try finding a probe for a supertype.
-		if (probeClass == null) {
-			// TODO make sure to return probe for most specific (!) super type.
-			for (Class<?> c : allSupertypes(element)) {
-				probeClass = probesMap.get(new MeasuredElementAndProperty(c, property));
-				if (probeClass != null) {
-					break;
-				}
-			}
-		}
+		Class<? extends AbstractProbe<?, ?, C>> probeClass = probeForType(element.getClass(), property);
 
 		if (probeClass == null) {
-			log.error(String.format("No probe has been found capable of measuring property \"%s\" for elements of "
-					+ "type %s", element.getClass(), property));
+			log.error(String.format(
+					"No probe has been found capable of measuring property \"%s\" for elements of " + "type %s",
+					element.getClass(), property));
 			return IProbe.nullProbe(element, property, measurementContexts);
 		}
 
@@ -78,6 +64,27 @@ public class ProbeFactory<C extends ProbeConfiguration> {
 		}
 
 		return (IProbe<E, T>) p;
+	}
+
+	private Class<? extends AbstractProbe<?, ?, C>> probeForType(Class<?> type, String property) {
+		if (type == null) {
+			return null;
+		}
+	
+		Class<? extends AbstractProbe<?, ?, C>> probeClass = probesMap
+				.get(new MeasuredElementAndProperty(type, property));
+		if (probeClass != null) {
+			return probeClass;
+		}
+	
+		// no probe responsible for elements of the given type => try finding a probe for a supertype.
+		for (Class<?> iface : type.getInterfaces()) {
+			probeClass = probesMap.get(new MeasuredElementAndProperty(iface, property));
+			if (probeClass != null) {
+				return probeClass;
+			}
+		}
+		return probeForType(type.getSuperclass(), property);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -110,35 +117,14 @@ public class ProbeFactory<C extends ProbeConfiguration> {
 						probesMap.put(new MeasuredElementAndProperty(a.type(), a.property()),
 								(Class<? extends AbstractProbe<?, ?, C>>) clazz);
 					} else {
-						log.error(String.format("Class %s carries the %s annotation but does not extend %s.",
-								className, Probe.class.getSimpleName(), AbstractProbe.class));
+						log.error(String.format("Class %s carries the %s annotation but does not extend %s.", className,
+								Probe.class.getSimpleName(), AbstractProbe.class));
 					}
 				}
 			} else {
 				log.debug("Could not locate resource " + classString + " in local bundle");
 			}
 		}
-	}
-
-	private <E> Class<?> getInstanceClass(E element) {
-		if (EObject.class.isInstance(element)) {
-			return ((EObject) element).eClass().getInstanceClass();
-		} else {
-			return element.getClass();
-		}
-	}
-
-	private <E> List<Class<?>> allSupertypes(E element) {
-		List<Class<?>> superTypes = new ArrayList<>();
-		if (EObject.class.isInstance(element)) {
-			for (EClass c : ((EObject) element).eClass().getEAllSuperTypes()) {
-				superTypes.add(c.getInstanceClass());
-			}
-		} else {
-			throw new UnsupportedOperationException();
-			// TODO implementation for regular objects
-		}
-		return superTypes;
 	}
 
 	private class MeasuredElementAndProperty {

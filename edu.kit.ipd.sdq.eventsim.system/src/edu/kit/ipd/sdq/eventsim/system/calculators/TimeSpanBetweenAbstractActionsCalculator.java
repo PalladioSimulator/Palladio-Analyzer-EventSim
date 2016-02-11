@@ -5,7 +5,6 @@ import org.palladiosimulator.pcm.seff.AbstractAction;
 
 import edu.kit.ipd.sdq.eventsim.measurement.Measurement;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasuringPointPair;
-import edu.kit.ipd.sdq.eventsim.measurement.Metric;
 import edu.kit.ipd.sdq.eventsim.measurement.Pair;
 import edu.kit.ipd.sdq.eventsim.measurement.annotation.Calculator;
 import edu.kit.ipd.sdq.eventsim.measurement.annotation.ProbePair;
@@ -55,7 +54,7 @@ public class TimeSpanBetweenAbstractActionsCalculator extends
 		double when = to.getWhen();
 		double timeDifference = to.getValue() - from.getValue();
 		
-		return new Measurement<Pair<AbstractAction, AbstractAction>, Request>(Metric.TIME_SPAN,
+		return new Measurement<Pair<AbstractAction, AbstractAction>, Request>("TIME_SPAN",
 				new MeasuringPointPair<>(from.getWhere().getElement(), to.getWhere().getElement(), "timespan", to
 						.getWhere().getContexts()), to.getWho(), timeDifference, when);
 	}

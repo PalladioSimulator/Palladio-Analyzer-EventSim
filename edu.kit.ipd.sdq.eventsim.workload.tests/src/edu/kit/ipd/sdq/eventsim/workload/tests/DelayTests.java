@@ -25,7 +25,6 @@ import edu.kit.ipd.sdq.eventsim.launch.SimulationManager;
 import edu.kit.ipd.sdq.eventsim.measurement.Measurement;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementFacade;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
-import edu.kit.ipd.sdq.eventsim.measurement.Metric;
 import edu.kit.ipd.sdq.eventsim.middleware.simulation.config.SimulationConfiguration;
 import edu.kit.ipd.sdq.eventsim.test.util.builder.BuildingContext;
 import edu.kit.ipd.sdq.eventsim.test.util.builder.ConfigurationBuilder;
@@ -77,7 +76,7 @@ public class DelayTests {
 		Delay delay = ctx.lookup(UsagemodelPackage.eINSTANCE.getDelay(), "delay");
 		MeasurementFacade<?> measurementFacade = ((EventSimWorkloadModel) manager.getWorkload()).getMeasurementFacade();
 		MeasurementStorage measurementStorage = mock(MeasurementStorage.class);
-		measurementFacade.createCalculator(new TimeSpanBetweenUserActionsCalculator(Metric.TIME_SPAN))
+		measurementFacade.createCalculator(new TimeSpanBetweenUserActionsCalculator("TIME_SPAN"))
 				.from(delay, "before").to(delay, "after").forEachMeasurement(m -> measurementStorage.putPair(m));
 
 		// run simulation
@@ -120,9 +119,9 @@ public class DelayTests {
 		Delay delay2 = ctx.lookup(UsagemodelPackage.eINSTANCE.getDelay(), "delay2");
 		MeasurementFacade<?> measurementFacade = ((EventSimWorkloadModel) manager.getWorkload()).getMeasurementFacade();
 		MeasurementStorage measurementStorage = mock(MeasurementStorage.class);
-		measurementFacade.createCalculator(new TimeSpanBetweenUserActionsCalculator(Metric.TIME_SPAN))
+		measurementFacade.createCalculator(new TimeSpanBetweenUserActionsCalculator("TIME_SPAN"))
 				.from(delay1, "before").to(delay1, "after").forEachMeasurement(m -> measurementStorage.putPair(m));
-		measurementFacade.createCalculator(new TimeSpanBetweenUserActionsCalculator(Metric.TIME_SPAN))
+		measurementFacade.createCalculator(new TimeSpanBetweenUserActionsCalculator("TIME_SPAN"))
 				.from(delay2, "before").to(delay2, "after").forEachMeasurement(m -> measurementStorage.putPair(m));
 
 		// run simulation

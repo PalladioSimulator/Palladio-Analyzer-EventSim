@@ -4,7 +4,6 @@ import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 
 import edu.kit.ipd.sdq.eventsim.measurement.Measurement;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasuringPointPair;
-import edu.kit.ipd.sdq.eventsim.measurement.Metric;
 import edu.kit.ipd.sdq.eventsim.measurement.Pair;
 import edu.kit.ipd.sdq.eventsim.measurement.annotation.Calculator;
 import edu.kit.ipd.sdq.eventsim.measurement.annotation.ProbePair;
@@ -17,9 +16,9 @@ import edu.kit.ipd.sdq.eventsim.workload.entities.User;
 public class TimeSpanBetweenUserActionsCalculator extends
 		AbstractBinaryCalculator<Pair<AbstractUserAction, AbstractUserAction>, AbstractUserAction, AbstractUserAction, User> {
 
-	private Metric metric;
+	private String metric;
 
-	public TimeSpanBetweenUserActionsCalculator(Metric metric) {
+	public TimeSpanBetweenUserActionsCalculator(String metric) {
 		this.metric = metric;
 	}
 
@@ -46,7 +45,7 @@ public class TimeSpanBetweenUserActionsCalculator extends
 		double when = to.getWhen();
 		double timeDifference = to.getValue() - from.getValue();
 
-		Metric metric = this.metric == null ? Metric.TIME_SPAN : this.metric;
+		String metric = this.metric == null ? "TIME_SPAN" : this.metric;
 		return new Measurement<Pair<AbstractUserAction, AbstractUserAction>, User>(metric,
 				new MeasuringPointPair<>(from.getWhere().getElement(), to.getWhere().getElement(), "timespan",
 						to.getWhere().getContexts()),

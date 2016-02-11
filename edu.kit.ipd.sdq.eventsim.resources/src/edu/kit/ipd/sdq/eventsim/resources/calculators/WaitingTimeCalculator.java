@@ -4,7 +4,6 @@ import org.apache.log4j.Logger;
 import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 
 import edu.kit.ipd.sdq.eventsim.measurement.Measurement;
-import edu.kit.ipd.sdq.eventsim.measurement.Metric;
 import edu.kit.ipd.sdq.eventsim.measurement.annotation.Calculator;
 import edu.kit.ipd.sdq.eventsim.measurement.annotation.ProbePair;
 import edu.kit.ipd.sdq.eventsim.measurement.calculator.AbstractBinaryCalculator;
@@ -57,7 +56,7 @@ public class WaitingTimeCalculator
 
 		AssemblyContext assemblyCtx = from.getWhere().getElement().getAssemblyContext();
 		// TODO current position not yet accurate
-		return new Measurement<SimPassiveResource, SimulatedProcess>(Metric.WAITING_TIME,
+		return new Measurement<SimPassiveResource, SimulatedProcess>("WAITING_TIME",
 				to.getWhere().withProperty("waiting_time").withAddedContexts(assemblyCtx), to.getWho(), waitingTime,
 				when);
 

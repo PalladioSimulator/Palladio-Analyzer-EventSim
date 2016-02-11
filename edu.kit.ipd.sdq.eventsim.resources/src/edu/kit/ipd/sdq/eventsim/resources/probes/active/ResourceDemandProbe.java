@@ -3,7 +3,6 @@ package edu.kit.ipd.sdq.eventsim.resources.probes.active;
 import de.uka.ipd.sdq.scheduler.ISchedulableProcess;
 import edu.kit.ipd.sdq.eventsim.measurement.Measurement;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasuringPoint;
-import edu.kit.ipd.sdq.eventsim.measurement.Metric;
 import edu.kit.ipd.sdq.eventsim.measurement.annotation.Probe;
 import edu.kit.ipd.sdq.eventsim.measurement.probe.AbstractProbe;
 import edu.kit.ipd.sdq.eventsim.resources.ResourceProbeConfiguration;
@@ -24,7 +23,7 @@ public class ResourceDemandProbe extends AbstractProbe<SimActiveResource, ISched
 				public void demand(ISchedulableProcess process, double demand) {
 					// build measurement
 					double simTime = resource.getModel().getSimulationControl().getCurrentSimulationTime();
-					Measurement<SimActiveResource, ISchedulableProcess> m = new Measurement<>(Metric.RESOURCE_DEMAND,
+					Measurement<SimActiveResource, ISchedulableProcess> m = new Measurement<>("RESOURCE_DEMAND",
 							getMeasuringPoint(), process, demand, simTime);
 
 					// store

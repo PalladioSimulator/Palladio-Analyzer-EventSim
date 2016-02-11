@@ -4,7 +4,6 @@ import org.apache.log4j.Logger;
 import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 
 import edu.kit.ipd.sdq.eventsim.measurement.Measurement;
-import edu.kit.ipd.sdq.eventsim.measurement.Metric;
 import edu.kit.ipd.sdq.eventsim.measurement.annotation.Calculator;
 import edu.kit.ipd.sdq.eventsim.measurement.annotation.ProbePair;
 import edu.kit.ipd.sdq.eventsim.measurement.calculator.AbstractBinaryCalculator;
@@ -56,7 +55,7 @@ public class HoldTimeCalculator
 		double holdTime = to.getValue() - from.getValue();
 
 		AssemblyContext assemblyCtx = from.getWhere().getElement().getAssemblyContext();
-		return new Measurement<SimPassiveResource, SimulatedProcess>(Metric.HOLD_TIME,
+		return new Measurement<SimPassiveResource, SimulatedProcess>("HOLD_TIME",
 				from.getWhere().withProperty("hold_time").withAddedContexts(assemblyCtx), to.getWho(), holdTime, when);
 	}
 

@@ -2,7 +2,6 @@ package edu.kit.ipd.sdq.eventsim.resources.probes.passive;
 
 import edu.kit.ipd.sdq.eventsim.measurement.Measurement;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasuringPoint;
-import edu.kit.ipd.sdq.eventsim.measurement.Metric;
 import edu.kit.ipd.sdq.eventsim.measurement.annotation.Probe;
 import edu.kit.ipd.sdq.eventsim.measurement.probe.AbstractProbe;
 import edu.kit.ipd.sdq.eventsim.resources.ResourceProbeConfiguration;
@@ -39,7 +38,7 @@ public class PassiveQueueLengthProbe extends AbstractProbe<SimPassiveResource, V
 				
 				long state = resource.getCapacity() - resource.getAvailable();
 				
-				Measurement<SimPassiveResource, Void> m = new Measurement<>(Metric.QUEUE_LENGTH, getMeasuringPoint()
+				Measurement<SimPassiveResource, Void> m = new Measurement<>("QUEUE_LENGTH", getMeasuringPoint()
 						.withAddedContexts(resource.getAssemblyContext()), null, state, simTime);
 
 				// store

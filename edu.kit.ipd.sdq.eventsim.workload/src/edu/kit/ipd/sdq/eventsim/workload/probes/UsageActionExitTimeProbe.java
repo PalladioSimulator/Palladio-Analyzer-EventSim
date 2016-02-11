@@ -4,7 +4,6 @@ import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 
 import edu.kit.ipd.sdq.eventsim.measurement.Measurement;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasuringPoint;
-import edu.kit.ipd.sdq.eventsim.measurement.Metric;
 import edu.kit.ipd.sdq.eventsim.measurement.annotation.Probe;
 import edu.kit.ipd.sdq.eventsim.measurement.probe.AbstractProbe;
 import edu.kit.ipd.sdq.eventsim.workload.WorkloadMeasurementConfiguration;
@@ -31,7 +30,7 @@ public class UsageActionExitTimeProbe<E extends AbstractUserAction> extends
 					public void after(AbstractUserAction action, User user, UserState state) {
 						// build measurement
 						double simTime = user.getModel().getSimulationControl().getCurrentSimulationTime();
-						Measurement<E, User> m = new Measurement<>(Metric.CURRENT_TIME, getMeasuringPoint(), user,
+						Measurement<E, User> m = new Measurement<>("CURRENT_TIME", getMeasuringPoint(), user,
 								simTime, simTime);
 
 						// store

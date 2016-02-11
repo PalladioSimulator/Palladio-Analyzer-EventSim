@@ -4,7 +4,6 @@ import org.palladiosimulator.pcm.seff.ExternalCallAction;
 
 import edu.kit.ipd.sdq.eventsim.measurement.Measurement;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasuringPointPair;
-import edu.kit.ipd.sdq.eventsim.measurement.Metric;
 import edu.kit.ipd.sdq.eventsim.measurement.Pair;
 import edu.kit.ipd.sdq.eventsim.measurement.annotation.Calculator;
 import edu.kit.ipd.sdq.eventsim.measurement.annotation.ProbePair;
@@ -35,7 +34,7 @@ public class ResponseTimeOfExternalCallsCalculator extends
 		double when = to.getWhen();
 		double responseTime = to.getValue() - from.getValue();
 
-		return new Measurement<Pair<ExternalCallAction, ExternalCallAction>, Request>(Metric.TIME_SPAN,
+		return new Measurement<Pair<ExternalCallAction, ExternalCallAction>, Request>("TIME_SPAN",
 				new MeasuringPointPair<>(from.getWhere().getElement(), to.getWhere().getElement(), "responsetime",
 						to.getWhere().getContexts()),
 				to.getWho(), responseTime, when);

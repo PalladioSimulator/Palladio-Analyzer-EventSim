@@ -19,7 +19,7 @@ public class Measurement<E, T> {
 
 	private static final Logger log = Logger.getLogger(Measurement.class);
 
-	private Metric what;
+	private Object what;
 
 	private MeasuringPoint<E> where;
 
@@ -31,7 +31,7 @@ public class Measurement<E, T> {
 
 	private Object[] metadata;
 
-	public Measurement(Metric what, MeasuringPoint<E> where, T who, double value, double when, Object... metadata) {
+	public Measurement(Object what, MeasuringPoint<E> where, T who, double value, double when, Object... metadata) {
 		this.what = what;
 		this.where = where;
 		if (who == null) {
@@ -44,7 +44,7 @@ public class Measurement<E, T> {
 		this.metadata = metadata;
 	}
 
-	public Metric getWhat() {
+	public Object getWhat() {
 		return what;
 	}
 

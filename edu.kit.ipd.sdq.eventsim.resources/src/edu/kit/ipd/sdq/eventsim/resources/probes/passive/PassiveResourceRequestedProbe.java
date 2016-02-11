@@ -2,7 +2,6 @@ package edu.kit.ipd.sdq.eventsim.resources.probes.passive;
 
 import edu.kit.ipd.sdq.eventsim.measurement.Measurement;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasuringPoint;
-import edu.kit.ipd.sdq.eventsim.measurement.Metric;
 import edu.kit.ipd.sdq.eventsim.measurement.annotation.Probe;
 import edu.kit.ipd.sdq.eventsim.measurement.probe.AbstractProbe;
 import edu.kit.ipd.sdq.eventsim.resources.ResourceProbeConfiguration;
@@ -24,7 +23,7 @@ public class PassiveResourceRequestedProbe extends
 			public void request(SimulatedProcess process, long num) {
 				double simTime = process.getModel().getSimulationControl().getCurrentSimulationTime();
 
-				Measurement<SimPassiveResource, SimulatedProcess> m = new Measurement<>(Metric.CURRENT_TIME,
+				Measurement<SimPassiveResource, SimulatedProcess> m = new Measurement<>("CURRENT_TIME",
 						getMeasuringPoint(), process, simTime, simTime);
 
 				// store

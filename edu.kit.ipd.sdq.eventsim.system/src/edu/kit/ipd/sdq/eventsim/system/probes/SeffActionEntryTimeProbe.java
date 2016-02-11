@@ -4,7 +4,6 @@ import org.palladiosimulator.pcm.seff.AbstractAction;
 
 import edu.kit.ipd.sdq.eventsim.measurement.Measurement;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasuringPoint;
-import edu.kit.ipd.sdq.eventsim.measurement.Metric;
 import edu.kit.ipd.sdq.eventsim.measurement.annotation.Probe;
 import edu.kit.ipd.sdq.eventsim.measurement.probe.AbstractProbe;
 import edu.kit.ipd.sdq.eventsim.system.SystemMeasurementConfiguration;
@@ -32,7 +31,7 @@ public class SeffActionEntryTimeProbe<E extends AbstractAction> extends
 
 						// build measurement
 						double simTime = request.getModel().getSimulationControl().getCurrentSimulationTime();
-						Measurement<E, Request> m = new Measurement<>(Metric.CURRENT_TIME, getMeasuringPoint(),
+						Measurement<E, Request> m = new Measurement<>("CURRENT_TIME", getMeasuringPoint(),
 								request, simTime, simTime);
 
 						// store

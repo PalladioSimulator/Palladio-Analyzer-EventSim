@@ -15,6 +15,7 @@ import de.uka.ipd.sdq.simulation.IStatusObserver;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimEngineFactory;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationControl;
 import de.uka.ipd.sdq.simulation.preferences.SimulationPreferencesHelper;
+import edu.kit.ipd.sdq.eventsim.SimulationConfiguration;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationConfiguration;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
 import edu.kit.ipd.sdq.eventsim.api.events.SimulationStopEvent;
@@ -24,7 +25,6 @@ import edu.kit.ipd.sdq.eventsim.components.events.SimulationEvent;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 import edu.kit.ipd.sdq.eventsim.middleware.simulation.MaxMeasurementsStopCondition;
 import edu.kit.ipd.sdq.eventsim.middleware.simulation.SimulationModel;
-import edu.kit.ipd.sdq.eventsim.middleware.simulation.config.SimulationConfiguration;
 
 /**
  * The simulation middleware is the central point of the simulation component based simulation. This component is

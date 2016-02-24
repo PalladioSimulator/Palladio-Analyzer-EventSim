@@ -3,7 +3,7 @@ package edu.kit.ipd.sdq.eventsim.launch.runconfig;
 import java.util.Map;
 
 import de.uka.ipd.sdq.codegen.simucontroller.runconfig.AbstractSimulationWorkflowConfiguration;
-import edu.kit.ipd.sdq.eventsim.middleware.simulation.config.SimulationConfiguration;
+import edu.kit.ipd.sdq.eventsim.SimulationConfiguration;
 
 /**
  * A workflow configuration which contains a simulation configuration for the

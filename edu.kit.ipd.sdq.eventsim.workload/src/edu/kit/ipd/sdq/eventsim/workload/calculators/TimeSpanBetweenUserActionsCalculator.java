@@ -18,6 +18,10 @@ public class TimeSpanBetweenUserActionsCalculator extends
 
 	private String metric;
 
+	public TimeSpanBetweenUserActionsCalculator() {
+		this("TIME_SPAN");
+	}
+	
 	public TimeSpanBetweenUserActionsCalculator(String metric) {
 		this.metric = metric;
 	}

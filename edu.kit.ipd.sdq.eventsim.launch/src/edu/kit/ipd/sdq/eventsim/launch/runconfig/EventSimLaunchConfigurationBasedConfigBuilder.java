@@ -5,7 +5,7 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 
 import de.uka.ipd.sdq.codegen.simucontroller.runconfig.AbstractSimulationLaunchConfigurationBasedConfigBuilder;
 import de.uka.ipd.sdq.workflow.launchconfig.AbstractWorkflowBasedRunConfiguration;
-import edu.kit.ipd.sdq.eventsim.middleware.simulation.config.SimulationConfiguration;
+import edu.kit.ipd.sdq.eventsim.SimulationConfiguration;
 
 /**
  * Creates a workflow configuration with an embedded simulation configuration

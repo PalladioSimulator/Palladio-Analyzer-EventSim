@@ -6,13 +6,13 @@ import org.apache.log4j.Logger;
 import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 import org.palladiosimulator.pcm.core.entity.Entity;
 import org.palladiosimulator.pcm.repository.OperationSignature;
-import org.palladiosimulator.pcm.seff.ExternalCallAction;
 import org.palladiosimulator.pcm.usagemodel.EntryLevelSystemCall;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
+import edu.kit.ipd.sdq.eventsim.SimulationConfiguration;
 import edu.kit.ipd.sdq.eventsim.api.IActiveResource;
 import edu.kit.ipd.sdq.eventsim.api.IPassiveResource;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
@@ -21,11 +21,11 @@ import edu.kit.ipd.sdq.eventsim.api.IUser;
 import edu.kit.ipd.sdq.eventsim.api.events.SimulationStopEvent;
 import edu.kit.ipd.sdq.eventsim.api.events.SystemRequestFinishedEvent;
 import edu.kit.ipd.sdq.eventsim.api.events.SystemRequestSpawnEvent;
-import edu.kit.ipd.sdq.eventsim.command.action.FindAllActionsByType;
+import edu.kit.ipd.sdq.eventsim.instrumentation.description.action.ActionRepresentative;
+import edu.kit.ipd.sdq.eventsim.instrumentation.injection.Instrumentor;
+import edu.kit.ipd.sdq.eventsim.instrumentation.injection.InstrumentorBuilder;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementFacade;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
-import edu.kit.ipd.sdq.eventsim.measurement.osgi.BundleProbeLocator;
-import edu.kit.ipd.sdq.eventsim.system.calculators.ResponseTimeOfExternalCallsCalculator;
 import edu.kit.ipd.sdq.eventsim.system.command.BuildComponentInstances;
 import edu.kit.ipd.sdq.eventsim.system.command.FindAssemblyContextForSystemCall;
 import edu.kit.ipd.sdq.eventsim.system.command.InstallExternalCallParameterHandling;
@@ -166,44 +166,26 @@ public class EventSimSystemModel extends AbstractEventSimModel implements ISyste
 	}
 
 	private void setupMeasurements() {
-		// initialize measurement facade
-		measurementFacade = new MeasurementFacade<>(SystemMeasurementConfiguration.from(this),
-				new BundleProbeLocator<>(Activator.getContext().getBundle()));
+		// create instrumentor for instrumentation description
+		// TODO get rid of cast
+		SimulationConfiguration config = (SimulationConfiguration) getSimulationMiddleware().getSimulationConfiguration();
+		Instrumentor<?, ?> instrumentor = InstrumentorBuilder
+				.buildFor(config.getPCMModel())
+				.inBundle(Activator.getContext().getBundle())
+				.withDescription(config.getInstrumentationDescription())
+				.withStorage(getMeasurementStorage())
+				.forModelType(ActionRepresentative.class)
+				.withoutMapping()
+				.createFor(SystemMeasurementConfiguration.from(this));
+		instrumentor.instrumentAll();
 
 		MeasurementStorage measurementStorage = getMeasurementStorage();
-		measurementStorage.addIdExtractor(Request.class, c -> Long.toString(((Request)c).getId()));
-		measurementStorage.addNameExtractor(Request.class, c -> ((Request)c).getName());
-		measurementStorage.addIdExtractor(ForkedRequest.class, c -> Long.toString(((ForkedRequest)c).getEntityId()));
-		measurementStorage.addNameExtractor(ForkedRequest.class, c -> ((ForkedRequest)c).getName());
-		measurementStorage.addIdExtractor(Entity.class, c -> ((Entity)c).getId());
-		measurementStorage.addNameExtractor(Entity.class, c -> ((Entity)c).getEntityName());
-		
-		// response time of external calls
-		execute(new FindAllActionsByType<>(ExternalCallAction.class)).forEach(
-				call -> measurementFacade.createCalculator(new ResponseTimeOfExternalCallsCalculator())
-						.from(call.getAction(), "before", call.getAssemblyContext())
-						.to(call.getAction(), "after", call.getAssemblyContext())
-						.forEachMeasurement(m -> measurementStorage.putPair(m)));
-		
-//		// calculation time of internal actions [just as a proof of concept] 
-//		execute(new FindAllActionsByType<>(InternalAction.class)).forEach(
-//				action -> measurementFacade.createCalculator(new TimeSpanBetweenAbstractActionsCalculator())
-//						.from(action.getAction(), "before", action.getAssemblyContext())
-//						.to(action.getAction(), "after", action.getAssemblyContext())
-//						.forEachMeasurement(m -> getSimulationMiddleware().getMeasurementStore().putPair(m)));
-		
-		// calculation time between two specific internal actions (one inside a fork) [just as a proof of concept]
-//		Optional<ActionContext<InternalAction>> a1 = execute(new FindAllActionsByType<>(InternalAction.class)).stream()
-//				.filter(ctx -> ctx.getAction().getId().equals("_0eyYUCHjEd6ZSMvOJK-6LQ")).findFirst();
-//		
-//		AssemblyContext assCtx = a1.get().getAssemblyContext();
-//		
-//		Optional<ActionContext<InternalAction>> a2 = execute(new FindAllActionsByType<>(InternalAction.class)).stream()
-//				.filter(ctx -> ctx.getAction().getId().equals("_SljAsG0GEeWoctSuxfGXbw")).findFirst();
-//		
-//		measurementFacade.createCalculator(new TimeSpanBetweenAbstractActionsCalculator())
-//				.from(a1.get().getAction(), "before", assCtx).to(a2.get().getAction(), "after", assCtx)
-//				.forEachMeasurement(m -> System.out.println("-> " + m));
+		measurementStorage.addIdExtractor(Request.class, c -> Long.toString(((Request) c).getId()));
+		measurementStorage.addNameExtractor(Request.class, c -> ((Request) c).getName());
+		measurementStorage.addIdExtractor(ForkedRequest.class, c -> Long.toString(((ForkedRequest) c).getEntityId()));
+		measurementStorage.addNameExtractor(ForkedRequest.class, c -> ((ForkedRequest) c).getName());
+		measurementStorage.addIdExtractor(Entity.class, c -> ((Entity) c).getId());
+		measurementStorage.addNameExtractor(Entity.class, c -> ((Entity) c).getEntityName());
 	}
 
 	public SeffBehaviourInterpreter getSeffInterpreter() {

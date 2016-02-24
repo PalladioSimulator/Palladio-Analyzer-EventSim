@@ -4,9 +4,6 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
-import org.palladiosimulator.pcm.usagemodel.EntryLevelSystemCall;
-import org.palladiosimulator.pcm.usagemodel.Start;
-import org.palladiosimulator.pcm.usagemodel.Stop;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -15,19 +12,18 @@ import de.uka.ipd.sdq.probfunction.math.IProbabilityFunctionFactory;
 import de.uka.ipd.sdq.probfunction.math.impl.ProbabilityFunctionFactoryImpl;
 import de.uka.ipd.sdq.simucomframework.variables.cache.StoExCache;
 import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
+import edu.kit.ipd.sdq.eventsim.SimulationConfiguration;
 import edu.kit.ipd.sdq.eventsim.api.IRequest;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
 import edu.kit.ipd.sdq.eventsim.api.ISystem;
 import edu.kit.ipd.sdq.eventsim.api.IWorkload;
 import edu.kit.ipd.sdq.eventsim.api.events.SystemRequestFinishedEvent;
 import edu.kit.ipd.sdq.eventsim.api.events.WorkloadUserFinishedEvent;
-import edu.kit.ipd.sdq.eventsim.command.useraction.FindActionsInUsageScenario;
-import edu.kit.ipd.sdq.eventsim.command.useraction.FindAllUserActionsByType;
-import edu.kit.ipd.sdq.eventsim.command.useraction.FindUsageScenarios;
+import edu.kit.ipd.sdq.eventsim.instrumentation.description.useraction.UserActionRepresentative;
+import edu.kit.ipd.sdq.eventsim.instrumentation.injection.Instrumentor;
+import edu.kit.ipd.sdq.eventsim.instrumentation.injection.InstrumentorBuilder;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementFacade;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
-import edu.kit.ipd.sdq.eventsim.measurement.osgi.BundleProbeLocator;
-import edu.kit.ipd.sdq.eventsim.workload.calculators.TimeSpanBetweenUserActionsCalculator;
 import edu.kit.ipd.sdq.eventsim.workload.debug.DebugUsageTraversalListener;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
 import edu.kit.ipd.sdq.eventsim.workload.events.ResumeUsageTraversalEvent;
@@ -116,33 +112,46 @@ public class EventSimWorkloadModel extends AbstractEventSimModel implements IWor
 	}
 
 	private void setupMeasurements() {
-		// initialize measurement facade
-		measurementFacade = new MeasurementFacade<>(WorkloadMeasurementConfiguration.from(this),
-				new BundleProbeLocator<>(Activator.getContext().getBundle()));
-		
+		// create instrumentor for instrumentation description
+		// TODO get rid of cast (and middleware/simulation dependencies)
+		SimulationConfiguration config = (SimulationConfiguration) getSimulationMiddleware().getSimulationConfiguration();
+		Instrumentor<?, ?> instrumentor = InstrumentorBuilder
+				.buildFor(config.getPCMModel())
+				.inBundle(Activator.getContext().getBundle())
+				.withDescription(config.getInstrumentationDescription())
+				.withStorage(getMeasurementStorage())
+				.forModelType(UserActionRepresentative.class)
+				.withoutMapping()
+				.createFor(WorkloadMeasurementConfiguration.from(this));
+		instrumentor.instrumentAll();
+
 		MeasurementStorage measurementStorage = getMeasurementStorage();
 		measurementStorage.addIdExtractor(User.class, c -> Long.toString(((User)c).getEntityId()));
 		measurementStorage.addNameExtractor(User.class, c -> ((User)c).getName());
 		measurementStorage.addIdExtractor(AbstractUserAction.class, c -> ((AbstractUserAction)c).getId());
 		measurementStorage.addNameExtractor(AbstractUserAction.class, c -> ((AbstractUserAction)c).getEntityName());
-
-		// response time of system calls
-		execute(new FindAllUserActionsByType<>(EntryLevelSystemCall.class)).forEach(
-				call -> measurementFacade
-						.createCalculator(new TimeSpanBetweenUserActionsCalculator("RESPONSE_TIME"))
-						.from(call, "before").to(call, "after")
-						.forEachMeasurement(m -> measurementStorage.putPair(m)));
-
-		// response time of usage scenarios
-		execute(new FindUsageScenarios()).forEach(scenario -> {
-			// TODO recursive vs. non-recursive
-				Start start = execute(new FindActionsInUsageScenario<>(scenario, Start.class, false)).get(0);
-				Stop stop = execute(new FindActionsInUsageScenario<>(scenario, Stop.class, false)).get(0);
-				measurementFacade.createCalculator(new TimeSpanBetweenUserActionsCalculator("RESPONSE_TIME"))
-						.from(start, "before").to(stop, "after")
-						.forEachMeasurement(m -> measurementStorage.putPair(m));
-				// TODO redefine measurement point (Start/Stop --> UsageScenario)
-			});
+		
+//		// initialize measurement facade
+//		measurementFacade = new MeasurementFacade<>(WorkloadMeasurementConfiguration.from(this),
+//				new BundleProbeLocator<>(Activator.getContext().getBundle()));
+//
+//		// response time of system calls
+//		execute(new FindAllUserActionsByType<>(EntryLevelSystemCall.class)).forEach(
+//				call -> measurementFacade
+//						.createCalculator(new TimeSpanBetweenUserActionsCalculator("RESPONSE_TIME"))
+//						.from(call, "before").to(call, "after")
+//						.forEachMeasurement(m -> measurementStorage.putPair(m)));
+//
+//		// response time of usage scenarios
+//		execute(new FindUsageScenarios()).forEach(scenario -> {
+//			// TODO recursive vs. non-recursive
+//				Start start = execute(new FindActionsInUsageScenario<>(scenario, Start.class, false)).get(0);
+//				Stop stop = execute(new FindActionsInUsageScenario<>(scenario, Stop.class, false)).get(0);
+//				measurementFacade.createCalculator(new TimeSpanBetweenUserActionsCalculator("RESPONSE_TIME"))
+//						.from(start, "before").to(stop, "after")
+//						.forEachMeasurement(m -> measurementStorage.putPair(m));
+//				// TODO redefine measurement point (Start/Stop --> UsageScenario)
+//			});
 
 	}
 

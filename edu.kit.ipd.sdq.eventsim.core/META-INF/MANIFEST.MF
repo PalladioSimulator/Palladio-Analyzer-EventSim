@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: EventSim Core
-Bundle-SymbolicName: edu.kit.ipd.sdq.eventsim.core
+Bundle-SymbolicName: edu.kit.ipd.sdq.eventsim.core;singleton:=true
 Bundle-Version: 2.0.0.qualifier
 Require-Bundle: de.uka.ipd.sdq.simucomframework.simucomstatus;bundle-version="1.0.0",
  org.apache.log4j;bundle-version="1.2.15";visibility:=reexport,
@@ -11,7 +11,10 @@ Require-Bundle: de.uka.ipd.sdq.simucomframework.simucomstatus;bundle-version="1.
  org.palladiosimulator.pcm;bundle-version="4.0.0",
  edu.kit.ipd.sdq.eventsim.api;bundle-version="2.0.0",
  edu.kit.ipd.sdq.eventsim.components;bundle-version="2.0.0",
- edu.kit.ipd.sdq.eventsim.measurement;bundle-version="2.0.0"
+ de.uka.ipd.sdq.simulation,
+ edu.kit.ipd.sdq.eventsim.instrumentation.description,
+ edu.kit.ipd.sdq.eventsim.measurement,
+ org.eclipse.gmf.runtime.emf.core
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: edu.kit.ipd.sdq.eventsim,
  edu.kit.ipd.sdq.eventsim.command,

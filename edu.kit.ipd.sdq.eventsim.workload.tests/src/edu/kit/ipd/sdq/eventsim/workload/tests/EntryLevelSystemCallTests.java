@@ -30,9 +30,9 @@ import org.palladiosimulator.pcm.usagemodel.UsageScenario;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
+import edu.kit.ipd.sdq.eventsim.SimulationConfiguration;
 import edu.kit.ipd.sdq.eventsim.api.PCMModel;
 import edu.kit.ipd.sdq.eventsim.launch.SimulationManager;
-import edu.kit.ipd.sdq.eventsim.middleware.simulation.config.SimulationConfiguration;
 import edu.kit.ipd.sdq.eventsim.test.util.Tracer;
 import edu.kit.ipd.sdq.eventsim.test.util.builder.BuildingContext;
 import edu.kit.ipd.sdq.eventsim.test.util.builder.ConfigurationBuilder;

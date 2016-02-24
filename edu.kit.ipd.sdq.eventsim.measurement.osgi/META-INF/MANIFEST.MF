@@ -6,6 +6,6 @@ Bundle-Version: 2.0.0.qualifier
 Require-Bundle: edu.kit.ipd.sdq.eventsim.measurement;bundle-version="2.0.0",
  org.apache.log4j,
  org.eclipse.osgi,
- edu.kit.ipd.sdq.eventsim.instrumentation.utils;bundle-version="1.0.0"
+ edu.kit.ipd.sdq.eventsim.instrumentation.utils
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: edu.kit.ipd.sdq.eventsim.measurement.osgi

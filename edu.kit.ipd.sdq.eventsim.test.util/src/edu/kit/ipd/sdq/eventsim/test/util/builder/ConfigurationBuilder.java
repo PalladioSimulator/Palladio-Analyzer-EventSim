@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import de.uka.ipd.sdq.simulation.AbstractSimulationConfig;
+import edu.kit.ipd.sdq.eventsim.SimulationConfiguration;
 import edu.kit.ipd.sdq.eventsim.api.PCMModel;
-import edu.kit.ipd.sdq.eventsim.middleware.simulation.config.SimulationConfiguration;
 
 /**
  * Builds {@link SimulationConfiguration} instances.

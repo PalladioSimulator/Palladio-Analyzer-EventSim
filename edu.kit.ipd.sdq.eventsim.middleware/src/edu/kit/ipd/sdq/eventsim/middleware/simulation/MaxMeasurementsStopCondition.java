@@ -1,8 +1,8 @@
 package edu.kit.ipd.sdq.eventsim.middleware.simulation;
 
 import de.uka.ipd.sdq.simulation.abstractsimengine.SimCondition;
+import edu.kit.ipd.sdq.eventsim.SimulationConfiguration;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
-import edu.kit.ipd.sdq.eventsim.middleware.simulation.config.SimulationConfiguration;
 
 /**
  * Stop condition which stops the simulation based on the amount of processed

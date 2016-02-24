@@ -1,10 +1,11 @@
-package edu.kit.ipd.sdq.eventsim.middleware.simulation.config;
+package edu.kit.ipd.sdq.eventsim;
 
 import java.util.Map;
 
 import de.uka.ipd.sdq.simulation.AbstractSimulationConfig;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationConfiguration;
 import edu.kit.ipd.sdq.eventsim.api.PCMModel;
+import edu.kit.ipd.sdq.eventsim.instrumentation.description.core.InstrumentationDescription;
 
 /**
  * A configuration object for a simulation component based advanced simulator
@@ -22,6 +23,8 @@ public class SimulationConfiguration extends AbstractSimulationConfig implements
 	private Map<String, Object> configMap;
 	
     private PCMModel model;
+    
+    private InstrumentationDescription instrumentationDescription;
 
 	public SimulationConfiguration(Map<String, Object> configuration, boolean debug) {
 		super(configuration, debug);
@@ -45,6 +48,14 @@ public class SimulationConfiguration extends AbstractSimulationConfig implements
 
 	public void setModel(PCMModel model) {
 		this.model = model;
+	}
+	
+	public void setInstrumentationDescription(InstrumentationDescription instrumentationDescription) {
+		this.instrumentationDescription = instrumentationDescription;
+	}
+	
+	public InstrumentationDescription getInstrumentationDescription() {
+		return instrumentationDescription;
 	}
 	
 }

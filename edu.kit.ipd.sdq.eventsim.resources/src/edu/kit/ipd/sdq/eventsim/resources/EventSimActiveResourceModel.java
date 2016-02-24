@@ -21,15 +21,17 @@ import de.uka.ipd.sdq.scheduler.factory.SchedulingFactory;
 import de.uka.ipd.sdq.scheduler.resources.active.AbstractActiveResource;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
+import edu.kit.ipd.sdq.eventsim.SimulationConfiguration;
 import edu.kit.ipd.sdq.eventsim.api.IActiveResource;
 import edu.kit.ipd.sdq.eventsim.api.IRequest;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
 import edu.kit.ipd.sdq.eventsim.api.events.SimulationStopEvent;
 import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
 import edu.kit.ipd.sdq.eventsim.entities.IEntityListener;
-import edu.kit.ipd.sdq.eventsim.measurement.MeasurementFacade;
+import edu.kit.ipd.sdq.eventsim.instrumentation.description.resource.ActiveResourceRep;
+import edu.kit.ipd.sdq.eventsim.instrumentation.injection.Instrumentor;
+import edu.kit.ipd.sdq.eventsim.instrumentation.injection.InstrumentorBuilder;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
-import edu.kit.ipd.sdq.eventsim.measurement.osgi.BundleProbeLocator;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimActiveResource;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimulatedProcess;
 import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
@@ -47,7 +49,7 @@ public class EventSimActiveResourceModel extends AbstractEventSimModel implement
 	// TODO extract class
 	private Map<IRequest, SimulatedProcess> requestToSimulatedProcessMap;
 
-	private MeasurementFacade<ResourceProbeConfiguration> measurementFacade;
+	private Instrumentor<SimActiveResource, ?> instrumentor;
 	
 	@Inject
 	public EventSimActiveResourceModel(ISimulationMiddleware middleware, MeasurementStorage measurementStorage) {
@@ -61,9 +63,16 @@ public class EventSimActiveResourceModel extends AbstractEventSimModel implement
 		// set up the resource scheduler
 		ISimulationModel simModel = getSimulationMiddleware().getSimulationModel();
 		this.schedulingFactory = new SchedulingFactory((SchedulerModel) simModel); // TODO get rid of cast
-
-		measurementFacade = new MeasurementFacade<>(new ResourceProbeConfiguration(),
-				new BundleProbeLocator<>(Activator.getContext().getBundle()));
+		
+		// create instrumentor for instrumentation description
+		SimulationConfiguration config = (SimulationConfiguration) getSimulationMiddleware().getSimulationConfiguration();
+		instrumentor = InstrumentorBuilder.buildFor(config.getPCMModel())
+				.inBundle(Activator.getContext().getBundle())
+				.withDescription(config.getInstrumentationDescription())
+				.withStorage(getMeasurementStorage())
+				.forModelType(ActiveResourceRep.class)
+				.withMapping((SimActiveResource r) -> new ActiveResourceRep(r.getSpecification()))
+				.createFor(new ResourceProbeConfiguration());
 		
 		MeasurementStorage measurementStorage = getMeasurementStorage();
 		measurementStorage.addIdExtractor(SimActiveResource.class, c -> ((SimActiveResource)c).getSpecification().getId());
@@ -80,20 +89,6 @@ public class EventSimActiveResourceModel extends AbstractEventSimModel implement
 //		middleware.registerEventHandler(SimulationInitEvent.class, e -> init());
 		middleware.registerEventHandler(SimulationStopEvent.class, e -> finalise());
 	}
-	
-//	private void initProbeSpecification() {
-//		ProbeSpecContext probeContext = this.getSimulationMiddleware().getProbeSpecContext();
-//		IProbeStrategyRegistry strategyRegistry = probeContext.getProbeStrategyRegistry();
-//
-//		/* RESOURCE_DEMAND */
-//		// active resources
-//		strategyRegistry.registerProbeStrategy(new TakeScheduledResourceDemandStrategy(), ProbeType.RESOURCE_DEMAND, SimActiveResource.class);
-//
-//		/* RESOURCE_STATE */
-//		// active resources
-//		strategyRegistry.registerProbeStrategy(new TakeScheduledResourceStateStrategy(), ProbeType.RESOURCE_STATE, SimActiveResource.class);
-//
-//	}
 
 	@Override
 	public void consume(IRequest request, ResourceContainer resourceContainer, ResourceType resourceType, double absoluteDemand) {
@@ -116,8 +111,6 @@ public class EventSimActiveResourceModel extends AbstractEventSimModel implement
 		      entry.getValue().deactivateResource();
 		      it.remove();
 		}
-
-		measurementFacade = null;
 		
 		AbstractActiveResource.cleanProcesses();
 	}
@@ -145,18 +138,11 @@ public class EventSimActiveResourceModel extends AbstractEventSimModel implement
 				logger.warn("Registered a resource of type " + type.getEntityName() + ", but there was already a resource of this type. The existing resource has been overwritten.");
 		}
 
+        // register the created active resource
 		this.containerToResourceMap.put(compoundKey(specification, type), resource);
 		
-		// create corresponding probe
-		MeasurementStorage measurementStorage = getMeasurementStorage();
-		measurementFacade.createProbe(resource, "queue_length").forEachMeasurement(
-				m -> measurementStorage.put(m));
-		measurementFacade.createProbe(resource, "resource_demand").forEachMeasurement(
-				m -> measurementStorage.put(m));
-
-		// initialise probe spec
-//		this.execute(new BuildActiveResourceCalculators(this, resource));
-//		this.execute(new MountActiveResourceProbes(this, resource));
+        // create probes and calculators (if requested by instrumentation description)
+		instrumentor.instrument(resource);
 	}
 
 	/**

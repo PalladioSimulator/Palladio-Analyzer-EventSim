@@ -11,15 +11,15 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
+import edu.kit.ipd.sdq.eventsim.SimulationConfiguration;
 import edu.kit.ipd.sdq.eventsim.api.IPassiveResource;
 import edu.kit.ipd.sdq.eventsim.api.IRequest;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
 import edu.kit.ipd.sdq.eventsim.api.events.SimulationStopEvent;
-import edu.kit.ipd.sdq.eventsim.measurement.MeasurementFacade;
+import edu.kit.ipd.sdq.eventsim.instrumentation.description.resource.PassiveResourceRep;
+import edu.kit.ipd.sdq.eventsim.instrumentation.injection.Instrumentor;
+import edu.kit.ipd.sdq.eventsim.instrumentation.injection.InstrumentorBuilder;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
-import edu.kit.ipd.sdq.eventsim.measurement.osgi.BundleProbeLocator;
-import edu.kit.ipd.sdq.eventsim.resources.calculators.HoldTimeCalculator;
-import edu.kit.ipd.sdq.eventsim.resources.calculators.WaitingTimeCalculator;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimPassiveResource;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimulatedProcess;
 import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
@@ -30,8 +30,8 @@ public class EventSimPassiveResourceModel extends AbstractEventSimModel implemen
     // maps (AssemblyContext ID, PassiveResource ID) -> SimPassiveResource
     private Map<String, SimPassiveResource> contextToResourceMap;
     private WeakHashMap<IRequest, SimulatedProcess> requestToSimulatedProcessMap;
-	
-    private MeasurementFacade<ResourceProbeConfiguration> measurementFacade;
+    
+	private Instrumentor<SimPassiveResource, ?> instrumentor;
     
     @Inject
 	public EventSimPassiveResourceModel(ISimulationMiddleware middleware, MeasurementStorage measurementStorage) {
@@ -41,9 +41,17 @@ public class EventSimPassiveResourceModel extends AbstractEventSimModel implemen
 		init();
 	}
 
-	public void init() {		
-		measurementFacade = new MeasurementFacade<>(new ResourceProbeConfiguration(),
-				new BundleProbeLocator<>(Activator.getContext().getBundle()));
+	public void init() {
+		// create instrumentor for instrumentation description
+		SimulationConfiguration config = (SimulationConfiguration) getSimulationMiddleware().getSimulationConfiguration();
+		instrumentor = InstrumentorBuilder
+				.buildFor(config.getPCMModel())
+				.inBundle(Activator.getContext().getBundle())
+				.withDescription(config.getInstrumentationDescription())
+				.withStorage(getMeasurementStorage())
+				.forModelType(PassiveResourceRep.class)
+				.withMapping((SimPassiveResource r) -> new PassiveResourceRep(r.getSpecification(), r.getAssemblyContext()))
+				.createFor(new ResourceProbeConfiguration());
 		
 		MeasurementStorage measurementStorage = getMeasurementStorage();
 		measurementStorage.addIdExtractor(SimPassiveResource.class, c -> ((SimPassiveResource)c).getSpecification().getId());
@@ -58,16 +66,6 @@ public class EventSimPassiveResourceModel extends AbstractEventSimModel implemen
 //		middleware.registerEventHandler(SimulationInitEvent.class, e -> init());
 		middleware.registerEventHandler(SimulationStopEvent.class, e -> finalise());
 	}
-
-//	private void initProbeSpecification() {
-//		ProbeSpecContext probeContext = this.getSimulationMiddleware().getProbeSpecContext();
-//		IProbeStrategyRegistry strategyRegistry = probeContext.getProbeStrategyRegistry();
-//
-//		/* RESOURCE_STATE */
-//		// passive resources
-//		strategyRegistry.registerProbeStrategy(new TakePassiveResourceStateStrategy(), ProbeType.RESOURCE_STATE, SimPassiveResource.class);
-//
-//	}
 
 	public boolean acquire(IRequest request, AssemblyContext assCtx, PassiveResource specification, int num) {
         SimPassiveResource res = this.getPassiveResource(specification, assCtx);
@@ -85,8 +83,6 @@ public class EventSimPassiveResourceModel extends AbstractEventSimModel implemen
 		super.finalise();
 		
 		contextToResourceMap.clear();
-		
-		measurementFacade = null;
 	}
 
 	public void release(IRequest request, AssemblyContext assCtx, PassiveResource specification, int i) {
@@ -125,16 +121,8 @@ public class EventSimPassiveResourceModel extends AbstractEventSimModel implemen
             // register the created passive resource
             contextToResourceMap.put(compoundKey(assCtx, specification), resource);
             
-    		// create probes and calculators
-    		MeasurementStorage measurementStorage = getMeasurementStorage();
-    		measurementFacade.createProbe(resource, "queue_length").forEachMeasurement(
-    				m -> measurementStorage.put(m));
-    		
-			measurementFacade.createCalculator(new HoldTimeCalculator()).from(resource, "acquire")
-					.to(resource, "release").forEachMeasurement(m -> measurementStorage.put(m));
-			
-			measurementFacade.createCalculator(new WaitingTimeCalculator()).from(resource, "request")
-					.to(resource, "acquire").forEachMeasurement(m -> measurementStorage.put(m));
+            // create probes and calculators (if requested by instrumentation description)
+            instrumentor.instrument(resource);
         }
         return contextToResourceMap.get(compoundKey(assCtx, specification));
     }

@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Specification
+Bundle-Name: EventSim Instrumentation Specification
 Bundle-SymbolicName: edu.kit.ipd.sdq.eventsim.instrumentation.specification;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: edu.kit.ipd.sdq.eventsim.instrumentation.specification.Activator

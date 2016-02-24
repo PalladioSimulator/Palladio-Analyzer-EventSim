@@ -13,11 +13,10 @@ Require-Bundle: edu.kit.ipd.sdq.eventsim.measurement,
  edu.kit.ipd.sdq.eventsim.instrumentation.utils,
  edu.kit.ipd.sdq.eventsim.api,
  edu.kit.ipd.sdq.eventsim.resources,
- org.eclipse.ui.ide
+ org.eclipse.ui.ide,
+ org.palladiosimulator.editors.dialogs;bundle-version="1.0.0",
+ de.uka.ipd.sdq.pcm.gmf.repository;bundle-version="2.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
-Import-Package: de.uka.ipd.sdq.pcm.gmf.allocation.part,
- org.eclipse.ui,
- org.eclipse.ui.part
 Export-Package: edu.kit.ipd.sdq.eventsim.instrumentation.specification.editor,
  edu.kit.ipd.sdq.eventsim.instrumentation.specification.restriction

@@ -15,7 +15,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.FileEditorInput;
 
-import de.uka.ipd.sdq.pcm.gmf.allocation.part.PalladioComponentModelCreationWizardPage;
+import de.uka.ipd.sdq.pcm.gmf.repository.part.PalladioComponentModelCreationWizardPage;
 import edu.kit.ipd.sdq.eventsim.instrumentation.description.core.InstrumentationDescription;
 import edu.kit.ipd.sdq.eventsim.instrumentation.specification.editor.InstrumentationDescriptionEditor;
 import edu.kit.ipd.sdq.eventsim.instrumentation.xml.DescriptionToXmlParser;

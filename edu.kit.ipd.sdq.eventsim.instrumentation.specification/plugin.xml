@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="restrictionUIs" name="Restriction UIs" schema="schema/restrictionUIs.exsd"/>
+
+   <extension
+         id="product"
+         point="org.eclipse.core.runtime.products">
+      <product
+            name="edu.kit.ipd.sdq.eventsim.instrumentation.specification"
+            application="org.eclipse.e4.ui.workbench.swt.E4Application">
+         <property
+               name="applicationCSS"
+               value="platform:/plugin/edu.kit.ipd.sdq.eventsim.instrumentation.specification/css/default.css">
+         </property>
+      </product>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="edu.kit.ipd.sdq.eventsim.instrumentation.specification.editor.InstrumentationDescriptionEditor"
+            default="true"
+            extensions="eventsim_instrumentation"
+            icon="icons/icon-editor-alt.png"
+            id="edu.kit.ipd.sdq.eventsim.instrumentation.specification.ideditor"
+            name="Instrumentation Description Editor">
+      </editor>
+   </extension>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <category
+            id="edu.kit.ipd.sdq.eventsim.instrumentation.specification.WizardCategoryID"
+            name="EventSim Instrumentation">
+      </category>
+      <wizard
+            canFinishEarly="false"
+            category="edu.kit.ipd.sdq.eventsim.instrumentation.specification.WizardCategoryID"
+            class="edu.kit.ipd.sdq.eventsim.instrumentation.specification.wizard.NewDescriptionWizard"
+            hasPages="true"
+            icon="icons/icon-editor-alt.png"
+            id="edu.kit.ipd.sdq.eventsim.instrumentation.specification.wizard"
+            name="EventSim Instrumentation Description">
+      </wizard>
+   </extension>
+
+</plugin>

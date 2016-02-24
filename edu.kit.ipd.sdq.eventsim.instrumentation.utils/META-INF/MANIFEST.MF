@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: EventSim Instrumentation Utils
+Bundle-SymbolicName: edu.kit.ipd.sdq.eventsim.instrumentation.utils
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: edu.kit.ipd.sdq.eventsim.instrumentation.utils.Activator
+Require-Bundle: org.apache.log4j,
+ org.palladiosimulator.pcm,
+ edu.kit.ipd.sdq.eventsim.api
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Export-Package: edu.kit.ipd.sdq.eventsim.instrumentation.utils

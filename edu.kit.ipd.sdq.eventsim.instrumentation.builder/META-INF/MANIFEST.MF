@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: EventSim Instrumentation Builder
+Bundle-SymbolicName: edu.kit.ipd.sdq.eventsim.instrumentation.builder
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: edu.kit.ipd.sdq.eventsim.instrumentation.builder.Activator
+Require-Bundle: org.eclipse.core.runtime,
+ org.apache.log4j,
+ edu.kit.ipd.sdq.eventsim.instrumentation.description,
+ org.palladiosimulator.pcm,
+ edu.kit.ipd.sdq.eventsim.instrumentation.restrictions
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Import-Package: org.palladiosimulator.pcm.seff
+Export-Package: edu.kit.ipd.sdq.eventsim.instrumentation.builder

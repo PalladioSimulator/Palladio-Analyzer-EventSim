@@ -1,4 +1,4 @@
-package edu.kit.ipd.sdq.eventsim.workload.command.usage;
+package edu.kit.ipd.sdq.eventsim.command.useraction;
 
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 import org.palladiosimulator.pcm.usagemodel.ScenarioBehaviour;

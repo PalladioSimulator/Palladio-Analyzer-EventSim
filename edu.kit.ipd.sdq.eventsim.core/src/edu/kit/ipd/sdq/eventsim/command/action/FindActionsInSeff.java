@@ -1,4 +1,4 @@
-package edu.kit.ipd.sdq.eventsim.system.command.seff;
+package edu.kit.ipd.sdq.eventsim.command.action;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -5,8 +5,8 @@ import org.palladiosimulator.pcm.usagemodel.ScenarioBehaviour;
 import org.palladiosimulator.pcm.usagemodel.Start;
 
 import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
+import edu.kit.ipd.sdq.eventsim.command.useraction.FindActionInUsageBehaviour;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalInstruction;
-import edu.kit.ipd.sdq.eventsim.workload.command.usage.FindActionInUsageBehaviour;
 import edu.kit.ipd.sdq.eventsim.workload.interpreter.state.UserState;
 
 /**

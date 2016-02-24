@@ -5,8 +5,8 @@ import org.palladiosimulator.pcm.seff.ResourceDemandingBehaviour;
 import org.palladiosimulator.pcm.seff.StartAction;
 
 import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
+import edu.kit.ipd.sdq.eventsim.command.action.FindActionInBehaviour;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalInstruction;
-import edu.kit.ipd.sdq.eventsim.system.command.seff.FindActionInBehaviour;
 import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
 import edu.kit.ipd.sdq.eventsim.system.staticstructure.ComponentInstance;
 

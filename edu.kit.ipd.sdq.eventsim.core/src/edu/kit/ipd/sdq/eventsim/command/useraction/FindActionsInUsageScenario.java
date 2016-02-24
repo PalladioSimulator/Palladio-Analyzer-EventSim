@@ -1,4 +1,4 @@
-package edu.kit.ipd.sdq.eventsim.workload.command.usage;
+package edu.kit.ipd.sdq.eventsim.command.useraction;
 
 import java.util.ArrayList;
 import java.util.Collections;

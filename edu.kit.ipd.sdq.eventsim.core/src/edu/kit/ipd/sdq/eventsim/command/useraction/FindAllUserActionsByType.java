@@ -1,4 +1,4 @@
-package edu.kit.ipd.sdq.eventsim.workload.command.usage;
+package edu.kit.ipd.sdq.eventsim.command.useraction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +15,7 @@ import edu.kit.ipd.sdq.eventsim.command.IPCMCommand;
  * 
  * @author Philipp Merkle
  * @author Christoph Föhrdes
+ * @author Henning Schulz
  * 
  */
 public class FindAllUserActionsByType<A extends AbstractUserAction> implements IPCMCommand<List<A>> {
@@ -33,8 +34,10 @@ public class FindAllUserActionsByType<A extends AbstractUserAction> implements I
 		List<A> result = new ArrayList<>();
 
 		for (UsageScenario s : pcm.getUsageModel().getUsageScenario_UsageModel()) {
-			result.addAll(executor.execute(new FindActionsInUsageScenario<A>(s, actionType, true)));
+			executor.execute(new FindActionsInUsageScenario<A>(s, actionType, true)).stream()
+					.forEach(action -> result.add(action));
 		}
+
 		return result;
 	}
 

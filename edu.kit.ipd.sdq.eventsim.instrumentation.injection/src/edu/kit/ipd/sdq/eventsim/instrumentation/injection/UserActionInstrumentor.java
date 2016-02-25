@@ -94,7 +94,7 @@ public class UserActionInstrumentor<C extends ProbeConfiguration>
 			// Set the from- and to-probe
 			measurementFacade.createCalculator(calculator)
 					.from(action.getRepresentedUserAction(), calculatorRep.getFromProbe().getMeasuredProperty())
-					.to(action.getRepresentedUserAction(), calculatorRep.getFromProbe().getMeasuredProperty());
+					.to(action.getRepresentedUserAction(), calculatorRep.getToProbe().getMeasuredProperty());
 
 			Calculator annotation = calculator.getClass().getAnnotation(Calculator.class);
 

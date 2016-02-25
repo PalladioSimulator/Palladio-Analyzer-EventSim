@@ -95,7 +95,7 @@ public class ActionInstrumentor<C extends ProbeConfiguration> implements Instrum
 			measurementFacade.createCalculator(calculator)
 					.from(action.getRepresentedAction(), calculatorRep.getFromProbe().getMeasuredProperty(),
 							action.getAssemblyContext())
-					.to(action.getRepresentedAction(), calculatorRep.getFromProbe().getMeasuredProperty(),
+					.to(action.getRepresentedAction(), calculatorRep.getToProbe().getMeasuredProperty(),
 							action.getAssemblyContext());
 
 			Calculator annotation = calculator.getClass().getAnnotation(Calculator.class);

@@ -9,7 +9,7 @@ import edu.kit.ipd.sdq.eventsim.resources.entities.SimActiveResource;
 import edu.kit.ipd.sdq.eventsim.resources.listener.IStateListener;
 
 @Probe(type = SimActiveResource.class, property = "queue_length")
-public class QueueLengthProbe extends AbstractProbe<SimActiveResource, Void, ResourceProbeConfiguration> {
+public class QueueLengthProbe extends AbstractProbe<SimActiveResource, ResourceProbeConfiguration> {
 
 	public QueueLengthProbe(MeasuringPoint<SimActiveResource> p, ResourceProbeConfiguration configuration) {
 		super(p, configuration);
@@ -23,7 +23,7 @@ public class QueueLengthProbe extends AbstractProbe<SimActiveResource, Void, Res
 				public void stateChanged(long state, int instanceId) {
 					// build measurement
 					double simTime = resource.getModel().getSimulationControl().getCurrentSimulationTime();
-					Measurement<SimActiveResource, Void> m = new Measurement<>("QUEUE_LENGTH",
+					Measurement<SimActiveResource> m = new Measurement<>("QUEUE_LENGTH",
 							getMeasuringPoint(), null, state, simTime);
 
 					// store

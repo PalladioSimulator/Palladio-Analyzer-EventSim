@@ -25,7 +25,7 @@ import edu.kit.ipd.sdq.eventsim.resources.entities.SimPassiveResource;
  * @param <T>
  *            the type of the model calculator to probe
  */
-public class TypedInstrumentationRule<P, F, T> {
+public class TypedInstrumentationRule<P, F, T> { // TODO remove type params!?
 
 	private final InstrumentationRule decorated;
 
@@ -51,14 +51,13 @@ public class TypedInstrumentationRule<P, F, T> {
 		this.useCalculatorsOnSingleEntity = useCalculatorsOnSingleEntity;
 	}
 
-	@SuppressWarnings("unchecked")
 	public static <P> TypedInstrumentationRule<P, P, P> fromSetBasedRule(SetBasedInstrumentationRule<P, ?> rule) {
 		if (rule instanceof ActionRule || rule instanceof UserActionRule) {
 			Class<?> probedType;
 			if (rule instanceof ActionRule)
-				probedType = ((ActionRule<?>) rule).getActionType();
+				probedType = ((ActionRule) rule).getActionType();
 			else
-				probedType = ((UserActionRule<?>) rule).getUserActionType();
+				probedType = ((UserActionRule) rule).getUserActionType();
 			Class<P> typedProbeType = (Class<P>) probedType;
 			return new TypedInstrumentationRule<>(rule, typedProbeType, typedProbeType, typedProbeType, typedProbeType,
 					typedProbeType, typedProbeType, false);

@@ -58,13 +58,13 @@ public class InstrumentationDescription {
 		this.rules = rules;
 	}
 
-	public List<ActionRule<?>> getActionRules() {
-		return rules.stream().filter(rule -> (rule instanceof ActionRule)).map(rule -> (ActionRule<?>) rule)
+	public List<ActionRule> getActionRules() {
+		return rules.stream().filter(rule -> (rule instanceof ActionRule)).map(rule -> (ActionRule) rule)
 				.collect(Collectors.toList());
 	}
 
-	public List<UserActionRule<?>> getUserActionRules() {
-		return rules.stream().filter(rule -> (rule instanceof UserActionRule)).map(rule -> (UserActionRule<?>) rule)
+	public List<UserActionRule> getUserActionRules() {
+		return rules.stream().filter(rule -> (rule instanceof UserActionRule)).map(rule -> (UserActionRule) rule)
 				.collect(Collectors.toList());
 	}
 
@@ -73,16 +73,14 @@ public class InstrumentationDescription {
 				.collect(Collectors.toList());
 	}
 
-	@SuppressWarnings("unchecked")
-	public <A extends AbstractAction> List<ActionRule<? super A>> getAffectingRules(ActionRepresentative<A> action) {
-		return rules.stream().filter(rule -> rule.affects(action)).map(rule -> (ActionRule<? super A>) rule)
+	public <A extends AbstractAction> List<ActionRule> getAffectingRules(ActionRepresentative action) {
+		return rules.stream().filter(rule -> rule.affects(action)).map(rule -> (ActionRule) rule)
 				.collect(Collectors.toList());
 	}
 
-	@SuppressWarnings("unchecked")
-	public <A extends AbstractUserAction> List<UserActionRule<? super A>> getAffectingRules(
-			UserActionRepresentative<A> userAction) {
-		return rules.stream().filter(rule -> rule.affects(userAction)).map(rule -> (UserActionRule<? super A>) rule)
+	public <A extends AbstractUserAction> List<UserActionRule> getAffectingRules(
+			UserActionRepresentative userAction) {
+		return rules.stream().filter(rule -> rule.affects(userAction)).map(rule -> (UserActionRule) rule)
 				.collect(Collectors.toList());
 	}
 

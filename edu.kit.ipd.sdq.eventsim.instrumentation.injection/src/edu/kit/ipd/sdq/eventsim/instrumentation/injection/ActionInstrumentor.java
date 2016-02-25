@@ -16,7 +16,6 @@ import edu.kit.ipd.sdq.eventsim.instrumentation.description.action.ActionRule;
 import edu.kit.ipd.sdq.eventsim.instrumentation.description.core.CalculatorRepresentative;
 import edu.kit.ipd.sdq.eventsim.instrumentation.description.core.InstrumentationDescription;
 import edu.kit.ipd.sdq.eventsim.instrumentation.description.core.ProbeRepresentative;
-import edu.kit.ipd.sdq.eventsim.measurement.Measurement;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementFacade;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 import edu.kit.ipd.sdq.eventsim.measurement.Pair;
@@ -36,7 +35,7 @@ import edu.kit.ipd.sdq.eventsim.measurement.probe.IProbe;
  * @param <C>
  *            the type of the {@code ProbeConfiguration}
  */
-public class ActionInstrumentor<C extends ProbeConfiguration> implements Instrumentor<ActionRepresentative<?>, C> {
+public class ActionInstrumentor<C extends ProbeConfiguration> implements Instrumentor<ActionRepresentative, C> {
 
 	private final MeasurementStorage measurementStorage;
 	private final CalculatorFactory calculatorFactory;
@@ -55,53 +54,49 @@ public class ActionInstrumentor<C extends ProbeConfiguration> implements Instrum
 
 	@Override
 	public void instrumentAll() {
-		for (ActionRule<?> rule : description.getActionRules()) {
+		for (ActionRule rule : description.getActionRules()) {
 			for (ActionContext<?> action : executor.execute(new FindAllActionsByType<>(rule.getActionType()))) {
-				instrumentActionWithRule(new ActionRepresentative<AbstractAction>(action.getAction(),
+				instrumentActionWithRule(new ActionRepresentative(action.getAction(),
 						action.getAllocationContext(), action.getAssemblyContext()), rule);
 			}
 		}
 	}
 
 	@Override
-	public void instrument(ActionRepresentative<?> action) {
-		for (ActionRule<?> rule : description.getActionRules()) {
+	public void instrument(ActionRepresentative action) {
+		for (ActionRule rule : description.getActionRules()) {
 			instrumentActionWithRule(action, rule);
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	private <A extends AbstractAction> void instrumentActionWithRule(ActionRepresentative<?> action,
-			ActionRule<?> rule) {
+	private void instrumentActionWithRule(ActionRepresentative action,
+			ActionRule rule) {
 		if (!rule.affects(action)) {
 			return;
 		}
 
-		ActionRepresentative<A> actionRep = (ActionRepresentative<A>) action;
-		ActionRule<? super A> actionRule = (ActionRule<? super A>) rule;
+		Map<ProbeRepresentative, IProbe<AbstractAction>> createdProbes = new HashMap<>();
 
-		Map<ProbeRepresentative<? super A>, IProbe<A, ?>> createdProbes = new HashMap<>();
-
-		for (ProbeRepresentative<? super A> probeRep : actionRule.getProbes()) {
+		for (ProbeRepresentative probeRep : rule.getProbes()) {
 			// Create an EventSim probe corresponding to the probe
 			// representative of the rule
-			IProbe<A, ?> probe = measurementFacade.createProbe(actionRep.getRepresentedAction(),
-					probeRep.getMeasuredProperty(), actionRep.getAssemblyContext());
+			IProbe<AbstractAction> probe = measurementFacade.createProbe(action.getRepresentedAction(),
+					probeRep.getMeasuredProperty(), action.getAssemblyContext());
 			createdProbes.put(probeRep, probe);
 		}
 
-		for (CalculatorRepresentative<? super A, ? super A> calculatorRep : actionRule.getCalculators()) {
+		for (CalculatorRepresentative calculatorRep : rule.getCalculators()) {
 			// Instantiate the calculator
-			BinaryCalculator<?, ? super A, ? super A, ?> calculator = calculatorFactory.create(
-					calculatorRep.getMetric(), calculatorRep.getFromProbe().getProbedType(),
-					calculatorRep.getToProbe().getProbedType());
+			BinaryCalculator<AbstractAction, AbstractAction> calculator = (BinaryCalculator<AbstractAction, AbstractAction>) calculatorFactory
+					.create(calculatorRep.getMetric(), calculatorRep.getFromProbe().getProbedType(),
+							calculatorRep.getToProbe().getProbedType());
 
-			// Set the from- and to-probe
+			// Set the from- and to-probe			
 			measurementFacade.createCalculator(calculator)
-					.from(actionRep.getRepresentedAction(), calculatorRep.getFromProbe().getMeasuredProperty(),
-							actionRep.getAssemblyContext())
-					.to(actionRep.getRepresentedAction(), calculatorRep.getFromProbe().getMeasuredProperty(),
-							actionRep.getAssemblyContext());
+					.from(action.getRepresentedAction(), calculatorRep.getFromProbe().getMeasuredProperty(),
+							action.getAssemblyContext())
+					.to(action.getRepresentedAction(), calculatorRep.getFromProbe().getMeasuredProperty(),
+							action.getAssemblyContext());
 
 			Calculator annotation = calculator.getClass().getAnnotation(Calculator.class);
 
@@ -116,7 +111,7 @@ public class ActionInstrumentor<C extends ProbeConfiguration> implements Instrum
 					// TODO: error!
 				}
 
-				calculator.forEachMeasurement(m -> measurementStorage.putPair((Measurement<Pair<A, A>, ?>) m));
+				calculator.forEachMeasurement(m -> measurementStorage.put(m));
 			} else {
 				calculator.forEachMeasurement(m -> measurementStorage.put(m));
 			}
@@ -127,7 +122,7 @@ public class ActionInstrumentor<C extends ProbeConfiguration> implements Instrum
 			createdProbes.remove(calculatorRep.getToProbe());
 		}
 
-		for (Entry<ProbeRepresentative<? super A>, IProbe<A, ?>> probeEntry : createdProbes.entrySet()) {
+		for (Entry<ProbeRepresentative, IProbe<AbstractAction>> probeEntry : createdProbes.entrySet()) {
 			probeEntry.getValue().forEachMeasurement(m -> measurementStorage.put(m));
 		}
 	}

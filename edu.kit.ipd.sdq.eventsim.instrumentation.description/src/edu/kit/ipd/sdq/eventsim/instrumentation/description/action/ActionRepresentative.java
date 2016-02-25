@@ -12,32 +12,28 @@ import edu.kit.ipd.sdq.eventsim.instrumentation.description.core.Instrumentable;
  * are not stored.
  * 
  * @author Henning Schulz
- *
- * @param <A>
- *            the type of the represented action action
  * 
  * @see ActionRule
  */
-public class ActionRepresentative<A extends AbstractAction> implements Instrumentable {
+public class ActionRepresentative implements Instrumentable {
 
-	private final A representedAction;
+	private final AbstractAction representedAction;
 	private final AllocationContext allocationContext;
 	private final AssemblyContext assemblyContext;
 
-	public ActionRepresentative(A representedAction, AllocationContext allocationContext,
+	public ActionRepresentative(AbstractAction representedAction, AllocationContext allocationContext,
 			AssemblyContext assemblyContext) {
 		this.representedAction = representedAction;
 		this.allocationContext = allocationContext;
 		this.assemblyContext = assemblyContext;
 	}
 
-	public A getRepresentedAction() {
+	public AbstractAction getRepresentedAction() {
 		return representedAction;
 	}
 
-	@SuppressWarnings("unchecked")
-	public Class<? extends A> getActionType() {
-		return (Class<? extends A>) representedAction.getClass();
+	public Class<? extends AbstractAction> getActionType() {
+		return representedAction.getClass();
 	}
 
 	public AllocationContext getAllocationContext() {

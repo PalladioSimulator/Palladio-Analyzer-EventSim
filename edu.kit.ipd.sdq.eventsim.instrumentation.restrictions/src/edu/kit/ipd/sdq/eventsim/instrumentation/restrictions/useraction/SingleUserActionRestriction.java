@@ -20,7 +20,7 @@ import edu.kit.ipd.sdq.eventsim.instrumentation.description.useraction.UserActio
  */
 @Restriction(name = "Restriction to a Single User Action", instrumentableType = UserActionRepresentative.class, converter = SingleUserActionRestrictionConverter.class)
 public class SingleUserActionRestriction<A extends AbstractUserAction>
-		implements InstrumentableRestriction<UserActionRepresentative<? extends A>> {
+		implements InstrumentableRestriction<UserActionRepresentative> {
 
 	private String userActionId;
 	private Class<A> userActionType;
@@ -38,7 +38,7 @@ public class SingleUserActionRestriction<A extends AbstractUserAction>
 	}
 
 	@Override
-	public boolean exclude(UserActionRepresentative<? extends A> action) {
+	public boolean exclude(UserActionRepresentative action) {
 		return !this.userActionId.equals(action.getRepresentedUserAction().getId());
 	}
 

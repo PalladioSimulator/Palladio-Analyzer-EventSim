@@ -7,10 +7,9 @@ import edu.kit.ipd.sdq.eventsim.instrumentation.description.useraction.UserActio
 import edu.kit.ipd.sdq.eventsim.instrumentation.description.useraction.UserActionRule;
 import edu.kit.ipd.sdq.eventsim.instrumentation.specification.util.StringUtils;
 
-public class UserActionRuleUI<A extends AbstractUserAction>
-		extends SetBasedRuleUI<A, UserActionRepresentative<? extends A>, UserActionRule<A>> {
+public class UserActionRuleUI extends SetBasedRuleUI<AbstractUserAction, UserActionRepresentative, UserActionRule> {
 
-	public UserActionRuleUI(UserActionRule<A> rule, Composite parent, int style) {
+	public UserActionRuleUI(UserActionRule rule, Composite parent, int style) {
 		super(rule, parent, style);
 	}
 

@@ -8,17 +8,14 @@ import edu.kit.ipd.sdq.eventsim.instrumentation.description.core.ProbeRepresenta
  * 
  * @author Henning Schulz
  *
- * @param
- * 			<P>
- *            the probe type
  */
-public class SelectableProbe<P> {
+public class SelectableProbe {
 
-	private final ProbeRepresentative<P> probe;
+	private final ProbeRepresentative probe;
 
 	private boolean selected = false;
 
-	public SelectableProbe(ProbeRepresentative<P> probe) {
+	public SelectableProbe(ProbeRepresentative probe) {
 		this.probe = probe;
 	}
 
@@ -30,7 +27,7 @@ public class SelectableProbe<P> {
 		this.selected = selected;
 	}
 
-	public ProbeRepresentative<P> getProbe() {
+	public ProbeRepresentative getProbe() {
 		return probe;
 	}
 

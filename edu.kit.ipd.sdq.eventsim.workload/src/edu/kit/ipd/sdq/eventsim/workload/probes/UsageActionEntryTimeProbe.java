@@ -12,8 +12,8 @@ import edu.kit.ipd.sdq.eventsim.workload.interpreter.listener.IUsageTraversalLis
 import edu.kit.ipd.sdq.eventsim.workload.interpreter.state.UserState;
 
 @Probe(type = AbstractUserAction.class, property = "before")
-public class UsageActionEntryTimeProbe<E extends AbstractUserAction> extends
-		AbstractProbe<E, User, WorkloadMeasurementConfiguration> {
+public class UsageActionEntryTimeProbe<E extends AbstractUserAction>
+		extends AbstractProbe<E, WorkloadMeasurementConfiguration> {
 
 	public UsageActionEntryTimeProbe(MeasuringPoint<E> p, WorkloadMeasurementConfiguration cfg) {
 		super(p, cfg);
@@ -25,7 +25,7 @@ public class UsageActionEntryTimeProbe<E extends AbstractUserAction> extends
 					public void before(AbstractUserAction action, User user, UserState state) {
 						// build measurement
 						double simTime = user.getModel().getSimulationControl().getCurrentSimulationTime();
-						Measurement<E, User> m = new Measurement<>("CURRENT_TIME", getMeasuringPoint(),
+						Measurement<E> m = new Measurement<>("CURRENT_TIME", getMeasuringPoint(),
 								user, simTime, simTime);
 
 						// store

@@ -10,8 +10,7 @@ import edu.kit.ipd.sdq.eventsim.resources.entities.SimulatedProcess;
 import edu.kit.ipd.sdq.eventsim.resources.listener.IPassiveResourceListener;
 
 @Probe(type = SimPassiveResource.class, property = "release")
-public class PassiveResourceReleasedProbe extends
-		AbstractProbe<SimPassiveResource, SimulatedProcess, ResourceProbeConfiguration> {
+public class PassiveResourceReleasedProbe extends AbstractProbe<SimPassiveResource, ResourceProbeConfiguration> {
 
 	public PassiveResourceReleasedProbe(MeasuringPoint<SimPassiveResource> p, ResourceProbeConfiguration configuration) {
 		super(p, configuration);
@@ -26,14 +25,14 @@ public class PassiveResourceReleasedProbe extends
 
 			@Override
 			public void acquire(SimulatedProcess process, long num) {
-			// nothing to do	
+				// nothing to do
 			}
 
 			@Override
 			public void release(SimulatedProcess process, long num) {
 				double simTime = process.getModel().getSimulationControl().getCurrentSimulationTime();
 
-				Measurement<SimPassiveResource, SimulatedProcess> m = new Measurement<>("CURRENT_TIME",
+				Measurement<SimPassiveResource> m = new Measurement<>("CURRENT_TIME",
 						getMeasuringPoint(), process, simTime, simTime);
 
 				// store

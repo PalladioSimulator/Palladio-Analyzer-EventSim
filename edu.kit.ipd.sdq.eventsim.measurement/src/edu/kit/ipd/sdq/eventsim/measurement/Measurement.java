@@ -15,7 +15,7 @@ import org.apache.log4j.Logger;
  *            the trigger's type (i.e. the type of the element that caused/triggered this measurement, like a
  *            request/process/thread)
  */
-public class Measurement<E, T> {
+public class Measurement<E> {
 
 	private static final Logger log = Logger.getLogger(Measurement.class);
 
@@ -23,7 +23,7 @@ public class Measurement<E, T> {
 
 	private MeasuringPoint<E> where;
 
-	private WeakReference<T> who;
+	private WeakReference<Object> who;
 
 	private double value;
 
@@ -31,13 +31,13 @@ public class Measurement<E, T> {
 
 	private Object[] metadata;
 
-	public Measurement(Object what, MeasuringPoint<E> where, T who, double value, double when, Object... metadata) {
+	public Measurement(Object what, MeasuringPoint<E> where, Object who, double value, double when, Object... metadata) {
 		this.what = what;
 		this.where = where;
 		if (who == null) {
 			this.who = null;
 		} else {
-			this.who = new WeakReference<T>(who);
+			this.who = new WeakReference<Object>(who);
 		}
 		this.value = value;
 		this.when = when;
@@ -52,11 +52,11 @@ public class Measurement<E, T> {
 		return where;
 	}
 
-	public T getWho() {
+	public Object getWho() {
 		if (who == null) {
 			return null;
 		}
-		T trigger = who.get();
+		Object trigger = who.get();
 		if (trigger == null) {
 			log.warn("Requested measurement trigger is null. "
 					+ "Possibly the weak reference has been garbage-collected already");

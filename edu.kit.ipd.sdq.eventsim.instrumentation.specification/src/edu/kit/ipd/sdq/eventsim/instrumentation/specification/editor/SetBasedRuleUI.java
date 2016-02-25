@@ -48,10 +48,10 @@ public abstract class SetBasedRuleUI<P, I extends Instrumentable, R extends SetB
 
 	private org.eclipse.swt.widgets.List list;
 
-	private List<SelectableProbe<P>> probes;
-	private List<SelectableCalculator<P, P>> calculators;
-	private Map<String, SelectableProbe<P>> probesPerItem;
-	private Map<String, SelectableCalculator<P, P>> calculatorsPerItem;
+	private List<SelectableProbe> probes;
+	private List<SelectableCalculator> calculators;
+	private Map<String, SelectableProbe> probesPerItem;
+	private Map<String, SelectableCalculator> calculatorsPerItem;
 
 	private final R rule;
 
@@ -62,10 +62,10 @@ public abstract class SetBasedRuleUI<P, I extends Instrumentable, R extends SetB
 		this.rule = rule;
 
 		TypedInstrumentationRule<P, P, P> typedRule = TypedInstrumentationRule.fromSetBasedRule(rule);
-		probes = ProbeRepository.getProbesFor(typedRule).stream().map(p -> new SelectableProbe<>(p))
+		probes = ProbeRepository.getProbesFor(typedRule).stream().map(p -> new SelectableProbe(p))
 				.collect(Collectors.toList());
 		calculators = CalculatorRepository.getCalculatorsFor(typedRule).stream()
-				.map(c -> new SelectableCalculator<P, P>(c)).collect(Collectors.toList());
+				.map(c -> new SelectableCalculator(c)).collect(Collectors.toList());
 
 		createView();
 	}
@@ -260,17 +260,17 @@ public abstract class SetBasedRuleUI<P, I extends Instrumentable, R extends SetB
 				}
 
 				TableItem item = (TableItem) e.item;
-				SelectableProbe<P> sProbe = probesPerItem.get(item.getText());
+				SelectableProbe sProbe = probesPerItem.get(item.getText());
 
 				if (item.getChecked() && !sProbe.isSelected()) {
 					rule.addProbe(sProbe.getProbe());
 					sProbe.setSelected(true);
 					notifyDirty();
 				} else if (!item.getChecked() && sProbe.isSelected()) {
-					ProbeRepresentative<P> probeToBeRemoved = probesPerItem.get(item.getText()).getProbe();
+					ProbeRepresentative probeToBeRemoved = probesPerItem.get(item.getText()).getProbe();
 
 					for (TableItem calItem : calculatorsTable.getItems()) {
-						SelectableCalculator<P, P> cal = calculatorsPerItem.get(calItem.getText());
+						SelectableCalculator cal = calculatorsPerItem.get(calItem.getText());
 						if (cal.isSelected() && cal.getCalculator().uses(probeToBeRemoved)) {
 							MessageDialog dialog = new MessageDialog(getShell(), "Unselect Probe", null,
 									"Unselecting probe \"" + probeToBeRemoved.getMeasuredProperty()
@@ -310,14 +310,14 @@ public abstract class SetBasedRuleUI<P, I extends Instrumentable, R extends SetB
 				}
 
 				TableItem item = (TableItem) e.item;
-				SelectableCalculator<P, P> sCal = calculatorsPerItem.get(item.getText());
+				SelectableCalculator sCal = calculatorsPerItem.get(item.getText());
 
 				if (item.getChecked() && !sCal.isSelected()) {
 					rule.addCalculator(sCal.getCalculator());
 					sCal.setSelected(true);
-					SelectableProbe<P> fromProbe = probesPerItem
+					SelectableProbe fromProbe = probesPerItem
 							.get(sCal.getCalculator().getFromProbe().getMeasuredProperty());
-					SelectableProbe<P> toProbe = probesPerItem
+					SelectableProbe toProbe = probesPerItem
 							.get(sCal.getCalculator().getToProbe().getMeasuredProperty());
 
 					if (!fromProbe.isSelected()) {
@@ -368,14 +368,14 @@ public abstract class SetBasedRuleUI<P, I extends Instrumentable, R extends SetB
 
 	protected abstract String getScopeTypeName();
 
-	private Set<ProbeRepresentative<?>> getInitiallySelectedProbes() {
-		Set<ProbeRepresentative<?>> probes = new HashSet<>();
+	private Set<ProbeRepresentative> getInitiallySelectedProbes() {
+		Set<ProbeRepresentative> probes = new HashSet<>();
 		probes.addAll(rule.getProbes());
 		return probes;
 	}
 
-	private Set<CalculatorRepresentative<?, ?>> getInitiallySelectedCalculators() {
-		Set<CalculatorRepresentative<?, ?>> calculators = new HashSet<>();
+	private Set<CalculatorRepresentative> getInitiallySelectedCalculators() {
+		Set<CalculatorRepresentative> calculators = new HashSet<>();
 		calculators.addAll(rule.getCalculators());
 		return calculators;
 	}
@@ -394,10 +394,10 @@ public abstract class SetBasedRuleUI<P, I extends Instrumentable, R extends SetB
 	}
 
 	private void populateProbesTable() {
-		Set<ProbeRepresentative<?>> selectedProbes = getInitiallySelectedProbes();
+		Set<ProbeRepresentative> selectedProbes = getInitiallySelectedProbes();
 		probesPerItem = new HashMap<>();
 
-		for (SelectableProbe<P> probe : probes) {
+		for (SelectableProbe probe : probes) {
 			TableItem item = new TableItem(probesTable, SWT.NONE);
 			item.setText(probe.getProbe().getMeasuredProperty());
 			probesPerItem.put(probe.getProbe().getMeasuredProperty(), probe);
@@ -410,10 +410,10 @@ public abstract class SetBasedRuleUI<P, I extends Instrumentable, R extends SetB
 	}
 
 	private void populateCalculatorsTable() {
-		Set<CalculatorRepresentative<?, ?>> selectedCalculators = getInitiallySelectedCalculators();
+		Set<CalculatorRepresentative> selectedCalculators = getInitiallySelectedCalculators();
 		calculatorsPerItem = new HashMap<>();
 
-		for (SelectableCalculator<P, P> cal : calculators) {
+		for (SelectableCalculator cal : calculators) {
 			TableItem item = new TableItem(calculatorsTable, SWT.NONE);
 			item.setText(cal.getCalculator().getMetric() + ": from <"
 					+ cal.getCalculator().getFromProbe().getMeasuredProperty() + "> to <"

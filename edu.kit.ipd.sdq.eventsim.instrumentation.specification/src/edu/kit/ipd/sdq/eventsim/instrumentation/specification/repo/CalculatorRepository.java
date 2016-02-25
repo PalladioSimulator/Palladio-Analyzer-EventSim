@@ -22,8 +22,8 @@ public class CalculatorRepository {
 		}
 	}
 
-	public static <F, T> List<CalculatorRepresentative<F, T>> getCalculatorsFor(
-			TypedInstrumentationRule<?, F, T> rule) {
+	public static List<CalculatorRepresentative> getCalculatorsFor(
+			TypedInstrumentationRule<?, ?, ?> rule) {
 		List<Calculator> relevantCalculators;
 
 		if (rule.useCalculatorsOnSingleEntity()) {
@@ -40,23 +40,23 @@ public class CalculatorRepository {
 					.collect(Collectors.toList());
 		}
 
-		List<CalculatorRepresentative<F, T>> calculators = new ArrayList<>();
+		List<CalculatorRepresentative> calculators = new ArrayList<>();
 
 		for (Calculator c : relevantCalculators) {
-			List<ProbeRepresentative<F>> fromProbes = ProbeRepository.getCalculatorFromProbesFor(rule);
-			List<ProbeRepresentative<T>> toProbes = ProbeRepository.getCalculatorToProbesFor(rule);
+			List<ProbeRepresentative> fromProbes = ProbeRepository.getCalculatorFromProbesFor(rule);
+			List<ProbeRepresentative> toProbes = ProbeRepository.getCalculatorToProbesFor(rule);
 
 			ProbePair[] intendedProbes = c.intendedProbes();
 
 			// Compute all possible and intended combinations of calculators and
 			// probes
-			for (ProbeRepresentative<F> from : fromProbes) {
-				for (ProbeRepresentative<T> to : toProbes) {
+			for (ProbeRepresentative from : fromProbes) {
+				for (ProbeRepresentative to : toProbes) {
 					if (!from.equals(to)) {
 						for (ProbePair pair : intendedProbes) {
 							if (pair.from().equals(from.getMeasuredProperty())
 									&& pair.to().equals(to.getMeasuredProperty()))
-								calculators.add(new CalculatorRepresentative<>(c.metric(), from, to));
+								calculators.add(new CalculatorRepresentative(c.metric(), from, to));
 						}
 					}
 				}

@@ -24,9 +24,9 @@ public class InstRuleUIFactory {
 
 	public InstrumentationRuleUI createView(InstrumentationRule rule, Composite parent, int style) {
 		if (rule instanceof ActionRule) {
-			return new ActionRuleUI<>((ActionRule<?>) rule, parent, style);
+			return new ActionRuleUI((ActionRule) rule, parent, style);
 		} else if (rule instanceof UserActionRule) {
-			return new UserActionRuleUI<>((UserActionRule<?>) rule, parent, style);
+			return new UserActionRuleUI((UserActionRule) rule, parent, style);
 		} else if (rule instanceof ResourceRule) {
 			return new ResourceRuleUI<>((ResourceRule<?>) rule, parent, style);
 		}

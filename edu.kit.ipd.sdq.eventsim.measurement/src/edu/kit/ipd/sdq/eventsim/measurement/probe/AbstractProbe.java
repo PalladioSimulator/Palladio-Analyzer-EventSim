@@ -16,16 +16,14 @@ import edu.kit.ipd.sdq.eventsim.measurement.ProbeConfiguration;
  *
  * @param <E>
  *            the type of the probed element
- * @param <T>
- *            the type of the triggering element
  */
-public abstract class AbstractProbe<E, T, C extends ProbeConfiguration> implements IProbe<E, T> {
+public abstract class AbstractProbe<E, C extends ProbeConfiguration> implements IProbe<E> {
 
 	private static final Logger log = Logger.getLogger(AbstractProbe.class);
 
-	protected MeasurementCache<E, T> cache;
+	protected MeasurementCache<E> cache;
 
-	protected List<MeasurementListener<E, T>> measurementListener;
+	protected List<MeasurementListener<E>> measurementListener;
 
 	protected MeasuringPoint<E> measuringPoint;
 
@@ -41,12 +39,12 @@ public abstract class AbstractProbe<E, T, C extends ProbeConfiguration> implemen
 	}
 
 	@Override
-	public Measurement<E, T> getLastMeasurementOf(T who) {
+	public Measurement<E> getLastMeasurementOf(Object who) {
 		return cache.getLastMeasurement(who, measuringPoint);
 	}
 
 	@Override
-	public void forEachMeasurement(MeasurementListener<E, T> l) {
+	public void forEachMeasurement(MeasurementListener<E> l) {
 		measurementListener.add(l);
 	}
 
@@ -76,11 +74,6 @@ public abstract class AbstractProbe<E, T, C extends ProbeConfiguration> implemen
 		}
 	}
 
-	
-	
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -89,9 +82,6 @@ public abstract class AbstractProbe<E, T, C extends ProbeConfiguration> implemen
 		return result;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -110,17 +100,15 @@ public abstract class AbstractProbe<E, T, C extends ProbeConfiguration> implemen
 		return true;
 	}
 
-
-
-	private class DisabledCache extends MeasurementCache<E, T> {
+	private class DisabledCache extends MeasurementCache<E> {
 
 		@Override
-		public void put(Measurement<E, T> m) {
+		public void put(Measurement<E> m) {
 			// do nothing
 		}
 
 		@Override
-		public Measurement<E, T> getLastMeasurement(T trigger, MeasuringPoint<E> mp) {
+		public Measurement<E> getLastMeasurement(Object trigger, MeasuringPoint<E> mp) {
 			log.warn(String.format("Tried to retrieve a measurement for probe %s, but caching of measurements is "
 					+ "disabled for this probe.", AbstractProbe.this));
 			return null;

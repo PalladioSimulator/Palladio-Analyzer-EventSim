@@ -67,13 +67,13 @@ public class ResourceInstrumentor<R, C extends ProbeConfiguration>
 	}
 
 	private <E, P extends ResourceRepresentative> void instrumentResource(E resource, ResourceRule<P> entity) {
-		Map<ProbeRepresentative<P>, IProbe<E, ?>> createdProbes = new HashMap<>();
+		Map<ProbeRepresentative, IProbe<E>> createdProbes = new HashMap<>();
 
-		for (ProbeRepresentative<P> modelProbe : entity.getProbes()) {
+		for (ProbeRepresentative modelProbe : entity.getProbes()) {
 			createdProbes.put(modelProbe, measurementFacade.createProbe(resource, modelProbe.getMeasuredProperty()));
 		}
 
-		for (CalculatorRepresentative<P, P> modelCalculator : entity.getCalculators()) {
+		for (CalculatorRepresentative modelCalculator : entity.getCalculators()) {
 			measurementFacade.createCalculator(instantiateCalculator(resource, modelCalculator))
 					.from(resource, modelCalculator.getFromProbe().getMeasuredProperty())
 					.to(resource, modelCalculator.getToProbe().getMeasuredProperty())
@@ -83,16 +83,15 @@ public class ResourceInstrumentor<R, C extends ProbeConfiguration>
 			createdProbes.remove(modelCalculator.getToProbe());
 		}
 
-		for (Entry<ProbeRepresentative<P>, IProbe<E, ?>> probeEntry : createdProbes.entrySet()) {
+		for (Entry<ProbeRepresentative, IProbe<E>> probeEntry : createdProbes.entrySet()) {
 			probeEntry.getValue().forEachMeasurement(m -> measurementStorage.put(m));
 		}
 	}
 
-	private <E, P, M> BinaryCalculator<M, E, E, ?> instantiateCalculator(E resource,
-			CalculatorRepresentative<P, P> modelCalculator) {
-		@SuppressWarnings("unchecked")
-		Class<E> resourceType = (Class<E>) resource.getClass();
-		return calculatorFactory.create(modelCalculator.getMetric(), resourceType, resourceType);
+	private <E> BinaryCalculator<E, E> instantiateCalculator(E resource,
+			CalculatorRepresentative modelCalculator) {
+		Class<?> resourceType = resource.getClass();
+		return (BinaryCalculator<E, E>) calculatorFactory.create(modelCalculator.getMetric(), resourceType, resourceType);
 	}
 
 }

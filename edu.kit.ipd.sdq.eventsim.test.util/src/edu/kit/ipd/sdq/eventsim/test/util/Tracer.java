@@ -68,7 +68,7 @@ public class Tracer {
 		return actions;
 	}
 
-	private void processMeasurement(Measurement<?, ?> measurement) {
+	private void processMeasurement(Measurement<?> measurement) {
 		trace.add(new TracedMeasurement(measurement));
 	}
 
@@ -106,13 +106,13 @@ public class Tracer {
 
 		private final static AtomicInteger sequenceGenerator = new AtomicInteger();
 
-		private final Measurement<?, ?> wrappedMeasurement;
+		private final Measurement<?> wrappedMeasurement;
 
 		private final int sequenceNumber;
 
 		private final long nanoTime;
 
-		public TracedMeasurement(Measurement<?, ?> wrappedMeasurement) {
+		public TracedMeasurement(Measurement<?> wrappedMeasurement) {
 			this.sequenceNumber = sequenceGenerator.getAndIncrement();
 			this.wrappedMeasurement = wrappedMeasurement;
 			this.nanoTime = System.nanoTime();
@@ -126,7 +126,7 @@ public class Tracer {
 			return sequenceNumber;
 		}
 
-		public Measurement<?, ?> getMeasurement() {
+		public Measurement<?> getMeasurement() {
 			return wrappedMeasurement;
 		}
 

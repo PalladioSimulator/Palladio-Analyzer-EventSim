@@ -17,16 +17,16 @@ import edu.kit.ipd.sdq.eventsim.instrumentation.description.core.Instrumentable;
  * 
  * @see UserActionRule
  */
-public class UserActionRepresentative<A extends AbstractUserAction> implements Instrumentable {
+public class UserActionRepresentative implements Instrumentable {
 
-	private final A representedUserAction;
+	private final AbstractUserAction representedUserAction;
 
-	public UserActionRepresentative(A representedUserAction) {
+	public UserActionRepresentative(AbstractUserAction representedUserAction) {
 		super();
 		this.representedUserAction = representedUserAction;
 	}
 
-	public A getRepresentedUserAction() {
+	public AbstractUserAction getRepresentedUserAction() {
 		return representedUserAction;
 	}
 

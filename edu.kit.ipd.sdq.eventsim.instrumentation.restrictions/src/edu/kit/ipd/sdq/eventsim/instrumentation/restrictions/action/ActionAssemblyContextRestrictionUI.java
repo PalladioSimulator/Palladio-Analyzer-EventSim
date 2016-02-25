@@ -18,9 +18,9 @@ import edu.kit.ipd.sdq.eventsim.instrumentation.specification.restriction.Restri
 
 @RestrictionUI(restrictionType = ActionAssemblyContextRestriction.class)
 public class ActionAssemblyContextRestrictionUI<A extends AbstractAction> extends
-		SingleElementsRestrictionUI<ActionRepresentative<? extends A>, ActionAssemblyContextRestriction<A>, AssemblyContext> {
+		SingleElementsRestrictionUI<ActionRepresentative, ActionAssemblyContextRestriction<A>, AssemblyContext> {
 
-	private List<ActionRepresentative<? extends A>> actions;
+	private List<ActionRepresentative> actions;
 
 	private ActionAssemblyContextRestriction<A> restriction;
 
@@ -48,10 +48,9 @@ public class ActionAssemblyContextRestrictionUI<A extends AbstractAction> extend
 	protected List<AssemblyContext> getAllEntities() {
 		PCMModelCommandExecutor executor = new PCMModelCommandExecutor(
 				InstrumentationDescriptionEditor.getActive().getPcm());
-		@SuppressWarnings("unchecked")
-		ActionRule<A> rule = (ActionRule<A>) InstrumentationDescriptionEditor.getActive().getActiveRule();
+		ActionRule rule = (ActionRule) InstrumentationDescriptionEditor.getActive().getActiveRule();
 		actions = executor.execute(new FindAllActionsByType<>(rule.getActionType())).stream()
-				.map(c -> new ActionRepresentative<>(c.getAction(), c.getAllocationContext(), c.getAssemblyContext()))
+				.map(c -> new ActionRepresentative(c.getAction(), c.getAllocationContext(), c.getAssemblyContext()))
 				.collect(Collectors.toList());
 
 		Set<AssemblyContext> contexts = actions.stream().map(a -> a.getAssemblyContext()).collect(Collectors.toSet());
@@ -59,7 +58,7 @@ public class ActionAssemblyContextRestrictionUI<A extends AbstractAction> extend
 	}
 
 	@Override
-	protected List<ActionRepresentative<? extends A>> getInstrumentablesForEntity(AssemblyContext assemblyContext) {
+	protected List<ActionRepresentative> getInstrumentablesForEntity(AssemblyContext assemblyContext) {
 		return actions.stream().filter(a -> a.getAssemblyContext().equals(assemblyContext))
 				.collect(Collectors.toList());
 	}

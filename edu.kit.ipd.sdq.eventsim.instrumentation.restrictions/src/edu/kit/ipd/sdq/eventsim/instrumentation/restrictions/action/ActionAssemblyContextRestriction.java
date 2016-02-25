@@ -10,7 +10,7 @@ import edu.kit.ipd.sdq.eventsim.instrumentation.restrictions.AssemblyContextRest
 
 @Restriction(name = "Restriction to an Assembly Context", instrumentableType = ActionRepresentative.class, converter = AssemblyContextRestrictionConverter.class)
 public class ActionAssemblyContextRestriction<A extends AbstractAction>
-		extends AssemblyContextRestriction<ActionRepresentative<? extends A>> {
+		extends AssemblyContextRestriction<ActionRepresentative> {
 
 	public ActionAssemblyContextRestriction(String assemblyContextId) {
 		super(assemblyContextId);
@@ -25,7 +25,7 @@ public class ActionAssemblyContextRestriction<A extends AbstractAction>
 	}
 
 	@Override
-	public boolean exclude(ActionRepresentative<? extends A> action) {
+	public boolean exclude(ActionRepresentative action) {
 		return !action.getAssemblyContext().getId().equals(getAssemblyContextId());
 	}
 

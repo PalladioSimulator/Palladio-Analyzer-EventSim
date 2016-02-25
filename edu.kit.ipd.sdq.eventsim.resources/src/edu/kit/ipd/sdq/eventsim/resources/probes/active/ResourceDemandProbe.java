@@ -10,7 +10,7 @@ import edu.kit.ipd.sdq.eventsim.resources.entities.SimActiveResource;
 import edu.kit.ipd.sdq.eventsim.resources.listener.IDemandListener;
 
 @Probe(type = SimActiveResource.class, property = "resource_demand")
-public class ResourceDemandProbe extends AbstractProbe<SimActiveResource, ISchedulableProcess, ResourceProbeConfiguration> {
+public class ResourceDemandProbe extends AbstractProbe<SimActiveResource, ResourceProbeConfiguration> {
 
 	public ResourceDemandProbe(MeasuringPoint<SimActiveResource> p, ResourceProbeConfiguration configuration) {
 		super(p, configuration);
@@ -23,7 +23,7 @@ public class ResourceDemandProbe extends AbstractProbe<SimActiveResource, ISched
 				public void demand(ISchedulableProcess process, double demand) {
 					// build measurement
 					double simTime = resource.getModel().getSimulationControl().getCurrentSimulationTime();
-					Measurement<SimActiveResource, ISchedulableProcess> m = new Measurement<>("RESOURCE_DEMAND",
+					Measurement<SimActiveResource> m = new Measurement<>("RESOURCE_DEMAND",
 							getMeasuringPoint(), process, demand, simTime);
 
 					// store

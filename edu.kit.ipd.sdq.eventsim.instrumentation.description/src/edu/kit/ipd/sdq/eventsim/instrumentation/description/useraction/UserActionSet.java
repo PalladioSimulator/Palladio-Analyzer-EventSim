@@ -13,18 +13,14 @@ import edu.kit.ipd.sdq.eventsim.instrumentation.description.core.InstrumentableS
  * {@link InstrumentableRestriction}s.
  * 
  * @author Henning Schulz
- *
- * @param <A>
- *            the type of the contained useractions
  * 
  * @see UserActionRule
  */
-public class UserActionSet<A extends AbstractUserAction>
-		extends InstrumentableSet<UserActionRepresentative<? extends A>> {
+public class UserActionSet extends InstrumentableSet<UserActionRepresentative> {
 
-	private Class<A> actionType;
+	private Class<? extends AbstractUserAction> actionType;
 
-	public UserActionSet(Class<A> actionType) {
+	public UserActionSet(Class<? extends AbstractUserAction> actionType) {
 		this.actionType = actionType;
 	}
 
@@ -32,11 +28,11 @@ public class UserActionSet<A extends AbstractUserAction>
 	}
 
 	@XmlElement(name = "user-action-type")
-	public Class<A> getUserActionType() {
+	public Class<? extends AbstractUserAction> getUserActionType() {
 		return actionType;
 	}
 
-	public void setUserActionType(Class<A> actionType) {
+	public void setUserActionType(Class<? extends AbstractUserAction> actionType) {
 		this.actionType = actionType;
 	}
 

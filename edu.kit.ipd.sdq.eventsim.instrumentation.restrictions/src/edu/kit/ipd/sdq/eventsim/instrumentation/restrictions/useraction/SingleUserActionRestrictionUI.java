@@ -15,7 +15,7 @@ import edu.kit.ipd.sdq.eventsim.instrumentation.specification.restriction.Restri
 
 @RestrictionUI(restrictionType = SingleUserActionRestriction.class)
 public class SingleUserActionRestrictionUI<A extends AbstractUserAction>
-		extends SingleElementsRestrictionUI<UserActionRepresentative<? extends A>, SingleUserActionRestriction<A>, A> {
+		extends SingleElementsRestrictionUI<UserActionRepresentative, SingleUserActionRestriction<A>, A> {
 
 	private SingleUserActionRestriction<A> restriction;
 
@@ -24,9 +24,8 @@ public class SingleUserActionRestrictionUI<A extends AbstractUserAction>
 		this.restriction = restriction;
 
 		if (restriction.getUserActionType() == null) {
-			@SuppressWarnings("unchecked")
-			UserActionRule<A> rule = (UserActionRule<A>) InstrumentationDescriptionEditor.getActive().getActiveRule();
-			restriction.setUserActionType(rule.getUserActionType());
+			UserActionRule rule = (UserActionRule) InstrumentationDescriptionEditor.getActive().getActiveRule();
+			restriction.setUserActionType((Class<A>) rule.getUserActionType());
 		}
 	}
 
@@ -53,9 +52,9 @@ public class SingleUserActionRestrictionUI<A extends AbstractUserAction>
 	}
 
 	@Override
-	protected List<UserActionRepresentative<? extends A>> getInstrumentablesForEntity(A action) {
-		List<UserActionRepresentative<? extends A>> result = new ArrayList<>();
-		result.add(new UserActionRepresentative<>(action));
+	protected List<UserActionRepresentative> getInstrumentablesForEntity(A action) {
+		List<UserActionRepresentative> result = new ArrayList<>();
+		result.add(new UserActionRepresentative(action));
 		return result;
 	}
 

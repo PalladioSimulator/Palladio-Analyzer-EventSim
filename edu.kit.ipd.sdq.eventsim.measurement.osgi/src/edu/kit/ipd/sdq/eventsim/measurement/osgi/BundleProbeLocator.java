@@ -18,7 +18,7 @@ public class BundleProbeLocator<C extends ProbeConfiguration> implements ProbeLo
 
 	private static final Logger log = Logger.getLogger(BundleProbeLocator.class);
 	
-	private Map<MeasuredElementAndProperty, Class<? extends AbstractProbe<?, ?, C>>> probesMap = new HashMap<>();
+	private Map<MeasuredElementAndProperty, Class<? extends AbstractProbe<?, C>>> probesMap = new HashMap<>();
 	
 	public BundleProbeLocator(Bundle bundle) {
 		findProbesByAnnotationAndPopulateProbesMap(bundle);
@@ -52,7 +52,7 @@ public class BundleProbeLocator<C extends ProbeConfiguration> implements ProbeLo
 					if (AbstractProbe.class.isAssignableFrom(clazz)) {
 						// the following cast is safe
 						probesMap.put(new MeasuredElementAndProperty(a.type(), a.property()),
-								(Class<? extends AbstractProbe<?, ?, C>>) clazz);
+								(Class<? extends AbstractProbe<?, C>>) clazz);
 					} else {
 						log.error(String.format("Class %s carries the %s annotation but does not extend %s.", className,
 								Probe.class.getSimpleName(), AbstractProbe.class));
@@ -65,12 +65,12 @@ public class BundleProbeLocator<C extends ProbeConfiguration> implements ProbeLo
 	}
 	
 	@Override
-	public Class<? extends AbstractProbe<?, ?, C>> probeForType(Class<?> type, String property) {
+	public Class<? extends AbstractProbe<?, C>> probeForType(Class<?> type, String property) {
 		if (type == null) {
 			return null;
 		}
 	
-		Class<? extends AbstractProbe<?, ?, C>> probeClass = probesMap
+		Class<? extends AbstractProbe<?, C>> probeClass = probesMap
 				.get(new MeasuredElementAndProperty(type, property));
 		if (probeClass != null) {
 			return probeClass;

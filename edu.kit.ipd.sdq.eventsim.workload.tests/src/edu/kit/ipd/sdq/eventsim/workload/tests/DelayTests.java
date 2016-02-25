@@ -77,18 +77,18 @@ public class DelayTests {
 		MeasurementFacade<?> measurementFacade = ((EventSimWorkloadModel) manager.getWorkload()).getMeasurementFacade();
 		MeasurementStorage measurementStorage = mock(MeasurementStorage.class);
 		measurementFacade.createCalculator(new TimeSpanBetweenUserActionsCalculator("TIME_SPAN"))
-				.from(delay, "before").to(delay, "after").forEachMeasurement(m -> measurementStorage.putPair(m));
+				.from(delay, "before").to(delay, "after").forEachMeasurement(m -> measurementStorage.put(m));
 
 		// run simulation
 		manager.startSimulation();
 
 		// check simulation results
-		verify(measurementStorage, times(2)).putPair(measurementArgument.capture());
-		Measurement<?, ?> firstMeasurement = measurementArgument.getAllValues().get(0);
+		verify(measurementStorage, times(2)).put(measurementArgument.capture());
+		Measurement<?> firstMeasurement = measurementArgument.getAllValues().get(0);
 		assertEquals(1.42, firstMeasurement.getValue(), DELTA);
 		assertEquals(1.42, firstMeasurement.getWhen(), DELTA);
 
-		Measurement<?, ?> secondMeasurement = measurementArgument.getAllValues().get(1);
+		Measurement<?> secondMeasurement = measurementArgument.getAllValues().get(1);
 		assertEquals(1.42, secondMeasurement.getValue(), DELTA);
 		assertEquals(1.42, secondMeasurement.getWhen(), DELTA);
 
@@ -120,20 +120,20 @@ public class DelayTests {
 		MeasurementFacade<?> measurementFacade = ((EventSimWorkloadModel) manager.getWorkload()).getMeasurementFacade();
 		MeasurementStorage measurementStorage = mock(MeasurementStorage.class);
 		measurementFacade.createCalculator(new TimeSpanBetweenUserActionsCalculator("TIME_SPAN"))
-				.from(delay1, "before").to(delay1, "after").forEachMeasurement(m -> measurementStorage.putPair(m));
+				.from(delay1, "before").to(delay1, "after").forEachMeasurement(m -> measurementStorage.put(m));
 		measurementFacade.createCalculator(new TimeSpanBetweenUserActionsCalculator("TIME_SPAN"))
-				.from(delay2, "before").to(delay2, "after").forEachMeasurement(m -> measurementStorage.putPair(m));
+				.from(delay2, "before").to(delay2, "after").forEachMeasurement(m -> measurementStorage.put(m));
 
 		// run simulation
 		manager.startSimulation();
 
 		// check simulation results
-		verify(measurementStorage, times(2)).putPair(measurementArgument.capture());
-		Measurement<?, ?> firstMeasurement = measurementArgument.getAllValues().get(0);
+		verify(measurementStorage, times(2)).put(measurementArgument.capture());
+		Measurement<?> firstMeasurement = measurementArgument.getAllValues().get(0);
 		assertEquals(1.42, firstMeasurement.getValue(), DELTA);
 		assertEquals(1.42, firstMeasurement.getWhen(), DELTA);
 
-		Measurement<?, ?> secondMeasurement = measurementArgument.getAllValues().get(1);
+		Measurement<?> secondMeasurement = measurementArgument.getAllValues().get(1);
 		assertEquals(1.42, secondMeasurement.getValue(), DELTA);
 		assertEquals(1.42, secondMeasurement.getWhen(), DELTA);
 

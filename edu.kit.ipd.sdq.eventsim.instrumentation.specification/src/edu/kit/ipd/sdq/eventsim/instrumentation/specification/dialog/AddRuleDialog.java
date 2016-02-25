@@ -145,13 +145,13 @@ public class AddRuleDialog extends TitleAreaDialog {
 				@SuppressWarnings("unchecked")
 				Class<? extends AbstractAction> actionType = (Class<? extends AbstractAction>) actionTypes
 						.get(detailsList.getSelectionIndex());
-				createdRule = new ActionRule<>(actionType);
+				createdRule = new ActionRule(actionType);
 				break;
 			case KEY_USER_ACTION_RULE:
 				@SuppressWarnings("unchecked")
 				Class<? extends AbstractUserAction> userActionType = (Class<? extends AbstractUserAction>) userActionTypes
 						.get(detailsList.getSelectionIndex());
-				createdRule = new UserActionRule<>(userActionType);
+				createdRule = new UserActionRule(userActionType);
 				break;
 			case KEY_RESOURCE_RULE:
 				@SuppressWarnings("unchecked")

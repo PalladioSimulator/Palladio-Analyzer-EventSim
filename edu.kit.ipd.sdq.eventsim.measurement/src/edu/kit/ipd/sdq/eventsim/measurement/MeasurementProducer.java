@@ -4,12 +4,10 @@ package edu.kit.ipd.sdq.eventsim.measurement;
  * An emitter for {@link Measurement}s.
  * 
  * @author Philipp Merkle
- *
- * @param <E>
- * @param <T>
+ * 
  */
-public interface MeasurementProducer<E, T> {
+public interface MeasurementProducer<E> {
 
-	public void forEachMeasurement(MeasurementListener<E, T> l);
+	public void forEachMeasurement(MeasurementListener<E> l);
 	
 }

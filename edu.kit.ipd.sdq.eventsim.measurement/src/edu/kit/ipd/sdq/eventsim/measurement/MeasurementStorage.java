@@ -44,19 +44,7 @@ public interface MeasurementStorage {
 	 * @param <E>
 	 *            the measuring point's type (i.e. the type of the probed element)
 	 */
-	<E> void put(Measurement<E, ?> m);
-
-	/**
-	 * Stores the given measurement.
-	 * 
-	 * @param m
-	 *            the measurement to be added
-	 * @param <F>
-	 *            first measuring point's type
-	 * @param <S>
-	 *            second measuring point's type
-	 */
-	<F, S> void putPair(Measurement<Pair<F, S>, ?> m);
+	void put(Measurement<?> m);
 
 	void finish();
 

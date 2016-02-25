@@ -11,8 +11,8 @@ package edu.kit.ipd.sdq.eventsim.measurement.calculator;
  * @param <S>
  * @param <T>
  */
-public interface IntermediateCalculatorTo<R, F, S, T> {
+public interface IntermediateCalculatorTo<F, S> {
 
-	BinaryCalculator<R, F, S, T> to(S second, String property, Object... measurementContexts);
+	BinaryCalculator<F, S> to(S second, String property, Object... measurementContexts);
 
 }

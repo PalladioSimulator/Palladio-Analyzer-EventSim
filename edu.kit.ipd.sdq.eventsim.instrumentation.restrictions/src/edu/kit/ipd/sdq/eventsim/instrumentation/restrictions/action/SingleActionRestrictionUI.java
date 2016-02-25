@@ -26,9 +26,9 @@ import edu.kit.ipd.sdq.eventsim.instrumentation.specification.restriction.Restri
  */
 @RestrictionUI(restrictionType = SingleActionRestriction.class)
 public class SingleActionRestrictionUI<A extends AbstractAction>
-		extends SingleElementsRestrictionUI<ActionRepresentative<? extends A>, SingleActionRestriction<A>, A> {
+		extends SingleElementsRestrictionUI<ActionRepresentative, SingleActionRestriction<A>, A> {
 
-	private List<ActionRepresentative<A>> actions;
+	private List<ActionRepresentative> actions;
 	private SingleActionRestriction<A> restriction;
 
 	@Override
@@ -38,10 +38,9 @@ public class SingleActionRestrictionUI<A extends AbstractAction>
 
 	@Override
 	protected SingleActionRestriction<A> createNewRestriction() {
-		@SuppressWarnings("unchecked")
-		ActionRule<A> rule = (ActionRule<A>) InstrumentationDescriptionEditor.getActive().getActiveRule();
+		ActionRule rule = (ActionRule) InstrumentationDescriptionEditor.getActive().getActiveRule();
 		SingleActionRestriction<A> restriction = new SingleActionRestriction<>();
-		restriction.setActionType(rule.getActionType());
+		restriction.setActionType((Class<A>) rule.getActionType());
 		return restriction;
 	}
 
@@ -56,7 +55,7 @@ public class SingleActionRestrictionUI<A extends AbstractAction>
 	}
 
 	@Override
-	protected List<ActionRepresentative<? extends A>> getInstrumentablesForEntity(A action) {
+	protected List<ActionRepresentative> getInstrumentablesForEntity(A action) {
 		return actions.stream().filter(a -> a.getRepresentedAction().equals(action)).collect(Collectors.toList());
 	}
 
@@ -67,7 +66,7 @@ public class SingleActionRestrictionUI<A extends AbstractAction>
 		List<ActionContext<A>> actionContexts = executor
 				.execute(new FindAllActionsByType<>(restriction.getActionType()));
 		actions = actionContexts.stream()
-				.map(c -> new ActionRepresentative<>(c.getAction(), c.getAllocationContext(), c.getAssemblyContext()))
+				.map(c -> new ActionRepresentative(c.getAction(), c.getAllocationContext(), c.getAssemblyContext()))
 				.collect(Collectors.toList());
 		return actionContexts.stream().map(c -> c.getAction()).collect(Collectors.toList());
 	}

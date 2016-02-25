@@ -31,10 +31,10 @@ public class ProbeFactory<C extends ProbeConfiguration> {
 		this.probeLocator = probeLocator;
 	}
 
-	public <E, T> IProbe<E, T> create(E element, String property, Object... measurementContexts) {
+	public <E> IProbe<E> create(E element, String property, Object... measurementContexts) {
 		// try finding a probe capable of probing elements of the given type.
 		// start with the most specific element type.
-		Class<? extends AbstractProbe<?, ?, C>> probeClass = probeLocator.probeForType(element.getClass(), property);
+		Class<? extends AbstractProbe<?, C>> probeClass = probeLocator.probeForType(element.getClass(), property);
 
 		if (probeClass == null) {
 			log.error(String.format(
@@ -43,9 +43,9 @@ public class ProbeFactory<C extends ProbeConfiguration> {
 			return IProbe.nullProbe(element, property, measurementContexts);
 		}
 
-		AbstractProbe<?, ?, C> p = null;
+		AbstractProbe<?, C> p = null;
 		try {
-			Constructor<? extends AbstractProbe<?, ?, C>> c = probeClass.getConstructor(MeasuringPoint.class,
+			Constructor<? extends AbstractProbe<?, C>> c = probeClass.getConstructor(MeasuringPoint.class,
 					configuration.getClass());
 			p = c.newInstance(new MeasuringPoint<E>(element, property, measurementContexts), configuration);
 			log.debug("Created probe " + p + " (element=" + element + ", property=" + property + ")");
@@ -55,7 +55,7 @@ public class ProbeFactory<C extends ProbeConfiguration> {
 			return IProbe.nullProbe(element, property, measurementContexts);
 		}
 
-		return (IProbe<E, T>) p;
+		return (IProbe<E>) p;
 	}
 
 }

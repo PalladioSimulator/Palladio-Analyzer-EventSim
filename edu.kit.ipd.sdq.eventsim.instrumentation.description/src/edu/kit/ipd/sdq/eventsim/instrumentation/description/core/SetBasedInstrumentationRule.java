@@ -30,45 +30,45 @@ import javax.xml.bind.annotation.XmlElementWrapper;
  */
 public abstract class SetBasedInstrumentationRule<P, I extends Instrumentable> implements InstrumentationRule {
 
-	private Set<ProbeRepresentative<P>> probes = new HashSet<>();
+	private Set<ProbeRepresentative> probes = new HashSet<>();
 
-	private Set<CalculatorRepresentative<P, P>> calculators = new HashSet<>();
+	private Set<CalculatorRepresentative> calculators = new HashSet<>();
 
 	private String name;
 
 	@XmlElementWrapper(name = "probes")
 	@XmlElement(name = "probe")
-	public Set<ProbeRepresentative<P>> getProbes() {
+	public Set<ProbeRepresentative> getProbes() {
 		return probes;
 	}
 
-	public void setProbes(Set<ProbeRepresentative<P>> probes) {
+	public void setProbes(Set<ProbeRepresentative> probes) {
 		this.probes = probes;
 	}
 
-	public void addProbe(ProbeRepresentative<P> probe) {
+	public void addProbe(ProbeRepresentative probe) {
 		probes.add(probe);
 	}
 
-	public void removeProbe(ProbeRepresentative<P> probe) {
+	public void removeProbe(ProbeRepresentative probe) {
 		probes.remove(probe);
 	}
 
 	@XmlElementWrapper(name = "calculators")
 	@XmlElement(name = "calculator")
-	public Set<CalculatorRepresentative<P, P>> getCalculators() {
+	public Set<CalculatorRepresentative> getCalculators() {
 		return calculators;
 	}
 
-	public void setCalculators(Set<CalculatorRepresentative<P, P>> calculators) {
+	public void setCalculators(Set<CalculatorRepresentative> calculators) {
 		this.calculators = calculators;
 	}
 
-	public void addCalculator(CalculatorRepresentative<P, P> calculator) {
+	public void addCalculator(CalculatorRepresentative calculator) {
 		calculators.add(calculator);
 	}
 
-	public void removeCalculator(CalculatorRepresentative<P, P> calculator) {
+	public void removeCalculator(CalculatorRepresentative calculator) {
 		calculators.remove(calculator);
 	}
 
@@ -83,7 +83,7 @@ public abstract class SetBasedInstrumentationRule<P, I extends Instrumentable> i
 		this.name = name;
 	}
 
-	public abstract Class<P> getProbedType();
+	public abstract Class<? extends P> getProbedType();
 
 	public abstract Class<I> getInstrumentableType();
 

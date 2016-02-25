@@ -23,13 +23,12 @@ public class CalculatorFactory {
 
 	private static final Logger log = Logger.getLogger(CalculatorFactory.class);
 
-	private Map<MeasuredTypesAndMetric, Class<? extends BinaryCalculator<?, ?, ?, ?>>> calculatorsMap;
+	private Map<MeasuredTypesAndMetric, Class<? extends BinaryCalculator<?, ?>>> calculatorsMap;
 
-	@SuppressWarnings("unchecked")
 	public CalculatorFactory(Bundle bundle) {
 		calculatorsMap = new HashMap<>();
 		ClassRepository.filterClassesInBundle(bundle, this::isCalculatorType).stream()
-				.map(c -> (Class<? extends BinaryCalculator<?, ?, ?, ?>>) c)
+				.map(c -> (Class<? extends BinaryCalculator<?, ?>>) c)
 				.forEach(c -> calculatorsMap.put(createKeyFor(c), c));
 	}
 
@@ -44,7 +43,7 @@ public class CalculatorFactory {
 		return true;
 	}
 
-	private MeasuredTypesAndMetric createKeyFor(Class<? extends BinaryCalculator<?, ?, ?, ?>> type) {
+	private MeasuredTypesAndMetric createKeyFor(Class<? extends BinaryCalculator<?, ?>> type) {
 		Calculator a = type.getAnnotation(Calculator.class);
 		if (Pair.class.isAssignableFrom(a.type())) {
 			return new MeasuredTypesAndMetric(a.fromType(), a.toType(), a.metric());
@@ -53,11 +52,10 @@ public class CalculatorFactory {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	public <R, F, S, T> BinaryCalculator<R, F, S, T> create(String metric, Class<F> fromType, Class<S> toType) {
+	public BinaryCalculator<?, ?> create(String metric, Class<?> fromType, Class<?> toType) {
 		// R = Pair<F, S>
 
-		Class<? extends BinaryCalculator<?, ?, ?, ?>> calculatorClass = calculatorsMap
+		Class<? extends BinaryCalculator<?, ?>> calculatorClass = calculatorsMap
 				.get(new MeasuredTypesAndMetric(fromType, toType, metric));
 
 		if (calculatorClass == null) {
@@ -80,10 +78,10 @@ public class CalculatorFactory {
 			return nullCalculator();
 		}
 
-		BinaryCalculator<?, ?, ?, ?> calculator = null;
+		BinaryCalculator<?, ?> calculator = null;
 
 		try {
-			Constructor<? extends BinaryCalculator<?, ?, ?, ?>> c = calculatorClass.getConstructor();
+			Constructor<? extends BinaryCalculator<?, ?>> c = calculatorClass.getConstructor();
 			calculator = c.newInstance();
 			log.debug("Created calculator " + calculator + " (from=" + fromType + ", to=" + toType + ", metric="
 					+ metric + ")");
@@ -93,22 +91,22 @@ public class CalculatorFactory {
 			return nullCalculator();
 		}
 
-		return (BinaryCalculator<R, F, S, T>) calculator;
+		return calculator;
 	}
 
-	private <R, F, S, T> BinaryCalculator<R, F, S, T> nullCalculator() {
-		return new BinaryCalculator<R, F, S, T>() {
+	private <F, S> BinaryCalculator<F, S> nullCalculator() {
+		return new BinaryCalculator<F, S>() {
 
 			@Override
-			public void forEachMeasurement(MeasurementListener<R, T> l) {
+			public void forEachMeasurement(MeasurementListener<Pair<F, S>> l) {
 			}
 
 			@Override
-			public void setup(IProbe<F, T> fromProbe, IProbe<S, T> toProbe) {
+			public void setup(IProbe<F> fromProbe, IProbe<S> toProbe) {
 			}
 
 			@Override
-			public Measurement<R, T> calculate(Measurement<F, T> first, Measurement<S, T> second) {
+			public Measurement<Pair<F, S>> calculate(Measurement<F> first, Measurement<S> second) {
 				return null;
 			}
 		};

@@ -12,8 +12,7 @@ import edu.kit.ipd.sdq.eventsim.system.interpreter.listener.ISeffTraversalListen
 import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
 
 @Probe(type = AbstractAction.class, property = "before")
-public class SeffActionEntryTimeProbe<E extends AbstractAction> extends
-		AbstractProbe<E, Request, SystemMeasurementConfiguration> {
+public class SeffActionEntryTimeProbe<E extends AbstractAction> extends AbstractProbe<E, SystemMeasurementConfiguration> {
 
 	public SeffActionEntryTimeProbe(MeasuringPoint<E> p, SystemMeasurementConfiguration cfg) {
 		super(p, cfg);
@@ -31,7 +30,7 @@ public class SeffActionEntryTimeProbe<E extends AbstractAction> extends
 
 						// build measurement
 						double simTime = request.getModel().getSimulationControl().getCurrentSimulationTime();
-						Measurement<E, Request> m = new Measurement<>("CURRENT_TIME", getMeasuringPoint(),
+						Measurement<E> m = new Measurement<>("CURRENT_TIME", getMeasuringPoint(),
 								request, simTime, simTime);
 
 						// store

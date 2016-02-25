@@ -9,7 +9,6 @@ import org.rosuda.REngine.Rserve.RserveException;
 
 import edu.kit.ipd.sdq.eventsim.measurement.Measurement;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
-import edu.kit.ipd.sdq.eventsim.measurement.Pair;
 import edu.kit.ipd.sdq.eventsim.measurement.PropertyExtractor;
 import edu.kit.ipd.sdq.eventsim.measurement.r.jobs.FinalizeRProcessingJob;
 import edu.kit.ipd.sdq.eventsim.measurement.r.jobs.MergeBufferedDataFramesJob;
@@ -129,17 +128,8 @@ public class RMeasurementStore implements MeasurementStorage {
 	}
 
 	@Override
-	public <E> void put(Measurement<E, ?> m) {
+	public void put(Measurement<?> m) {
 		buffer.put(m);
-		if (buffer.isFull()) {
-			rJobProcessor.enqueue(new PushBufferToRJob(buffer, bufferNumber++));
-			buffer = new Buffer(BUFFER_CAPACITY, idExtractor, nameExtractor, typeExtractor);
-		}
-	}
-
-	@Override
-	public <F, S> void putPair(Measurement<Pair<F, S>, ?> m) {
-		buffer.putPair(m);
 		if (buffer.isFull()) {
 			rJobProcessor.enqueue(new PushBufferToRJob(buffer, bufferNumber++));
 			buffer = new Buffer(BUFFER_CAPACITY, idExtractor, nameExtractor, typeExtractor);

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import edu.kit.ipd.sdq.eventsim.measurement.Measurement;
+import edu.kit.ipd.sdq.eventsim.measurement.MeasuringPointPair;
 import edu.kit.ipd.sdq.eventsim.measurement.Pair;
 import edu.kit.ipd.sdq.eventsim.measurement.PropertyExtractor;
 
@@ -37,12 +38,13 @@ public class Buffer {
 
 	private final int capacity;
 
-	public Buffer(int capacity, PropertyExtractor idExtractors, PropertyExtractor nameExtractors, PropertyExtractor typeExtractors) {
+	public Buffer(int capacity, PropertyExtractor idExtractors, PropertyExtractor nameExtractors,
+			PropertyExtractor typeExtractors) {
 		this.capacity = capacity;
-		
+
 		this.idExtractors = idExtractors;
 		this.nameExtractors = nameExtractors;
-		this.typeExtractors = typeExtractors; 
+		this.typeExtractors = typeExtractors;
 
 		what = new String[capacity];
 		whereFirst = new BufferPart(capacity);
@@ -55,9 +57,9 @@ public class Buffer {
 		contexts = new HashMap<>();
 	}
 
-	public <F, S> void putPair(Measurement<Pair<F, S>, ?> m) {
-		F first = m.getWhere().getElement().getFirst();
-		S second = m.getWhere().getElement().getSecond();
+	public <F, S> void putPair(Measurement<Pair<?, ?>> m) {
+		Object first = m.getWhere().getElement().getFirst();
+		Object second = m.getWhere().getElement().getSecond();
 		whereFirst.id[size] = idExtractors.extractFrom(first);
 		whereFirst.type[size] = typeExtractors.extractFrom(first);
 		whereFirst.name[size] = nameExtractors.extractFrom(first);
@@ -71,20 +73,31 @@ public class Buffer {
 		size++;
 	}
 
-	public <E> void put(Measurement<E, ?> m) {
-		whereFirst.id[size] = idExtractors.extractFrom(m.getWhere().getElement());
-		whereFirst.type[size] = typeExtractors.extractFrom(m.getWhere().getElement());
-		whereFirst.name[size] = nameExtractors.extractFrom(m.getWhere().getElement());
-		whereSecond.id[size] = null;
-		whereSecond.type[size] = null;
-		whereSecond.name[size] = null;
+	public <E> void put(Measurement<?> m) { 
+		if (m.getWhere() instanceof MeasuringPointPair<?, ?>) {
+			MeasuringPointPair<?, ?> mpp = (MeasuringPointPair<?, ?>) m.getWhere();
+			Object first = mpp.getElement().getFirst();
+			Object second = mpp.getElement().getSecond();
+			whereFirst.id[size] = idExtractors.extractFrom(first);
+			whereFirst.type[size] = typeExtractors.extractFrom(first);
+			whereFirst.name[size] = nameExtractors.extractFrom(first);
+			whereSecond.id[size] = idExtractors.extractFrom(second);
+			whereSecond.type[size] = typeExtractors.extractFrom(second);
+			whereSecond.name[size] = nameExtractors.extractFrom(second);
+		} else {
+			whereFirst.id[size] = idExtractors.extractFrom(m.getWhere().getElement());
+			whereFirst.type[size] = typeExtractors.extractFrom(m.getWhere().getElement());
+			whereFirst.name[size] = nameExtractors.extractFrom(m.getWhere().getElement());
+			whereSecond.id[size] = null;
+			whereSecond.type[size] = null;
+			whereSecond.name[size] = null;
+		}
 		whereProperty[size] = m.getWhere().getProperty();
-
 		putCommonProperties(m);
 		size++;
 	}
 
-	private <E> void putCommonProperties(Measurement<E, ?> m) {
+	private <E> void putCommonProperties(Measurement<?> m) {
 		what[size] = m.getWhat().toString();
 
 		for (Object o : m.getWhere().getContexts()) {

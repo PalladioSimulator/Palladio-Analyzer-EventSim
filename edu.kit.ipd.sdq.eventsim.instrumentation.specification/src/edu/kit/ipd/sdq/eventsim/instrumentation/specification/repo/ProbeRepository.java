@@ -19,24 +19,24 @@ public class ProbeRepository {
 		}
 	}
 
-	public static <P> List<ProbeRepresentative<P>> getProbesFor(TypedInstrumentationRule<P, ?, ?> rule) {
+	public static <P> List<ProbeRepresentative> getProbesFor(TypedInstrumentationRule<P, ?, ?> rule) {
 		return getProbesFor(rule.getProbedType(), rule.getModelProbedType());
 	}
 
-	public static <F> List<ProbeRepresentative<F>> getCalculatorFromProbesFor(TypedInstrumentationRule<?, F, ?> rule) {
+	public static <F> List<ProbeRepresentative> getCalculatorFromProbesFor(TypedInstrumentationRule<?, F, ?> rule) {
 		return getProbesFor(rule.getCalculatorFromType(), rule.getModelCalculatorFromType());
 	}
 
-	public static <T> List<ProbeRepresentative<T>> getCalculatorToProbesFor(TypedInstrumentationRule<?, ?, T> rule) {
+	public static <T> List<ProbeRepresentative> getCalculatorToProbesFor(TypedInstrumentationRule<?, ?, T> rule) {
 		return getProbesFor(rule.getCalculatorToType(), rule.getModelCalculatorToType());
 	}
 
-	public static <P> List<ProbeRepresentative<P>> getProbesFor(Class<?> probedType, Class<P> modelProbedType) {
+	public static <P> List<ProbeRepresentative> getProbesFor(Class<?> probedType, Class<P> modelProbedType) {
 		// filters probes capable to work with the passed type out of all
 		// existing probe annotations and creates a ProbeRepresentative for each
 		// of them
 		return allProbes.stream().filter(p -> p.type().isAssignableFrom(probedType))
-				.map(p -> new ProbeRepresentative<>(p.property(), modelProbedType)).collect(Collectors.toList());
+				.map(p -> new ProbeRepresentative(p.property(), modelProbedType)).collect(Collectors.toList());
 	}
 
 	private static boolean hasProbeAnnotation(Class<?> clazz) {

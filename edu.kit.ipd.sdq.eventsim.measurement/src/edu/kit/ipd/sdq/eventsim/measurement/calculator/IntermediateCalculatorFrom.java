@@ -13,7 +13,7 @@ package edu.kit.ipd.sdq.eventsim.measurement.calculator;
  * @param <S>
  * @param <T>
  */
-public interface IntermediateCalculatorFrom<R, F, S, T> {
+public interface IntermediateCalculatorFrom<F, S> {
 
 	/**
 	 * Tells this calculator where and when a new calculation is supposed to start.
@@ -27,6 +27,6 @@ public interface IntermediateCalculatorFrom<R, F, S, T> {
 	 *            only when the observed property change took place in the scope of the given contexts.
 	 * @return a another half-finished, near to complete, calculator.
 	 */
-	IntermediateCalculatorTo<R, F, S, T> from(F first, String property, Object... measurementContexts);
+	IntermediateCalculatorTo<F, S> from(F first, String property, Object... measurementContexts);
 
 }

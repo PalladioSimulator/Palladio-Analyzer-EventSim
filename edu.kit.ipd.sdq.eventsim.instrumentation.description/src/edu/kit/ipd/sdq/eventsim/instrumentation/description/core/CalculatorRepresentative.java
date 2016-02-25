@@ -8,21 +8,16 @@ import javax.xml.bind.annotation.XmlRootElement;
  * compute a metric based on the measurement results of the probes.
  * 
  * @author Henning Schulz
- *
- * @param <F>
- *            the type of the from-probe
- * @param <T>
- *            the type of the to-probe
  */
 @XmlRootElement(name = "calculator")
-public class CalculatorRepresentative<F, T> {
+public class CalculatorRepresentative {
 
-	private ProbeRepresentative<F> fromProbe;
-	private ProbeRepresentative<T> toProbe;
+	private ProbeRepresentative fromProbe;
+	private ProbeRepresentative toProbe;
 
 	private String metric;
 
-	public CalculatorRepresentative(String metric, ProbeRepresentative<F> fromProbe, ProbeRepresentative<T> toProbe) {
+	public CalculatorRepresentative(String metric, ProbeRepresentative fromProbe, ProbeRepresentative toProbe) {
 		this.metric = metric;
 		this.fromProbe = fromProbe;
 		this.toProbe = toProbe;
@@ -45,24 +40,24 @@ public class CalculatorRepresentative<F, T> {
 	}
 
 	@XmlElement(name = "from")
-	public ProbeRepresentative<F> getFromProbe() {
+	public ProbeRepresentative getFromProbe() {
 		return fromProbe;
 	}
 
-	public void setFromProbe(ProbeRepresentative<F> fromProbe) {
+	public void setFromProbe(ProbeRepresentative fromProbe) {
 		this.fromProbe = fromProbe;
 	}
 
 	@XmlElement(name = "to")
-	public ProbeRepresentative<T> getToProbe() {
+	public ProbeRepresentative getToProbe() {
 		return toProbe;
 	}
 
-	public void setToProbe(ProbeRepresentative<T> toProbe) {
+	public void setToProbe(ProbeRepresentative toProbe) {
 		this.toProbe = toProbe;
 	}
 
-	public boolean uses(ProbeRepresentative<?> probe) {
+	public boolean uses(ProbeRepresentative probe) {
 		return fromProbe.equals(probe) || toProbe.equals(probe);
 	}
 
@@ -86,7 +81,7 @@ public class CalculatorRepresentative<F, T> {
 			return false;
 		if (this.getClass() != obj.getClass())
 			return false;
-		CalculatorRepresentative<?, ?> other = (CalculatorRepresentative<?, ?>) obj;
+		CalculatorRepresentative other = (CalculatorRepresentative) obj;
 		if (metric == null) {
 			if (other.metric != null)
 				return false;

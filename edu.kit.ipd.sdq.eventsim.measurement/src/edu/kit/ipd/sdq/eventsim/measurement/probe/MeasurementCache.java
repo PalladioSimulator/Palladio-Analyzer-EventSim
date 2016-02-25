@@ -18,9 +18,8 @@ import edu.kit.ipd.sdq.eventsim.measurement.MeasuringPoint;
  * @author Philipp Merkle
  *
  * @param <E>
- * @param <T>
  */
-public class MeasurementCache<E, T> {
+public class MeasurementCache<E> {
 
 	private static final Logger log = Logger.getLogger(MeasurementCache.class);
 
@@ -31,14 +30,14 @@ public class MeasurementCache<E, T> {
 	 * Values/measurements in the inner map MUST NOT strongly reference the trigger used as key in the outer map.
 	 * Otherwise, entries cannot be evicted from the cache.
 	 */
-	private WeakHashMap<T, Map<MeasuringPoint<E>, Measurement<E, T>>> measurements;
+	private WeakHashMap<Object, Map<MeasuringPoint<?>, Measurement<E>>> measurements;
 
 	public MeasurementCache() {
 		this.measurements = new WeakHashMap<>();
 	}
 
-	public void put(Measurement<E, T> m) {
-		T trigger = m.getWho();
+	public void put(Measurement<E> m) {
+		Object trigger = m.getWho();
 		if (!measurements.containsKey(trigger)) {
 			measurements.put(trigger, new HashMap<>());
 		}
@@ -62,11 +61,11 @@ public class MeasurementCache<E, T> {
 	 * @return the requested measurement, or {@code null}, if no such measurement can be found because it has been
 	 *         evicted from the cache already, or because no such measurement has been added before.
 	 */
-	public Measurement<E, T> getLastMeasurement(T trigger, MeasuringPoint<E> mp) {
+	public Measurement<E> getLastMeasurement(Object trigger, MeasuringPoint<E> mp) {
 		if(!measurements.containsKey(trigger)) {
 			return null; // TODO warning?
 		}
-		Measurement<E, T> m = measurements.get(trigger).get(mp);
+		Measurement<E> m = measurements.get(trigger).get(mp);
 		if(m == null) {
 //			log.warn(String.format("Requested last measurement for trigger %s, but corresponding measurements have "
 //					+ "been evicted already or never have been added to the measurement cache.", trigger));

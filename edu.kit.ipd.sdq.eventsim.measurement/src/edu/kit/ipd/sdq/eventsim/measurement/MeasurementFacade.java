@@ -14,25 +14,24 @@ public class MeasurementFacade<C extends ProbeConfiguration> {
 
 	private ProbeFactory<C> probeFactory;
 
-	private Set<IProbe<?, ?>> existingProbesSet;
+	private Set<IProbe<?>> existingProbesSet;
 
 	public MeasurementFacade(C configuration, ProbeLocator<C> probeLocator) {
 		this.probeFactory = new ProbeFactory<>(configuration, probeLocator);
 		this.existingProbesSet = new HashSet<>();
 	}
 
-	public <R, F, S, T> IntermediateCalculatorFrom<R, F, S, T> createCalculator(BinaryCalculator<R, F, S, T> c) {
-		return CalculatorBuilder.create(c, this);
+	public <F, S> IntermediateCalculatorFrom<F, S> createCalculator(BinaryCalculator<F, S> calculator) {
+		return CalculatorBuilder.create(calculator, this);
 	}
 
-	@SuppressWarnings("unchecked")
-	public <E, T> IProbe<E, T> createProbe(E element, String property, Object... contexts) {
-		IProbe<E, T> probe = probeFactory.create(element, property, contexts);
+	public <E, T> IProbe<E> createProbe(E element, String property, Object... contexts) {
+		IProbe<E> probe = probeFactory.create(element, property, contexts);
 		if (existingProbesSet.contains(probe)) {
 			// TODO perhaps use a map because iterating over the set becomes expensive for many probes
-			for (IProbe<?, ?> p : existingProbesSet) {
+			for (IProbe<?> p : existingProbesSet) {
 				if (p.equals(probe)) {
-					return (IProbe<E, T>) p;
+					return (IProbe<E>) p;
 				}
 			}
 			// this code should no be reachable without a programming mistake introduced

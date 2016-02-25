@@ -23,17 +23,6 @@ public class MeasuringPoint<E> {
 		this(element, "", contexts);
 	}
 
-	public MeasuringPoint<E> withAddedContexts(Object... contexts) {
-		Set<Object> contextsSet = new HashSet<Object>();
-		contextsSet.addAll(Arrays.asList(this.contexts));
-		contextsSet.addAll(Arrays.asList(contexts));
-		return new MeasuringPoint<>(this.element, this.property, contextsSet.toArray());
-	}
-	
-	public MeasuringPoint<E> withProperty(String property) {
-		return new MeasuringPoint<>(this.element, property, this.contexts);
-	}
-
 	public E getElement() {
 		return element;
 	}
@@ -46,6 +35,17 @@ public class MeasuringPoint<E> {
 		return contexts;
 	}
 
+	public MeasuringPoint<E> withAddedContexts(Object... contexts) {
+		Set<Object> contextsSet = new HashSet<Object>();
+		contextsSet.addAll(Arrays.asList(this.contexts));
+		contextsSet.addAll(Arrays.asList(contexts));
+		return new MeasuringPoint<>(this.element, this.property, contextsSet.toArray());
+	}
+	
+	public MeasuringPoint<E> withProperty(String property) {
+		return new MeasuringPoint<>(this.element, property, this.contexts);
+	}
+	
 	public boolean equalsOrIsMoreSpecific(MeasuringPoint<E> other) {
 		if (!other.element.equals(element)) {
 			return false;
@@ -90,8 +90,7 @@ public class MeasuringPoint<E> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		@SuppressWarnings("rawtypes")
-		MeasuringPoint other = (MeasuringPoint) obj;
+		MeasuringPoint<?> other = (MeasuringPoint<?>) obj;
 		if (!Arrays.equals(contexts, other.contexts))
 			return false;
 		if (element == null) {

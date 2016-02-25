@@ -22,29 +22,28 @@ import edu.kit.ipd.sdq.eventsim.instrumentation.description.core.SetBasedInstrum
  * @see ActionRepresentative
  */
 @XmlRootElement(name = "action-rule")
-public class ActionRule<A extends AbstractAction>
-		extends SetBasedInstrumentationRule<A, ActionRepresentative<? extends A>> {
+public class ActionRule extends SetBasedInstrumentationRule<AbstractAction, ActionRepresentative> {
 
-	private ActionSet<A> actionSet;
+	private ActionSet actionSet;
 
 	public ActionRule() {
 	}
 
-	public ActionRule(Class<A> actionType) {
-		actionSet = new ActionSet<>(actionType);
+	public ActionRule(Class<? extends AbstractAction> actionType) {
+		actionSet = new ActionSet(actionType);
 		setName(actionType.getSimpleName());
 	}
 
-	public Class<A> getActionType() {
+	public Class<? extends AbstractAction> getActionType() {
 		return actionSet == null ? null : actionSet.getActionType();
 	}
 
 	@XmlElement(name = "action-set")
-	public ActionSet<A> getActionSet() {
+	public ActionSet getActionSet() {
 		return actionSet;
 	}
 
-	public void setActionSet(ActionSet<A> actions) {
+	public void setActionSet(ActionSet actions) {
 		this.actionSet = actions;
 
 		if (getName() == null) {
@@ -54,46 +53,41 @@ public class ActionRule<A extends AbstractAction>
 
 	@Override
 	public boolean affects(Instrumentable instrumentable) {
-		if (!(instrumentable instanceof ActionRepresentative<?>)) {
+		if (!(instrumentable instanceof ActionRepresentative)) {
 			return false;
 		}
 
-		ActionRepresentative<?> action = (ActionRepresentative<?>) instrumentable;
+		ActionRepresentative action = (ActionRepresentative) instrumentable;
 		if (!actionSet.getActionType().isAssignableFrom(action.getRepresentedAction().getClass())) {
 			return false;
 		}
 
-		@SuppressWarnings("unchecked")
-		ActionRepresentative<? extends A> typedAction = (ActionRepresentative<? extends A>) action;
-
-		return actionSet.contains(typedAction);
+		return actionSet.contains(action);
 	}
 
 	@Override
-	public Class<A> getProbedType() {
+	public Class<? extends AbstractAction> getProbedType() {
 		return getActionType();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public Class<ActionRepresentative<? extends A>> getInstrumentableType() {
-		Class<?> type = ActionRepresentative.class;
-		return (Class<ActionRepresentative<? extends A>>) type;
+	public Class<ActionRepresentative> getInstrumentableType() {
+		return ActionRepresentative.class;
 	}
 
 	@Override
-	public void addRestriction(InstrumentableRestriction<ActionRepresentative<? extends A>> restriction) {
+	public void addRestriction(InstrumentableRestriction<ActionRepresentative> restriction) {
 		if (restriction != null)
 			actionSet.addRestriction(restriction);
 	}
 
 	@Override
-	public void removeRestriction(InstrumentableRestriction<ActionRepresentative<? extends A>> restriction) {
+	public void removeRestriction(InstrumentableRestriction<ActionRepresentative> restriction) {
 		actionSet.removeRestriction(restriction);
 	}
 
 	@Override
-	public List<InstrumentableRestriction<ActionRepresentative<? extends A>>> getRestrictions() {
+	public List<InstrumentableRestriction<ActionRepresentative>> getRestrictions() {
 		return actionSet.getRestrictions();
 	}
 

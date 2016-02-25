@@ -16,10 +16,8 @@ import edu.kit.ipd.sdq.eventsim.measurement.MeasuringPoint;
  *
  * @param <E>
  *            type of the probed element
- * @param <T>
- *            type of the triggering element
  */
-public interface IProbe<E, T> extends MeasurementProducer<E, T> {
+public interface IProbe<E> extends MeasurementProducer<E> {
 
 	/**
 	 * Returns the latest measurement caused by the given trigger.
@@ -29,7 +27,7 @@ public interface IProbe<E, T> extends MeasurementProducer<E, T> {
 	 * @return the most recent measurement caused by the given trigger, or {@code null}, if there is no such
 	 *         measurement.
 	 */
-	Measurement<E, T> getLastMeasurementOf(T who);
+	Measurement<E> getLastMeasurementOf(Object who);
 
 	/**
 	 * @return the measuring point this probe is attached to.
@@ -41,14 +39,14 @@ public interface IProbe<E, T> extends MeasurementProducer<E, T> {
 	 * 
 	 * @return the constructed {@code null} probe.
 	 */
-	public static <E, T> IProbe<E, T> nullProbe(E element, String property, Object... contexts) {
-		return new IProbe<E, T>() {
+	public static <E> IProbe<E> nullProbe(E element, String property, Object... contexts) {
+		return new IProbe<E>() {
 			@Override
-			public void forEachMeasurement(MeasurementListener<E, T> l) {
+			public void forEachMeasurement(MeasurementListener<E> l) {
 			}
 
 			@Override
-			public Measurement<E, T> getLastMeasurementOf(T who) {
+			public Measurement<E> getLastMeasurementOf(Object who) {
 				return null;
 			}
 

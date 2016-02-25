@@ -14,12 +14,12 @@ import javax.xml.bind.annotation.XmlRootElement;
  *            applied to all elements of a type extending {@code M}.
  */
 @XmlRootElement(name = "probe")
-public class ProbeRepresentative<M> {
+public class ProbeRepresentative {
 
-	private Class<M> probedType;
+	private Class<?> probedType;
 	private String measuredProperty;
 
-	public ProbeRepresentative(String measuredProperty, Class<M> probedType) {
+	public ProbeRepresentative(String measuredProperty, Class<?> probedType) {
 		this.measuredProperty = measuredProperty;
 		this.probedType = probedType;
 	}
@@ -28,11 +28,11 @@ public class ProbeRepresentative<M> {
 	}
 
 	@XmlElement(name = "probed-type")
-	public Class<M> getProbedType() {
+	public Class<?> getProbedType() {
 		return probedType;
 	}
 
-	public void setProbedType(Class<M> typeUnderMeasurement) {
+	public void setProbedType(Class<?> typeUnderMeasurement) {
 		this.probedType = typeUnderMeasurement;
 	}
 
@@ -66,7 +66,7 @@ public class ProbeRepresentative<M> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		ProbeRepresentative<?> other = (ProbeRepresentative<?>) obj;
+		ProbeRepresentative other = (ProbeRepresentative) obj;
 		if (probedType == null) {
 			if (other.probedType != null)
 				return false;

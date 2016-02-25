@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.palladiosimulator.pcm.seff.AbstractAction;
 
 import edu.kit.ipd.sdq.eventsim.measurement.Measurement;
+import edu.kit.ipd.sdq.eventsim.measurement.MeasuringPoint;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasuringPointPair;
 import edu.kit.ipd.sdq.eventsim.measurement.Pair;
 import edu.kit.ipd.sdq.eventsim.measurement.annotation.Calculator;
@@ -14,21 +15,20 @@ import edu.kit.ipd.sdq.eventsim.system.entities.Request;
 
 @Calculator(metric = "timespan_between_actions", type = Pair.class, fromType = AbstractAction.class, toType = AbstractAction.class, intendedProbes = {
 		@ProbePair(from = "before", to = "after") })
-public class TimeSpanBetweenAbstractActionsCalculator extends
-		AbstractBinaryCalculator<Pair<AbstractAction, AbstractAction>, AbstractAction, AbstractAction, Request> {
+public class TimeSpanBetweenAbstractActionsCalculator extends AbstractBinaryCalculator<AbstractAction, AbstractAction> {
 
 	private static final Logger log = Logger.getLogger(TimeSpanBetweenAbstractActionsCalculator.class);
 
 	@Override
-	public void setup(IProbe<AbstractAction, Request> fromProbe, IProbe<AbstractAction, Request> toProbe) {
+	public void setup(IProbe<AbstractAction> fromProbe, IProbe<AbstractAction> toProbe) {
 		// if(fromProbe == null || toProbe == null) {
 		// log.warn("Cancelled setup of %s because one of the probes supplied is null.");
 		// }
 		fromProbe.enableCaching();
 		toProbe.forEachMeasurement(m -> {
 			// find "from"-measurement
-			Request request = m.getWho();
-			Measurement<AbstractAction, Request> fromMeasurement = null;
+			Request request = (Request) m.getWho();
+			Measurement<AbstractAction> fromMeasurement = null;
 			do {
 				fromMeasurement = fromProbe.getLastMeasurementOf(request);
 				request = request.getParent();
@@ -45,8 +45,8 @@ public class TimeSpanBetweenAbstractActionsCalculator extends
 	}
 
 	@Override
-	public Measurement<Pair<AbstractAction, AbstractAction>, Request> calculate(Measurement<AbstractAction, Request> from,
-			Measurement<AbstractAction, Request> to) {
+	public Measurement<Pair<AbstractAction, AbstractAction>> calculate(Measurement<AbstractAction> from,
+			Measurement<AbstractAction> to) {
 		if (from == null) {
 			return null;
 		}
@@ -54,9 +54,8 @@ public class TimeSpanBetweenAbstractActionsCalculator extends
 		double when = to.getWhen();
 		double timeDifference = to.getValue() - from.getValue();
 		
-		return new Measurement<Pair<AbstractAction, AbstractAction>, Request>("TIME_SPAN",
-				new MeasuringPointPair<>(from.getWhere().getElement(), to.getWhere().getElement(), "timespan", to
-						.getWhere().getContexts()), to.getWho(), timeDifference, when);
+		MeasuringPoint<Pair<AbstractAction, AbstractAction>> mp = new MeasuringPointPair<>(from.getWhere(), to.getWhere(), "timespan", to.getWhere().getContexts());
+		return new Measurement<>("TIME_SPAN", mp, to.getWho(), timeDifference, when);
 	}
 
 }

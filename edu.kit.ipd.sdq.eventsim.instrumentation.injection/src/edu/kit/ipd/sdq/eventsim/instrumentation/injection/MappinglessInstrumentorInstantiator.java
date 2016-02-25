@@ -1,8 +1,6 @@
 package edu.kit.ipd.sdq.eventsim.instrumentation.injection;
 
 import org.osgi.framework.Bundle;
-import org.palladiosimulator.pcm.seff.AbstractAction;
-import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 
 import edu.kit.ipd.sdq.eventsim.api.PCMModel;
 import edu.kit.ipd.sdq.eventsim.instrumentation.description.action.ActionRepresentative;
@@ -40,13 +38,13 @@ public class MappinglessInstrumentorInstantiator<M> {
 
 	public <C extends ProbeConfiguration> Instrumentor<M, C> createFor(C configuration) {
 		if (ActionRepresentative.class.isAssignableFrom(modelType)) {
-			Instrumentor<ActionRepresentative<? extends AbstractAction>, C> modelInstrumentor = new ActionInstrumentor<C>(
+			Instrumentor<ActionRepresentative, C> modelInstrumentor = new ActionInstrumentor<C>(
 					storage, bundle, description, pcm, configuration);
-			return new InstrumentorWrapper<>((M a) -> (ActionRepresentative<?>) a, modelInstrumentor);
+			return new InstrumentorWrapper<>((M a) -> (ActionRepresentative) a, modelInstrumentor);
 		} else if (UserActionRepresentative.class.isAssignableFrom(modelType)) {
-			Instrumentor<UserActionRepresentative<? extends AbstractUserAction>, C> modelInstrumentor = new UserActionInstrumentor<C>(
+			Instrumentor<UserActionRepresentative, C> modelInstrumentor = new UserActionInstrumentor<C>(
 					storage, bundle, description, pcm, configuration);
-			return new InstrumentorWrapper<>((M a) -> (UserActionRepresentative<?>) a, modelInstrumentor);
+			return new InstrumentorWrapper<>((M a) -> (UserActionRepresentative) a, modelInstrumentor);
 		} else {
 			return voidInstrumentor();
 		}

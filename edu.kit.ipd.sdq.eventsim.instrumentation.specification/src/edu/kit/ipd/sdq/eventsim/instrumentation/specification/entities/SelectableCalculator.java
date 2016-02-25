@@ -8,18 +8,14 @@ import edu.kit.ipd.sdq.eventsim.instrumentation.description.core.CalculatorRepre
  * 
  * @author Henning Schulz
  *
- * @param <F>
- *            the calculator from type
- * @param <T>
- *            the calculator to type
  */
-public class SelectableCalculator<F, T> {
+public class SelectableCalculator {
 
-	private final CalculatorRepresentative<F, T> calculator;
+	private final CalculatorRepresentative calculator;
 
 	private boolean selected = false;
 
-	public SelectableCalculator(CalculatorRepresentative<F, T> calculator) {
+	public SelectableCalculator(CalculatorRepresentative calculator) {
 		this.calculator = calculator;
 	}
 
@@ -31,7 +27,7 @@ public class SelectableCalculator<F, T> {
 		this.selected = selected;
 	}
 
-	public CalculatorRepresentative<F, T> getCalculator() {
+	public CalculatorRepresentative getCalculator() {
 		return calculator;
 	}
 

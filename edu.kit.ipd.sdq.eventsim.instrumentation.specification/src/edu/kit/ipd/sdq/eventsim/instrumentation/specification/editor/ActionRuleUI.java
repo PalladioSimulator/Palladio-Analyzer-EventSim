@@ -7,10 +7,9 @@ import edu.kit.ipd.sdq.eventsim.instrumentation.description.action.ActionReprese
 import edu.kit.ipd.sdq.eventsim.instrumentation.description.action.ActionRule;
 import edu.kit.ipd.sdq.eventsim.instrumentation.specification.util.StringUtils;
 
-public class ActionRuleUI<A extends AbstractAction>
-		extends SetBasedRuleUI<A, ActionRepresentative<? extends A>, ActionRule<A>> {
+public class ActionRuleUI extends SetBasedRuleUI<AbstractAction, ActionRepresentative, ActionRule> {
 
-	public ActionRuleUI(ActionRule<A> rule, Composite parent, int style) {
+	public ActionRuleUI(ActionRule rule, Composite parent, int style) {
 		super(rule, parent, style);
 	}
 

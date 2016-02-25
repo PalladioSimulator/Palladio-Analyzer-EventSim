@@ -4,6 +4,9 @@ import org.apache.log4j.Logger;
 import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 
 import edu.kit.ipd.sdq.eventsim.measurement.Measurement;
+import edu.kit.ipd.sdq.eventsim.measurement.MeasuringPoint;
+import edu.kit.ipd.sdq.eventsim.measurement.MeasuringPointPair;
+import edu.kit.ipd.sdq.eventsim.measurement.Pair;
 import edu.kit.ipd.sdq.eventsim.measurement.annotation.Calculator;
 import edu.kit.ipd.sdq.eventsim.measurement.annotation.ProbePair;
 import edu.kit.ipd.sdq.eventsim.measurement.calculator.AbstractBinaryCalculator;
@@ -13,19 +16,17 @@ import edu.kit.ipd.sdq.eventsim.resources.entities.SimulatedProcess;
 
 @Calculator(metric = "waiting_time", type = SimPassiveResource.class, intendedProbes = {
 		@ProbePair(from = "request", to = "acquire") })
-public class WaitingTimeCalculator
-		extends AbstractBinaryCalculator<SimPassiveResource, SimPassiveResource, SimPassiveResource, SimulatedProcess> {
+public class WaitingTimeCalculator extends AbstractBinaryCalculator<SimPassiveResource, SimPassiveResource> {
 
 	private static final Logger log = Logger.getLogger(WaitingTimeCalculator.class);
 
 	@Override
-	public void setup(IProbe<SimPassiveResource, SimulatedProcess> fromProbe,
-			IProbe<SimPassiveResource, SimulatedProcess> toProbe) {
+	public void setup(IProbe<SimPassiveResource> fromProbe, IProbe<SimPassiveResource> toProbe) {
 		fromProbe.enableCaching();
 		toProbe.forEachMeasurement(m -> {
 			// find "from"-measurement
-			SimulatedProcess process = m.getWho();
-			Measurement<SimPassiveResource, SimulatedProcess> fromMeasurement = null;
+			SimulatedProcess process = (SimulatedProcess) m.getWho();
+			Measurement<SimPassiveResource> fromMeasurement = null;
 			do {
 				fromMeasurement = fromProbe.getLastMeasurementOf(process);
 				process = process.getParent();
@@ -44,9 +45,8 @@ public class WaitingTimeCalculator
 	}
 
 	@Override
-	public Measurement<SimPassiveResource, SimulatedProcess> calculate(
-			Measurement<SimPassiveResource, SimulatedProcess> from,
-			Measurement<SimPassiveResource, SimulatedProcess> to) {
+	public Measurement<Pair<SimPassiveResource, SimPassiveResource>> calculate(Measurement<SimPassiveResource> from,
+			Measurement<SimPassiveResource> to) {
 		if (from == null) {
 			return null;
 		}
@@ -55,10 +55,10 @@ public class WaitingTimeCalculator
 		double waitingTime = to.getValue() - from.getValue();
 
 		AssemblyContext assemblyCtx = from.getWhere().getElement().getAssemblyContext();
+		
 		// TODO current position not yet accurate
-		return new Measurement<SimPassiveResource, SimulatedProcess>("WAITING_TIME",
-				to.getWhere().withProperty("waiting_time").withAddedContexts(assemblyCtx), to.getWho(), waitingTime,
-				when);
+		MeasuringPoint<Pair<SimPassiveResource, SimPassiveResource>> mp = new MeasuringPointPair<>(from.getWhere(), to.getWhere(), "waiting_time", assemblyCtx);
+		return new Measurement<>("WAITING_TIME", mp, to.getWho(), waitingTime, when);
 
 		// TODO add request as metadata?
 		// from.getWho().getCurrentPosition().getId()

@@ -6,10 +6,9 @@ package edu.kit.ipd.sdq.eventsim.measurement;
  * @author Philipp Merkle
  *
  * @param <E>
- * @param <T>
  */
-public interface MeasurementListener<E, T> {
+public interface MeasurementListener<E> {
 
-	void notify(Measurement<E, T> m);
+	void notify(Measurement<E> m);
 
 }

@@ -1,8 +1,6 @@
 package edu.kit.ipd.sdq.eventsim.instrumentation.injection;
 
 import org.osgi.framework.Bundle;
-import org.palladiosimulator.pcm.seff.AbstractAction;
-import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 
 import edu.kit.ipd.sdq.eventsim.api.PCMModel;
 import edu.kit.ipd.sdq.eventsim.instrumentation.description.action.ActionRepresentative;
@@ -45,7 +43,6 @@ public class InstrumentorInstantiator<S, M> {
 		this.mapping = mapping;
 	}
 
-	@SuppressWarnings("unchecked")
 	public <C extends ProbeConfiguration> Instrumentor<S, C> createFor(C configuration) {
 		// Create an Instrumentor for the instrumentation description type that
 		// should be implemented and wraps it to obtain an Instrumentor for the
@@ -58,15 +55,15 @@ public class InstrumentorInstantiator<S, M> {
 			return new InstrumentorWrapper<>(r -> new SEMPair<>(r, (ResourceRepresentative) mapping.get(r)),
 					instrumentor);
 		} else if (ActionRepresentative.class.isAssignableFrom(modelType)) {
-			Instrumentor<ActionRepresentative<? extends AbstractAction>, C> modelInstrumentor = new ActionInstrumentor<C>(
+			Instrumentor<ActionRepresentative, C> modelInstrumentor = new ActionInstrumentor<C>(
 					storage, bundle, description, pcm, configuration);
-			return new InstrumentorWrapper<>((S a) -> (ActionRepresentative<? extends AbstractAction>) mapping.get(a),
+			return new InstrumentorWrapper<>((S a) -> (ActionRepresentative) mapping.get(a),
 					modelInstrumentor);
 		} else if (UserActionRepresentative.class.isAssignableFrom(modelType)) {
-			Instrumentor<UserActionRepresentative<? extends AbstractUserAction>, C> modelInstrumentor = new UserActionInstrumentor<C>(
+			Instrumentor<UserActionRepresentative, C> modelInstrumentor = new UserActionInstrumentor<C>(
 					storage, bundle, description, pcm, configuration);
 			return new InstrumentorWrapper<>(
-					(S a) -> (UserActionRepresentative<? extends AbstractUserAction>) mapping.get(a),
+					(S a) -> (UserActionRepresentative) mapping.get(a),
 					modelInstrumentor);
 		} else {
 			return voidInstrumentor();

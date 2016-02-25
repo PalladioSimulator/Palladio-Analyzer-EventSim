@@ -67,7 +67,9 @@ public class FindActionsInSeff<A extends AbstractAction> implements IPCMCommand<
 			if (actionType.isInstance(currentAction)) {
 				// cast is safe
 				actions.add((A) currentAction);
-			} else if (SeffPackage.eINSTANCE.getBranchAction().isInstance(currentAction)) {
+			}
+			// recurse
+			if (SeffPackage.eINSTANCE.getBranchAction().isInstance(currentAction)) {
 				actions.addAll(findActionsInBranch((BranchAction) currentAction, executor));
 			} else if (SeffPackage.eINSTANCE.getLoopAction().isInstance(currentAction)) {
 				actions.addAll(findActionsInLoop((LoopAction) currentAction, executor));

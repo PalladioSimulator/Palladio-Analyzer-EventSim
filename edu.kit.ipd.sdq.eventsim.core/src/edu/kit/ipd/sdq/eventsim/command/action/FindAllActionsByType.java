@@ -46,7 +46,7 @@ public class FindAllActionsByType<A extends AbstractAction> implements IPCMComma
 				calls.addAll(executor.execute(new FindActionsInSeff<A>(s, actionType)));
 			}
 
-			calls.forEach(c -> result.add(new ActionContext<A>(allocationCtx, assemblyCtx, c)));
+			calls.forEach(c -> result.add(new ActionContext<>(allocationCtx, assemblyCtx, c)));
 		}
 		return result;
 	}

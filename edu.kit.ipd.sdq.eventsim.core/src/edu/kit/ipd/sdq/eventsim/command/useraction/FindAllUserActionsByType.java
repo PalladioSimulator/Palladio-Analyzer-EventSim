@@ -32,12 +32,9 @@ public class FindAllUserActionsByType<A extends AbstractUserAction> implements I
 	@Override
 	public List<A> execute(PCMModel pcm, ICommandExecutor<PCMModel> executor) {
 		List<A> result = new ArrayList<>();
-
 		for (UsageScenario s : pcm.getUsageModel().getUsageScenario_UsageModel()) {
-			executor.execute(new FindActionsInUsageScenario<A>(s, actionType, true)).stream()
-					.forEach(action -> result.add(action));
+			result.addAll(executor.execute(new FindActionsInUsageScenario<A>(s, actionType, true)));
 		}
-
 		return result;
 	}
 

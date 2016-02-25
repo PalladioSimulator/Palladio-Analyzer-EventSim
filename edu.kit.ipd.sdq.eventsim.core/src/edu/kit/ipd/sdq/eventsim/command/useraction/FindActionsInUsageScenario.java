@@ -62,18 +62,17 @@ public class FindActionsInUsageScenario<A extends AbstractUserAction> implements
 		List<A> actions = new ArrayList<>();
 
 		// find start action
-		AbstractUserAction currentAction = executor.execute(new FindActionInUsageBehaviour<Start>(behaviour,
-				Start.class));
+		AbstractUserAction currentAction = executor
+				.execute(new FindActionInUsageBehaviour<Start>(behaviour, Start.class));
 		while (currentAction != null) {
 			if (actionType.isInstance(currentAction)) {
 				// cast is safe
 				actions.add((A) currentAction);
-			} else if (UsagemodelPackage.eINSTANCE.getBranch().isInstance(currentAction)) {
-				if (recurse) {
+			}
+			if (recurse) {
+				if (UsagemodelPackage.eINSTANCE.getBranch().isInstance(currentAction)) {
 					actions.addAll(findActionsInBranch((Branch) currentAction, executor));
-				}
-			} else if (UsagemodelPackage.eINSTANCE.getLoop().isInstance(currentAction)) {
-				if (recurse) {
+				} else if (UsagemodelPackage.eINSTANCE.getLoop().isInstance(currentAction)) {
 					actions.addAll(findActionsInLoop((Loop) currentAction, executor));
 				}
 			}

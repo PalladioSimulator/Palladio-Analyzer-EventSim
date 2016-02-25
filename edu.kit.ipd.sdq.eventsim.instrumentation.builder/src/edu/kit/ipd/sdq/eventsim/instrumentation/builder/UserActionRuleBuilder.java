@@ -19,10 +19,10 @@ import edu.kit.ipd.sdq.eventsim.instrumentation.description.useraction.UserActio
  *            the type of user actions
  */
 public class UserActionRuleBuilder<A extends AbstractUserAction> extends AbstractSetBasedRuleBuilder<A>
-		implements RestrictionBuilder<UserActionRepresentative<? extends A>, A> {
+		implements RestrictionBuilder<UserActionRepresentative, A> {
 
 	private final Class<A> actionType;
-	private final List<InstrumentableRestriction<UserActionRepresentative<? extends A>>> restrictions = new ArrayList<>();
+	private final List<InstrumentableRestriction<UserActionRepresentative>> restrictions = new ArrayList<>();
 	private final InstrumentationDescriptionBuilder idBuilder;
 
 	public UserActionRuleBuilder(Class<A> actionType, InstrumentationDescriptionBuilder idBuilder) {
@@ -31,15 +31,15 @@ public class UserActionRuleBuilder<A extends AbstractUserAction> extends Abstrac
 	}
 
 	@Override
-	public RestrictionBuilder<UserActionRepresentative<? extends A>, A> underRestriction(
-			InstrumentableRestriction<UserActionRepresentative<? extends A>> restriction) {
+	public RestrictionBuilder<UserActionRepresentative, A> underRestriction(
+			InstrumentableRestriction<UserActionRepresentative> restriction) {
 		restrictions.add(restriction);
 		return this;
 	}
 
 	@Override
 	public InstrumentationDescriptionBuilder ruleDone() {
-		UserActionRule<A> rule = new UserActionRule<>(actionType);
+		UserActionRule rule = new UserActionRule(actionType);
 		rule.getUserActionSet().getRestrictions().addAll(restrictions);
 		rule.getProbes().addAll(getProbes());
 		rule.getCalculators().addAll(getCalculators());
@@ -49,8 +49,8 @@ public class UserActionRuleBuilder<A extends AbstractUserAction> extends Abstrac
 	}
 
 	@Override
-	protected ProbeRepresentative<A> createProbeRepresentative(String measuredProperty) {
-		return new ProbeRepresentative<>(measuredProperty, actionType);
+	protected ProbeRepresentative createProbeRepresentative(String measuredProperty) {
+		return new ProbeRepresentative(measuredProperty, actionType);
 	}
 
 }

@@ -19,10 +19,10 @@ import edu.kit.ipd.sdq.eventsim.instrumentation.description.core.ProbeRepresenta
  *            the type of actions
  */
 public class ActionRuleBuilder<A extends AbstractAction> extends AbstractSetBasedRuleBuilder<A>
-		implements RestrictionBuilder<ActionRepresentative<? extends A>, A> {
+		implements RestrictionBuilder<ActionRepresentative, A> {
 
 	private final Class<A> actionType;
-	private final List<InstrumentableRestriction<ActionRepresentative<? extends A>>> restrictions = new ArrayList<>();
+	private final List<InstrumentableRestriction<ActionRepresentative>> restrictions = new ArrayList<>();
 	private final InstrumentationDescriptionBuilder idBuilder;
 
 	public ActionRuleBuilder(Class<A> actionType, InstrumentationDescriptionBuilder idBuilder) {
@@ -31,15 +31,15 @@ public class ActionRuleBuilder<A extends AbstractAction> extends AbstractSetBase
 	}
 
 	@Override
-	public RestrictionBuilder<ActionRepresentative<? extends A>, A> underRestriction(
-			InstrumentableRestriction<ActionRepresentative<? extends A>> restriction) {
+	public RestrictionBuilder<ActionRepresentative, A> underRestriction(
+			InstrumentableRestriction<ActionRepresentative> restriction) {
 		restrictions.add(restriction);
 		return this;
 	}
 
 	@Override
 	public InstrumentationDescriptionBuilder ruleDone() {
-		ActionRule<A> rule = new ActionRule<>(actionType);
+		ActionRule rule = new ActionRule(actionType);
 		rule.getActionSet().getRestrictions().addAll(restrictions);
 		rule.getProbes().addAll(getProbes());
 		rule.getCalculators().addAll(getCalculators());
@@ -49,8 +49,8 @@ public class ActionRuleBuilder<A extends AbstractAction> extends AbstractSetBase
 	}
 
 	@Override
-	protected ProbeRepresentative<A> createProbeRepresentative(String measuredProperty) {
-		return new ProbeRepresentative<>(measuredProperty, actionType);
+	protected ProbeRepresentative createProbeRepresentative(String measuredProperty) {
+		return new ProbeRepresentative(measuredProperty, actionType);
 	}
 
 }

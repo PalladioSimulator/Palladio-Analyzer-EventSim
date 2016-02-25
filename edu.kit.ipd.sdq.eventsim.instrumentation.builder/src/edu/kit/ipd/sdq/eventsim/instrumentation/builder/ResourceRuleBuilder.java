@@ -40,8 +40,8 @@ public class ResourceRuleBuilder<R extends ResourceRepresentative> extends Abstr
 	}
 
 	@Override
-	protected ProbeRepresentative<R> createProbeRepresentative(String measuredProperty) {
-		return new ProbeRepresentative<>(measuredProperty, resourceType);
+	protected ProbeRepresentative createProbeRepresentative(String measuredProperty) {
+		return new ProbeRepresentative(measuredProperty, resourceType);
 	}
 
 	@Override

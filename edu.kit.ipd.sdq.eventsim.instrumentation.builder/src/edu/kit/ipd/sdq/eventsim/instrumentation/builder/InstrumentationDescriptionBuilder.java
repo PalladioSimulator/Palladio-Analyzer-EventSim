@@ -26,12 +26,12 @@ public class InstrumentationDescriptionBuilder {
 
 	private final InstrumentationDescription description = new InstrumentationDescription();
 
-	public <A extends AbstractUserAction> RestrictionBuilder<UserActionRepresentative<? extends A>, A> newUserActionRule(
+	public <A extends AbstractUserAction> RestrictionBuilder<UserActionRepresentative, A> newUserActionRule(
 			Class<A> actionType) {
 		return new UserActionRuleBuilder<>(actionType, this);
 	}
 
-	public <A extends AbstractAction> RestrictionBuilder<ActionRepresentative<? extends A>, A> newActionRule(
+	public <A extends AbstractAction> RestrictionBuilder<ActionRepresentative, A> newActionRule(
 			Class<A> actionType) {
 		return new ActionRuleBuilder<>(actionType, this);
 	}
@@ -54,7 +54,6 @@ public class InstrumentationDescriptionBuilder {
 		return builder;
 	}
 
-	@SuppressWarnings("unchecked")
 	public <R extends ResourceRepresentative> ProbeAndCalculatorBuilder<R> newSingleResourceRule(Class<R> resourceType,
 			String firstSpec, String secondSpec) {
 		if (resourceType.equals(ActiveResourceRep.class)) {

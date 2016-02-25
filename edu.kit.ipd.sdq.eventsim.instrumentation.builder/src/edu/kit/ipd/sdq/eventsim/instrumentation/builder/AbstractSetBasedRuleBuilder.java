@@ -27,29 +27,29 @@ public abstract class AbstractSetBasedRuleBuilder<P>
 
 	private static final Logger LOGGER = Logger.getLogger(AbstractSetBasedRuleBuilder.class);
 
-	private final Map<String, ProbeRepresentative<P>> probesPerProperty = new HashMap<>();
-	private final Set<CalculatorRepresentative<P, P>> calculators = new HashSet<>();
+	private final Map<String, ProbeRepresentative> probesPerProperty = new HashMap<>();
+	private final Set<CalculatorRepresentative> calculators = new HashSet<>();
 
-	private CalculatorRepresentative<P, P> currentCalculator;
+	private CalculatorRepresentative currentCalculator;
 
-	protected abstract ProbeRepresentative<P> createProbeRepresentative(String measuredProperty);
+	protected abstract ProbeRepresentative createProbeRepresentative(String measuredProperty);
 
 	@Override
 	public ProbeAndCalculatorBuilder<P> addProbe(String measuredProperty) {
-		ProbeRepresentative<P> probe = createProbeRepresentative(measuredProperty);
+		ProbeRepresentative probe = createProbeRepresentative(measuredProperty);
 		probesPerProperty.put(measuredProperty, probe);
 		return this;
 	}
 
 	@Override
 	public CalculatorRepBuilderFrom<P> addCalculator(String metric) {
-		currentCalculator = new CalculatorRepresentative<>(metric);
+		currentCalculator = new CalculatorRepresentative(metric);
 		return this;
 	}
 
 	@Override
 	public CalculatorRepBuilderTo<P> from(String fromProperty) {
-		ProbeRepresentative<P> fromProbe = probesPerProperty.get(fromProperty);
+		ProbeRepresentative fromProbe = probesPerProperty.get(fromProperty);
 
 		if (fromProbe == null) {
 			fromProbe = createProbeRepresentative(fromProperty);
@@ -65,7 +65,7 @@ public abstract class AbstractSetBasedRuleBuilder<P>
 
 	@Override
 	public ProbeAndCalculatorBuilder<P> to(String toProperty) {
-		ProbeRepresentative<P> toProbe = probesPerProperty.get(toProperty);
+		ProbeRepresentative toProbe = probesPerProperty.get(toProperty);
 
 		if (toProbe == null) {
 			toProbe = createProbeRepresentative(toProperty);
@@ -81,15 +81,15 @@ public abstract class AbstractSetBasedRuleBuilder<P>
 		return this;
 	}
 
-	protected Map<String, ProbeRepresentative<P>> getProbesPerProperty() {
+	protected Map<String, ProbeRepresentative> getProbesPerProperty() {
 		return probesPerProperty;
 	}
 
-	protected Set<ProbeRepresentative<P>> getProbes() {
+	protected Set<ProbeRepresentative> getProbes() {
 		return probesPerProperty.entrySet().stream().map(entry -> entry.getValue()).collect(Collectors.toSet());
 	}
 
-	protected Set<CalculatorRepresentative<P, P>> getCalculators() {
+	protected Set<CalculatorRepresentative> getCalculators() {
 		return calculators;
 	}
 

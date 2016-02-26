@@ -1,5 +1,6 @@
 package edu.kit.ipd.sdq.eventsim.resources;
 
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -16,6 +17,8 @@ import edu.kit.ipd.sdq.eventsim.api.IPassiveResource;
 import edu.kit.ipd.sdq.eventsim.api.IRequest;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
 import edu.kit.ipd.sdq.eventsim.api.events.SimulationStopEvent;
+import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
+import edu.kit.ipd.sdq.eventsim.entities.IEntityListener;
 import edu.kit.ipd.sdq.eventsim.instrumentation.description.resource.PassiveResourceRep;
 import edu.kit.ipd.sdq.eventsim.instrumentation.injection.Instrumentor;
 import edu.kit.ipd.sdq.eventsim.instrumentation.injection.InstrumentorBuilder;
@@ -153,9 +156,9 @@ public class EventSimPassiveResourceModel extends AbstractEventSimModel implemen
 			}
 			SimulatedProcess process = new SimulatedProcess(this, parent, request);
 
-//			// add listener for request finish
-//			EventSimEntity requestEntity = (EventSimEntity) request;
-//			requestEntity.addEntityListener(new RequestFinishedHandler(process));
+			// add listener for request finish
+			EventSimEntity requestEntity = (EventSimEntity) request;
+			requestEntity.addEntityListener(new RequestFinishedHandler(process));
 
 			requestToSimulatedProcessMap.put(request, process);
 		}
@@ -166,6 +169,33 @@ public class EventSimPassiveResourceModel extends AbstractEventSimModel implemen
 			PassiveResource resource) {
 		// TODO better use resource name "CPU", HDD, ... as second component!?
 		return specification.getId() + resource.getId();
+	}
+	
+	/**
+	 * This handler reacts when the Request has been finished and informs the
+	 * simulated process about that.
+	 * 
+	 * @author Philipp Merkle
+	 */
+	private class RequestFinishedHandler implements IEntityListener {
+
+		private WeakReference<SimulatedProcess> process;
+
+		public RequestFinishedHandler(SimulatedProcess process) {
+			this.process = new WeakReference<SimulatedProcess>(process);
+		}
+
+		@Override
+		public void enteredSystem() {
+			// nothing to do
+		}
+
+		@Override
+		public void leftSystem() {
+			process.get().terminate();
+			requestToSimulatedProcessMap.remove(process.get().getRequest());
+		}
+
 	}
     
 }

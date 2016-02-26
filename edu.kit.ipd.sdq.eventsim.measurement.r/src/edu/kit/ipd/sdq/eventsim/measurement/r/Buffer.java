@@ -57,22 +57,6 @@ public class Buffer {
 		contexts = new HashMap<>();
 	}
 
-	public <F, S> void putPair(Measurement<Pair<?, ?>> m) {
-		Object first = m.getWhere().getElement().getFirst();
-		Object second = m.getWhere().getElement().getSecond();
-		whereFirst.id[size] = idExtractors.extractFrom(first);
-		whereFirst.type[size] = typeExtractors.extractFrom(first);
-		whereFirst.name[size] = nameExtractors.extractFrom(first);
-		whereSecond.id[size] = idExtractors.extractFrom(second);
-		whereSecond.type[size] = typeExtractors.extractFrom(second);
-		whereSecond.name[size] = nameExtractors.extractFrom(second);
-
-		whereProperty[size] = m.getWhere().getProperty();
-
-		putCommonProperties(m);
-		size++;
-	}
-
 	public <E> void put(Measurement<?> m) { 
 		if (m.getWhere() instanceof MeasuringPointPair<?, ?>) {
 			MeasuringPointPair<?, ?> mpp = (MeasuringPointPair<?, ?>) m.getWhere();

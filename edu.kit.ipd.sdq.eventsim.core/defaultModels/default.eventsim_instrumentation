@@ -1,76 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ns2:instrumentation-description xmlns:ns2="edu.kit.ipd.sdq.eventsim.instrumentation.description">
-    <allocation-model></allocation-model>
+    <allocation-model>platform:/resource/Minimal/default.allocation</allocation-model>
     <repository-model></repository-model>
     <resourceenvironment-model></resourceenvironment-model>
     <rules>
-        <user-action-rule name="AbstractUserAction">
-            <calculators>
-                <calculator>
-                    <from>
-                        <property>before</property>
-                        <probed-type>org.palladiosimulator.pcm.usagemodel.AbstractUserAction</probed-type>
-                    </from>
-                    <metric>timespan_between_useractions</metric>
-                    <to>
-                        <property>after</property>
-                        <probed-type>org.palladiosimulator.pcm.usagemodel.AbstractUserAction</probed-type>
-                    </to>
-                </calculator>
-            </calculators>
-            <probes>
-                <probe>
-                    <property>after</property>
-                    <probed-type>org.palladiosimulator.pcm.usagemodel.AbstractUserAction</probed-type>
-                </probe>
-                <probe>
-                    <property>before</property>
-                    <probed-type>org.palladiosimulator.pcm.usagemodel.AbstractUserAction</probed-type>
-                </probe>
-            </probes>
-            <user-action-set>
-                <restrictions/>
-                <user-action-type>org.palladiosimulator.pcm.usagemodel.AbstractUserAction</user-action-type>
-            </user-action-set>
-        </user-action-rule>
-        <action-rule name="AbstractAction">
-            <calculators>
-                <calculator>
-                    <from>
-                        <property>before</property>
-                        <probed-type>org.palladiosimulator.pcm.seff.AbstractAction</probed-type>
-                    </from>
-                    <metric>timespan_between_actions</metric>
-                    <to>
-                        <property>after</property>
-                        <probed-type>org.palladiosimulator.pcm.seff.AbstractAction</probed-type>
-                    </to>
-                </calculator>
-            </calculators>
-            <probes>
-                <probe>
-                    <property>after</property>
-                    <probed-type>org.palladiosimulator.pcm.seff.AbstractAction</probed-type>
-                </probe>
-                <probe>
-                    <property>before</property>
-                    <probed-type>org.palladiosimulator.pcm.seff.AbstractAction</probed-type>
-                </probe>
-            </probes>
-            <action-set>
-                <restrictions/>
-                <action-type>org.palladiosimulator.pcm.seff.AbstractAction</action-type>
-            </action-set>
-        </action-rule>
         <resource-rule name="ActiveResourceRep">
             <calculators/>
             <probes>
                 <probe>
-                    <property>resource_demand</property>
+                    <property>queue_length</property>
                     <probed-type>edu.kit.ipd.sdq.eventsim.instrumentation.description.resource.ActiveResourceRep</probed-type>
                 </probe>
                 <probe>
-                    <property>queue_length</property>
+                    <property>resource_demand</property>
                     <probed-type>edu.kit.ipd.sdq.eventsim.instrumentation.description.resource.ActiveResourceRep</probed-type>
                 </probe>
             </probes>
@@ -83,23 +25,23 @@
             <calculators>
                 <calculator>
                     <from>
-                        <property>request</property>
-                        <probed-type>edu.kit.ipd.sdq.eventsim.instrumentation.description.resource.PassiveResourceRep</probed-type>
-                    </from>
-                    <metric>waiting_time</metric>
-                    <to>
-                        <property>acquire</property>
-                        <probed-type>edu.kit.ipd.sdq.eventsim.instrumentation.description.resource.PassiveResourceRep</probed-type>
-                    </to>
-                </calculator>
-                <calculator>
-                    <from>
                         <property>acquire</property>
                         <probed-type>edu.kit.ipd.sdq.eventsim.instrumentation.description.resource.PassiveResourceRep</probed-type>
                     </from>
                     <metric>hold_time</metric>
                     <to>
                         <property>release</property>
+                        <probed-type>edu.kit.ipd.sdq.eventsim.instrumentation.description.resource.PassiveResourceRep</probed-type>
+                    </to>
+                </calculator>
+                <calculator>
+                    <from>
+                        <property>request</property>
+                        <probed-type>edu.kit.ipd.sdq.eventsim.instrumentation.description.resource.PassiveResourceRep</probed-type>
+                    </from>
+                    <metric>waiting_time</metric>
+                    <to>
+                        <property>acquire</property>
                         <probed-type>edu.kit.ipd.sdq.eventsim.instrumentation.description.resource.PassiveResourceRep</probed-type>
                     </to>
                 </calculator>
@@ -110,11 +52,11 @@
                     <probed-type>edu.kit.ipd.sdq.eventsim.instrumentation.description.resource.PassiveResourceRep</probed-type>
                 </probe>
                 <probe>
-                    <property>release</property>
+                    <property>queue_length</property>
                     <probed-type>edu.kit.ipd.sdq.eventsim.instrumentation.description.resource.PassiveResourceRep</probed-type>
                 </probe>
                 <probe>
-                    <property>queue_length</property>
+                    <property>release</property>
                     <probed-type>edu.kit.ipd.sdq.eventsim.instrumentation.description.resource.PassiveResourceRep</probed-type>
                 </probe>
                 <probe>
@@ -127,7 +69,94 @@
                 <resource-type>edu.kit.ipd.sdq.eventsim.instrumentation.description.resource.PassiveResourceRep</resource-type>
             </resource-set>
         </resource-rule>
+        <action-rule name="ExternalCallAction">
+            <calculators>
+                <calculator>
+                    <from>
+                        <property>before</property>
+                        <probed-type>org.palladiosimulator.pcm.seff.ExternalCallAction</probed-type>
+                    </from>
+                    <metric>timespan_between_actions</metric>
+                    <to>
+                        <property>after</property>
+                        <probed-type>org.palladiosimulator.pcm.seff.ExternalCallAction</probed-type>
+                    </to>
+                </calculator>
+            </calculators>
+            <probes>
+                <probe>
+                    <property>before</property>
+                    <probed-type>org.palladiosimulator.pcm.seff.ExternalCallAction</probed-type>
+                </probe>
+                <probe>
+                    <property>after</property>
+                    <probed-type>org.palladiosimulator.pcm.seff.ExternalCallAction</probed-type>
+                </probe>
+            </probes>
+            <action-set>
+                <restrictions/>
+                <action-type>org.palladiosimulator.pcm.seff.ExternalCallAction</action-type>
+            </action-set>
+        </action-rule>
+        <user-action-rule name="EntryLevelSystemCall">
+            <calculators>
+                <calculator>
+                    <from>
+                        <property>before</property>
+                        <probed-type>org.palladiosimulator.pcm.usagemodel.EntryLevelSystemCall</probed-type>
+                    </from>
+                    <metric>timespan_between_useractions</metric>
+                    <to>
+                        <property>after</property>
+                        <probed-type>org.palladiosimulator.pcm.usagemodel.EntryLevelSystemCall</probed-type>
+                    </to>
+                </calculator>
+            </calculators>
+            <probes>
+                <probe>
+                    <property>before</property>
+                    <probed-type>org.palladiosimulator.pcm.usagemodel.EntryLevelSystemCall</probed-type>
+                </probe>
+                <probe>
+                    <property>after</property>
+                    <probed-type>org.palladiosimulator.pcm.usagemodel.EntryLevelSystemCall</probed-type>
+                </probe>
+            </probes>
+            <user-action-set>
+                <restrictions/>
+                <user-action-type>org.palladiosimulator.pcm.usagemodel.EntryLevelSystemCall</user-action-type>
+            </user-action-set>
+        </user-action-rule>
+        <action-rule name="InternalCallAction">
+            <calculators>
+                <calculator>
+                    <from>
+                        <property>before</property>
+                        <probed-type>org.palladiosimulator.pcm.seff.InternalCallAction</probed-type>
+                    </from>
+                    <metric>timespan_between_actions</metric>
+                    <to>
+                        <property>after</property>
+                        <probed-type>org.palladiosimulator.pcm.seff.InternalCallAction</probed-type>
+                    </to>
+                </calculator>
+            </calculators>
+            <probes>
+                <probe>
+                    <property>before</property>
+                    <probed-type>org.palladiosimulator.pcm.seff.InternalCallAction</probed-type>
+                </probe>
+                <probe>
+                    <property>after</property>
+                    <probed-type>org.palladiosimulator.pcm.seff.InternalCallAction</probed-type>
+                </probe>
+            </probes>
+            <action-set>
+                <restrictions/>
+                <action-type>org.palladiosimulator.pcm.seff.InternalCallAction</action-type>
+            </action-set>
+        </action-rule>
     </rules>
     <system-model></system-model>
-    <usage-model></usage-model>
+    <usage-model>platform:/resource/Minimal/default.usagemodel</usage-model>
 </ns2:instrumentation-description>

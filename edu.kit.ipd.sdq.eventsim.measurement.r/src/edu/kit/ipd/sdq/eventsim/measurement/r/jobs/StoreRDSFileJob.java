@@ -27,14 +27,11 @@ public class StoreRDSFileJob implements RJob {
 	@Override
 	public void process(RContext context) {
 		log.info("Saving measurements into RDS file. This can take a moment...");
-		long start = System.currentTimeMillis();
 		try {
-			context.getConnection().voidEval("saveRDS(mm, '" + convertToRCompliantPath(rdsFilePath) + "')");
-		} catch (RserveException e) {
+			EvaluationHelper.evaluate(context, "saveRDS(mm, '" + convertToRCompliantPath(rdsFilePath) + "')");
+		} catch (EvaluationException e) {
 			log.error("Rserve reported an error while saving measurements to RDS file.", e);
 		}
-		long end = System.currentTimeMillis();
-		context.getStatistics().captureTimeSpentInR(end - start);
 		log.info(String.format("Open the RDS file in R using \"mm <- readRDS('%s')\"",
 				convertToRCompliantPath(rdsFilePath)));
 

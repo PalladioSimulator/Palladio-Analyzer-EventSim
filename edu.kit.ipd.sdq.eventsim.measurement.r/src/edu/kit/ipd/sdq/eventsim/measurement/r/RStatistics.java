@@ -2,13 +2,13 @@ package edu.kit.ipd.sdq.eventsim.measurement.r;
 
 public class RStatistics {
 
-	private double timeSpentInR; // in milliseconds
+	private long timeSpentInR; // in milliseconds
 
-	public void captureTimeSpentInR(double millisecondsSpentInR) {
+	public void captureTimeSpentInR(long millisecondsSpentInR) {
 		timeSpentInR += millisecondsSpentInR;
 	}
 
-	public double getTotalTimeSpentInR() {
+	public long getTotalTimeSpentInR() {
 		return timeSpentInR;
 	}
 

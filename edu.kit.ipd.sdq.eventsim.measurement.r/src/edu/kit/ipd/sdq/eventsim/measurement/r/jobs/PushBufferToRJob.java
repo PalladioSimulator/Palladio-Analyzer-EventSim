@@ -42,13 +42,14 @@ public class PushBufferToRJob implements RJob {
 
 	private void pushBufferToR(RContext context) {
 		RConnection connection = context.getConnection();
+		log.debug("Pushing measurements buffer " + bufferNumber + " to R.");
 
 		// first buffer? then initialize list of data frames, one data frame for each buffer
 		try {
 			if (bufferNumber == 0) {
-				connection.voidEval("mm <- list()");
+				EvaluationHelper.evaluate(context, "mm <- list()");
 			}
-		} catch (RserveException e) {
+		} catch (EvaluationException e) {
 			log.error(e);
 		}
 
@@ -56,32 +57,32 @@ public class PushBufferToRJob implements RJob {
 		try {
 			connection.assign("buffer", createDataFrameFromBuffer(buffer));
 			convertCategoricalColumnsToFactorColumns(context);
-			connection.voidEval("mm[[length(mm)+1]] <- buffer");
-		} catch (RserveException e) {
+			EvaluationHelper.evaluate(context, "mm[[length(mm)+1]] <- buffer");
+		} catch (RserveException | EvaluationException e) {
 			log.error(e);
 		}
 	}
 
 	private void convertCategoricalColumnsToFactorColumns(RContext context) {
 		try {
-			RConnection connection = context.getConnection();
-			connection.voidEval("buffer$what <- as.factor(buffer$what)");
-			connection.voidEval("buffer$where.first.type <- as.factor(buffer$where.first.type)");
-			connection.voidEval("buffer$where.first.id <- as.factor(buffer$where.first.id)");
-			connection.voidEval("buffer$where.first.name <- as.factor(buffer$where.first.name)");
-			connection.voidEval("buffer$where.second.type <- as.factor(buffer$where.second.type)");
-			connection.voidEval("buffer$where.second.id <- as.factor(buffer$where.second.id)");
-			connection.voidEval("buffer$where.second.name <- as.factor(buffer$where.second.name)");
-			connection.voidEval("buffer$where.property <- as.factor(buffer$where.property)");
-			connection.voidEval("buffer$who.type <- as.factor(buffer$who.type)");
-			connection.voidEval("buffer$who.id <- as.factor(buffer$who.id)");
-			connection.voidEval("buffer$who.name <- as.factor(buffer$who.name)");
+			EvaluationHelper.evaluate(context, 
+					"buffer$what <- as.factor(buffer$what)",
+					"buffer$where.first.type <- as.factor(buffer$where.first.type)",
+					"buffer$where.first.id <- as.factor(buffer$where.first.id)",
+					"buffer$where.first.name <- as.factor(buffer$where.first.name)",
+					"buffer$where.second.type <- as.factor(buffer$where.second.type)",
+					"buffer$where.second.id <- as.factor(buffer$where.second.id)",
+					"buffer$where.second.name <- as.factor(buffer$where.second.name)",
+					"buffer$where.property <- as.factor(buffer$where.property)",
+					"buffer$who.type <- as.factor(buffer$who.type)",
+					"buffer$who.id <- as.factor(buffer$who.id)",
+					"buffer$who.name <- as.factor(buffer$who.name)");
 			// next two entries in buffer list are "value" and "when" -- not categorical
 
 			// if there are additional columns for the measurement context, do also convert these into factors
-			connection.voidEval("if (length(mm) >= 14) { "
+			EvaluationHelper.evaluate(context, "if (length(mm) >= 14) { "
 					+ "for (i in 14:length(buffer)) { buffer[[i]] <- as.factor(buffer[[i]]) } }");
-		} catch (RserveException e) {
+		} catch (EvaluationException e) {
 			log.error("Rserve reported an error while converting categorical columns to factors", e);
 		}
 	}

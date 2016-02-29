@@ -6,6 +6,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.apache.log4j.Logger;
 import org.rosuda.REngine.Rserve.RConnection;
 
+import edu.kit.ipd.sdq.eventsim.measurement.r.jobs.EvaluationException;
+import edu.kit.ipd.sdq.eventsim.measurement.r.jobs.EvaluationHelper;
 import edu.kit.ipd.sdq.eventsim.measurement.r.jobs.FinalizeRProcessingJob;
 
 /**
@@ -70,6 +72,11 @@ public class RJobProcessor {
 		@Override
 		public void run() {
 			RContext context = new RContext(connection);
+			try {
+				EvaluationHelper.evaluate(context, "memory.limit(size=1024000)"); // TODO make parameter
+			} catch (EvaluationException e) {
+				log.error(e);
+			}
 
 			boolean keepRunning = true;
 			while (keepRunning) {

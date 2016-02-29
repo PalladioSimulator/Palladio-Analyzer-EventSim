@@ -1,18 +1,18 @@
 package edu.kit.ipd.sdq.eventsim.measurement.r.jobs;
 
-import java.util.Map.Entry;
+import java.util.Collection;
 
 import org.apache.log4j.Logger;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPDouble;
 import org.rosuda.REngine.REXPMismatchException;
-import org.rosuda.REngine.REXPString;
+import org.rosuda.REngine.REXPWrapper;
 import org.rosuda.REngine.RList;
 import org.rosuda.REngine.Rserve.RConnection;
 import org.rosuda.REngine.Rserve.RserveException;
 
 import edu.kit.ipd.sdq.eventsim.measurement.r.Buffer;
-import edu.kit.ipd.sdq.eventsim.measurement.r.BufferPart;
+import edu.kit.ipd.sdq.eventsim.measurement.r.Column;
 import edu.kit.ipd.sdq.eventsim.measurement.r.RContext;
 import edu.kit.ipd.sdq.eventsim.measurement.r.RJob;
 
@@ -62,52 +62,29 @@ public class PushBufferToRJob implements RJob {
 			log.error(e);
 		}
 	}
-
+	
 	private void convertCategoricalColumnsToFactorColumns(RContext context) {
 		try {
-			EvaluationHelper.evaluate(context, 
-					"buffer$what <- as.factor(buffer$what)",
-					"buffer$where.first.type <- as.factor(buffer$where.first.type)",
-					"buffer$where.first.id <- as.factor(buffer$where.first.id)",
-					"buffer$where.first.name <- as.factor(buffer$where.first.name)",
-					"buffer$where.second.type <- as.factor(buffer$where.second.type)",
-					"buffer$where.second.id <- as.factor(buffer$where.second.id)",
-					"buffer$where.second.name <- as.factor(buffer$where.second.name)",
-					"buffer$where.property <- as.factor(buffer$where.property)",
-					"buffer$who.type <- as.factor(buffer$who.type)",
-					"buffer$who.id <- as.factor(buffer$who.id)",
-					"buffer$who.name <- as.factor(buffer$who.name)");
-			// next two entries in buffer list are "value" and "when" -- not categorical
-
-			// if there are additional columns for the measurement context, do also convert these into factors
-			EvaluationHelper.evaluate(context, "if (length(mm) >= 14) { "
-					+ "for (i in 14:length(buffer)) { buffer[[i]] <- as.factor(buffer[[i]]) } }");
+			// first two entries in buffer list are "value" and "when" -- not categorical
+			for (Column<?> c : buffer.getColumns()) {
+				if (c.isFactorial()) {
+					String colName = "buffer$" + c.getName();
+					EvaluationHelper.evaluate(context, colName + " <- as.factor(" + colName + ")");
+				}
+			}
 		} catch (EvaluationException e) {
 			log.error("Rserve reported an error while converting categorical columns to factors", e);
 		}
 	}
-
+	
 	private REXP createDataFrameFromBuffer(Buffer buffer) {
 		try {
-			RList rList = new RList(6, true);
-			rList.put("what", new REXPString(buffer.getWhat()));
-			rList.put("where.first.type", new REXPString(buffer.getWhereFirst().getType()));
-			rList.put("where.first.id", new REXPString(buffer.getWhereFirst().getId()));
-			rList.put("where.first.name", new REXPString(buffer.getWhereFirst().getName()));
-			rList.put("where.second.type", new REXPString(buffer.getWhereSecond().getType()));
-			rList.put("where.second.id", new REXPString(buffer.getWhereSecond().getId()));
-			rList.put("where.second.name", new REXPString(buffer.getWhereSecond().getName()));
-			rList.put("where.property", new REXPString(buffer.getWhereProperty()));
-			rList.put("who.type", new REXPString(buffer.getWho().getType()));
-			rList.put("who.id", new REXPString(buffer.getWho().getId()));
-			rList.put("who.name", new REXPString(buffer.getWho().getName()));
+			Collection<Column<?>> columns = buffer.getColumns();
+			RList rList = new RList(2 + columns.size(), true);
 			rList.put("value", new REXPDouble(buffer.getValue()));
 			rList.put("when", new REXPDouble(buffer.getWhen()));
-
-			for (Entry<String, BufferPart> context : buffer.getContexts().entrySet()) {
-				rList.put(context.getKey() + ".type", new REXPString(context.getValue().type));
-				rList.put(context.getKey() + ".id", new REXPString(context.getValue().id));
-				rList.put(context.getKey() + ".name", new REXPString(context.getValue().name));
+			for(Column<?> c : buffer.getColumns()) {
+				rList.put(c.getName(), REXPWrapper.wrap(c.values()));
 			}
 			return REXP.createDataFrame(rList);
 		} catch (REXPMismatchException e) {

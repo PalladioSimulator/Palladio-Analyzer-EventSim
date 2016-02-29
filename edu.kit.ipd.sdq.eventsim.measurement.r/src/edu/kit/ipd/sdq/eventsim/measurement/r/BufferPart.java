@@ -2,32 +2,32 @@ package edu.kit.ipd.sdq.eventsim.measurement.r;
 
 public class BufferPart {
 
-	public String[] type;
-	public String[] id;
-	public String[] name;
+	public Column<String> type;
+	public Column<String> id;
+	public Column<String> name;
 
-	public BufferPart(int capacity) {
-		type = new String[capacity];
-		id = new String[capacity];
-		name = new String[capacity];
+	public BufferPart(String namePrefix, int capacity) {
+		type = new Column<String>(String.class, namePrefix + ".type", capacity, true);
+		id = new Column<String>(String.class, namePrefix + ".id", capacity, true);
+		name = new Column<String>(String.class, namePrefix + ".name", capacity, true);
 	}
 
-	public String[] getType() {
+	public Column<String> getType() {
 		return type;
 	}
 
-	public String[] getId() {
+	public Column<String> getId() {
 		return id;
 	}
 
-	public String[] getName() {
+	public Column<String> getName() {
 		return name;
 	}
 
 	public void shrink(int size) {
-		id = Buffer.shrinkArray(id, size);
-		type = Buffer.shrinkArray(type, size);
-		name = Buffer.shrinkArray(name, size);
+		id.shrink(size);
+		type.shrink(size);
+		name.shrink(size);
 	}
 
 }

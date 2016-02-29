@@ -1,11 +1,13 @@
 package edu.kit.ipd.sdq.eventsim.measurement.r;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import edu.kit.ipd.sdq.eventsim.measurement.Measurement;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasuringPointPair;
-import edu.kit.ipd.sdq.eventsim.measurement.Pair;
 import edu.kit.ipd.sdq.eventsim.measurement.PropertyExtractor;
 
 /**
@@ -16,10 +18,10 @@ import edu.kit.ipd.sdq.eventsim.measurement.PropertyExtractor;
  */
 public class Buffer {
 
-	private String[] what;
+	private Column<String> what;
 	private BufferPart whereFirst;
 	private BufferPart whereSecond;
-	private String[] whereProperty;
+	private Column<String> whereProperty;
 	private BufferPart who;
 	private double[] value;
 	private double[] when;
@@ -31,11 +33,14 @@ public class Buffer {
 	private PropertyExtractor typeExtractors;
 
 	/**
-	 * the number of elements effectively contained in this buffer. Once this number equals the buffer size, the buffer
-	 * is considered full
+	 * the number of elements effectively contained in this buffer. Once this number equals the buffer capacity, the
+	 * buffer is considered full
 	 */
 	private int size = 0;
 
+	/**
+	 * the maximum size of this buffer
+	 */
 	private final int capacity;
 
 	public Buffer(int capacity, PropertyExtractor idExtractors, PropertyExtractor nameExtractors,
@@ -46,11 +51,11 @@ public class Buffer {
 		this.nameExtractors = nameExtractors;
 		this.typeExtractors = typeExtractors;
 
-		what = new String[capacity];
-		whereFirst = new BufferPart(capacity);
-		whereSecond = new BufferPart(capacity);
-		whereProperty = new String[capacity];
-		who = new BufferPart(capacity);
+		what = new Column<>(String.class, "what", capacity, true);
+		whereFirst = new BufferPart("where.first", capacity);
+		whereSecond = new BufferPart("where.second", capacity);
+		whereProperty = new Column<>(String.class, "where.property", capacity, true);
+		who = new BufferPart("who", capacity);
 		value = new double[capacity];
 		when = new double[capacity];
 
@@ -62,56 +67,49 @@ public class Buffer {
 			MeasuringPointPair<?, ?> mpp = (MeasuringPointPair<?, ?>) m.getWhere();
 			Object first = mpp.getElement().getFirst();
 			Object second = mpp.getElement().getSecond();
-			whereFirst.id[size] = idExtractors.extractFrom(first);
-			whereFirst.type[size] = typeExtractors.extractFrom(first);
-			whereFirst.name[size] = nameExtractors.extractFrom(first);
-			whereSecond.id[size] = idExtractors.extractFrom(second);
-			whereSecond.type[size] = typeExtractors.extractFrom(second);
-			whereSecond.name[size] = nameExtractors.extractFrom(second);
+			whereFirst.getId().set(size, idExtractors.extractFrom(first));
+			whereFirst.getType().set(size, typeExtractors.extractFrom(first));
+			whereFirst.getName().set(size, nameExtractors.extractFrom(first));
+			whereSecond.getId().set(size, idExtractors.extractFrom(second));
+			whereSecond.getType().set(size, typeExtractors.extractFrom(second));
+			whereSecond.getName().set(size, nameExtractors.extractFrom(second));
 		} else {
-			whereFirst.id[size] = idExtractors.extractFrom(m.getWhere().getElement());
-			whereFirst.type[size] = typeExtractors.extractFrom(m.getWhere().getElement());
-			whereFirst.name[size] = nameExtractors.extractFrom(m.getWhere().getElement());
-			whereSecond.id[size] = null;
-			whereSecond.type[size] = null;
-			whereSecond.name[size] = null;
+			whereFirst.getId().set(size, idExtractors.extractFrom(m.getWhere().getElement()));
+			whereFirst.getType().set(size, typeExtractors.extractFrom(m.getWhere().getElement()));
+			whereFirst.getName().set(size, nameExtractors.extractFrom(m.getWhere().getElement()));
 		}
-		whereProperty[size] = m.getWhere().getProperty();
+		whereProperty.set(size, m.getWhere().getProperty());
 		putCommonProperties(m);
 		size++;
 	}
 
 	private <E> void putCommonProperties(Measurement<?> m) {
-		what[size] = m.getWhat().toString();
+		what.set(size, m.getWhat().toString());
 
 		for (Object o : m.getWhere().getContexts()) {
 			String key = typeExtractors.extractFrom(o).toLowerCase();
 			if (!contexts.containsKey(key)) {
-				contexts.put(key, new BufferPart(capacity));
+				contexts.put(key, new BufferPart(key, capacity));
 			}
-			contexts.get(key).id[size] = idExtractors.extractFrom(o);
-			contexts.get(key).type[size] = typeExtractors.extractFrom(o);
-			contexts.get(key).name[size] = nameExtractors.extractFrom(o);
+			contexts.get(key).getId().set(size, idExtractors.extractFrom(o));
+			contexts.get(key).getType().set(size, typeExtractors.extractFrom(o));
+			contexts.get(key).getName().set(size, nameExtractors.extractFrom(o));
 		}
 
 		if (m.getWho() != null) {
-			who.type[size] = typeExtractors.extractFrom(m.getWho());
-			who.id[size] = idExtractors.extractFrom(m.getWho());
-			who.name[size] = nameExtractors.extractFrom(m.getWho());
-		} else {
-			who.type[size] = null;
-			who.id[size] = null;
-			who.name[size] = null;
+			who.getType().set(size, typeExtractors.extractFrom(m.getWho()));
+			who.getId().set(size, idExtractors.extractFrom(m.getWho()));
+			who.getName().set(size, nameExtractors.extractFrom(m.getWho()));
 		}
 		value[size] = m.getValue();
 		when[size] = m.getWhen();
 	}
 
 	public void shrinkToSize() {
-		what = shrinkArray(what, size);
+		what.shrink(size);
 		whereFirst.shrink(size);
 		whereSecond.shrink(size);
-		whereProperty = shrinkArray(whereProperty, size);
+		whereProperty.shrink(size);
 		who.shrink(size);
 		value = shrinkArray(value, size);
 		when = shrinkArray(when, size);
@@ -120,7 +118,7 @@ public class Buffer {
 			p.shrink(size);
 		}
 	}
-
+	
 	protected static String[] shrinkArray(String[] src, int size) {
 		String[] dest = new String[size];
 		System.arraycopy(src, 0, dest, 0, size);
@@ -137,7 +135,7 @@ public class Buffer {
 		return size == capacity;
 	}
 
-	public String[] getWhat() {
+	public Column<String> getWhat() {
 		return what;
 	}
 
@@ -149,7 +147,7 @@ public class Buffer {
 		return whereSecond;
 	}
 
-	public String[] getWhereProperty() {
+	public Column<String> getWhereProperty() {
 		return whereProperty;
 	}
 
@@ -171,6 +169,27 @@ public class Buffer {
 
 	public int getSize() {
 		return size;
+	}
+	
+	public Collection<Column<?>> getColumns() {
+		List<Column<?>> columns = new ArrayList<>();
+		columns.add(what);
+		columns.add(whereFirst.id);
+		columns.add(whereFirst.name);
+		columns.add(whereFirst.type);
+		columns.add(whereSecond.id);
+		columns.add(whereSecond.name);
+		columns.add(whereSecond.type);
+		columns.add(whereProperty);
+		columns.add(who.id);
+		columns.add(who.name);
+		columns.add(who.type);
+		for(BufferPart p : contexts.values()) {
+			columns.add(p.id);
+			columns.add(p.name);
+			columns.add(p.type);
+		}
+		return columns;
 	}
 
 }

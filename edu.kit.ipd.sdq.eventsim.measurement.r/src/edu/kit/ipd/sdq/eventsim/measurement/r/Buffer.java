@@ -8,6 +8,7 @@ import java.util.Map;
 
 import edu.kit.ipd.sdq.eventsim.measurement.Measurement;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasuringPointPair;
+import edu.kit.ipd.sdq.eventsim.measurement.Metadata;
 import edu.kit.ipd.sdq.eventsim.measurement.PropertyExtractor;
 
 /**
@@ -27,6 +28,7 @@ public class Buffer {
 	private double[] when;
 
 	private Map<String, BufferPart> contexts;
+	private Map<String, Column<String>> metadata;
 
 	private PropertyExtractor idExtractors;
 	private PropertyExtractor nameExtractors;
@@ -60,9 +62,27 @@ public class Buffer {
 		when = new double[capacity];
 
 		contexts = new HashMap<>();
+		metadata = new HashMap<>();
 	}
 
-	public <E> void put(Measurement<?> m) { 
+	public <E> void put(Measurement<?> m) {
+		value[size] = m.getValue();
+		when[size] = m.getWhen();
+		what.set(size, m.getWhat().toString());
+		whereProperty.set(size, m.getWhere().getProperty());
+		if (m.getWho() != null) {
+			who.getType().set(size, typeExtractors.extractFrom(m.getWho()));
+			who.getId().set(size, idExtractors.extractFrom(m.getWho()));
+			who.getName().set(size, nameExtractors.extractFrom(m.getWho()));
+		}
+		
+		putMeasuringPoint(m);
+		putContexts(m);
+		putMetadata(m);
+		size++;
+	}
+
+	private void putMeasuringPoint(Measurement<?> m) {
 		if (m.getWhere() instanceof MeasuringPointPair<?, ?>) {
 			MeasuringPointPair<?, ?> mpp = (MeasuringPointPair<?, ?>) m.getWhere();
 			Object first = mpp.getElement().getFirst();
@@ -78,14 +98,9 @@ public class Buffer {
 			whereFirst.getType().set(size, typeExtractors.extractFrom(m.getWhere().getElement()));
 			whereFirst.getName().set(size, nameExtractors.extractFrom(m.getWhere().getElement()));
 		}
-		whereProperty.set(size, m.getWhere().getProperty());
-		putCommonProperties(m);
-		size++;
 	}
 
-	private <E> void putCommonProperties(Measurement<?> m) {
-		what.set(size, m.getWhat().toString());
-
+	private void putContexts(Measurement<?> m) {
 		for (Object o : m.getWhere().getContexts()) {
 			String key = typeExtractors.extractFrom(o).toLowerCase();
 			if (!contexts.containsKey(key)) {
@@ -95,14 +110,17 @@ public class Buffer {
 			contexts.get(key).getType().set(size, typeExtractors.extractFrom(o));
 			contexts.get(key).getName().set(size, nameExtractors.extractFrom(o));
 		}
+	}
 
-		if (m.getWho() != null) {
-			who.getType().set(size, typeExtractors.extractFrom(m.getWho()));
-			who.getId().set(size, idExtractors.extractFrom(m.getWho()));
-			who.getName().set(size, nameExtractors.extractFrom(m.getWho()));
+	private void putMetadata(Measurement<?> m) {
+		for (Metadata md : m.getMetadata()) {
+			String key = md.getName();
+			if (!metadata.containsKey(key)) {
+				// TODO get "factorial" from Metadata object
+				metadata.put(key, new Column<>(String.class, md.getName(), capacity, true));
+			}
+			metadata.get(key).set(size, md.getValue().toString()); // TODO use "value extractor"?
 		}
-		value[size] = m.getValue();
-		when[size] = m.getWhen();
 	}
 
 	public void shrinkToSize() {
@@ -117,8 +135,12 @@ public class Buffer {
 		for (BufferPart p : contexts.values()) {
 			p.shrink(size);
 		}
+
+		for (Column<?> c : metadata.values()) {
+			c.shrink(size);
+		}
 	}
-	
+
 	protected static String[] shrinkArray(String[] src, int size) {
 		String[] dest = new String[size];
 		System.arraycopy(src, 0, dest, 0, size);
@@ -163,14 +185,10 @@ public class Buffer {
 		return when;
 	}
 
-	public Map<String, BufferPart> getContexts() {
-		return contexts;
-	}
-
 	public int getSize() {
 		return size;
 	}
-	
+
 	public Collection<Column<?>> getColumns() {
 		List<Column<?>> columns = new ArrayList<>();
 		columns.add(what);
@@ -184,10 +202,13 @@ public class Buffer {
 		columns.add(who.id);
 		columns.add(who.name);
 		columns.add(who.type);
-		for(BufferPart p : contexts.values()) {
+		for (BufferPart p : contexts.values()) {
 			columns.add(p.id);
 			columns.add(p.name);
 			columns.add(p.type);
+		}
+		for (Column<?> md : metadata.values()) {
+			columns.add(md);
 		}
 		return columns;
 	}

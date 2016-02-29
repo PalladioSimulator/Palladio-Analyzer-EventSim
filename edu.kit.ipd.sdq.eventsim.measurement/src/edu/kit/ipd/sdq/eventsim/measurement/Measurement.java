@@ -29,9 +29,9 @@ public class Measurement<E> {
 
 	private double when;
 
-	private Object[] metadata;
+	private Metadata[] metadata;
 
-	public Measurement(Object what, MeasuringPoint<E> where, Object who, double value, double when, Object... metadata) {
+	public Measurement(Object what, MeasuringPoint<E> where, Object who, double value, double when, Metadata... metadata) {
 		this.what = what;
 		this.where = where;
 		if (who == null) {
@@ -70,6 +70,10 @@ public class Measurement<E> {
 
 	public double getValue() {
 		return value;
+	}
+	
+	public Metadata[] getMetadata() {
+		return metadata;
 	}
 
 	@Override

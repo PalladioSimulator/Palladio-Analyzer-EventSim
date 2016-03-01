@@ -128,7 +128,7 @@ public class RMeasurementStore implements MeasurementStorage {
 	}
 
 	@Override
-	public void put(Measurement<?> m) {
+	public synchronized void put(Measurement<?> m) {
 		buffer.put(m);
 		if (buffer.isFull()) {
 			rJobProcessor.enqueue(new PushBufferToRJob(buffer, bufferNumber++));

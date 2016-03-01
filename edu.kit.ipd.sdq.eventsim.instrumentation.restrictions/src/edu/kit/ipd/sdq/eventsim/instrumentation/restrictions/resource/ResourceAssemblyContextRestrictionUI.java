@@ -63,4 +63,19 @@ public class ResourceAssemblyContextRestrictionUI
 				.collect(Collectors.toList());
 	}
 
+	@Override
+	protected String elementToName(AssemblyContext element) {
+		return element.getEntityName() + " (" + element.getId() + ")";
+	}
+
+	@Override
+	protected String elementToID(AssemblyContext element) {
+		return element.getId();
+	}
+
+	@Override
+	protected String getDescriptionMessage() {
+		return "Please select the assembly context you want to restrict to.";
+	}
+
 }

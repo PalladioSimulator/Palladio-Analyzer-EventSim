@@ -13,7 +13,7 @@ import edu.kit.ipd.sdq.eventsim.instrumentation.xml.RestrictionConverter;
 public class AssemblyContextRestrictionConverter implements RestrictionConverter {
 
 	private static final Logger log = Logger.getLogger(AssemblyContextRestrictionConverter.class);
-	
+
 	@Override
 	public AdaptedInstrumentableRestriction fromImplementation(InstrumentableRestriction<?> restriction) {
 		AssemblyContextRestriction<?> res = (AssemblyContextRestriction<?>) restriction;
@@ -30,6 +30,7 @@ public class AssemblyContextRestrictionConverter implements RestrictionConverter
 		AssemblyContextRestriction<?> restriction = null;
 
 		try {
+			@SuppressWarnings("unchecked")
 			Constructor<? extends AssemblyContextRestriction<?>> c = (Constructor<? extends AssemblyContextRestriction<?>>) adapted
 					.getType().getConstructor();
 			restriction = c.newInstance();

@@ -36,6 +36,7 @@ public class SingleActionRestrictionUI<A extends AbstractAction>
 		this.restriction = restriction;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected SingleActionRestriction<A> createNewRestriction() {
 		ActionRule rule = (ActionRule) InstrumentationDescriptionEditor.getActive().getActiveRule();
@@ -69,6 +70,21 @@ public class SingleActionRestrictionUI<A extends AbstractAction>
 				.map(c -> new ActionRepresentative(c.getAction(), c.getAllocationContext(), c.getAssemblyContext()))
 				.collect(Collectors.toList());
 		return actionContexts.stream().map(c -> c.getAction()).collect(Collectors.toList());
+	}
+
+	@Override
+	protected String elementToName(A element) {
+		return element.getEntityName() + " (" + element.getId() + ")";
+	}
+
+	@Override
+	protected String elementToID(A element) {
+		return element.getId();
+	}
+
+	@Override
+	protected String getDescriptionMessage() {
+		return "Please select the action you want to restrict to.";
 	}
 
 }

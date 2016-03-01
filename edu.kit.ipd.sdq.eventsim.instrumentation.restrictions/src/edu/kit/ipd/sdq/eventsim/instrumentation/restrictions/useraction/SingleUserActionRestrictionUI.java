@@ -19,6 +19,7 @@ public class SingleUserActionRestrictionUI<A extends AbstractUserAction>
 
 	private SingleUserActionRestriction<A> restriction;
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected void initialize(SingleUserActionRestriction<A> restriction) {
 		this.restriction = restriction;
@@ -56,6 +57,21 @@ public class SingleUserActionRestrictionUI<A extends AbstractUserAction>
 		List<UserActionRepresentative> result = new ArrayList<>();
 		result.add(new UserActionRepresentative(action));
 		return result;
+	}
+
+	@Override
+	protected String elementToName(A element) {
+		return element.getEntityName() + " (" + element.getId() + ")";
+	}
+
+	@Override
+	protected String elementToID(A element) {
+		return element.getId();
+	}
+
+	@Override
+	protected String getDescriptionMessage() {
+		return "Please select the user action you want to restrict to.";
 	}
 
 }

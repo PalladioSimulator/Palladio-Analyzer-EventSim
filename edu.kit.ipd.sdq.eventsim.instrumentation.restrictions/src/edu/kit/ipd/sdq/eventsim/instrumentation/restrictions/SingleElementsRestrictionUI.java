@@ -18,7 +18,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
-import org.palladiosimulator.pcm.core.entity.Entity;
 
 import edu.kit.ipd.sdq.eventsim.instrumentation.description.core.Instrumentable;
 import edu.kit.ipd.sdq.eventsim.instrumentation.description.core.InstrumentableRestriction;
@@ -27,7 +26,18 @@ import edu.kit.ipd.sdq.eventsim.instrumentation.specification.editor.Instrumenta
 import edu.kit.ipd.sdq.eventsim.instrumentation.specification.restriction.IRestrictionUI;
 import edu.kit.ipd.sdq.eventsim.instrumentation.specification.restriction.RestrictionDialog;
 
-public abstract class SingleElementsRestrictionUI<I extends Instrumentable, R extends InstrumentableRestriction<I>, E extends Entity>
+/**
+ * 
+ * @author Henning Schulz
+ *
+ * @param <I>
+ *            the handled type of {@link Instrumentable}
+ * @param <R>
+ *            the restriction type
+ * @param <E>
+ *            the type of element to be selecteds
+ */
+public abstract class SingleElementsRestrictionUI<I extends Instrumentable, R extends InstrumentableRestriction<I>, E>
 		implements IRestrictionUI<I> {
 
 	private SetBasedInstrumentationRule<?, I> rule;
@@ -71,8 +81,7 @@ public abstract class SingleElementsRestrictionUI<I extends Instrumentable, R ex
 		dialog = new RestrictionDialog<>(parentShell, this, true);
 		dialog.addOnCloseListener(this::onDialogClose);
 
-		dialog.addOnCreatedListener(() -> dialog.setMessage("Please select the entity you want to restrict to.",
-				IMessageProvider.INFORMATION));
+		dialog.addOnCreatedListener(() -> dialog.setMessage(getDescriptionMessage(), IMessageProvider.INFORMATION));
 
 		if (selected == null) {
 			dialog.addOnCreatedListener(() -> dialog.enableFinish(false));
@@ -80,6 +89,8 @@ public abstract class SingleElementsRestrictionUI<I extends Instrumentable, R ex
 
 		return dialog;
 	}
+
+	protected abstract String getDescriptionMessage();
 
 	@Override
 	public InstrumentableRestriction<I> getRestriction() {
@@ -144,9 +155,9 @@ public abstract class SingleElementsRestrictionUI<I extends Instrumentable, R ex
 
 		int i = 0;
 		for (E entity : entities) {
-			list.add(entity.getEntityName() + " (" + entity.getId() + ")");
+			list.add(elementToName(entity));
 
-			if (selected != null && selected.equals(entity.getId())) {
+			if (selected != null && selected.equals(elementToID(entity))) {
 				list.setSelection(i);
 			}
 
@@ -157,7 +168,7 @@ public abstract class SingleElementsRestrictionUI<I extends Instrumentable, R ex
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				dialog.enableFinish(true);
-				selected = entities.get(list.getSelectionIndex()).getId();
+				selected = elementToID(entities.get(list.getSelectionIndex()));
 			}
 		});
 
@@ -171,6 +182,10 @@ public abstract class SingleElementsRestrictionUI<I extends Instrumentable, R ex
 
 		return container;
 	}
+
+	protected abstract String elementToName(E element);
+
+	protected abstract String elementToID(E element);
 
 	protected abstract List<E> getAllEntities();
 

@@ -11,9 +11,6 @@ import org.apache.log4j.Logger;
  *
  * @param <E>
  *            the measuring point's type (i.e. the type of the probed element)
- * @param <T>
- *            the trigger's type (i.e. the type of the element that caused/triggered this measurement, like a
- *            request/process/thread)
  */
 public class Measurement<E> {
 
@@ -31,7 +28,24 @@ public class Measurement<E> {
 
 	private Metadata[] metadata;
 
-	public Measurement(Object what, MeasuringPoint<E> where, Object who, double value, double when, Metadata... metadata) {
+	/**
+	 * Constructs a new measurement.
+	 * 
+	 * @param what
+	 *            the measured metric or property (e.g. response time)
+	 * @param where
+	 *            the measuring point (e.g. a reference to the method whose response time is to be measured)
+	 * @param who
+	 *            the trigger, i.e. the element that caused this measurement (e.g. a specific process/thread/request)
+	 * @param value
+	 *            the measured value (unit could be stored as metadata, if desired)
+	 * @param when
+	 *            the point in time this measurement refers to
+	 * @param metadata
+	 *            optional data to characterize this measurement
+	 */
+	public Measurement(Object what, MeasuringPoint<E> where, Object who, double value, double when,
+			Metadata... metadata) {
 		this.what = what;
 		this.where = where;
 		if (who == null) {
@@ -71,7 +85,7 @@ public class Measurement<E> {
 	public double getValue() {
 		return value;
 	}
-	
+
 	public Metadata[] getMetadata() {
 		return metadata;
 	}

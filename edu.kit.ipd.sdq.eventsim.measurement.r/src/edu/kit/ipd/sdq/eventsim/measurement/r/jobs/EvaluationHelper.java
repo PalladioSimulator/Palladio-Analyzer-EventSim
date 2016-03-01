@@ -12,11 +12,12 @@ public class EvaluationHelper {
 			try {
 				context.getConnection().voidEval(command);
 			} catch (RserveException e) {
-				String cause = "<unavailable>";
+				// try identifying the cause
+				String cause = null;
 				try {
 					cause = context.getConnection().eval("geterrmessage()").asString();
 				} catch (REXPMismatchException | RserveException e2) {
-					e2.printStackTrace();
+					cause = "Error while identifying cause: " + e2.getMessage();
 				}
 				throw new EvaluationException(String.format("Error for command \"%s\": %s", command, cause));
 			}

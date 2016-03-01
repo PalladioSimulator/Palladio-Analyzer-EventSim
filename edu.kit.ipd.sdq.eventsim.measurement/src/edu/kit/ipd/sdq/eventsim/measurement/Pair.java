@@ -1,21 +1,21 @@
 package edu.kit.ipd.sdq.eventsim.measurement;
 
-public class Pair<T, U> {
+public class Pair<F, S> {
 
-	private T first;
+	private F first;
 
-	private U second;
+	private S second;
 
-	public Pair(T first, U second) {
+	public Pair(F first, S second) {
 		this.first = first;
 		this.second = second;
 	}
 
-	public T getFirst() {
+	public F getFirst() {
 		return first;
 	}
 
-	public U getSecond() {
+	public S getSecond() {
 		return second;
 	}
 
@@ -43,8 +43,7 @@ public class Pair<T, U> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		@SuppressWarnings("rawtypes")
-		Pair other = (Pair) obj;
+		Pair<?, ?> other = (Pair<?, ?>) obj;
 		if (first == null) {
 			if (other.first != null)
 				return false;

@@ -19,4 +19,6 @@ Require-Bundle: edu.kit.ipd.sdq.eventsim.measurement,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: edu.kit.ipd.sdq.eventsim.instrumentation.specification.editor,
- edu.kit.ipd.sdq.eventsim.instrumentation.specification.restriction
+ edu.kit.ipd.sdq.eventsim.instrumentation.specification.repo,
+ edu.kit.ipd.sdq.eventsim.instrumentation.specification.restriction,
+ edu.kit.ipd.sdq.eventsim.instrumentation.specification.util

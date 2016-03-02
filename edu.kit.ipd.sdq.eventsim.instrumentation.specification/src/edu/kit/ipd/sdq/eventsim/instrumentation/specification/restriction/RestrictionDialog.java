@@ -2,8 +2,8 @@ package edu.kit.ipd.sdq.eventsim.instrumentation.specification.restriction;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
+import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
@@ -39,6 +39,8 @@ public class RestrictionDialog<I extends Instrumentable> extends TitleAreaDialog
 	private boolean aborted = false;
 	private boolean lastPage = true;
 
+	private String initialMessage;
+
 	public RestrictionDialog(Shell parentShell, IRestrictionUI<I> ui, boolean pcmRequired) {
 		super(parentShell);
 		this.ui = ui;
@@ -55,6 +57,12 @@ public class RestrictionDialog<I extends Instrumentable> extends TitleAreaDialog
 			listener.onCreated();
 		}
 
+		if (initialMessage != null) {
+			final String m = getMessage();
+			addOnNextListener(() -> setMessage(m, IMessageProvider.INFORMATION));
+			setMessage(initialMessage, IMessageProvider.INFORMATION);
+		}
+
 		setLastPage(lastPage);
 		created = true;
 	}
@@ -64,7 +72,19 @@ public class RestrictionDialog<I extends Instrumentable> extends TitleAreaDialog
 		Composite area = (Composite) super.createDialogArea(parent);
 
 		if (pcmRequired && InstrumentationDescriptionEditor.getActive().getPcm() == null) {
-			askForModels(area);
+			initialMessage = "Please select a Palladio Component Model (PCM) before selecting PCM-specific entities.";
+			final Composite container = askForModels(area);
+
+			addOnNextListener(new OnNextListener() {
+				@Override
+				public void onNext() {
+					container.dispose();
+					enableFinish(false);
+					ui.createUIArea(area);
+					area.layout(true);
+					setLastPage(true);
+				}
+			});
 		} else {
 			setLastPage(true);
 			ui.createUIArea(area);
@@ -73,20 +93,7 @@ public class RestrictionDialog<I extends Instrumentable> extends TitleAreaDialog
 		return area;
 	}
 
-	private void askForModels(Composite area) {
-		askForModel(area, ConstantsContainer.ALLOCATION_EXTENSION, allUri -> {
-			askForModel(area, ConstantsContainer.USAGEMODEL_EXTENSION, usaUri -> {
-				InstrumentationDescription description = InstrumentationDescriptionEditor.getActive().getDescription();
-				description.setAllocationUri(allUri);
-				description.setUsagemodelUri(usaUri);
-				InstrumentationDescriptionEditor.getActive().reloadPcm();
-				ui.createUIArea(area);
-				setLastPage(true);
-			});
-		});
-	}
-
-	private void askForModel(Composite area, String[] extensions, Consumer<String> nextAction) {
+	private Composite askForModels(Composite area) {
 		setLastPage(false);
 
 		if (created) {
@@ -97,28 +104,82 @@ public class RestrictionDialog<I extends Instrumentable> extends TitleAreaDialog
 
 		final Composite container = new Composite(area, SWT.NONE);
 		container.setLayout(new GridLayout());
-		final UriListener uriListener = new UriListener();
-		RestrictionUIHelper.createLoadModelSection(container, getParentShell(), extensions, uriListener);
 
-		addOnNextListener(new OnNextListener() {
+		final UriListener allocListener = new UriListener();
+		final UriListener usageListener = new UriListener();
+
+		new CompoundListener(allocListener, usageListener) {
 			@Override
-			public void onNext() {
-				container.dispose();
-				enableFinish(false);
-				nextAction.accept(uriListener.uri);
-				area.layout(true);
+			public void fire() {
+				enableNext(true);
+				InstrumentationDescription description = InstrumentationDescriptionEditor.getActive().getDescription();
+				description.setAllocationUri(allocListener.uri);
+				description.setUsagemodelUri(usageListener.uri);
+				InstrumentationDescriptionEditor.getActive().reloadPcm();
 			}
-		});
+		};
+
+		RestrictionUIHelper.createLoadModelSection(container, getParentShell(), "Allocation Model",
+				ConstantsContainer.ALLOCATION_EXTENSION, allocListener);
+		RestrictionUIHelper.createLoadModelSection(container, getParentShell(), "Usagemodel",
+				ConstantsContainer.USAGEMODEL_EXTENSION, usageListener);
+
+		return container;
+	}
+
+	private abstract class CompoundListener {
+
+		private UriListener[] listeners;
+		private boolean[] fired;
+
+		@SafeVarargs
+		public CompoundListener(UriListener... listeners) {
+			this.listeners = listeners;
+			this.fired = new boolean[listeners.length];
+
+			for (UriListener l : listeners) {
+				l.registerCompundListener(this);
+			}
+		}
+
+		public void onTextChosen(TextChosenListener l) {
+			boolean fire = true;
+
+			int i = 0;
+			for (TextChosenListener stored : listeners) {
+				if (stored.equals(l)) {
+					fired[i] = true;
+				}
+
+				fire = fire & fired[i];
+
+				i++;
+			}
+
+			if (fire) {
+				fire();
+			}
+		}
+
+		public abstract void fire();
+
 	}
 
 	private class UriListener implements TextChosenListener {
 
 		private String uri;
+		private CompoundListener compoundListener;
+
+		public void registerCompundListener(CompoundListener compoundListener) {
+			this.compoundListener = compoundListener;
+		}
 
 		@Override
 		public void textChosen(String text) {
 			this.uri = text;
-			enableNext(true);
+			if (compoundListener != null) {
+				compoundListener.onTextChosen(this);
+			}
 		}
 
 	}

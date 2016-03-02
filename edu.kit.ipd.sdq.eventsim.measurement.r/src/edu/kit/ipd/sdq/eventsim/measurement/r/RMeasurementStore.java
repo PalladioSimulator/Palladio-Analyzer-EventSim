@@ -26,6 +26,10 @@ import edu.kit.ipd.sdq.eventsim.measurement.r.jobs.StoreRDSFileJob;
  */
 public class RMeasurementStore implements MeasurementStorage {
 
+	private static final String DEFAULT_HOST = "127.0.0.1";
+
+	private static final int DEFAULT_PORT = 6311;
+
 	static final Logger log = Logger.getLogger(RMeasurementStore.class);
 
 	private static final int BUFFER_CAPACITY = 10_000;
@@ -51,12 +55,20 @@ public class RMeasurementStore implements MeasurementStorage {
 	private boolean storeRds;
 	private String rdsFilePath;
 
+	public RMeasurementStore() {
+		this(DEFAULT_HOST, DEFAULT_PORT);
+	}
+	
 	/**
 	 * Use this constructor when no RDS file is to be created upon finish.
 	 */
-	public RMeasurementStore() {
-		this("");
+	public RMeasurementStore(String host, int port) {
+		this(host, port, "");
 		this.storeRds = false;
+	}
+	
+	public RMeasurementStore(String rdsFilePath) {
+		this(DEFAULT_HOST, DEFAULT_PORT, rdsFilePath);
 	}
 
 	/**
@@ -65,13 +77,13 @@ public class RMeasurementStore implements MeasurementStorage {
 	 * @param rdsFilePath
 	 *            the location of the file to be created.
 	 */
-	public RMeasurementStore(String rdsFilePath) {
+	public RMeasurementStore(String host, int port, String rdsFilePath) {
 		this.storeRds = true;
 		this.rdsFilePath = rdsFilePath;
 		idExtractor = new PropertyExtractor();
 		nameExtractor = new PropertyExtractor();
 		typeExtractor = new PropertyExtractor();
-		connection = connectToR();
+		connection = connectToR(host, port);
 		rJobProcessor = new RJobProcessor(connection);
 		rJobProcessor.start();
 
@@ -158,8 +170,8 @@ public class RMeasurementStore implements MeasurementStorage {
 		buffer = new Buffer(BUFFER_CAPACITY, idExtractor, nameExtractor, typeExtractor);
 		bufferNumber = 0;
 	}
-
-	private RConnection connectToR() {
+	
+	private RConnection connectToR(String host, int port) {
 		// try connecting to R
 		RConnection connection = null;
 		for (int retries = 0; retries < CONNECTION_RETRIES_MAX; retries++) {

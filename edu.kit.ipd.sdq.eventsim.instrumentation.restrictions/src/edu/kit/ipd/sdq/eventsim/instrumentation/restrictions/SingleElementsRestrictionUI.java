@@ -5,12 +5,20 @@ import java.util.stream.Collectors;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IMessageProvider;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.IStructuredContentProvider;
+import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.ListViewer;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -18,6 +26,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 import edu.kit.ipd.sdq.eventsim.instrumentation.description.core.Instrumentable;
 import edu.kit.ipd.sdq.eventsim.instrumentation.description.core.InstrumentableRestriction;
@@ -46,7 +55,7 @@ public abstract class SingleElementsRestrictionUI<I extends Instrumentable, R ex
 
 	private RestrictionDialog<I> dialog;
 
-	private String selected;
+	private E selected;
 	private boolean changed = false;
 
 	@SuppressWarnings("unchecked")
@@ -55,7 +64,6 @@ public abstract class SingleElementsRestrictionUI<I extends Instrumentable, R ex
 		setRule();
 		this.restriction = (R) restriction;
 		initialize(this.restriction);
-		this.selected = getInitallySelectedEntityId();
 	}
 
 	@Override
@@ -104,8 +112,8 @@ public abstract class SingleElementsRestrictionUI<I extends Instrumentable, R ex
 
 	private void onDialogClose() {
 		if (!dialog.isAborted() && selected != null) {
-			if (!selected.equals(getInitallySelectedEntityId())) {
-				setIdToRestriction(selected);
+			if (!elementToID(selected).equals(getInitallySelectedEntityId())) {
+				setIdToRestriction(elementToID(selected));
 				changed = true;
 			}
 		}
@@ -144,39 +152,100 @@ public abstract class SingleElementsRestrictionUI<I extends Instrumentable, R ex
 
 		entities = getAllEntities().stream().filter(this::includeEntity).collect(Collectors.toList());
 
-		org.eclipse.swt.widgets.List list = new org.eclipse.swt.widgets.List(container,
-				SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		String initSelectedId = getInitallySelectedEntityId();
+		if (initSelectedId != null) {
+			for (E element : entities) {
+				if (initSelectedId.equals(elementToID(element))) {
+					selected = element;
+				}
+			}
+		}
+
+		Text filterText = new Text(container, SWT.BORDER);
+		FormData fd_text = new FormData();
+		fd_text.top = new FormAttachment(0, 10);
+		fd_text.left = new FormAttachment(0, 10);
+		fd_text.right = new FormAttachment(100, -10);
+		filterText.setLayoutData(fd_text);
+
+		ListViewer viewer = new ListViewer(container, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		FormData fd_list = new FormData();
 		fd_list.bottom = new FormAttachment(100, -10);
 		fd_list.right = new FormAttachment(100, -10);
-		fd_list.top = new FormAttachment(0, 10);
+		fd_list.top = new FormAttachment(filterText, 10, SWT.BOTTOM);
 		fd_list.left = new FormAttachment(0, 10);
-		list.setLayoutData(fd_list);
+		viewer.getList().setLayoutData(fd_list);
 
-		int i = 0;
-		for (E entity : entities) {
-			list.add(elementToName(entity));
+		viewer.setContentProvider(new IStructuredContentProvider() {
 
-			if (selected != null && selected.equals(elementToID(entity))) {
-				list.setSelection(i);
+			@Override
+			public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 			}
 
-			i++;
-		}
-
-		list.addSelectionListener(new SelectionAdapter() {
 			@Override
-			public void widgetSelected(SelectionEvent e) {
-				dialog.enableFinish(true);
-				selected = elementToID(entities.get(list.getSelectionIndex()));
+			public void dispose() {
+			}
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public Object[] getElements(Object inputElement) {
+				return ((List<E>) inputElement).toArray();
 			}
 		});
 
-		list.addMouseListener(new MouseAdapter() {
+		viewer.setInput(entities);
+
+		viewer.setLabelProvider(new LabelProvider() {
+			@SuppressWarnings("unchecked")
 			@Override
-			public void mouseDoubleClick(MouseEvent e) {
-				if (list.getSelectionCount() > 0)
+			public String getText(Object element) {
+				return elementToName((E) element);
+			}
+		});
+
+		filterText.addModifyListener(new ModifyListener() {
+			@Override
+			public void modifyText(ModifyEvent e) {
+				viewer.resetFilters();
+				viewer.addFilter(new ViewerFilter() {
+					@Override
+					public boolean select(Viewer viewer, Object parentElement, Object element) {
+						@SuppressWarnings("unchecked")
+						String name = elementToName((E) element).toLowerCase();
+						return name.contains(filterText.getText().toLowerCase());
+					}
+				});
+
+				if (viewer.getStructuredSelection().isEmpty() && selected != null) {
+					viewer.setSelection(new StructuredSelection(selected), true);
+				}
+			}
+		});
+
+		if (selected != null) {
+			viewer.setSelection(new StructuredSelection(selected), true);
+			dialog.addOnCreatedListener(() -> dialog.enableFinish(true));
+		}
+
+		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public void selectionChanged(SelectionChangedEvent event) {
+				if (!viewer.getStructuredSelection().isEmpty()) {
+					dialog.enableFinish(true);
+					selected = (E) viewer.getStructuredSelection().getFirstElement();
+				}
+			}
+		});
+
+		viewer.addDoubleClickListener(new IDoubleClickListener() {
+
+			@Override
+			public void doubleClick(DoubleClickEvent event) {
+				if (!viewer.getStructuredSelection().isEmpty()) {
 					dialog.close(Window.OK);
+				}
 			}
 		});
 

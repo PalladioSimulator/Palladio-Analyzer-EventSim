@@ -150,6 +150,7 @@ public class RMeasurementStore implements MeasurementStorage {
 
 	@Override
 	public void finish() {
+		log.info("Closing R measurement store...");
 		buffer.shrinkToSize();
 
 		rJobProcessor.enqueue(new PushBufferToRJob(buffer, bufferNumber++));
@@ -174,9 +175,10 @@ public class RMeasurementStore implements MeasurementStorage {
 	private RConnection connectToR(String host, int port) {
 		// try connecting to R
 		RConnection connection = null;
+		log.info("Establishing R connection to " + host + ":" + port+ "...");
 		for (int retries = 0; retries < CONNECTION_RETRIES_MAX; retries++) {
 			try {
-				connection = new RConnection();
+				connection = new RConnection(host, port);
 			} catch (RserveException e) {
 				// handled in the following
 			}
@@ -187,10 +189,11 @@ public class RMeasurementStore implements MeasurementStorage {
 			} else {
 				if (retries == 0) {
 					log.error("Could not establish Rserve connection to R. "
-							+ "Make sure to run Rserve, e.g. by calling \"library(Rserve); Rserve()\" in R. ");
+							+ "Make sure to run Rserve, e.g. by calling \"library(Rserve); Rserve(port=" + port
+							+ ")\" in R. ");
 				}
 				if (retries % 20 == 0) {
-					log.error("Waiting for Rserve connection...");
+					log.error("Waiting for Rserve connection to " + host + ":" + port + "...");
 				}
 				// wait some time before retrying again
 				try {

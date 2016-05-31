@@ -109,14 +109,12 @@ This Agreement is governed by the laws of the State of New York and the intellec
       <import plugin="de.uka.ipd.sdq.simucomframework.variables" version="1.0.0" match="greaterOrEqual"/>
       <import plugin="de.uka.ipd.sdq.simulation" version="1.0.0" match="greaterOrEqual"/>
       <import plugin="de.uka.ipd.sdq.probfunction.math" version="2.0.2" match="greaterOrEqual"/>
-      <import plugin="edu.kit.ipd.sdq.eventsim.components" version="1.0.0" match="greaterOrEqual"/>
       <import plugin="org.apache.log4j" version="1.2.15" match="greaterOrEqual"/>
       <import plugin="org.eclipse.osgi.services" version="3.5.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.osgi" version="3.10.101" match="greaterOrEqual"/>
       <import plugin="de.uka.ipd.sdq.simucomframework.simucomstatus" version="1.0.0" match="greaterOrEqual"/>
       <import plugin="org.palladiosimulator.analyzer.workflow" version="1.0.0" match="greaterOrEqual"/>
       <import plugin="edu.kit.ipd.sdq.eventsim.api" version="2.0.0" match="greaterOrEqual"/>
-      <import plugin="edu.kit.ipd.sdq.eventsim.components" version="2.0.0" match="greaterOrEqual"/>
       <import plugin="edu.kit.ipd.sdq.eventsim.measurement" version="2.0.0" match="greaterOrEqual"/>
       <import plugin="de.uka.ipd.sdq.codegen.simucontroller" version="1.0.0" match="greaterOrEqual"/>
       <import plugin="edu.kit.ipd.sdq.eventsim.core" version="2.0.0" match="greaterOrEqual"/>

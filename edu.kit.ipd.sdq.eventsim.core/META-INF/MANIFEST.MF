@@ -10,7 +10,6 @@ Require-Bundle: de.uka.ipd.sdq.simucomframework.simucomstatus;bundle-version="1.
  org.palladiosimulator.analyzer.workflow;bundle-version="1.0.0",
  org.palladiosimulator.pcm;bundle-version="4.0.0",
  edu.kit.ipd.sdq.eventsim.api;bundle-version="2.0.0",
- edu.kit.ipd.sdq.eventsim.components;bundle-version="2.0.0",
  de.uka.ipd.sdq.simulation,
  edu.kit.ipd.sdq.eventsim.instrumentation.description,
  edu.kit.ipd.sdq.eventsim.measurement,

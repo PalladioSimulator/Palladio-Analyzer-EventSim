@@ -11,7 +11,6 @@ Require-Bundle: de.uka.ipd.sdq.simulation.abstractsimengine;bundle-version="1.0.
  edu.kit.ipd.sdq.eventsim.core;bundle-version="2.0.0",
  edu.kit.ipd.sdq.eventsim.api;bundle-version="2.0.0",
  de.uka.ipd.sdq.probfunction.math;bundle-version="2.0.2",
- edu.kit.ipd.sdq.eventsim.components;bundle-version="2.0.0",
  com.google.inject.guice;bundle-version="4.0.0",
  edu.kit.ipd.sdq.eventsim.measurement.osgi;bundle-version="2.0.0",
  edu.kit.ipd.sdq.eventsim.instrumentation.description,

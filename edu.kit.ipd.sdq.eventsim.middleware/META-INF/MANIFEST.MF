@@ -13,7 +13,6 @@ Require-Bundle: de.uka.ipd.sdq.simulation.abstractsimengine;bundle-version="1.0.
  org.palladiosimulator.pcm;bundle-version="4.0.0",
  de.uka.ipd.sdq.codegen.simucontroller;bundle-version="1.0.0",
  edu.kit.ipd.sdq.eventsim.api;bundle-version="2.0.0",
- edu.kit.ipd.sdq.eventsim.components;bundle-version="2.0.0",
  edu.kit.ipd.sdq.eventsim.measurement;bundle-version="2.0.0",
  edu.kit.ipd.sdq.eventsim.core;bundle-version="2.0.0",
  com.google.inject.guice;bundle-version="4.0.0",
@@ -22,13 +21,14 @@ Require-Bundle: de.uka.ipd.sdq.simulation.abstractsimengine;bundle-version="1.0.
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: edu.kit.ipd.sdq.eventsim.middleware;
-  uses:="org.osgi.framework,
+  uses:="edu.kit.ipd.sdq.eventsim.api.events,
+   org.osgi.framework,
+   com.google.inject,
    de.uka.ipd.sdq.simulation.abstractsimengine,
    edu.kit.ipd.sdq.eventsim.api,
    de.uka.ipd.sdq.probfunction.math,
    de.uka.ipd.sdq.simulation,
-   edu.kit.ipd.sdq.eventsim.middleware.simulation,
-   edu.kit.ipd.sdq.eventsim.components.events,
+   edu.kit.ipd.sdq.eventsim.middleware.events,
    edu.kit.ipd.sdq.eventsim.measurement",
- edu.kit.ipd.sdq.eventsim.middleware.events,
+ edu.kit.ipd.sdq.eventsim.middleware.events;uses:="edu.kit.ipd.sdq.eventsim.api.events",
  edu.kit.ipd.sdq.eventsim.middleware.simulation;uses:="de.uka.ipd.sdq.simulation.abstractsimengine,edu.kit.ipd.sdq.eventsim.api,de.uka.ipd.sdq.scheduler"

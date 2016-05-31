@@ -18,7 +18,7 @@ import org.osgi.service.event.EventHandler;
 
 import edu.kit.ipd.sdq.eventsim.api.events.IEventHandler;
 import edu.kit.ipd.sdq.eventsim.api.events.SimulationEvent;
-import edu.kit.ipd.sdq.eventsim.components.Activator;
+import edu.kit.ipd.sdq.eventsim.middleware.Activator;
 
 /**
  * Wraps the OSGi {@link EventAdmin} service for better type safety. {@link SimulationEvent}s and {@link IEventHandler}s

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry exported="true" kind="lib" path="guice-assistedinject-4.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="guice-4.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="javax.inject.jar"/>
 	<classpathentry exported="true" kind="lib" path="guava-18.0.jar"/>

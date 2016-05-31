@@ -7,6 +7,7 @@ import edu.kit.ipd.sdq.eventsim.instrumentation.description.action.ActionReprese
 import edu.kit.ipd.sdq.eventsim.instrumentation.description.core.InstrumentationDescription;
 import edu.kit.ipd.sdq.eventsim.instrumentation.description.resource.ResourceRepresentative;
 import edu.kit.ipd.sdq.eventsim.instrumentation.description.useraction.UserActionRepresentative;
+import edu.kit.ipd.sdq.eventsim.measurement.MeasurementFacade;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 import edu.kit.ipd.sdq.eventsim.measurement.ProbeConfiguration;
 
@@ -43,7 +44,7 @@ public class InstrumentorInstantiator<S, M> {
 		this.mapping = mapping;
 	}
 
-	public <C extends ProbeConfiguration> Instrumentor<S, C> createFor(C configuration) {
+	public <C extends ProbeConfiguration> Instrumentor<S, C> createFor(MeasurementFacade<C> measurementFacade) {
 		// Create an Instrumentor for the instrumentation description type that
 		// should be implemented and wraps it to obtain an Instrumentor for the
 		// EventSim entity type
@@ -51,17 +52,17 @@ public class InstrumentorInstantiator<S, M> {
 			// Need to use a pair of the resource representative and the actual
 			// resource entity in order to pass the latter to the instrumentor
 			Instrumentor<SEMPair<S, ResourceRepresentative>, C> instrumentor = new ResourceInstrumentor<>(storage,
-					bundle, description, pcm, configuration);
+					bundle, description, pcm, measurementFacade);
 			return new InstrumentorWrapper<>(r -> new SEMPair<>(r, (ResourceRepresentative) mapping.get(r)),
 					instrumentor);
 		} else if (ActionRepresentative.class.isAssignableFrom(modelType)) {
 			Instrumentor<ActionRepresentative, C> modelInstrumentor = new ActionInstrumentor<C>(
-					storage, bundle, description, pcm, configuration);
+					storage, bundle, description, pcm, measurementFacade);
 			return new InstrumentorWrapper<>((S a) -> (ActionRepresentative) mapping.get(a),
 					modelInstrumentor);
 		} else if (UserActionRepresentative.class.isAssignableFrom(modelType)) {
 			Instrumentor<UserActionRepresentative, C> modelInstrumentor = new UserActionInstrumentor<C>(
-					storage, bundle, description, pcm, configuration);
+					storage, bundle, description, pcm, measurementFacade);
 			return new InstrumentorWrapper<>(
 					(S a) -> (UserActionRepresentative) mapping.get(a),
 					modelInstrumentor);

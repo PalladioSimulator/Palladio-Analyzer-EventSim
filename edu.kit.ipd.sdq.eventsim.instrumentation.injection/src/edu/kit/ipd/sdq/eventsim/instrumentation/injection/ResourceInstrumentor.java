@@ -16,7 +16,6 @@ import edu.kit.ipd.sdq.eventsim.measurement.MeasurementFacade;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 import edu.kit.ipd.sdq.eventsim.measurement.ProbeConfiguration;
 import edu.kit.ipd.sdq.eventsim.measurement.calculator.BinaryCalculator;
-import edu.kit.ipd.sdq.eventsim.measurement.osgi.BundleProbeLocator;
 import edu.kit.ipd.sdq.eventsim.measurement.osgi.CalculatorFactory;
 import edu.kit.ipd.sdq.eventsim.measurement.probe.IProbe;
 
@@ -44,11 +43,11 @@ public class ResourceInstrumentor<R, C extends ProbeConfiguration>
 	private final CalculatorFactory calculatorFactory;
 	private final InstrumentationDescription description;
 
-	public ResourceInstrumentor(MeasurementStorage measurementStorage, Bundle bundle,
-			InstrumentationDescription description, PCMModel pcm, C configuration) {
-		this.measurementFacade = new MeasurementFacade<>(configuration, new BundleProbeLocator<>(bundle));
+    public ResourceInstrumentor(MeasurementStorage measurementStorage, Bundle bundle,
+            InstrumentationDescription description, PCMModel pcm, MeasurementFacade<C> measurementFacade) {
 		this.measurementStorage = measurementStorage;
 		this.calculatorFactory = new CalculatorFactory(bundle);
+		this.measurementFacade = measurementFacade;
 		this.description = description;
 	}
 

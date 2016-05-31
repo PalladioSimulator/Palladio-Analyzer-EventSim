@@ -3,6 +3,7 @@ package edu.kit.ipd.sdq.eventsim.workload;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.osgi.framework.Bundle;
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 
 import com.google.inject.Inject;
@@ -27,7 +28,9 @@ import edu.kit.ipd.sdq.eventsim.instrumentation.description.useraction.UserActio
 import edu.kit.ipd.sdq.eventsim.instrumentation.injection.Instrumentor;
 import edu.kit.ipd.sdq.eventsim.instrumentation.injection.InstrumentorBuilder;
 import edu.kit.ipd.sdq.eventsim.interpreter.TraversalListenerRegistry;
+import edu.kit.ipd.sdq.eventsim.measurement.MeasurementFacade;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
+import edu.kit.ipd.sdq.eventsim.measurement.osgi.BundleProbeLocator;
 import edu.kit.ipd.sdq.eventsim.workload.debug.DebugUsageTraversalListener;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
 import edu.kit.ipd.sdq.eventsim.workload.events.ResumeUsageTraversalEvent;
@@ -85,6 +88,8 @@ public class EventSimWorkloadModel implements IWorkload {
     
 	@Inject
     private InstrumentationDescription instrumentation;
+
+    private MeasurementFacade<WorkloadMeasurementConfiguration> measurementFacade;
     
     @Inject
     public EventSimWorkloadModel(ISimulationMiddleware middleware) {
@@ -142,7 +147,7 @@ public class EventSimWorkloadModel implements IWorkload {
 		});
 	}
 
-	private void setupMeasurements() {
+	private void setupMeasurements() {	    
 		// create instrumentor for instrumentation description
 		// TODO get rid of cast (and middleware/simulation dependencies)
 		Instrumentor<?, ?> instrumentor = InstrumentorBuilder
@@ -152,7 +157,7 @@ public class EventSimWorkloadModel implements IWorkload {
 				.withStorage(measurementStorage)
 				.forModelType(UserActionRepresentative.class)
 				.withoutMapping()
-				.createFor(new WorkloadMeasurementConfiguration(traversalListeners)); // TODO 
+				.createFor(getMeasurementFacade()); 
 		instrumentor.instrumentAll();
 
 		measurementStorage.addIdExtractor(User.class, c -> Long.toString(((User)c).getEntityId()));
@@ -173,5 +178,15 @@ public class EventSimWorkloadModel implements IWorkload {
 	public ISystem getSystem() {
 		return system;
 	}
+	
+    public MeasurementFacade<WorkloadMeasurementConfiguration> getMeasurementFacade() {
+        if (measurementFacade == null) {
+            // setup measurement facade
+            Bundle bundle = Activator.getContext().getBundle();
+            measurementFacade = new MeasurementFacade<>(new WorkloadMeasurementConfiguration(traversalListeners),
+                    new BundleProbeLocator<>(bundle));
+        }
+        return measurementFacade;
+    }
 
 }

@@ -19,7 +19,7 @@
             strategy="edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies.EntryLevelSystemCallTraversalStrategy">
       </strategy>
       <strategy
-            action="org.palladiosimulator.pcm.seff.LoopAction"
+            action="org.palladiosimulator.pcm.usagemodel.Loop"
             name="LoopAction"
             strategy="edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies.LoopTraversalStrategy">
       </strategy>

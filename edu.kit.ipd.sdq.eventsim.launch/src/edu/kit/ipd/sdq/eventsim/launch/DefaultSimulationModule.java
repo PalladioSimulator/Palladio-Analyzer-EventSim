@@ -5,6 +5,7 @@ import com.google.inject.AbstractModule;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationConfiguration;
 import edu.kit.ipd.sdq.eventsim.api.PCMModel;
 import edu.kit.ipd.sdq.eventsim.instrumentation.description.core.InstrumentationDescription;
+import edu.kit.ipd.sdq.eventsim.middleware.MeasurementStorageModule;
 import edu.kit.ipd.sdq.eventsim.middleware.SimulationMiddlewareModule;
 import edu.kit.ipd.sdq.eventsim.resources.EventSimResourceModule;
 import edu.kit.ipd.sdq.eventsim.system.EventSimSystemModule;
@@ -24,6 +25,7 @@ public class DefaultSimulationModule extends AbstractModule {
     @Override
     protected void configure() {
         install(new SimulationMiddlewareModule(config));
+        install(new MeasurementStorageModule(config));
         install(new EventSimWorkloadModule());
         install(new EventSimSystemModule());
         install(new EventSimResourceModule());

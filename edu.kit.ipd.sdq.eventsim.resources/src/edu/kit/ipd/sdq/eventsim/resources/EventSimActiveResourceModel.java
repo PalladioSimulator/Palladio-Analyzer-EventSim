@@ -8,6 +8,7 @@ import java.util.WeakHashMap;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.osgi.framework.Bundle;
 import org.palladiosimulator.pcm.resourceenvironment.ProcessingResourceSpecification;
 import org.palladiosimulator.pcm.resourceenvironment.ResourceContainer;
 import org.palladiosimulator.pcm.resourcetype.ResourceType;
@@ -31,7 +32,9 @@ import edu.kit.ipd.sdq.eventsim.instrumentation.description.core.Instrumentation
 import edu.kit.ipd.sdq.eventsim.instrumentation.description.resource.ActiveResourceRep;
 import edu.kit.ipd.sdq.eventsim.instrumentation.injection.Instrumentor;
 import edu.kit.ipd.sdq.eventsim.instrumentation.injection.InstrumentorBuilder;
+import edu.kit.ipd.sdq.eventsim.measurement.MeasurementFacade;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
+import edu.kit.ipd.sdq.eventsim.measurement.osgi.BundleProbeLocator;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimActiveResource;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimulatedProcess;
 import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
@@ -59,8 +62,10 @@ public class EventSimActiveResourceModel implements IActiveResource {
 	
     private PCMModel pcm; 
     
+    private MeasurementFacade<ResourceProbeConfiguration> measurementFacade;
+    
     private InstrumentationDescription instrumentation;
-	
+    
 	@Inject
     public EventSimActiveResourceModel(ISimulationMiddleware middleware, ISimulationModel model,
             MeasurementStorage measurementStorage, PCMModel pcm, InstrumentationDescription instrumentation) {
@@ -80,6 +85,10 @@ public class EventSimActiveResourceModel implements IActiveResource {
 		// set up the resource scheduler
 		this.schedulingFactory = new SchedulingFactory((SchedulerModel) model); // TODO get rid of cast
 		
+		// setup measurement facade
+		Bundle bundle = Activator.getContext().getBundle();
+		measurementFacade = new MeasurementFacade<>(new ResourceProbeConfiguration(), new BundleProbeLocator<>(bundle));
+		
 		// create instrumentor for instrumentation description
 		instrumentor = InstrumentorBuilder.buildFor(pcm)
 				.inBundle(Activator.getContext().getBundle())
@@ -87,7 +96,7 @@ public class EventSimActiveResourceModel implements IActiveResource {
 				.withStorage(measurementStorage)
 				.forModelType(ActiveResourceRep.class)
 				.withMapping((SimActiveResource r) -> new ActiveResourceRep(r.getSpecification()))
-				.createFor(new ResourceProbeConfiguration());
+				.createFor(measurementFacade);
 		
 		measurementStorage.addIdExtractor(SimActiveResource.class, c -> ((SimActiveResource)c).getSpecification().getId());
 		measurementStorage.addNameExtractor(SimActiveResource.class, c -> ((SimActiveResource)c).getName());

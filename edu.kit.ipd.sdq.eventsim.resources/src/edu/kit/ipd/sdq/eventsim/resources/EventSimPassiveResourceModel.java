@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import org.osgi.framework.Bundle;
 import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 import org.palladiosimulator.pcm.repository.PassiveResource;
 
@@ -23,7 +24,9 @@ import edu.kit.ipd.sdq.eventsim.instrumentation.description.core.Instrumentation
 import edu.kit.ipd.sdq.eventsim.instrumentation.description.resource.PassiveResourceRep;
 import edu.kit.ipd.sdq.eventsim.instrumentation.injection.Instrumentor;
 import edu.kit.ipd.sdq.eventsim.instrumentation.injection.InstrumentorBuilder;
+import edu.kit.ipd.sdq.eventsim.measurement.MeasurementFacade;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
+import edu.kit.ipd.sdq.eventsim.measurement.osgi.BundleProbeLocator;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimPassiveResource;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimulatedProcess;
 import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
@@ -47,6 +50,8 @@ public class EventSimPassiveResourceModel implements IPassiveResource {
     
     private InstrumentationDescription instrumentation;
     
+    private MeasurementFacade<ResourceProbeConfiguration> measurementFacade;
+    
     @Inject
 	public EventSimPassiveResourceModel(ISimulationMiddleware middleware, ISimulationModel model,
             MeasurementStorage measurementStorage, PCMModel pcm, InstrumentationDescription instrumentation) {
@@ -62,6 +67,10 @@ public class EventSimPassiveResourceModel implements IPassiveResource {
 	}
 
 	public void init() {
+        // setup measurement facade
+        Bundle bundle = Activator.getContext().getBundle();
+        measurementFacade = new MeasurementFacade<>(new ResourceProbeConfiguration(), new BundleProbeLocator<>(bundle));
+	    
 		// create instrumentor for instrumentation description
 		instrumentor = InstrumentorBuilder
 				.buildFor(pcm)
@@ -70,7 +79,7 @@ public class EventSimPassiveResourceModel implements IPassiveResource {
 				.withStorage(measurementStorage)
 				.forModelType(PassiveResourceRep.class)
 				.withMapping((SimPassiveResource r) -> new PassiveResourceRep(r.getSpecification(), r.getAssemblyContext()))
-				.createFor(new ResourceProbeConfiguration());
+				.createFor(measurementFacade);
 		
 		measurementStorage.addIdExtractor(SimPassiveResource.class, c -> ((SimPassiveResource)c).getSpecification().getId());
 		measurementStorage.addNameExtractor(SimPassiveResource.class, c -> ((SimPassiveResource)c).getName());

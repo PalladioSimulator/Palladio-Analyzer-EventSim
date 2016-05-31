@@ -6,6 +6,7 @@ import edu.kit.ipd.sdq.eventsim.api.PCMModel;
 import edu.kit.ipd.sdq.eventsim.instrumentation.description.action.ActionRepresentative;
 import edu.kit.ipd.sdq.eventsim.instrumentation.description.core.InstrumentationDescription;
 import edu.kit.ipd.sdq.eventsim.instrumentation.description.useraction.UserActionRepresentative;
+import edu.kit.ipd.sdq.eventsim.measurement.MeasurementFacade;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 import edu.kit.ipd.sdq.eventsim.measurement.ProbeConfiguration;
 
@@ -36,14 +37,14 @@ public class MappinglessInstrumentorInstantiator<M> {
 		this.modelType = modelType;
 	}
 
-	public <C extends ProbeConfiguration> Instrumentor<M, C> createFor(C configuration) {
+	public <C extends ProbeConfiguration> Instrumentor<M, C> createFor(MeasurementFacade<C> measurementFacade) {
 		if (ActionRepresentative.class.isAssignableFrom(modelType)) {
 			Instrumentor<ActionRepresentative, C> modelInstrumentor = new ActionInstrumentor<C>(
-					storage, bundle, description, pcm, configuration);
+					storage, bundle, description, pcm, measurementFacade);
 			return new InstrumentorWrapper<>((M a) -> (ActionRepresentative) a, modelInstrumentor);
 		} else if (UserActionRepresentative.class.isAssignableFrom(modelType)) {
 			Instrumentor<UserActionRepresentative, C> modelInstrumentor = new UserActionInstrumentor<C>(
-					storage, bundle, description, pcm, configuration);
+					storage, bundle, description, pcm, measurementFacade);
 			return new InstrumentorWrapper<>((M a) -> (UserActionRepresentative) a, modelInstrumentor);
 		} else {
 			return voidInstrumentor();

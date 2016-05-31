@@ -3,6 +3,7 @@ package edu.kit.ipd.sdq.eventsim.system;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.osgi.framework.Bundle;
 import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 import org.palladiosimulator.pcm.core.entity.Entity;
 import org.palladiosimulator.pcm.repository.OperationSignature;
@@ -31,6 +32,7 @@ import edu.kit.ipd.sdq.eventsim.instrumentation.injection.InstrumentorBuilder;
 import edu.kit.ipd.sdq.eventsim.interpreter.TraversalListenerRegistry;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementFacade;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
+import edu.kit.ipd.sdq.eventsim.measurement.osgi.BundleProbeLocator;
 import edu.kit.ipd.sdq.eventsim.system.command.BuildComponentInstances;
 import edu.kit.ipd.sdq.eventsim.system.command.FindAssemblyContextForSystemCall;
 import edu.kit.ipd.sdq.eventsim.system.command.InstallExternalCallParameterHandling;
@@ -69,7 +71,7 @@ public class EventSimSystemModel implements ISystem {
 
     @Inject
     private IActiveResource activeResource;
-    
+
     @Inject
     private IPassiveResource passiveResource;
 
@@ -90,25 +92,26 @@ public class EventSimSystemModel implements ISystem {
 
     @Inject
     private TraversalListenerRegistry<AbstractAction, Request, RequestState> traversalListeners;
-    
+
     @Inject
     private PCMModel pcm;
-    
+
     @Inject
     private InstrumentationDescription instrumentation;
+    
+    private MeasurementFacade<SystemMeasurementConfiguration> measurementFacade;
 
     private SimulatedResourceEnvironment resourceEnvironment;
     private AllocationRegistry resourceAllocation;
     private Map<String, ComponentInstance> componentRegistry;
-    private MeasurementFacade<SystemMeasurementConfiguration> measurementFacade;
-    
+
     @Inject
     public EventSimSystemModel(ISimulationMiddleware middleware) {
         // initialize in simulation preparation phase
         middleware.registerEventHandler(SimulationPrepareEvent.class, e -> init());
     }
 
-    public void init() {
+    private void init() {
         // install debug traversal listeners, if debugging is enabled
         if (logger.isDebugEnabled()) {
             traversalListeners.addTraversalListener(new DebugSeffTraversalListener());
@@ -148,15 +151,13 @@ public class EventSimSystemModel implements ISystem {
         // spawn a new EventSim request
         final Request request = new Request(model, call, user);
 
-        new BeginSeffTraversalEvent(model, component, signature, user.getStochasticExpressionContext(),
-                interpreter).schedule(request, 0);
+        new BeginSeffTraversalEvent(model, component, signature, user.getStochasticExpressionContext(), interpreter)
+                .schedule(request, 0);
     }
 
-    public void finalise() {
-        // TODO
-        // seffInterpreter.getConfiguration().removeTraversalListeners();
-
-        measurementFacade = null;
+    private void finalise() {
+        // TODO really?
+        // nothing to do, currently
     }
 
     public IActiveResource getActiveResource() {
@@ -170,24 +171,22 @@ public class EventSimSystemModel implements ISystem {
     /**
      * Register event handler to react on specific simulation events.
      */
-    private void registerEventHandler() {   
-//        middleware.registerEventHandler(SimulationInitEvent.class, e -> init());
+    private void registerEventHandler() {
         middleware.registerEventHandler(SimulationStopEvent.class, e -> finalise());
 
         // setup system call parameter handling
-        middleware.registerEventHandler(SystemRequestSpawnEvent.class, new BeforeSystemCallParameterHandler(this, executor));
+        middleware.registerEventHandler(SystemRequestSpawnEvent.class,
+                new BeforeSystemCallParameterHandler(this, executor));
         middleware.registerEventHandler(SystemRequestFinishedEvent.class, new AfterSystemCallParameterHandler());
     }
 
-    private void setupMeasurements() {
+    private void setupMeasurements() {        
         // create instrumentor for instrumentation description
         // TODO get rid of cast
-        Instrumentor<?, ?> instrumentor = InstrumentorBuilder.buildFor(pcm)
-                .inBundle(Activator.getContext().getBundle())
+        Instrumentor<?, ?> instrumentor = InstrumentorBuilder.buildFor(pcm).inBundle(Activator.getContext().getBundle())
                 .withDescription(instrumentation).withStorage(measurementStorage)
                 .forModelType(ActionRepresentative.class).withoutMapping()
-                .createFor(new SystemMeasurementConfiguration(traversalListeners)); // TODO remove config, use
-                                                                  // injection
+                .createFor(getMeasurementFacade());
         instrumentor.instrumentAll();
 
         measurementStorage.addIdExtractor(Request.class, c -> Long.toString(((Request) c).getId()));
@@ -228,7 +227,13 @@ public class EventSimSystemModel implements ISystem {
     }
 
     public MeasurementFacade<SystemMeasurementConfiguration> getMeasurementFacade() {
+        if (measurementFacade == null) {
+            // setup measurement facade
+            Bundle bundle = Activator.getContext().getBundle();
+            measurementFacade = new MeasurementFacade<>(new SystemMeasurementConfiguration(traversalListeners),
+                    new BundleProbeLocator<>(bundle));
+        }
         return measurementFacade;
     }
-
+    
 }

@@ -22,7 +22,6 @@ import edu.kit.ipd.sdq.eventsim.measurement.Pair;
 import edu.kit.ipd.sdq.eventsim.measurement.ProbeConfiguration;
 import edu.kit.ipd.sdq.eventsim.measurement.annotation.Calculator;
 import edu.kit.ipd.sdq.eventsim.measurement.calculator.BinaryCalculator;
-import edu.kit.ipd.sdq.eventsim.measurement.osgi.BundleProbeLocator;
 import edu.kit.ipd.sdq.eventsim.measurement.osgi.CalculatorFactory;
 import edu.kit.ipd.sdq.eventsim.measurement.probe.IProbe;
 
@@ -44,11 +43,11 @@ public class ActionInstrumentor<C extends ProbeConfiguration> implements Instrum
 	private final PCMModelCommandExecutor executor;
 
 	public ActionInstrumentor(MeasurementStorage measurementStorage, Bundle bundle,
-			InstrumentationDescription description, PCMModel pcm, C configuration) {
+			InstrumentationDescription description, PCMModel pcm, MeasurementFacade<C> measurementFacade) {
 		this.measurementStorage = measurementStorage;
 		this.calculatorFactory = new CalculatorFactory(bundle);
 		this.description = description;
-		this.measurementFacade = new MeasurementFacade<>(configuration, new BundleProbeLocator<>(bundle));
+		this.measurementFacade = measurementFacade;
 		this.executor = new PCMModelCommandExecutor(pcm);
 	}
 

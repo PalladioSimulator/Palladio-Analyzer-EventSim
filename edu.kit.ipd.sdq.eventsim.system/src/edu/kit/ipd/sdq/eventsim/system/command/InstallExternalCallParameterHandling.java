@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 import org.palladiosimulator.pcm.parameter.VariableUsage;
 import org.palladiosimulator.pcm.repository.OperationSignature;
+import org.palladiosimulator.pcm.seff.AbstractAction;
 import org.palladiosimulator.pcm.seff.ExternalCallAction;
 import org.palladiosimulator.pcm.seff.ResourceDemandingSEFF;
 
@@ -18,8 +19,8 @@ import edu.kit.ipd.sdq.eventsim.command.ICommandExecutor;
 import edu.kit.ipd.sdq.eventsim.command.IPCMCommand;
 import edu.kit.ipd.sdq.eventsim.command.action.FindActionsInSeff;
 import edu.kit.ipd.sdq.eventsim.command.action.FindSeffsForAssemblyContext;
+import edu.kit.ipd.sdq.eventsim.interpreter.TraversalListenerRegistry;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
-import edu.kit.ipd.sdq.eventsim.system.interpreter.SeffInterpreterConfiguration;
 import edu.kit.ipd.sdq.eventsim.system.interpreter.listener.AbstractExternalCallListener;
 import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
 import edu.kit.ipd.sdq.eventsim.system.staticstructure.ComponentInstance;
@@ -39,10 +40,10 @@ public class InstallExternalCallParameterHandling implements IPCMCommand<Void> {
 	private static final Logger logger = Logger.getLogger(InstallExternalCallParameterHandling.class);
 	private static final boolean debug = logger.isDebugEnabled();
 
-	private SeffInterpreterConfiguration interpreterConfiguration;
+    private TraversalListenerRegistry<AbstractAction, Request, RequestState> traversalListeners;
 
-	public InstallExternalCallParameterHandling(SeffInterpreterConfiguration interpreterConfiguration) {
-		this.interpreterConfiguration = interpreterConfiguration;
+	public InstallExternalCallParameterHandling(TraversalListenerRegistry<AbstractAction, Request, RequestState> traversalListeners) {
+	    this.traversalListeners = traversalListeners;
 	}
 
 	/**
@@ -60,7 +61,7 @@ public class InstallExternalCallParameterHandling implements IPCMCommand<Void> {
 		}
 		if (externalCalls != null) {
 			for (final ExternalCallAction c : externalCalls) {
-				this.interpreterConfiguration.addTraversalListener(c, new ExternalCallTraversalListener());
+				traversalListeners.addTraversalListener(c, new ExternalCallTraversalListener());
 			}
 		}
 		// the listeners are mounted; we don't need to return anything.

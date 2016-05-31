@@ -9,5 +9,14 @@
             name="EventSim (Event-Driven Simulation)">
       </simulator>
    </extension>
+   <extension
+         name="name"
+         point="de.uka.ipd.sdq.workflow.tab.extension">
+      <workflow_extension
+            name="edu.kit.ipd.sdq.eventsim.launch.workflow_extension2"
+            runconfig_tab="edu.kit.ipd.sdq.eventsim.launch.runconfig.EventSimTab"
+            workflow_id="workflow.extension.simucom.after.load.validate">
+      </workflow_extension>
+   </extension>
 
 </plugin>

@@ -6,13 +6,15 @@ import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 import org.palladiosimulator.pcm.usagemodel.Loop;
 import org.palladiosimulator.pcm.usagemodel.ScenarioBehaviour;
 
+import com.google.inject.Inject;
+
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
+import edu.kit.ipd.sdq.eventsim.command.PCMModelCommandExecutor;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalInstruction;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.interpreter.instructions.TraverseNextAction;
 import edu.kit.ipd.sdq.eventsim.interpreter.state.ITraversalStrategyState;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
-import edu.kit.ipd.sdq.eventsim.workload.interpreter.WorkloadModelDiagnostics;
 import edu.kit.ipd.sdq.eventsim.workload.interpreter.instructions.TraverseUsageBehaviourInstruction;
 import edu.kit.ipd.sdq.eventsim.workload.interpreter.state.UserState;
 
@@ -26,6 +28,9 @@ public class LoopTraversalStrategy implements ITraversalStrategy<AbstractUserAct
 
     private static Logger logger = Logger.getLogger(LoopTraversalStrategy.class);
 
+    @Inject
+    private PCMModelCommandExecutor executor;
+    
     /**
      * {@inheritDoc}
      */
@@ -47,11 +52,12 @@ public class LoopTraversalStrategy implements ITraversalStrategy<AbstractUserAct
 			internalState.incrementCurrentIteration();
 			final ScenarioBehaviour behaviour = loop.getBodyBehaviour_Loop();
 			if (behaviour == null) {
-				WorkloadModelDiagnostics diagnostics = user.getEventSimModel().getUsageInterpreter().getDiagnostics();
-				diagnostics.reportMissingLoopingBehaviour(loop);
+			    // TODO
+//				WorkloadModelDiagnostics diagnostics = user.getEventSimModel().getUsageInterpreter().getDiagnostics();
+//				diagnostics.reportMissingLoopingBehaviour(loop);
 				return new TraverseNextAction<>(loop.getSuccessor());
 			}
-			return new TraverseUsageBehaviourInstruction(user.getEventSimModel(), behaviour, loop);
+			return new TraverseUsageBehaviourInstruction(executor, behaviour, loop);
         } else {
             if (logger.isDebugEnabled()) {
                 logger.debug("Completed loop traversal");

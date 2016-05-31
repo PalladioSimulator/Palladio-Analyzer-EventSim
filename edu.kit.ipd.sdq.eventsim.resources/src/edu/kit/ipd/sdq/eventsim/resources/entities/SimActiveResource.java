@@ -15,7 +15,7 @@ import de.uka.ipd.sdq.scheduler.IActiveResource;
 import de.uka.ipd.sdq.scheduler.ISchedulableProcess;
 import de.uka.ipd.sdq.scheduler.sensors.IActiveResourceStateSensor;
 import de.uka.ipd.sdq.simucomframework.Context;
-import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
+import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
 import edu.kit.ipd.sdq.eventsim.resources.SchedulingPolicy;
 import edu.kit.ipd.sdq.eventsim.resources.listener.IDemandListener;
@@ -40,7 +40,6 @@ public class SimActiveResource extends EventSimEntity {
 	private List<IDemandListener> demandListener;
 	private List<IOverallUtilizationListener> overallUtilizationListener;
 	private SchedulingPolicy schedulingStrategy;
-	private double totalDemandedTime;
 	private long[] queueLength;
 	private ProcessingResourceSpecification specification;
 
@@ -55,7 +54,7 @@ public class SimActiveResource extends EventSimEntity {
 	 * @param numberOfInstances
 	 * @param specification
 	 */
-	public SimActiveResource(AbstractEventSimModel model, IActiveResource resource, String processingRate,
+	public SimActiveResource(ISimulationModel model, IActiveResource resource, String processingRate,
 			int numberOfInstances, SchedulingPolicy schedulingStrategy, ProcessingResourceSpecification specification) {
 		super(model, "SimActiveResource");
 		this.schedulerResource = resource;
@@ -107,7 +106,6 @@ public class SimActiveResource extends EventSimEntity {
 			logger.debug("Requested resource " + schedulerResource + " with an abstract demand of " + abstractDemand);
 		}
 		double concreteDemand = calculateConcreteDemand(abstractDemand);
-		this.totalDemandedTime += concreteDemand;
 
 		// TODO What resource service ID has to passed here?
 		schedulerResource.process(process, 1, Collections.<String, Serializable> emptyMap(), concreteDemand);
@@ -195,20 +193,6 @@ public class SimActiveResource extends EventSimEntity {
 	}
 
 	/**
-	 * Notifies the overall utilisation listeners.
-	 * 
-	 * @param resourceDemand
-	 *            the cumulative resource demand
-	 * @param totalTime
-	 *            the total simulation time
-	 */
-	protected void fireOverallUtilization(double resourceDemand, double totalTime) {
-		for (IOverallUtilizationListener l : overallUtilizationListener) {
-			l.utilizationChanged(resourceDemand, totalTime);
-		}
-	}
-
-	/**
 	 * Notifies the state listeners that the state of the specified instance has changed.
 	 * 
 	 * @param state
@@ -226,13 +210,6 @@ public class SimActiveResource extends EventSimEntity {
 	 * Called to notify this resource that the simulation run has stopped.
 	 */
 	public void deactivateResource() {
-		double totalTime = getEventSimModel().getSimulationMiddleware().getSimulationControl()
-				.getCurrentSimulationTime() * numberOfInstances;
-		if (totalDemandedTime > totalTime) {
-			totalDemandedTime = totalTime;
-		}
-		fireOverallUtilization(totalDemandedTime, totalTime);
-
 		schedulerResource.stop();
 	}
 

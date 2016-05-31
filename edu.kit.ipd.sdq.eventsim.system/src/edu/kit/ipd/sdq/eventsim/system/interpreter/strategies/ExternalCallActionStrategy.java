@@ -4,6 +4,9 @@ import org.palladiosimulator.pcm.seff.AbstractAction;
 import org.palladiosimulator.pcm.seff.ExternalCallAction;
 import org.palladiosimulator.pcm.seff.ResourceDemandingSEFF;
 
+import com.google.inject.Inject;
+
+import edu.kit.ipd.sdq.eventsim.command.PCMModelCommandExecutor;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalInstruction;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
@@ -19,6 +22,9 @@ import edu.kit.ipd.sdq.eventsim.system.staticstructure.ComponentInstance;
  */
 public class ExternalCallActionStrategy implements ITraversalStrategy<AbstractAction, ExternalCallAction, Request, RequestState> {
 
+    @Inject
+    private PCMModelCommandExecutor executor;
+    
     /**
      * {@inheritDoc}
      */
@@ -32,7 +38,7 @@ public class ExternalCallActionStrategy implements ITraversalStrategy<AbstractAc
         final ResourceDemandingSEFF seff = providingComponent.getServiceEffectSpecification(action
                 .getCalledService_ExternalService());
 
-        return new TraverseComponentBehaviourInstruction(request.getEventSimModel(), seff, providingComponent, action.getSuccessor_AbstractAction());
+        return new TraverseComponentBehaviourInstruction(executor, seff, providingComponent, action.getSuccessor_AbstractAction());
     }
 
 }

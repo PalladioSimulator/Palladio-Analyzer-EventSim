@@ -4,7 +4,7 @@ import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 import org.palladiosimulator.pcm.usagemodel.ScenarioBehaviour;
 import org.palladiosimulator.pcm.usagemodel.Start;
 
-import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
+import edu.kit.ipd.sdq.eventsim.command.PCMModelCommandExecutor;
 import edu.kit.ipd.sdq.eventsim.command.useraction.FindActionInUsageBehaviour;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalInstruction;
 import edu.kit.ipd.sdq.eventsim.workload.interpreter.state.UserState;
@@ -22,9 +22,9 @@ import edu.kit.ipd.sdq.eventsim.workload.interpreter.state.UserState;
  */
 public class TraverseUsageBehaviourInstruction implements ITraversalInstruction<AbstractUserAction, UserState> {
 
-    private final AbstractEventSimModel model;
     private final ScenarioBehaviour behaviour;
     private final AbstractUserAction actionAfterCompletion;
+    private final PCMModelCommandExecutor executor;
 
     /**
      * Constructs a new instruction.
@@ -36,14 +36,14 @@ public class TraverseUsageBehaviourInstruction implements ITraversalInstruction<
      * @param actionAfterCompletion
      *            the action that is to be traversed after leaving the scope
      */
-    public TraverseUsageBehaviourInstruction(final AbstractEventSimModel model, final ScenarioBehaviour behaviour,
+    public TraverseUsageBehaviourInstruction(final PCMModelCommandExecutor executor, final ScenarioBehaviour behaviour,
             final AbstractUserAction actionAfterCompletion) {
-        this.model = model;
+        this.executor = executor;
         this.behaviour = behaviour;
         this.actionAfterCompletion = actionAfterCompletion;
     }
 
-	/**
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -53,7 +53,7 @@ public class TraverseUsageBehaviourInstruction implements ITraversalInstruction<
 
         state.pushStackFrame();
 
-        final Start start = this.model.execute(new FindActionInUsageBehaviour<Start>(this.behaviour, Start.class));
+        final Start start = executor.execute(new FindActionInUsageBehaviour<Start>(this.behaviour, Start.class));
         state.setCurrentPosition(start);
         return start;
     }

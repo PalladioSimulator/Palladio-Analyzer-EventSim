@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="edu.kit.ipd.sdq.eventsim.interpreter.strategy">
+      <strategy
+            action="org.palladiosimulator.pcm.usagemodel.Branch"
+            name="Branch"
+            strategy="edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies.BranchTraversalStrategy">
+      </strategy>
+      <strategy
+            action="org.palladiosimulator.pcm.usagemodel.Delay"
+            name="Delay"
+            strategy="edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies.DelayTraversalStrategy">
+      </strategy>
+      <strategy
+            action="org.palladiosimulator.pcm.usagemodel.EntryLevelSystemCall"
+            name="EntryLevelSystemCall"
+            strategy="edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies.EntryLevelSystemCallTraversalStrategy">
+      </strategy>
+      <strategy
+            action="org.palladiosimulator.pcm.seff.LoopAction"
+            name="LoopAction"
+            strategy="edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies.LoopTraversalStrategy">
+      </strategy>
+      <strategy
+            action="org.palladiosimulator.pcm.usagemodel.Start"
+            name="Start"
+            strategy="edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies.StartTraversalStrategy">
+      </strategy>
+      <strategy
+            action="org.palladiosimulator.pcm.usagemodel.Stop"
+            name="Stop"
+            strategy="edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies.StopTraversalStrategy">
+      </strategy>
+   </extension>
+
+</plugin>

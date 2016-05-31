@@ -1,24 +1,24 @@
 package edu.kit.ipd.sdq.eventsim.system.interpreter;
 
-import java.util.List;
-
 import org.apache.log4j.Logger;
-import org.eclipse.emf.ecore.EClass;
 import org.palladiosimulator.pcm.repository.OperationSignature;
 import org.palladiosimulator.pcm.seff.AbstractAction;
 import org.palladiosimulator.pcm.seff.ForkedBehaviour;
 import org.palladiosimulator.pcm.seff.ResourceDemandingSEFF;
 import org.palladiosimulator.pcm.seff.StartAction;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
-import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
+import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
 import edu.kit.ipd.sdq.eventsim.api.events.SystemRequestSpawnEvent;
+import edu.kit.ipd.sdq.eventsim.command.PCMModelCommandExecutor;
 import edu.kit.ipd.sdq.eventsim.command.action.FindActionInBehaviour;
 import edu.kit.ipd.sdq.eventsim.interpreter.BehaviourInterpreter;
-import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalStrategy;
+import edu.kit.ipd.sdq.eventsim.interpreter.TraversalListenerRegistry;
 import edu.kit.ipd.sdq.eventsim.system.entities.ForkedRequest;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
-import edu.kit.ipd.sdq.eventsim.system.interpreter.listener.ISeffTraversalListener;
 import edu.kit.ipd.sdq.eventsim.system.interpreter.state.ForkedRequestState;
 import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
 import edu.kit.ipd.sdq.eventsim.system.staticstructure.ComponentInstance;
@@ -31,17 +31,19 @@ import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
  * 
  * @see BehaviourInterpreter
  */
+@Singleton
 public class SeffBehaviourInterpreter extends BehaviourInterpreter<AbstractAction, Request, RequestState> {
 
     private static final Logger logger = Logger.getLogger(SeffBehaviourInterpreter.class);
 
-    private SeffInterpreterConfiguration configuration;
-	private AbstractEventSimModel model;
-
-    public SeffBehaviourInterpreter(SeffInterpreterConfiguration configuration, AbstractEventSimModel model) {
-        this.configuration = configuration;
-        this.model = model;
-    }
+    @Inject
+    private PCMModelCommandExecutor executor;
+    
+    @Inject
+    private ISimulationMiddleware middleware;
+    
+    @Inject
+    private TraversalListenerRegistry<AbstractAction, Request, RequestState> listenerRegistry;
 
     /**
      * Starts the traversal of the {@link ResourceDemandingSEFF} associated with the specified
@@ -58,11 +60,11 @@ public class SeffBehaviourInterpreter extends BehaviourInterpreter<AbstractActio
         request.setRequestState(state);
         
         // fire request start event
-        this.model.getSimulationMiddleware().triggerEvent(new SystemRequestSpawnEvent(request));
+        middleware.triggerEvent(new SystemRequestSpawnEvent(request));
 
         // find start action
         final ResourceDemandingSEFF seff = component.getServiceEffectSpecification(signature);
-        final StartAction startAction = this.model.execute(new FindActionInBehaviour<StartAction>(seff, StartAction.class));
+        final StartAction startAction = executor.execute(new FindActionInBehaviour<StartAction>(seff, StartAction.class));
 
         // begin traversal
         state.setCurrentPosition(startAction);
@@ -86,7 +88,7 @@ public class SeffBehaviourInterpreter extends BehaviourInterpreter<AbstractActio
         request.setRequestState(state);
 
         // find start action
-        final StartAction startAction = this.model.execute(new FindActionInBehaviour<StartAction>(behaviour, StartAction.class));
+        final StartAction startAction = executor.execute(new FindActionInBehaviour<StartAction>(behaviour, StartAction.class));
 
         // begin traversal
         state.setCurrentPosition(startAction);
@@ -98,34 +100,20 @@ public class SeffBehaviourInterpreter extends BehaviourInterpreter<AbstractActio
         super.traverse(request, state.getCurrentPosition(), state);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @SuppressWarnings("unchecked")
-    @Override
-    public ITraversalStrategy<AbstractAction, ? extends AbstractAction, Request, RequestState> loadTraversalStrategy(final EClass eclass) {
-        return this.configuration.getHandlerMap().get(eclass);
-    }
-
-    @Override
-    public SeffInterpreterConfiguration getConfiguration() {
-        return this.configuration;
-    }
+//    /**
+//     * {@inheritDoc}
+//     */
+//    @Override
+//    public ITraversalStrategy<AbstractAction, ? extends AbstractAction, Request, RequestState> loadTraversalStrategy(AbstractAction action) {
+//        return strategyRegistry.get().lookup(action.eClass().getInstanceClass());
+//    }
     
     /**
      * {@inheritDoc}
      */
     @Override
     public void notifyAfterListener(final AbstractAction action, final Request request, RequestState state) {
-        for (final ISeffTraversalListener l : this.configuration.getTraversalListenerList()) {
-            l.after(action, request, state);
-        }
-        final List<ISeffTraversalListener> listeners = this.configuration.getTraversalListenerMap().get(action);
-        if (listeners != null) {
-            for (final ISeffTraversalListener l : listeners) {
-                l.after(action, request, state);
-            }
-        }
+        listenerRegistry.notifyAfterListener(action, request, state);
     }
 
     /**
@@ -133,15 +121,7 @@ public class SeffBehaviourInterpreter extends BehaviourInterpreter<AbstractActio
      */
     @Override
     public void notifyBeforeListener(final AbstractAction action, final Request request, RequestState state) {
-        for (final ISeffTraversalListener l : this.configuration.getTraversalListenerList()) {
-            l.before(action, request, state);
-        }
-        final List<ISeffTraversalListener> listeners = this.configuration.getTraversalListenerMap().get(action);
-        if (listeners != null) {
-            for (final ISeffTraversalListener l : listeners) {
-                l.before(action, request, state);
-            }
-        }
+        listenerRegistry.notifyBeforeListener(action, request, state);
     }
 
 }

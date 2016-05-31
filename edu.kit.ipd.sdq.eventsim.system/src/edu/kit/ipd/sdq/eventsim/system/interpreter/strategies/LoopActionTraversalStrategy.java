@@ -6,6 +6,9 @@ import org.palladiosimulator.pcm.seff.AbstractAction;
 import org.palladiosimulator.pcm.seff.LoopAction;
 import org.palladiosimulator.pcm.seff.ResourceDemandingBehaviour;
 
+import com.google.inject.Inject;
+
+import edu.kit.ipd.sdq.eventsim.command.PCMModelCommandExecutor;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalInstruction;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.interpreter.instructions.TraverseNextAction;
@@ -24,6 +27,9 @@ public class LoopActionTraversalStrategy implements ITraversalStrategy<AbstractA
 
     private static Logger logger = Logger.getLogger(LoopActionTraversalStrategy.class);
 
+    @Inject
+    private PCMModelCommandExecutor executor;
+    
     /**
      * {@inheritDoc}
      */
@@ -45,7 +51,7 @@ public class LoopActionTraversalStrategy implements ITraversalStrategy<AbstractA
             // traverse the body behaviour
             internalState.incrementCurrentIteration();
             final ResourceDemandingBehaviour behaviour = loop.getBodyBehaviour_Loop();
-            return new TraverseComponentBehaviourInstruction(request.getEventSimModel(), behaviour, state.getComponent(), loop);
+            return new TraverseComponentBehaviourInstruction(executor, behaviour, state.getComponent(), loop);
         } else {
             if (logger.isDebugEnabled()) {
                 logger.debug("Completed loop traversal");

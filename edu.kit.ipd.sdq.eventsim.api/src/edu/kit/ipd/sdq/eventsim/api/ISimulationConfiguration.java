@@ -1,7 +1,9 @@
 package edu.kit.ipd.sdq.eventsim.api;
 
+import java.util.List;
 import java.util.Map;
 
+import de.uka.ipd.sdq.simulation.ISimulationListener;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationConfig;
 
 /**
@@ -28,5 +30,11 @@ public interface ISimulationConfiguration extends ISimulationConfig {
 	long[] getRandomSeed();
 
 	PCMModel getPCMModel();
+	
+	long getSimuTime();
+	
+	long getMaxMeasurementsCount();
+	
+	List<ISimulationListener> getListeners();
 
 }

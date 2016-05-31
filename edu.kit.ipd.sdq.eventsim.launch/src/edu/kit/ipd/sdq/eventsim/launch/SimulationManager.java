@@ -10,54 +10,50 @@ import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 
 public class SimulationManager {
 
-	private final IWorkload workload;
+    private final IWorkload workload;
 
-	private final ISystem system;
-	
-	private final ISimulationMiddleware middleware;
+    private final ISystem system;
 
-	private final MeasurementStorage measurementStorage;
+    private final ISimulationMiddleware middleware;
 
-	@Inject
-	public SimulationManager(IWorkload workload, ISystem system, ISimulationMiddleware middleware,
-			MeasurementStorage measurementStorage) {
-		this.workload = workload;
-		this.system = system;
-		this.middleware = middleware;
-		this.measurementStorage = measurementStorage;
-	}
+    private final MeasurementStorage measurementStorage;
 
-	public void startSimulation() {
-		startSimulation(new IStatusObserver() {
-			@Override
-			public void updateStatus(int percentDone, double currentSimTime, long measurementsTaken) {
-				// do nothing
-			}
-		});
-	}
+    @Inject
+    public SimulationManager(IWorkload workload, ISystem system, ISimulationMiddleware middleware,
+            MeasurementStorage measurementStorage) {
+        this.workload = workload;
+        this.system = system;
+        this.middleware = middleware;
+        this.measurementStorage = measurementStorage;
+    }
 
-	public void startSimulation(IStatusObserver statusObserver) {
-		workload.generate();
-		middleware.startSimulation(statusObserver);
+    public void startSimulation() {
+        startSimulation(new IStatusObserver() {
+            @Override
+            public void updateStatus(int percentDone, double currentSimTime, long measurementsTaken) {
+                // do nothing
+            }
+        });
+    }
 
-		// when simulation has stopped...
-		measurementStorage.finish();
-	}
-	
-	public IWorkload getWorkload() {
-		return workload;
-	}
-	
-	public ISystem getSystem() {
-		return system;
-	}
-	
-	public ISimulationMiddleware getMiddleware() {
-		return middleware;
-	}
-	
-	public MeasurementStorage getMeasurementStorage() {
-		return measurementStorage;
-	}
+    public void startSimulation(IStatusObserver statusObserver) {
+        middleware.startSimulation(statusObserver);
+    }
+
+    public IWorkload getWorkload() {
+        return workload;
+    }
+
+    public ISystem getSystem() {
+        return system;
+    }
+
+    public ISimulationMiddleware getMiddleware() {
+        return middleware;
+    }
+
+    public MeasurementStorage getMeasurementStorage() {
+        return measurementStorage;
+    }
 
 }

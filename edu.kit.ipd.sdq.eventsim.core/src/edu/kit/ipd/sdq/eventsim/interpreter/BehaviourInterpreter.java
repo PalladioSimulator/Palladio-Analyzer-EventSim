@@ -6,6 +6,9 @@ import org.palladiosimulator.pcm.core.entity.Entity;
 import org.palladiosimulator.pcm.seff.ResourceDemandingSEFF;
 import org.palladiosimulator.pcm.usagemodel.UsageScenario;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+
 import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
 import edu.kit.ipd.sdq.eventsim.exceptions.unchecked.TraversalException;
 import edu.kit.ipd.sdq.eventsim.interpreter.instructions.EndTraversal;
@@ -54,6 +57,10 @@ public abstract class BehaviourInterpreter<A extends Entity, E extends EventSimE
     private static final Logger logger = Logger.getLogger(BehaviourInterpreter.class);
     private static final boolean debug = logger.isDebugEnabled();
     
+    @Inject
+    /* use provider here to break dependency injection cycle */
+    protected Provider<TraversalStrategyRegistry<A>> strategyRegistry;
+    
     /**
      * Begins or resumes the traversal with the specified action.
      * 
@@ -69,8 +76,10 @@ public abstract class BehaviourInterpreter<A extends Entity, E extends EventSimE
         // traverse the actions one after another. When the current action is null, it means that
         // the traversal is either completed or needs to be paused.
         while (currentAction != null) {
-            // obtain the traversal strategy for the current action
-            final ITraversalStrategy<A, A, E, S> t = this.loadTraversalStrategy(currentAction.eClass());
+            // obtain traversal strategy for current action, based on the action's type
+            @SuppressWarnings("unchecked")
+            final ITraversalStrategy<A, A, E, S> t = (ITraversalStrategy<A, A, E, S>) strategyRegistry.get()
+                    .lookup((Class<? extends A>) currentAction.eClass().getInstanceClass()); 
             if (t == null) {
                 throw new TraversalException("No traversal strategy could be found for "
                         + PCMEntityHelper.toString(currentAction));
@@ -100,8 +109,6 @@ public abstract class BehaviourInterpreter<A extends Entity, E extends EventSimE
             }
         }
     }
-
-    protected abstract InterpreterConfiguration<A, E, S> getConfiguration();
 
     /**
      * This method is called, when the traversal is completed. This is not the case, when the
@@ -152,7 +159,7 @@ public abstract class BehaviourInterpreter<A extends Entity, E extends EventSimE
      *            the type of the action
      * @return the traversal strategy which is able to traverse actions of the specified type
      */
-    public abstract <T extends A> ITraversalStrategy<A, T, E, S> loadTraversalStrategy(EClass eclass);
+//    public abstract <T extends A> ITraversalStrategy<A, T, E, S> loadTraversalStrategy(T action);
 
     /**
      * This method is called whenever a simulated entity is about to traverse an action.

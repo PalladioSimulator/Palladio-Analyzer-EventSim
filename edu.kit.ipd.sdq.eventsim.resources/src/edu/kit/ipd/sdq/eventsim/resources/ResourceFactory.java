@@ -16,7 +16,6 @@ import de.uka.ipd.sdq.simucomframework.resources.SchedulingStrategy;
 import de.uka.ipd.sdq.simucomframework.resources.SimSimpleFairPassiveResource;
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
-import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
 import edu.kit.ipd.sdq.eventsim.exceptions.unchecked.EventSimException;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimActiveResource;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimLinkingResource;
@@ -36,7 +35,7 @@ public class ResourceFactory {
 	 *            the resource specification
 	 * @return the created resource
 	 */
-	public static SimActiveResource createActiveResource(final AbstractEventSimModel model, ISchedulingFactory schedulingFactory, final ProcessingResourceSpecification specification) {
+	public static SimActiveResource createActiveResource(final ISimulationModel model, ISchedulingFactory schedulingFactory, final ProcessingResourceSpecification specification) {
 		// TODO reliability stuff
 		// double mttf = specification.getMTTF();
 		// double mttr = specification.getMTTR();
@@ -78,7 +77,7 @@ public class ResourceFactory {
 	 *            the resource specification
 	 * @return the created resource
 	 */
-	public static SimLinkingResource createLinkingResource(final AbstractEventSimModel model, final CommunicationLinkResourceSpecification specification) {
+	public static SimLinkingResource createLinkingResource(final ISimulationModel model, final CommunicationLinkResourceSpecification specification) {
 
 		final PCMRandomVariable latency = specification.getLatency_CommunicationLinkResourceSpecification();
 		final PCMRandomVariable throughput = specification.getThroughput_CommunicationLinkResourceSpecification();
@@ -106,16 +105,15 @@ public class ResourceFactory {
 	 *            the assembly context in which the passive resource is created
 	 * @return the created resource
 	 */
-	public static SimPassiveResource createPassiveResource(final AbstractEventSimModel model,
+	public static SimPassiveResource createPassiveResource(final ISimulationModel model,
 			final PassiveResource specification, final AssemblyContext assemblyCtx) {
 		// obtain capacity by evaluating the associated StoEx
 		final PCMRandomVariable capacitySpecification = specification.getCapacity_PassiveResource();
 		final int capacity = StackContext.evaluateStatic(capacitySpecification.getSpecification(), Integer.class);
 
 		// create the scheduler resource for the operating system
-		ISimulationModel simulationModel = model.getSimulationMiddleware().getSimulationModel();
 		IPassiveResource schedulerResource = new SimSimpleFairPassiveResource(specification, assemblyCtx,
-				(SchedulerModel) simulationModel, new Long(capacity)); // TODO get rid of cast
+				(SchedulerModel) model, new Long(capacity)); // TODO get rid of cast
 
 		return new SimPassiveResource(model, schedulerResource, specification);
 	}

@@ -20,14 +20,14 @@ import de.uka.ipd.sdq.scheduler.SchedulerModel;
 import de.uka.ipd.sdq.scheduler.factory.SchedulingFactory;
 import de.uka.ipd.sdq.scheduler.resources.active.AbstractActiveResource;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
-import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
-import edu.kit.ipd.sdq.eventsim.SimulationConfiguration;
 import edu.kit.ipd.sdq.eventsim.api.IActiveResource;
 import edu.kit.ipd.sdq.eventsim.api.IRequest;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
+import edu.kit.ipd.sdq.eventsim.api.PCMModel;
 import edu.kit.ipd.sdq.eventsim.api.events.SimulationStopEvent;
 import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
 import edu.kit.ipd.sdq.eventsim.entities.IEntityListener;
+import edu.kit.ipd.sdq.eventsim.instrumentation.description.core.InstrumentationDescription;
 import edu.kit.ipd.sdq.eventsim.instrumentation.description.resource.ActiveResourceRep;
 import edu.kit.ipd.sdq.eventsim.instrumentation.injection.Instrumentor;
 import edu.kit.ipd.sdq.eventsim.instrumentation.injection.InstrumentorBuilder;
@@ -37,7 +37,7 @@ import edu.kit.ipd.sdq.eventsim.resources.entities.SimulatedProcess;
 import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
 
 @Singleton
-public class EventSimActiveResourceModel extends AbstractEventSimModel implements IActiveResource {
+public class EventSimActiveResourceModel implements IActiveResource {
 
 	private static final Logger logger = Logger.getLogger(EventSimActiveResourceModel.class);
 
@@ -51,30 +51,44 @@ public class EventSimActiveResourceModel extends AbstractEventSimModel implement
 
 	private Instrumentor<SimActiveResource, ?> instrumentor;
 	
+	private ISimulationModel model;
+
+	private MeasurementStorage measurementStorage;
+	
+	private ISimulationMiddleware middleware;
+	
+    private PCMModel pcm; 
+    
+    private InstrumentationDescription instrumentation;
+	
 	@Inject
-	public EventSimActiveResourceModel(ISimulationMiddleware middleware, MeasurementStorage measurementStorage) {
-		super(middleware, measurementStorage);
+    public EventSimActiveResourceModel(ISimulationMiddleware middleware, ISimulationModel model,
+            MeasurementStorage measurementStorage, PCMModel pcm, InstrumentationDescription instrumentation) {
+	    this.middleware = middleware;
+	    this.model = model;
+	    this.measurementStorage = measurementStorage;
+	    this.pcm = pcm;
+	    this.instrumentation = instrumentation;
+	    
 		containerToResourceMap = new HashMap<String, SimActiveResource>();
 		requestToSimulatedProcessMap = new WeakHashMap<IRequest, SimulatedProcess>();
+		
 		init();
 	}
 
 	public void init() {		
 		// set up the resource scheduler
-		ISimulationModel simModel = getSimulationMiddleware().getSimulationModel();
-		this.schedulingFactory = new SchedulingFactory((SchedulerModel) simModel); // TODO get rid of cast
+		this.schedulingFactory = new SchedulingFactory((SchedulerModel) model); // TODO get rid of cast
 		
 		// create instrumentor for instrumentation description
-		SimulationConfiguration config = (SimulationConfiguration) getSimulationMiddleware().getSimulationConfiguration();
-		instrumentor = InstrumentorBuilder.buildFor(config.getPCMModel())
+		instrumentor = InstrumentorBuilder.buildFor(pcm)
 				.inBundle(Activator.getContext().getBundle())
-				.withDescription(config.getInstrumentationDescription())
-				.withStorage(getMeasurementStorage())
+				.withDescription(instrumentation)
+				.withStorage(measurementStorage)
 				.forModelType(ActiveResourceRep.class)
 				.withMapping((SimActiveResource r) -> new ActiveResourceRep(r.getSpecification()))
 				.createFor(new ResourceProbeConfiguration());
 		
-		MeasurementStorage measurementStorage = getMeasurementStorage();
 		measurementStorage.addIdExtractor(SimActiveResource.class, c -> ((SimActiveResource)c).getSpecification().getId());
 		measurementStorage.addNameExtractor(SimActiveResource.class, c -> ((SimActiveResource)c).getName());
 		measurementStorage.addIdExtractor(SimulatedProcess.class, c -> Long.toString(((SimulatedProcess)c).getEntityId()));
@@ -84,8 +98,6 @@ public class EventSimActiveResourceModel extends AbstractEventSimModel implement
 	}
 	
 	private void registerEventHandler() {
-		ISimulationMiddleware middleware = getSimulationMiddleware();
-		
 //		middleware.registerEventHandler(SimulationInitEvent.class, e -> init());
 		middleware.registerEventHandler(SimulationStopEvent.class, e -> finalise());
 	}
@@ -101,10 +113,7 @@ public class EventSimActiveResourceModel extends AbstractEventSimModel implement
 		resource.consumeResource(getOrCreateSimulatedProcess(request), absoluteDemand);
 	}
 
-	@Override
 	public void finalise() {
-		super.finalise();
-
 		// clean up created resources
 		for(Iterator<Map.Entry<String, SimActiveResource>> it = containerToResourceMap.entrySet().iterator(); it.hasNext();) {
 		      Map.Entry<String, SimActiveResource> entry = it.next();
@@ -180,7 +189,7 @@ public class EventSimActiveResourceModel extends AbstractEventSimModel implement
 				throw new RuntimeException("refactoring went wrong :(");
 			}
 
-			SimActiveResource resource = ResourceFactory.createActiveResource(this, schedulingFactory, s);
+			SimActiveResource resource = ResourceFactory.createActiveResource(model, schedulingFactory, s);
 
 			// register the created resource
 			registerResource(specification, resource, resourceType);
@@ -232,7 +241,7 @@ public class EventSimActiveResourceModel extends AbstractEventSimModel implement
 			if(request.getParent() != null) {
 				parent = getOrCreateSimulatedProcess(request.getParent());
 			}
-			SimulatedProcess process = new SimulatedProcess(this, parent, request);
+			SimulatedProcess process = new SimulatedProcess(model, parent, request);
 
 			// add listener for request finish
 			EventSimEntity requestEntity = (EventSimEntity) request;

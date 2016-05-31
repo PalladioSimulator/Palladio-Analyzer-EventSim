@@ -8,14 +8,18 @@ import org.palladiosimulator.pcm.seff.AbstractAction;
 import org.palladiosimulator.pcm.seff.InternalAction;
 import org.palladiosimulator.pcm.seff.seff_performance.ParametricResourceDemand;
 
+import com.google.inject.Inject;
+
 import de.uka.ipd.sdq.simucomframework.variables.converter.NumberConverter;
+import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
+import edu.kit.ipd.sdq.eventsim.api.IActiveResource;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalInstruction;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.interpreter.instructions.InterruptTraversal;
 import edu.kit.ipd.sdq.eventsim.interpreter.state.ITraversalStrategyState;
-import edu.kit.ipd.sdq.eventsim.system.EventSimSystemModel;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
 import edu.kit.ipd.sdq.eventsim.system.events.ResumeSeffTraversalEvent;
+import edu.kit.ipd.sdq.eventsim.system.interpreter.SeffBehaviourInterpreter;
 import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
 
 /**
@@ -27,11 +31,22 @@ import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
  */
 public class InternalActionTraversalStrategy implements ITraversalStrategy<AbstractAction, InternalAction, Request, RequestState> {
 
+    @Inject
+    private IActiveResource activeResourceComponent;
+    
+    @Inject
+    private ISimulationModel model;
+    
+    @Inject
+    private SeffBehaviourInterpreter interpreter;
+    
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public ITraversalInstruction<AbstractAction, RequestState> traverse(final InternalAction action, final Request request, final RequestState state) {
+//	    System.out.println("--------------" + activeResource);
+	    
 		// restore or create state
 		InternalActionTraversalState internalState = (InternalActionTraversalState) state.getInternalState(action);
 		if (internalState == null) {
@@ -45,15 +60,14 @@ public class InternalActionTraversalStrategy implements ITraversalStrategy<Abstr
 		ResourceType type = demand.getRequiredResource_ParametricResourceDemand();
 		
 		// consume the resource demand
-		((EventSimSystemModel) request.getEventSimModel()).getActiveResource().consume(request,
-				state.getComponent().getResourceContainer().getSpecification(), type, evaluatedDemand);
+        activeResourceComponent.consume(request, state.getComponent().getResourceContainer().getSpecification(), type,
+                evaluatedDemand);
 
-		EventSimSystemModel systemModel = (EventSimSystemModel) request.getEventSimModel();
 		if (internalState.hasPendingDemands()) {
-			request.passivate(new ResumeSeffTraversalEvent(systemModel, state));
+			request.passivate(new ResumeSeffTraversalEvent(model, state, interpreter));
 			return new InterruptTraversal<>(action);
 		} else {
-			request.passivate(new ResumeSeffTraversalEvent(systemModel, state));
+			request.passivate(new ResumeSeffTraversalEvent(model, state, interpreter));
 			return new InterruptTraversal<>(action.getSuccessor_AbstractAction());
 		}
 

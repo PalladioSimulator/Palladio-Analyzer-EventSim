@@ -4,12 +4,18 @@ import org.palladiosimulator.pcm.core.PCMRandomVariable;
 import org.palladiosimulator.pcm.usagemodel.ClosedWorkload;
 import org.palladiosimulator.pcm.usagemodel.UsageScenario;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.assistedinject.Assisted;
+
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
+import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
+import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
 import edu.kit.ipd.sdq.eventsim.api.events.WorkloadUserFinishedEvent;
 import edu.kit.ipd.sdq.eventsim.entities.IEntityListener;
-import edu.kit.ipd.sdq.eventsim.workload.EventSimWorkloadModel;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
 import edu.kit.ipd.sdq.eventsim.workload.events.BeginUsageTraversalEvent;
+import edu.kit.ipd.sdq.eventsim.workload.interpreter.UsageBehaviourInterpreter;
 
 /**
  * A closed workload is a workload sustaining a fixed amount of {@link User}s, which are called the workload population.
@@ -21,11 +27,14 @@ import edu.kit.ipd.sdq.eventsim.workload.events.BeginUsageTraversalEvent;
  */
 public class ClosedWorkloadGenerator implements IWorkloadGenerator {
 
-	private final EventSimWorkloadModel model;
 	private final ClosedWorkload workload;
 	private final int population;
 	private final PCMRandomVariable thinkTime;
-
+	private UserFactory userFactory;
+	private ISimulationModel model;
+	private ISimulationMiddleware middleware;
+	private Provider<UsageBehaviourInterpreter> interpreterProvider;
+	
 	/**
 	 * Constructs a closed workload in accordance with the specified workload description.
 	 * 
@@ -34,12 +43,18 @@ public class ClosedWorkloadGenerator implements IWorkloadGenerator {
 	 * @param workload
 	 *            the workload description
 	 */
-	public ClosedWorkloadGenerator(final EventSimWorkloadModel model, final ClosedWorkload workload) {
-		this.model = model;
-		this.workload = workload;
-		this.population = workload.getPopulation();
-		this.thinkTime = workload.getThinkTime_ClosedWorkload();
-	}
+    @Inject
+    public ClosedWorkloadGenerator(ISimulationModel model, ISimulationMiddleware middleware,
+            Provider<UsageBehaviourInterpreter> interpreterProvider, UserFactory userFactory,
+            @Assisted ClosedWorkload workload) {
+        this.model = model;
+        this.middleware = middleware;
+        this.interpreterProvider = interpreterProvider;
+        this.userFactory = userFactory;
+        this.workload = workload;
+        this.population = workload.getPopulation();
+        this.thinkTime = workload.getThinkTime_ClosedWorkload();
+    }
 
 	/**
 	 * {@inheritDoc}
@@ -58,7 +73,7 @@ public class ClosedWorkloadGenerator implements IWorkloadGenerator {
 	private void spawnUser() {
 		// create the user
 		final UsageScenario scenario = this.workload.getUsageScenario_Workload();
-		final User user = new User(this.model, scenario);
+		User user = userFactory.create(scenario);
 
 		// when the user leaves the system, we schedule a new one
 		user.addEntityListener(new IEntityListener() {
@@ -71,14 +86,14 @@ public class ClosedWorkloadGenerator implements IWorkloadGenerator {
 			@Override
 			public void leftSystem() {
 				// trigger event that the user finished his work
-				model.getSimulationMiddleware().triggerEvent(new WorkloadUserFinishedEvent(user));
+				middleware.triggerEvent(new WorkloadUserFinishedEvent(user));
 
 				ClosedWorkloadGenerator.this.spawnUser();
 			}
 
 		});
 		final double waitingTime = StackContext.evaluateStatic(this.thinkTime.getSpecification(), Double.class);
-		new BeginUsageTraversalEvent(this.model, scenario).schedule(user, waitingTime);
+		new BeginUsageTraversalEvent(model, scenario, middleware, interpreterProvider.get()).schedule(user, waitingTime);
 	}
 
 }

@@ -2,14 +2,14 @@ package edu.kit.ipd.sdq.eventsim.resources.entities;
 
 import de.uka.ipd.sdq.scheduler.IActiveResource;
 import de.uka.ipd.sdq.simucomframework.Context;
-import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
+import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 import edu.kit.ipd.sdq.eventsim.resources.SchedulingPolicy;
 
 public class SimLinkingResource extends SimActiveResource {
 
 	private String latencySpecification;
 
-	public SimLinkingResource(AbstractEventSimModel model, IActiveResource resource, String latencySpecification, String throughputSpecification) {
+	public SimLinkingResource(ISimulationModel model, IActiveResource resource, String latencySpecification, String throughputSpecification) {
 		super(model, resource, throughputSpecification, 1, SchedulingPolicy.FCFS, null); // TODO SimLinkingResource resource should not inherit SimActiveResource. Use composition!
 		this.latencySpecification = latencySpecification;
 	}

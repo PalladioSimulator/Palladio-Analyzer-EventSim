@@ -3,7 +3,6 @@ package edu.kit.ipd.sdq.eventsim.system.debug;
 import org.palladiosimulator.pcm.seff.AbstractAction;
 
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
-import edu.kit.ipd.sdq.eventsim.system.interpreter.SeffInterpreterConfiguration;
 import edu.kit.ipd.sdq.eventsim.system.interpreter.listener.ISeffTraversalListener;
 import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
 
@@ -46,10 +45,6 @@ public class SimSlowdown implements ISeffTraversalListener {
             }
         }
 
-    }
-
-    public static void install(String id, SeffInterpreterConfiguration interpreterConfig) {
-        interpreterConfig.addTraversalListener(new SimSlowdown(id));
     }
 
 }

@@ -13,7 +13,6 @@ import edu.kit.ipd.sdq.eventsim.api.PCMModel;
 import edu.kit.ipd.sdq.eventsim.command.ICommandExecutor;
 import edu.kit.ipd.sdq.eventsim.command.IPCMCommand;
 import edu.kit.ipd.sdq.eventsim.exceptions.unchecked.UnexpectedModelStructureException;
-import edu.kit.ipd.sdq.eventsim.workload.EventSimWorkloadModel;
 
 /**
  * This command creates and returns a list of all {@link IWorkloadGenerator}s for a PCM usage model.
@@ -23,16 +22,10 @@ import edu.kit.ipd.sdq.eventsim.workload.EventSimWorkloadModel;
  */
 public class BuildWorkloadGenerator implements IPCMCommand<List<IWorkloadGenerator>> {
 
-    private final EventSimWorkloadModel model;
+    private WorkloadGeneratorFactory factory;
 
-    /**
-     * Constructs a new command that creates all workload generators.
-     * 
-     * @param model
-     *            the simulation model
-     */
-    public BuildWorkloadGenerator(final EventSimWorkloadModel model) {
-        this.model = model;
+    public BuildWorkloadGenerator(WorkloadGeneratorFactory factory) {
+        this.factory = factory;
     }
 
     /**
@@ -44,11 +37,14 @@ public class BuildWorkloadGenerator implements IPCMCommand<List<IWorkloadGenerat
         for (final UsageScenario u : pcm.getUsageModel().getUsageScenario_UsageModel()) {
             final Workload w = u.getWorkload_UsageScenario();
             if (UsagemodelPackage.eINSTANCE.getOpenWorkload().isInstance(w)) {
-                workloads.add(new OpenWorkloadGenerator(this.model, (OpenWorkload) w));
+                OpenWorkloadGenerator generator = factory.createOpen((OpenWorkload) w);
+                workloads.add(generator);
             } else if (UsagemodelPackage.eINSTANCE.getClosedWorkload().isInstance(w)) {
-                workloads.add(new ClosedWorkloadGenerator(this.model, (ClosedWorkload) w));
+                ClosedWorkloadGenerator generator = factory.createClosed((ClosedWorkload) w);
+                workloads.add(generator);
             } else {
-                throw new UnexpectedModelStructureException("Found a workload which is neither an OpenWorkload nor a ClosedWorkload.");
+                throw new UnexpectedModelStructureException(
+                        "Found a workload which is neither an OpenWorkload nor a ClosedWorkload.");
             }
         }
         return workloads;

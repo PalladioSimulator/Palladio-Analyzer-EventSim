@@ -5,7 +5,7 @@ import org.palladiosimulator.pcm.seff.AbstractAction;
 import org.palladiosimulator.pcm.usagemodel.EntryLevelSystemCall;
 
 import de.uka.ipd.sdq.simulation.abstractsimengine.AbstractSimEventDelegator;
-import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
+import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 import edu.kit.ipd.sdq.eventsim.api.IRequest;
 import edu.kit.ipd.sdq.eventsim.api.IUser;
 import edu.kit.ipd.sdq.eventsim.debug.DebugEntityListener;
@@ -48,7 +48,7 @@ public class Request extends EventSimEntity implements IRequest {
      * @param user
      *            the User that has issued the Request
      */
-    public Request(final AbstractEventSimModel model, final EntryLevelSystemCall call, final IUser user) {
+    public Request(final ISimulationModel model, final EntryLevelSystemCall call, final IUser user) {
         super(model, "Request");
         this.call = call;
         this.user = user;

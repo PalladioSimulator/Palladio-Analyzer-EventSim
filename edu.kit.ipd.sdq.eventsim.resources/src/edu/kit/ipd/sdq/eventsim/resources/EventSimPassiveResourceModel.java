@@ -11,14 +11,15 @@ import org.palladiosimulator.pcm.repository.PassiveResource;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
-import edu.kit.ipd.sdq.eventsim.SimulationConfiguration;
+import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 import edu.kit.ipd.sdq.eventsim.api.IPassiveResource;
 import edu.kit.ipd.sdq.eventsim.api.IRequest;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
+import edu.kit.ipd.sdq.eventsim.api.PCMModel;
 import edu.kit.ipd.sdq.eventsim.api.events.SimulationStopEvent;
 import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
 import edu.kit.ipd.sdq.eventsim.entities.IEntityListener;
+import edu.kit.ipd.sdq.eventsim.instrumentation.description.core.InstrumentationDescription;
 import edu.kit.ipd.sdq.eventsim.instrumentation.description.resource.PassiveResourceRep;
 import edu.kit.ipd.sdq.eventsim.instrumentation.injection.Instrumentor;
 import edu.kit.ipd.sdq.eventsim.instrumentation.injection.InstrumentorBuilder;
@@ -28,7 +29,7 @@ import edu.kit.ipd.sdq.eventsim.resources.entities.SimulatedProcess;
 import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
 
 @Singleton
-public class EventSimPassiveResourceModel extends AbstractEventSimModel implements IPassiveResource {
+public class EventSimPassiveResourceModel implements IPassiveResource {
 
     // maps (AssemblyContext ID, PassiveResource ID) -> SimPassiveResource
     private Map<String, SimPassiveResource> contextToResourceMap;
@@ -36,9 +37,25 @@ public class EventSimPassiveResourceModel extends AbstractEventSimModel implemen
     
 	private Instrumentor<SimPassiveResource, ?> instrumentor;
     
+    private ISimulationModel model;
+
+    private MeasurementStorage measurementStorage;
+
+    private ISimulationMiddleware middleware;
+	
+    private PCMModel pcm; 
+    
+    private InstrumentationDescription instrumentation;
+    
     @Inject
-	public EventSimPassiveResourceModel(ISimulationMiddleware middleware, MeasurementStorage measurementStorage) {
-		super(middleware, measurementStorage);
+	public EventSimPassiveResourceModel(ISimulationMiddleware middleware, ISimulationModel model,
+            MeasurementStorage measurementStorage, PCMModel pcm, InstrumentationDescription instrumentation) {
+        this.middleware = middleware;
+        this.model = model;
+        this.measurementStorage = measurementStorage;
+        this.pcm = pcm;
+        this.instrumentation = instrumentation;
+        
 		contextToResourceMap = new HashMap<String, SimPassiveResource>();
 		requestToSimulatedProcessMap = new WeakHashMap<>();
 		init();
@@ -46,17 +63,15 @@ public class EventSimPassiveResourceModel extends AbstractEventSimModel implemen
 
 	public void init() {
 		// create instrumentor for instrumentation description
-		SimulationConfiguration config = (SimulationConfiguration) getSimulationMiddleware().getSimulationConfiguration();
 		instrumentor = InstrumentorBuilder
-				.buildFor(config.getPCMModel())
+				.buildFor(pcm)
 				.inBundle(Activator.getContext().getBundle())
-				.withDescription(config.getInstrumentationDescription())
-				.withStorage(getMeasurementStorage())
+				.withDescription(instrumentation)
+				.withStorage(measurementStorage)
 				.forModelType(PassiveResourceRep.class)
 				.withMapping((SimPassiveResource r) -> new PassiveResourceRep(r.getSpecification(), r.getAssemblyContext()))
 				.createFor(new ResourceProbeConfiguration());
 		
-		MeasurementStorage measurementStorage = getMeasurementStorage();
 		measurementStorage.addIdExtractor(SimPassiveResource.class, c -> ((SimPassiveResource)c).getSpecification().getId());
 		measurementStorage.addNameExtractor(SimPassiveResource.class, c -> ((SimPassiveResource)c).getName());
 		
@@ -64,8 +79,6 @@ public class EventSimPassiveResourceModel extends AbstractEventSimModel implemen
 	}
 	
 	private void registerEventHandler() {
-		ISimulationMiddleware middleware = getSimulationMiddleware();
-		
 //		middleware.registerEventHandler(SimulationInitEvent.class, e -> init());
 		middleware.registerEventHandler(SimulationStopEvent.class, e -> finalise());
 	}
@@ -78,13 +91,7 @@ public class EventSimPassiveResourceModel extends AbstractEventSimModel implemen
 		return acquired;
 	}
 
-	/* (non-Javadoc)
-	 * @see edu.kit.ipd.sdq.eventsim.AbstractEventSimModel#finalise()
-	 */
-	@Override
-	public void finalise() {
-		super.finalise();
-		
+	public void finalise() {		
 		contextToResourceMap.clear();
 	}
 
@@ -119,7 +126,7 @@ public class EventSimPassiveResourceModel extends AbstractEventSimModel implemen
     public SimPassiveResource findOrCreateResource(PassiveResource specification, AssemblyContext assCtx) {
         if (!contextToResourceMap.containsKey(compoundKey(assCtx, specification))) {
             // create passive resource
-            SimPassiveResource resource = ResourceFactory.createPassiveResource(this, specification, assCtx);
+            SimPassiveResource resource = ResourceFactory.createPassiveResource(model, specification, assCtx);
 
             // register the created passive resource
             contextToResourceMap.put(compoundKey(assCtx, specification), resource);
@@ -154,7 +161,7 @@ public class EventSimPassiveResourceModel extends AbstractEventSimModel implemen
 			if(request.getParent() != null) {
 				parent = getOrCreateSimulatedProcess(request.getParent());
 			}
-			SimulatedProcess process = new SimulatedProcess(this, parent, request);
+			SimulatedProcess process = new SimulatedProcess(model, parent, request);
 
 			// add listener for request finish
 			EventSimEntity requestEntity = (EventSimEntity) request;

@@ -13,7 +13,7 @@ import edu.kit.ipd.sdq.eventsim.components.events.SimulationEvent;
  * @author Christoph Föhrdes
  */
 public interface ISimulationMiddleware {
-
+    
 	/**
 	 * Starts a simulation run.
 	 * 

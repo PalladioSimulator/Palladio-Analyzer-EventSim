@@ -5,8 +5,6 @@ import org.palladiosimulator.pcm.seff.AbstractAction;
 
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
-import edu.kit.ipd.sdq.eventsim.system.interpreter.SeffBehaviourInterpreter;
-import edu.kit.ipd.sdq.eventsim.system.interpreter.SeffInterpreterConfiguration;
 import edu.kit.ipd.sdq.eventsim.system.interpreter.listener.ISeffTraversalListener;
 import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
 import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
@@ -25,17 +23,6 @@ import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
 public class DebugSeffTraversalListener implements ISeffTraversalListener {
 
 	private static final Logger logger = Logger.getLogger(DebugSeffTraversalListener.class);
-
-	private DebugSeffTraversalListener() {
-		// private constructor to prevent instantiation by clients
-	}
-
-	/**
-	 * Installs a {@link DebugSeffTraversalListener} at {@link SeffBehaviourInterpreter}.
-	 */
-	public static void install(SeffInterpreterConfiguration interpreterConfiguration) {
-		interpreterConfiguration.addTraversalListener(new DebugSeffTraversalListener());
-	}
 
 	/**
 	 * {@inheritDoc}

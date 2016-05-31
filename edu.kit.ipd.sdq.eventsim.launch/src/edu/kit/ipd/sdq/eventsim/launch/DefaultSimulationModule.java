@@ -3,38 +3,36 @@ package edu.kit.ipd.sdq.eventsim.launch;
 import com.google.inject.AbstractModule;
 
 import edu.kit.ipd.sdq.eventsim.api.ISimulationConfiguration;
-import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
-import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
-import edu.kit.ipd.sdq.eventsim.measurement.r.RMeasurementStore;
-import edu.kit.ipd.sdq.eventsim.middleware.SimulationMiddleware;
-import edu.kit.ipd.sdq.eventsim.resources.EventSimResource;
-import edu.kit.ipd.sdq.eventsim.system.EventSimSystem;
-import edu.kit.ipd.sdq.eventsim.workload.EventSimWorkload;
+import edu.kit.ipd.sdq.eventsim.api.PCMModel;
+import edu.kit.ipd.sdq.eventsim.instrumentation.description.core.InstrumentationDescription;
+import edu.kit.ipd.sdq.eventsim.middleware.SimulationMiddlewareModule;
+import edu.kit.ipd.sdq.eventsim.resources.EventSimResourceModule;
+import edu.kit.ipd.sdq.eventsim.system.EventSimSystemModule;
+import edu.kit.ipd.sdq.eventsim.workload.EventSimWorkloadModule;
 
 public class DefaultSimulationModule extends AbstractModule {
 
-	private ISimulationConfiguration config;
+    private ISimulationConfiguration config;
+    
+    private InstrumentationDescription instrumentationDescription;
 
-	public DefaultSimulationModule(ISimulationConfiguration config) {
-		this.config = config;
-	}
+    public DefaultSimulationModule(ISimulationConfiguration config, InstrumentationDescription instrumentationDescription) {
+        this.config = config;
+        this.instrumentationDescription = instrumentationDescription;
+    }
 
-	@Override
-	protected void configure() {
-		install(new EventSimWorkload());
-		install(new EventSimSystem());
-		install(new EventSimResource());
+    @Override
+    protected void configure() {
+        install(new SimulationMiddlewareModule(config));
+        install(new EventSimWorkloadModule());
+        install(new EventSimSystemModule());
+        install(new EventSimResourceModule());
+        
 
-		// bind measurement storage; currently fixed to RMeasurementStore
-		MeasurementStorage measurementStorage = RMeasurementStore.fromLaunchConfiguration(config.getConfigurationMap());
-		if (measurementStorage == null) {
-			throw new RuntimeException("R measurement store could not bet constructed from launch configuration.");
-		}
-		bind(MeasurementStorage.class).toInstance(measurementStorage);
-
-		// bind middleware to single instance to ensure that all simulation components use the same instance
-		ISimulationMiddleware middleware = new SimulationMiddleware(config, measurementStorage);
-		bind(ISimulationMiddleware.class).toInstance(middleware);
-	}
+        bind(ISimulationConfiguration.class).toInstance(config);
+        bind(PCMModel.class).toInstance(config.getPCMModel());
+        bind(InstrumentationDescription.class).toInstance(instrumentationDescription);
+        
+    }
 
 }

@@ -9,7 +9,7 @@ import org.palladiosimulator.pcm.repository.PassiveResource;
 import de.uka.ipd.sdq.scheduler.IPassiveResource;
 import de.uka.ipd.sdq.scheduler.ISchedulableProcess;
 import de.uka.ipd.sdq.scheduler.sensors.IPassiveResourceSensor;
-import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
+import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
 import edu.kit.ipd.sdq.eventsim.resources.listener.IPassiveResourceListener;
 
@@ -46,7 +46,7 @@ public class SimPassiveResource extends EventSimEntity {
 	 * @param specification
 	 *            the specification of this resource
 	 */
-    public SimPassiveResource(AbstractEventSimModel model, IPassiveResource resource, PassiveResource specification) {
+    public SimPassiveResource(ISimulationModel model, IPassiveResource resource, PassiveResource specification) {
         super(model, "SimPassiveResource");
         this.schedulerResource = resource;
         this.listeners = new ArrayList<IPassiveResourceListener>();

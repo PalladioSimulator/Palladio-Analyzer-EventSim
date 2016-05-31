@@ -3,7 +3,7 @@ package edu.kit.ipd.sdq.eventsim.workload.events;
 import org.palladiosimulator.pcm.usagemodel.UsageScenario;
 
 import de.uka.ipd.sdq.simulation.abstractsimengine.AbstractSimEventDelegator;
-import edu.kit.ipd.sdq.eventsim.workload.EventSimWorkloadModel;
+import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
 import edu.kit.ipd.sdq.eventsim.workload.interpreter.UsageBehaviourInterpreter;
 import edu.kit.ipd.sdq.eventsim.workload.interpreter.state.UserState;
@@ -20,8 +20,9 @@ import edu.kit.ipd.sdq.eventsim.workload.interpreter.state.UserState;
 public class ResumeUsageTraversalEvent extends AbstractSimEventDelegator<User> {
 
     private final UserState state;
-	private EventSimWorkloadModel model;
-
+		
+	private UsageBehaviourInterpreter interpreter;
+	
     /**
      * Use this constructor to resume the traversal of a {@link UsageScenario}. All information
      * required to resume the traversal are contained in the specified traversal {@code state}.
@@ -31,10 +32,10 @@ public class ResumeUsageTraversalEvent extends AbstractSimEventDelegator<User> {
      * @param state
      *            the traversal state
      */
-    public ResumeUsageTraversalEvent(final EventSimWorkloadModel model, final UserState state) {
-        super(model.getSimulationMiddleware().getSimulationModel(), "ResumeUsageTraversalEvent");
-        this.model = model;
+    public ResumeUsageTraversalEvent(final ISimulationModel model, final UserState state, UsageBehaviourInterpreter interpreter) {
+        super(model, "ResumeUsageTraversalEvent");
         this.state = state;
+        this.interpreter = interpreter;
     }
 
     /**
@@ -42,7 +43,6 @@ public class ResumeUsageTraversalEvent extends AbstractSimEventDelegator<User> {
      */
     @Override
     public void eventRoutine(final User who) {
-        UsageBehaviourInterpreter interpreter = this.model.getUsageInterpreter();
         interpreter.resumeTraversal(who, this.state);
     }
 

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="edu.kit.ipd.sdq.eventsim.interpreter.strategy">
+      <strategy
+            action="org.palladiosimulator.pcm.seff.AcquireAction"
+            name="AcquireAction"
+            strategy="edu.kit.ipd.sdq.eventsim.system.interpreter.strategies.AcquireActionTraversalStrategy">
+      </strategy>
+      <strategy
+            action="org.palladiosimulator.pcm.seff.BranchAction"
+            name="BranchAction"
+            strategy="edu.kit.ipd.sdq.eventsim.system.interpreter.strategies.BranchActionTraversalStrategy">
+      </strategy>
+      <strategy
+            action="org.palladiosimulator.pcm.seff.ExternalCallAction"
+            name="ExternalCallAction"
+            strategy="edu.kit.ipd.sdq.eventsim.system.interpreter.strategies.ExternalCallActionStrategy">
+      </strategy>
+      <strategy
+            action="org.palladiosimulator.pcm.seff.ForkAction"
+            name="ForkAction"
+            strategy="edu.kit.ipd.sdq.eventsim.system.interpreter.strategies.ForkActionTraversalStrategy">
+      </strategy>
+      <strategy
+            action="org.palladiosimulator.pcm.seff.InternalAction"
+            name="InternalAction"
+            strategy="edu.kit.ipd.sdq.eventsim.system.interpreter.strategies.InternalActionTraversalStrategy">
+      </strategy>
+      <strategy
+            action="org.palladiosimulator.pcm.seff.LoopAction"
+            name="LoopAction"
+            strategy="edu.kit.ipd.sdq.eventsim.system.interpreter.strategies.LoopActionTraversalStrategy">
+      </strategy>
+      <strategy
+            action="org.palladiosimulator.pcm.seff.ReleaseAction"
+            name="ReleaseAction"
+            strategy="edu.kit.ipd.sdq.eventsim.system.interpreter.strategies.ReleaseActionTraversalStrategy">
+      </strategy>
+      <strategy
+            action="org.palladiosimulator.pcm.seff.SetVariableAction"
+            name="SetVariableAction"
+            strategy="edu.kit.ipd.sdq.eventsim.system.interpreter.strategies.SetVariableActionTraversalStrategy">
+      </strategy>
+      <strategy
+            action="org.palladiosimulator.pcm.seff.StartAction"
+            name="StartAction"
+            strategy="edu.kit.ipd.sdq.eventsim.system.interpreter.strategies.StartActionTraversalStrategy">
+      </strategy>
+      <strategy
+            action="org.palladiosimulator.pcm.seff.StopAction"
+            name="StopAction"
+            strategy="edu.kit.ipd.sdq.eventsim.system.interpreter.strategies.StopActionTraversalStrategy">
+      </strategy>
+   </extension>
+
+
+</plugin>

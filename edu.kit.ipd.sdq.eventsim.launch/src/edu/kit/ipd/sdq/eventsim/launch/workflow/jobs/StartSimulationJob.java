@@ -25,6 +25,7 @@ import edu.kit.ipd.sdq.eventsim.instrumentation.xml.DescriptionToXmlParser;
 import edu.kit.ipd.sdq.eventsim.launch.DefaultSimulationModule;
 import edu.kit.ipd.sdq.eventsim.launch.SimulationDockWrapper;
 import edu.kit.ipd.sdq.eventsim.launch.SimulationManager;
+import edu.kit.ipd.sdq.eventsim.launch.runconfig.EventSimConfigurationConstants;
 import edu.kit.ipd.sdq.eventsim.launch.runconfig.EventSimWorkflowConfiguration;
 
 /**
@@ -37,18 +38,15 @@ import edu.kit.ipd.sdq.eventsim.launch.runconfig.EventSimWorkflowConfiguration;
  */
 public class StartSimulationJob extends AbstractExtendableJob<MDSDBlackboard> {
 
-	private final EventSimWorkflowConfiguration configuration;
+	private final EventSimWorkflowConfiguration workflowConfiguration;
 	
-	/** location of default instrumentation description */ 
-	private static final String DEFAULT_INSTRUMENTATION = "platform:/plugin/edu.kit.ipd.sdq.eventsim.core/defaultModels/default.eventsim_instrumentation";
-	
-	public StartSimulationJob(EventSimWorkflowConfiguration configuration) {
-		this.configuration = configuration;
+	public StartSimulationJob(EventSimWorkflowConfiguration workflowConfiguration) {
+		this.workflowConfiguration = workflowConfiguration;
 	}
 
 	public void execute(IProgressMonitor monitor) throws JobFailedException, UserCanceledException {
 		// derive configuration
-		SimulationConfiguration config = configuration.getSimulationConfiguration();
+		SimulationConfiguration config = workflowConfiguration.getSimulationConfiguration();
 
 		// obtain PCM model from MDSD blackboard
 		// TODO multiple repositories are not supported by the following
@@ -61,7 +59,9 @@ public class StartSimulationJob extends AbstractExtendableJob<MDSDBlackboard> {
 		// read instrumentation description from specified file
 		InstrumentationDescription instrumentationDescription = null;
 		try {
-			URL url = new URL(DEFAULT_INSTRUMENTATION);
+            // TODO should be read from configuration rather than reading from raw attributes map
+		    String instrumentatinFileLocation = (String) workflowConfiguration.getAttributes().get(EventSimConfigurationConstants.INSTRUMENTATION_FILE);
+			URL url = new URL(instrumentatinFileLocation);
 			instrumentationDescription = new DescriptionToXmlParser().readFromInputStream(url.openStream());
 		} catch (JAXBException | IOException e) {
 			throw new EventSimException("Could not read default instrumentation description", e);
@@ -69,7 +69,7 @@ public class StartSimulationJob extends AbstractExtendableJob<MDSDBlackboard> {
 		config.setInstrumentationDescription(instrumentationDescription);
 
 		// assemble simulation components...
-		Injector injector = Guice.createInjector(new DefaultSimulationModule(config));
+		Injector injector = Guice.createInjector(new DefaultSimulationModule(config, instrumentationDescription));
 
 		// ...and start simulation, displaying simulation progress in a simulation dock (progress viewer)
 		SimulationDockWrapper dock = SimulationDockWrapper.getBestFreeDock();

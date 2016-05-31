@@ -62,6 +62,7 @@ public class EventSimWorkflowLauncher extends AbstractPCMLaunchConfigurationDele
 	 */
 	@Override
 	protected ArrayList<LoggerAppenderStruct> setupLogging(Level logLevel) throws CoreException {
+	    // TODO update (or create extension point, perhaps)
 		ArrayList<LoggerAppenderStruct> loggerList = super.setupLogging(logLevel);
 		loggerList.add(setupLogger("de.uka.ipd.sdq.codegen", logLevel, Level.DEBUG == logLevel ? DETAILED_LOG_PATTERN : SHORT_LOG_PATTERN));
 		loggerList.add(setupLogger("de.uka.ipd.sdq.simucomframework", logLevel, Level.DEBUG == logLevel ? DETAILED_LOG_PATTERN : SHORT_LOG_PATTERN));

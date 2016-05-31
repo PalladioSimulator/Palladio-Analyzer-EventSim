@@ -3,10 +3,12 @@ package edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies;
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 import org.palladiosimulator.pcm.usagemodel.EntryLevelSystemCall;
 
+import com.google.inject.Inject;
+
+import edu.kit.ipd.sdq.eventsim.api.ISystem;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalInstruction;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.interpreter.instructions.InterruptTraversal;
-import edu.kit.ipd.sdq.eventsim.workload.EventSimWorkloadModel;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
 import edu.kit.ipd.sdq.eventsim.workload.interpreter.state.UserState;
 
@@ -19,6 +21,9 @@ import edu.kit.ipd.sdq.eventsim.workload.interpreter.state.UserState;
  */
 public class EntryLevelSystemCallTraversalStrategy implements ITraversalStrategy<AbstractUserAction, EntryLevelSystemCall, User, UserState> {
 
+    @Inject
+    private ISystem systemComponent;
+    
 	/**
 	 * {@inheritDoc}
 	 */
@@ -28,7 +33,7 @@ public class EntryLevelSystemCallTraversalStrategy implements ITraversalStrategy
 		user.setUserState(state); // TODO redundant!?
 
 		// invoke system service
-		((EventSimWorkloadModel)user.getEventSimModel()).getSystem().callService(user, call);
+		systemComponent.callService(user, call);
 
 		// interrupt the usage traversal until service call simulation finished
 		return new InterruptTraversal<>(call.getSuccessor());

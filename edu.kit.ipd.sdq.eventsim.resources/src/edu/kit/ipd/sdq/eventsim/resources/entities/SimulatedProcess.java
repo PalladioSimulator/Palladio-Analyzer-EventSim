@@ -6,7 +6,7 @@ import org.palladiosimulator.pcm.seff.AbstractAction;
 
 import de.uka.ipd.sdq.scheduler.IActiveResource;
 import de.uka.ipd.sdq.scheduler.ISchedulableProcess;
-import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
+import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 import edu.kit.ipd.sdq.eventsim.api.IRequest;
 import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
 
@@ -40,7 +40,7 @@ public class SimulatedProcess extends EventSimEntity implements ISchedulableProc
      *            the listener that is to be notified when this simulated process is being activated
      *            or passivated
      */
-    public SimulatedProcess(AbstractEventSimModel model, SimulatedProcess parent, final IRequest request) {
+    public SimulatedProcess(ISimulationModel model, SimulatedProcess parent, final IRequest request) {
     	super(model, "SimulatedProcess");
     	this.parent = parent;
         this.request = request;

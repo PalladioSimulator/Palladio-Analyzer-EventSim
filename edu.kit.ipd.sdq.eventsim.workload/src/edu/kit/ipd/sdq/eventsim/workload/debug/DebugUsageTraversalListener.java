@@ -5,8 +5,6 @@ import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 
 import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
-import edu.kit.ipd.sdq.eventsim.workload.interpreter.UsageBehaviourInterpreter;
-import edu.kit.ipd.sdq.eventsim.workload.interpreter.UsageInterpreterConfiguration;
 import edu.kit.ipd.sdq.eventsim.workload.interpreter.listener.IUsageTraversalListener;
 import edu.kit.ipd.sdq.eventsim.workload.interpreter.state.UserState;
 
@@ -37,13 +35,6 @@ public class DebugUsageTraversalListener implements IUsageTraversalListener {
 	@Override
 	public void after(final AbstractUserAction action, final User who, UserState state) {
 		logger.debug("AFTER " + PCMEntityHelper.toString(action) + "(User: " + who + ")");
-	}
-
-	/**
-	 * Installs a {@link DebugUsageTraversalListener} at {@link UsageBehaviourInterpreter}.
-	 */
-	public static void install(UsageInterpreterConfiguration interpreterConfiguration) {
-		interpreterConfiguration.addTraversalListener(new DebugUsageTraversalListener());
 	}
 
 }

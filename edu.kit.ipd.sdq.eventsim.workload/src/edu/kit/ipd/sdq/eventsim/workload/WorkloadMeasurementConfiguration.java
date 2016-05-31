@@ -1,22 +1,23 @@
 package edu.kit.ipd.sdq.eventsim.workload;
 
+import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
+
+import edu.kit.ipd.sdq.eventsim.interpreter.TraversalListenerRegistry;
 import edu.kit.ipd.sdq.eventsim.measurement.ProbeConfiguration;
-import edu.kit.ipd.sdq.eventsim.workload.interpreter.UsageInterpreterConfiguration;
+import edu.kit.ipd.sdq.eventsim.workload.entities.User;
+import edu.kit.ipd.sdq.eventsim.workload.interpreter.state.UserState;
 
 public class WorkloadMeasurementConfiguration implements ProbeConfiguration {
 
-	private UsageInterpreterConfiguration interpreterConfiguration;
-	
-	public WorkloadMeasurementConfiguration(UsageInterpreterConfiguration interpreterConfiguration) {
-		this.interpreterConfiguration = interpreterConfiguration;
-	}
+    private TraversalListenerRegistry<AbstractUserAction, User, UserState> traversalListeners;
 
-	public UsageInterpreterConfiguration getInterpreterConfiguration() {
-		return interpreterConfiguration;
-	}
-	
-	public static WorkloadMeasurementConfiguration from(EventSimWorkloadModel model) {
-		return new WorkloadMeasurementConfiguration(model.getUsageInterpreter().getConfiguration());
-	}
-	
+    public WorkloadMeasurementConfiguration(
+            TraversalListenerRegistry<AbstractUserAction, User, UserState> traversalListeners) {
+        this.traversalListeners = traversalListeners;
+    }
+
+    public TraversalListenerRegistry<AbstractUserAction, User, UserState> getInterpreterConfiguration() {
+        return traversalListeners;
+    }
+
 }

@@ -5,7 +5,7 @@ import org.palladiosimulator.pcm.seff.ResourceDemandingSEFF;
 
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
 import de.uka.ipd.sdq.simulation.abstractsimengine.AbstractSimEventDelegator;
-import edu.kit.ipd.sdq.eventsim.system.EventSimSystemModel;
+import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
 import edu.kit.ipd.sdq.eventsim.system.interpreter.SeffBehaviourInterpreter;
 import edu.kit.ipd.sdq.eventsim.system.staticstructure.ComponentInstance;
@@ -23,8 +23,8 @@ public class BeginSeffTraversalEvent extends AbstractSimEventDelegator<Request> 
 
     private final ComponentInstance component;
     private final OperationSignature signature;
-	private EventSimSystemModel model;
-	private StackContext stoExContext;
+    private StackContext stoExContext;
+    private SeffBehaviourInterpreter interpreter;
 
     /**
      * Use this constructor to begin the traversal of the RD-SEFF provided by the specified {@code
@@ -40,13 +40,13 @@ public class BeginSeffTraversalEvent extends AbstractSimEventDelegator<Request> 
      * @param parentState
      *            the state of the usage traversal
      */
-	public BeginSeffTraversalEvent(final EventSimSystemModel model, final ComponentInstance component,
-			final OperationSignature signature, StackContext stoExContext) {
-        super(model.getSimulationMiddleware().getSimulationModel(), "BeginUsageTraversalEvent");
-        this.model = model;
+    public BeginSeffTraversalEvent(final ISimulationModel model, final ComponentInstance component,
+            final OperationSignature signature, StackContext stoExContext, SeffBehaviourInterpreter interpreter) {
+        super(model, "BeginUsageTraversalEvent");
         this.component = component;
         this.signature = signature;
         this.stoExContext = stoExContext;
+        this.interpreter = interpreter;
     }
 
     /**
@@ -54,7 +54,6 @@ public class BeginSeffTraversalEvent extends AbstractSimEventDelegator<Request> 
      */
     @Override
     public void eventRoutine(final Request who) {
-        SeffBehaviourInterpreter interpreter = this.model.getSeffInterpreter();
         interpreter.beginTraversal(who, this.component, this.signature, stoExContext);
     }
 

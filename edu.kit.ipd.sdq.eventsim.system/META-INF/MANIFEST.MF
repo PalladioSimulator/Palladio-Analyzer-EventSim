@@ -29,7 +29,6 @@ Export-Package: edu.kit.ipd.sdq.eventsim.system;
    edu.kit.ipd.sdq.eventsim.system.interpreter.seff,
    org.palladiosimulator.pcm.usagemodel,
    edu.kit.ipd.sdq.eventsim.measurement",
- edu.kit.ipd.sdq.eventsim.system.context,
  edu.kit.ipd.sdq.eventsim.system.interpreter;
   uses:="org.eclipse.emf.ecore,
    org.palladiosimulator.pcm.repository,

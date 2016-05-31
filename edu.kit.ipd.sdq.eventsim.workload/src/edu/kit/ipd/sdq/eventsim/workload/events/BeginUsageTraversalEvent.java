@@ -4,8 +4,9 @@ import org.palladiosimulator.pcm.usagemodel.ScenarioBehaviour;
 import org.palladiosimulator.pcm.usagemodel.UsageScenario;
 
 import de.uka.ipd.sdq.simulation.abstractsimengine.AbstractSimEventDelegator;
+import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
+import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
 import edu.kit.ipd.sdq.eventsim.api.events.WorkloadUserSpawn;
-import edu.kit.ipd.sdq.eventsim.workload.EventSimWorkloadModel;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
 import edu.kit.ipd.sdq.eventsim.workload.interpreter.UsageBehaviourInterpreter;
 
@@ -21,8 +22,11 @@ import edu.kit.ipd.sdq.eventsim.workload.interpreter.UsageBehaviourInterpreter;
 public class BeginUsageTraversalEvent extends AbstractSimEventDelegator<User> {
 
     private final UsageScenario scenario;
-	private EventSimWorkloadModel model;
 
+    private ISimulationMiddleware middleware;
+
+    private UsageBehaviourInterpreter interpreter;
+    
     /**
      * Use this constructor to begin the traversal of the specified {@link UsageScenario}.
      * 
@@ -31,10 +35,11 @@ public class BeginUsageTraversalEvent extends AbstractSimEventDelegator<User> {
      * @param scenario
      *            the usage scenario that is to be traversed
      */
-    public BeginUsageTraversalEvent(final EventSimWorkloadModel model, final UsageScenario scenario) {
-        super(model.getSimulationMiddleware().getSimulationModel(), "BeginUsageTraversalEvent");
-        this.model = model;
+    public BeginUsageTraversalEvent(final ISimulationModel model, final UsageScenario scenario, ISimulationMiddleware middleware, UsageBehaviourInterpreter interpreter) {
+        super(model, "BeginUsageTraversalEvent");
         this.scenario = scenario;
+        this.middleware = middleware;
+        this.interpreter = interpreter;
     }
 
     /**
@@ -43,9 +48,8 @@ public class BeginUsageTraversalEvent extends AbstractSimEventDelegator<User> {
     @Override
     public void eventRoutine(final User who) {
     	// trigger event that a user spawned
-    	model.getSimulationMiddleware().triggerEvent(new WorkloadUserSpawn(who));
+    	middleware.triggerEvent(new WorkloadUserSpawn(who));
 
-        UsageBehaviourInterpreter interpreter = this.model.getUsageInterpreter();
         ScenarioBehaviour behaviour = this.scenario.getScenarioBehaviour_UsageScenario();
         interpreter.beginTraversal(who, behaviour);
     }

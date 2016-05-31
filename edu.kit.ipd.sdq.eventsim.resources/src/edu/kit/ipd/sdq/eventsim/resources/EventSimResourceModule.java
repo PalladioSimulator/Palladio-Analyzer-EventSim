@@ -5,7 +5,7 @@ import com.google.inject.AbstractModule;
 import edu.kit.ipd.sdq.eventsim.api.IActiveResource;
 import edu.kit.ipd.sdq.eventsim.api.IPassiveResource;
 
-public class EventSimResource extends AbstractModule {
+public class EventSimResourceModule extends AbstractModule {
 	
 	@Override
 	protected void configure() {

@@ -1,5 +1,8 @@
 package edu.kit.ipd.sdq.eventsim.middleware.simulation;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
 import de.uka.ipd.sdq.scheduler.SchedulerModel;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimEngineFactory;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationControl;
@@ -16,16 +19,14 @@ import edu.kit.ipd.sdq.eventsim.api.events.SimulationStopEvent;
  * 
  * @author Christoph Föhrdes
  */
+@Singleton
 public class SimulationModel extends SchedulerModel implements ISimulationModel {
 
 	private ISimulationControl control;
 	private ISimEngineFactory factory;
+	
+	@Inject
 	private ISimulationMiddleware middleware;
-
-	public SimulationModel(ISimEngineFactory factory, ISimulationMiddleware middleware) {
-		this.factory = factory;
-		this.middleware = middleware;
-	}
 
 	@Override
 	public ISimulationControl getSimulationControl() {

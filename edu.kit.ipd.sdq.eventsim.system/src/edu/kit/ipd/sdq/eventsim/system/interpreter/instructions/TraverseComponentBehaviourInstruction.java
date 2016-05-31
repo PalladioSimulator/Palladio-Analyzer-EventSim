@@ -4,7 +4,7 @@ import org.palladiosimulator.pcm.seff.AbstractAction;
 import org.palladiosimulator.pcm.seff.ResourceDemandingBehaviour;
 import org.palladiosimulator.pcm.seff.StartAction;
 
-import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
+import edu.kit.ipd.sdq.eventsim.command.PCMModelCommandExecutor;
 import edu.kit.ipd.sdq.eventsim.command.action.FindActionInBehaviour;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalInstruction;
 import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
@@ -24,11 +24,11 @@ import edu.kit.ipd.sdq.eventsim.system.staticstructure.ComponentInstance;
 public class TraverseComponentBehaviourInstruction implements
         ITraversalInstruction<AbstractAction, RequestState> {
 
-    private final AbstractEventSimModel model;
     private final ComponentInstance component;
     private final AbstractAction actionAfterCompletion;
     private final ResourceDemandingBehaviour behaviour;
-
+    private final PCMModelCommandExecutor executor;
+    
     /**
      * Constructs a new instruction.
      * 
@@ -41,9 +41,9 @@ public class TraverseComponentBehaviourInstruction implements
      * @param actionAfterCompletion
      *            the action that is to be traversed after leaving the scope
      */
-    public TraverseComponentBehaviourInstruction(final AbstractEventSimModel model, final ResourceDemandingBehaviour behaviour,
+    public TraverseComponentBehaviourInstruction(final PCMModelCommandExecutor executor, final ResourceDemandingBehaviour behaviour,
             final ComponentInstance component, final AbstractAction actionAfterCompletion) {
-        this.model = model;
+        this.executor = executor;
         this.component = component;
         this.behaviour = behaviour;
         this.actionAfterCompletion = actionAfterCompletion;
@@ -57,7 +57,7 @@ public class TraverseComponentBehaviourInstruction implements
         state.setPreviousPosition(state.getCurrentPosition());
         state.setCurrentPosition(this.actionAfterCompletion);
 
-        final StartAction startAction = this.model.execute(new FindActionInBehaviour<StartAction>(
+        final StartAction startAction = executor.execute(new FindActionInBehaviour<StartAction>(
                 this.behaviour, StartAction.class));
 
         state.pushStackFrame();

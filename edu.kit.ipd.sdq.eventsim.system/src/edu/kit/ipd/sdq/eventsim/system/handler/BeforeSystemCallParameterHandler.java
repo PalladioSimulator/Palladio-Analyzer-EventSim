@@ -10,6 +10,7 @@ import org.palladiosimulator.pcm.usagemodel.EntryLevelSystemCall;
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
 import de.uka.ipd.sdq.simucomframework.variables.stackframe.SimulatedStackframe;
 import edu.kit.ipd.sdq.eventsim.api.events.SystemRequestSpawnEvent;
+import edu.kit.ipd.sdq.eventsim.command.PCMModelCommandExecutor;
 import edu.kit.ipd.sdq.eventsim.components.events.IEventHandler;
 import edu.kit.ipd.sdq.eventsim.system.EventSimSystemModel;
 import edu.kit.ipd.sdq.eventsim.system.command.FindAssemblyContextForSystemCall;
@@ -23,9 +24,12 @@ public class BeforeSystemCallParameterHandler implements IEventHandler<SystemReq
     private static final Logger logger = Logger.getLogger(BeforeSystemCallParameterHandler.class);
     
 	private EventSimSystemModel model;
+	
+	private PCMModelCommandExecutor executor;
 
-	public BeforeSystemCallParameterHandler(EventSimSystemModel model) {
+	public BeforeSystemCallParameterHandler(EventSimSystemModel model, PCMModelCommandExecutor executor) {
 		this.model = model;
+		this.executor = executor;
 	}
 
 	@Override
@@ -47,7 +51,7 @@ public class BeforeSystemCallParameterHandler implements IEventHandler<SystemReq
         final SimulatedStackframe<Object> serviceBodyFrame = ctx.getStack().createAndPushNewStackFrame();
 
         // add component parameters
-        final AssemblyContext assemblyCtx = model.execute(new FindAssemblyContextForSystemCall(call));
+        final AssemblyContext assemblyCtx = executor.execute(new FindAssemblyContextForSystemCall(call));
         final ComponentInstance component = model.getComponent(assemblyCtx);
         serviceBodyFrame.addVariables(component.getComponentParameters());
 

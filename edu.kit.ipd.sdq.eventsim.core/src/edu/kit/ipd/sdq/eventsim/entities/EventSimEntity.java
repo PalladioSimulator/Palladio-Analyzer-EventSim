@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 import de.uka.ipd.sdq.simulation.abstractsimengine.AbstractSimEntityDelegator;
-import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
+import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 
 /**
  * This is the abstract base class for all simulated entities. Entities have an ID and they notify
@@ -25,7 +25,7 @@ import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
  * 
  */
 public abstract class EventSimEntity extends AbstractSimEntityDelegator {
-
+    
     /**
      * The state of an entity. A newly created entity has the state {@value CREATED}. Once the
      * entity enters the simulate system, the state changes to {@value #ENTERED_SYSTEM}. Finally,
@@ -57,8 +57,6 @@ public abstract class EventSimEntity extends AbstractSimEntityDelegator {
     private final long id;
     private final String namePrefix;
     private EntityState state;
-    
-    private AbstractEventSimModel model;
 
     static {
         idGenerators = new HashMap<Class<? extends EventSimEntity>, AtomicLong>();
@@ -73,9 +71,8 @@ public abstract class EventSimEntity extends AbstractSimEntityDelegator {
      * @param namePrefix
      *            the prefix of the entitie's name
      */
-    public EventSimEntity(final AbstractEventSimModel model, final String namePrefix) {
-        super(model.getSimulationMiddleware().getSimulationModel(), namePrefix);
-        this.model = model;
+    public EventSimEntity(ISimulationModel simulationModel, final String namePrefix) {
+        super(simulationModel, namePrefix);
         this.listeners = new ArrayList<IEntityListener>();
         this.namePrefix = namePrefix;
         this.id = generateNextId();
@@ -102,7 +99,7 @@ public abstract class EventSimEntity extends AbstractSimEntityDelegator {
      */
     public void notifyEnteredSystem() {
         this.state = EntityState.ENTERED_SYSTEM;
-        model.registerEntity(this);
+//        model.registerEntity(this);
         for (final IEntityListener l : this.listeners) {
             l.enteredSystem();
         }
@@ -114,7 +111,7 @@ public abstract class EventSimEntity extends AbstractSimEntityDelegator {
      */
     public void notifyLeftSystem() {
         this.state = EntityState.LEFT_SYSTEM;
-        model.unregisterEntity(this);
+//        model.unregisterEntity(this);
         for (final IEntityListener l : this.listeners) {
             l.leftSystem();
         }
@@ -179,15 +176,6 @@ public abstract class EventSimEntity extends AbstractSimEntityDelegator {
     public EntityState getState() {
         return state;
     }
-
-    /**
-     * Gives access to the current event sim model. (For the control simulation model use {@code getModel} instead)
-     * 
-     * @return The event sim model
-     */
-	public AbstractEventSimModel getEventSimModel() {
-		return model;
-	}
 
 	@Override
 	public int hashCode() {

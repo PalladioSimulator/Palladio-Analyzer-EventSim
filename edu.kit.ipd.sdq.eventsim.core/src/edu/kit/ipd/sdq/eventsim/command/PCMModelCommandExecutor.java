@@ -1,9 +1,11 @@
 package edu.kit.ipd.sdq.eventsim.command;
 
+import com.google.inject.Inject;
+
 import edu.kit.ipd.sdq.eventsim.api.PCMModel;
 
 /**
- * Use this class to execute {@link ICommand}s requiring access to a PCM model.
+ * Executes {@link ICommand}s operating on PCM models.
  * 
  * @author Philipp Merkle
  * 
@@ -11,6 +13,7 @@ import edu.kit.ipd.sdq.eventsim.api.PCMModel;
  */
 public class PCMModelCommandExecutor implements ICommandExecutor<PCMModel> {
 
+    @Inject
     private final PCMModel pcm;
 
     /**
@@ -18,8 +21,10 @@ public class PCMModelCommandExecutor implements ICommandExecutor<PCMModel> {
      * models.
      * 
      * @param pcm
-     *            the PCM model on which the executed commands are to operate
+     *            the PCM model on which executed commands operate
+     * 
      */
+    @Inject
     public PCMModelCommandExecutor(final PCMModel pcm) {
         this.pcm = pcm;
     }

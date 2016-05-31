@@ -9,7 +9,10 @@ import org.palladiosimulator.pcm.seff.GuardedBranchTransition;
 import org.palladiosimulator.pcm.seff.ProbabilisticBranchTransition;
 import org.palladiosimulator.pcm.seff.ResourceDemandingBehaviour;
 
-import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
+import com.google.inject.Inject;
+
+import de.uka.ipd.sdq.probfunction.math.IRandomGenerator;
+import edu.kit.ipd.sdq.eventsim.command.PCMModelCommandExecutor;
 import edu.kit.ipd.sdq.eventsim.exceptions.unchecked.UnexpectedModelStructureException;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalInstruction;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalStrategy;
@@ -26,12 +29,17 @@ import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
  */
 public class BranchActionTraversalStrategy implements ITraversalStrategy<AbstractAction, BranchAction, Request, RequestState> {
 
+    @Inject
+    private IRandomGenerator randomGenerator;
+    
+    @Inject
+    private PCMModelCommandExecutor executor;
+    
     /**
      * {@inheritDoc}
      */
     @Override
     public ITraversalInstruction<AbstractAction, RequestState> traverse(final BranchAction action, final Request request, final RequestState state) {
-        AbstractEventSimModel model = request.getEventSimModel();
         ResourceDemandingBehaviour behaviour = null;
 
         final List<AbstractBranchTransition> branches = action.getBranches_Branch();
@@ -45,7 +53,7 @@ public class BranchActionTraversalStrategy implements ITraversalStrategy<Abstrac
         if (firstTransition instanceof ProbabilisticBranchTransition) {
             // handle probabilistic branch transition
             double sum = 0;
-            final double rand = model.getSimulationMiddleware().getRandomGenerator().random();
+            final double rand = randomGenerator.random();
 
             for (final AbstractBranchTransition t : action.getBranches_Branch()) {
                 final ProbabilisticBranchTransition transition = (ProbabilisticBranchTransition) t;
@@ -75,7 +83,7 @@ public class BranchActionTraversalStrategy implements ITraversalStrategy<Abstrac
         }
         assert (enteredTransition) : "No branch transition has been entered.";
 
-        return new TraverseComponentBehaviourInstruction(request.getEventSimModel(), behaviour, state.getComponent(), action.getSuccessor_AbstractAction());
+        return new TraverseComponentBehaviourInstruction(executor, behaviour, state.getComponent(), action.getSuccessor_AbstractAction());
     }
 
 }

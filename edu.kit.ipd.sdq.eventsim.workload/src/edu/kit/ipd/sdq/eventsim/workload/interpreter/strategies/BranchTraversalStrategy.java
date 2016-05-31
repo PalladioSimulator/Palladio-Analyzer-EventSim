@@ -5,7 +5,10 @@ import org.palladiosimulator.pcm.usagemodel.Branch;
 import org.palladiosimulator.pcm.usagemodel.BranchTransition;
 import org.palladiosimulator.pcm.usagemodel.ScenarioBehaviour;
 
-import edu.kit.ipd.sdq.eventsim.AbstractEventSimModel;
+import com.google.inject.Inject;
+
+import de.uka.ipd.sdq.probfunction.math.IRandomGenerator;
+import edu.kit.ipd.sdq.eventsim.command.PCMModelCommandExecutor;
 import edu.kit.ipd.sdq.eventsim.exceptions.unchecked.InvalidModelParametersException;
 import edu.kit.ipd.sdq.eventsim.exceptions.unchecked.UnknownSimulationException;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalInstruction;
@@ -13,7 +16,6 @@ import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.interpreter.instructions.TraverseNextAction;
 import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
-import edu.kit.ipd.sdq.eventsim.workload.interpreter.WorkloadModelDiagnostics;
 import edu.kit.ipd.sdq.eventsim.workload.interpreter.instructions.TraverseUsageBehaviourInstruction;
 import edu.kit.ipd.sdq.eventsim.workload.interpreter.state.UserState;
 
@@ -27,23 +29,29 @@ public class BranchTraversalStrategy implements ITraversalStrategy<AbstractUserA
 
 	// TODO revisit this tolerance; it's likely better to "fix" the branching probabilities as done in SimuCom.
 	private static final double SUM_OF_BRANCHING_PROBABILITES_TOLERANCE = 0.01;
+	
+	@Inject
+	private IRandomGenerator randomGenerator;
+	
+	@Inject
+	private PCMModelCommandExecutor executor;
 
 	@Override
 	public ITraversalInstruction<AbstractUserAction, UserState> traverse(final Branch branch, final User user,
 			final UserState state) {
-		AbstractEventSimModel model = user.getEventSimModel();
 		ScenarioBehaviour behaviour = null;
 
 		// no branch transitions? ignore branch and continue with successor.
 		if (branch.getBranchTransitions_Branch().size() == 0) {
-			WorkloadModelDiagnostics diagnostics = user.getEventSimModel().getUsageInterpreter().getDiagnostics();
-			diagnostics.reportMissingBranchTransitions(branch);
+		    // TODO
+//			WorkloadModelDiagnostics diagnostics = user.getEventSimModel().getUsageInterpreter().getDiagnostics();
+//			diagnostics.reportMissingBranchTransitions(branch);
 			return new TraverseNextAction<>(branch.getSuccessor());
 		}
 
 		// randomly select branch transition according to their individual probability
 		double sum = 0;
-		final double rand = model.getSimulationMiddleware().getRandomGenerator().random();
+		final double rand = randomGenerator.random();
 		for (final BranchTransition t : branch.getBranchTransitions_Branch()) {
 			final double p = t.getBranchProbability();
 			if (rand >= sum && rand < sum + p) {
@@ -65,7 +73,7 @@ public class BranchTraversalStrategy implements ITraversalStrategy<AbstractUserA
 					PCMEntityHelper.toString(branch)));
 		}
 
-		return new TraverseUsageBehaviourInstruction(model, behaviour, branch.getSuccessor());
+		return new TraverseUsageBehaviourInstruction(executor, behaviour, branch.getSuccessor());
 	}
 
 }

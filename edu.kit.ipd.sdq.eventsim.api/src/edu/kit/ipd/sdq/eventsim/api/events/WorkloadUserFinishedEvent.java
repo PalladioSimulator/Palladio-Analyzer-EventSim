@@ -1,7 +1,6 @@
 package edu.kit.ipd.sdq.eventsim.api.events;
 
 import edu.kit.ipd.sdq.eventsim.api.IUser;
-import edu.kit.ipd.sdq.eventsim.components.events.AbstractSimulationEvent;
 
 /**
  * Indicates that a {@link IUser} has been simulated completely.

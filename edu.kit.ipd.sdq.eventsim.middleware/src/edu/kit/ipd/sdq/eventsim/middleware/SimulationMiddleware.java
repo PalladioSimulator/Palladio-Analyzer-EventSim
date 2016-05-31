@@ -19,14 +19,14 @@ import de.uka.ipd.sdq.simulation.preferences.SimulationPreferencesHelper;
 import edu.kit.ipd.sdq.eventsim.SimulationConfiguration;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationConfiguration;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
+import edu.kit.ipd.sdq.eventsim.api.events.IEventHandler;
+import edu.kit.ipd.sdq.eventsim.api.events.SimulationEvent;
 import edu.kit.ipd.sdq.eventsim.api.events.SimulationPrepareEvent;
 import edu.kit.ipd.sdq.eventsim.api.events.SimulationStartEvent;
 import edu.kit.ipd.sdq.eventsim.api.events.SimulationStopEvent;
-import edu.kit.ipd.sdq.eventsim.components.events.EventManager;
-import edu.kit.ipd.sdq.eventsim.components.events.IEventHandler;
-import edu.kit.ipd.sdq.eventsim.components.events.SimulationEvent;
 import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
+import edu.kit.ipd.sdq.eventsim.middleware.events.EventManager;
 import edu.kit.ipd.sdq.eventsim.middleware.simulation.MaxMeasurementsStopCondition;
 
 /**

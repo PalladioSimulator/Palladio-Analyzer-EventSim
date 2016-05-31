@@ -7,8 +7,7 @@ Require-Bundle: org.palladiosimulator.pcm;bundle-version="4.0.0",
  de.uka.ipd.sdq.simulation.abstractsimengine;bundle-version="1.0.0",
  de.uka.ipd.sdq.simucomframework.variables;bundle-version="1.0.0",
  de.uka.ipd.sdq.simulation;bundle-version="1.0.0",
- de.uka.ipd.sdq.probfunction.math;bundle-version="2.0.2",
- edu.kit.ipd.sdq.eventsim.components;bundle-version="1.0.0"
+ de.uka.ipd.sdq.probfunction.math;bundle-version="2.0.2"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: edu.kit.ipd.sdq.eventsim.api,

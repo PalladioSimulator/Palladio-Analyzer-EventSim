@@ -39,6 +39,7 @@ import edu.kit.ipd.sdq.eventsim.system.command.InstallExternalCallParameterHandl
 import edu.kit.ipd.sdq.eventsim.system.debug.DebugSeffTraversalListener;
 import edu.kit.ipd.sdq.eventsim.system.entities.ForkedRequest;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
+import edu.kit.ipd.sdq.eventsim.system.entities.RequestFactory;
 import edu.kit.ipd.sdq.eventsim.system.events.BeginSeffTraversalEvent;
 import edu.kit.ipd.sdq.eventsim.system.handler.AfterSystemCallParameterHandler;
 import edu.kit.ipd.sdq.eventsim.system.handler.BeforeSystemCallParameterHandler;
@@ -99,6 +100,9 @@ public class EventSimSystemModel implements ISystem {
     @Inject
     private InstrumentationDescription instrumentation;
     
+    @Inject
+    private RequestFactory requestFactory;
+    
     private MeasurementFacade<SystemMeasurementConfiguration> measurementFacade;
 
     private SimulatedResourceEnvironment resourceEnvironment;
@@ -149,7 +153,7 @@ public class EventSimSystemModel implements ISystem {
         final OperationSignature signature = call.getOperationSignature__EntryLevelSystemCall();
 
         // spawn a new EventSim request
-        final Request request = new Request(model, call, user);
+        final Request request = requestFactory.createRequest(call, user);
 
         new BeginSeffTraversalEvent(model, component, signature, user.getStochasticExpressionContext(), interpreter)
                 .schedule(request, 0);

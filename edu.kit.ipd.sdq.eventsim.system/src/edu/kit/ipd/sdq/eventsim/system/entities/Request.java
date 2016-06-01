@@ -4,6 +4,9 @@ import org.apache.log4j.Logger;
 import org.palladiosimulator.pcm.seff.AbstractAction;
 import org.palladiosimulator.pcm.usagemodel.EntryLevelSystemCall;
 
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+
 import de.uka.ipd.sdq.simulation.abstractsimengine.AbstractSimEventDelegator;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 import edu.kit.ipd.sdq.eventsim.api.IRequest;
@@ -48,7 +51,9 @@ public class Request extends EventSimEntity implements IRequest {
      * @param user
      *            the User that has issued the Request
      */
-    public Request(final ISimulationModel model, final EntryLevelSystemCall call, final IUser user) {
+    @Inject
+    public Request(final ISimulationModel model, @Assisted final EntryLevelSystemCall call,
+            @Assisted final IUser user) {
         super(model, "Request");
         this.call = call;
         this.user = user;

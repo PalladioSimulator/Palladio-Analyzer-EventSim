@@ -2,6 +2,9 @@ package edu.kit.ipd.sdq.eventsim.system.entities;
 
 import org.palladiosimulator.pcm.seff.ForkedBehaviour;
 
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 
 public class ForkedRequest extends Request {
@@ -11,7 +14,9 @@ public class ForkedRequest extends Request {
 
     private final ForkedBehaviour behaviour;
 
-    public ForkedRequest(final ISimulationModel model, ForkedBehaviour behaviour, boolean asynchronous, Request parent) {
+    @Inject
+    public ForkedRequest(final ISimulationModel model, @Assisted ForkedBehaviour behaviour,
+            @Assisted boolean asynchronous, @Assisted Request parent) {
         super(model, parent.getSystemCall(), parent.getUser());
         this.behaviour = behaviour;
         this.asynchronous = asynchronous;

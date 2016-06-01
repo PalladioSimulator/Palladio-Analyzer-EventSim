@@ -15,6 +15,7 @@ import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.interpreter.instructions.InterruptTraversal;
 import edu.kit.ipd.sdq.eventsim.system.entities.ForkedRequest;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
+import edu.kit.ipd.sdq.eventsim.system.entities.RequestFactory;
 import edu.kit.ipd.sdq.eventsim.system.events.BeginForkedBehaviourTraversalEvent;
 import edu.kit.ipd.sdq.eventsim.system.events.ResumeSeffTraversalEvent;
 import edu.kit.ipd.sdq.eventsim.system.interpreter.SeffBehaviourInterpreter;
@@ -28,13 +29,16 @@ public class ForkActionTraversalStrategy implements ITraversalStrategy<AbstractA
     @Inject
     private SeffBehaviourInterpreter interpreter;
     
+    @Inject
+    private RequestFactory requestFactory;
+    
     @Override
     public ITraversalInstruction<AbstractAction, RequestState> traverse(ForkAction fork, Request request, RequestState state) {
         new ResumeSeffTraversalEvent(model, state, interpreter).schedule(request, 0);
 
         List<ForkedBehaviour> asynchronousBehaviours = fork.getAsynchronousForkedBehaviours_ForkAction();
         for (ForkedBehaviour b : asynchronousBehaviours) {
-            ForkedRequest forkedRequest = new ForkedRequest(model, b, true, request);
+            ForkedRequest forkedRequest = requestFactory.createForkedRequest(b, true, request);
             
             // clone state because the state could be modified if the ResumeSeffTraversalEvent scheduled above is executed before the BeginForkedBehaviourTraversalEvent.  
             RequestState clonedState = null;

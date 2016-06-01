@@ -8,10 +8,14 @@ import org.palladiosimulator.pcm.repository.PassiveResource;
 import org.palladiosimulator.pcm.resourceenvironment.CommunicationLinkResourceSpecification;
 import org.palladiosimulator.pcm.resourceenvironment.ProcessingResourceSpecification;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
 import de.uka.ipd.sdq.scheduler.IActiveResource;
 import de.uka.ipd.sdq.scheduler.IPassiveResource;
 import de.uka.ipd.sdq.scheduler.ISchedulingFactory;
 import de.uka.ipd.sdq.scheduler.SchedulerModel;
+import de.uka.ipd.sdq.scheduler.factory.SchedulingFactory;
 import de.uka.ipd.sdq.simucomframework.resources.SchedulingStrategy;
 import de.uka.ipd.sdq.simucomframework.resources.SimSimpleFairPassiveResource;
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
@@ -20,111 +24,126 @@ import edu.kit.ipd.sdq.eventsim.exceptions.unchecked.EventSimException;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimActiveResource;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimLinkingResource;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimPassiveResource;
+import edu.kit.ipd.sdq.eventsim.resources.entities.SimResourceFactory;
 
+@Singleton
 public class ResourceFactory {
 
-	private static AtomicLong idGenerator = new AtomicLong(0);
+    private static AtomicLong idGenerator = new AtomicLong(0);
 
-	/**
-	 * Creates an active resource in accordance with the given resource
-	 * specification.
-	 * 
-	 * @param model
-	 *            the simulation model
-	 * @param specification
-	 *            the resource specification
-	 * @return the created resource
-	 */
-	public static SimActiveResource createActiveResource(final ISimulationModel model, ISchedulingFactory schedulingFactory, final ProcessingResourceSpecification specification) {
-		// TODO reliability stuff
-		// double mttf = specification.getMTTF();
-		// double mttr = specification.getMTTR();
-		final int numberOfReplicas = specification.getNumberOfReplicas();
-		final PCMRandomVariable processingRate = specification.getProcessingRate_ProcessingResourceSpecification();
-		final SchedulingPolicy schedulingPolicy = SchedulingPolicy.getPolicyForId(specification.getSchedulingPolicy().getId());
+    private ISchedulingFactory schedulingFactory;
 
-		IActiveResource resource = null;
-		String resourceName;
-		switch (schedulingPolicy) {
-		case FCFS:
-			resourceName = SchedulingStrategy.FCFS.toString();
-			resource = schedulingFactory.createSimFCFSResource(resourceName, getNextResourceId());
-			break;
-		case DELAY:
-			resourceName = SchedulingStrategy.DELAY.toString();
-			resource = schedulingFactory.createSimDelayResource(resourceName, getNextResourceId());
-			break;
-		case PROCESSOR_SHARING:
-			resourceName = SchedulingStrategy.PROCESSOR_SHARING.toString();
-			resource = schedulingFactory.createSimProcessorSharingResource(resourceName, getNextResourceId(), numberOfReplicas);
-			break;
-		default:
-			throw new EventSimException("Unknown scheduling policy: " + schedulingPolicy.toString());
-		}
+    @Inject
+    private SimResourceFactory resourceFactory;
 
-		final SimActiveResource r = new SimActiveResource(model, resource, processingRate.getSpecification(), numberOfReplicas, schedulingPolicy, specification);
+    @Inject
+    public ResourceFactory(SchedulerModel model) {
+        schedulingFactory = new SchedulingFactory(model);
+    }
 
-		return r;
-	}
+    /**
+     * Creates an active resource in accordance with the given resource specification.
+     * 
+     * @param model
+     *            the simulation model
+     * @param specification
+     *            the resource specification
+     * @return the created resource
+     */
+    public SimActiveResource createActiveResource(final ProcessingResourceSpecification specification) {
+        // TODO reliability stuff
+        // double mttf = specification.getMTTF();
+        // double mttr = specification.getMTTR();
+        final int numberOfReplicas = specification.getNumberOfReplicas();
+        final PCMRandomVariable processingRate = specification.getProcessingRate_ProcessingResourceSpecification();
+        final SchedulingPolicy schedulingPolicy = SchedulingPolicy
+                .getPolicyForId(specification.getSchedulingPolicy().getId());
 
-	/**
-	 * Creates a linking resource in accordance with the given resource
-	 * specification.
-	 * 
-	 * @param model
-	 *            the simulation model
-	 * @param specification
-	 *            the resource specification
-	 * @return the created resource
-	 */
-	public static SimLinkingResource createLinkingResource(final ISimulationModel model, final CommunicationLinkResourceSpecification specification) {
+        IActiveResource resource = null;
+        String resourceName;
+        switch (schedulingPolicy) {
+        case FCFS:
+            resourceName = SchedulingStrategy.FCFS.toString();
+            resource = schedulingFactory.createSimFCFSResource(resourceName, getNextResourceId());
+            break;
+        case DELAY:
+            resourceName = SchedulingStrategy.DELAY.toString();
+            resource = schedulingFactory.createSimDelayResource(resourceName, getNextResourceId());
+            break;
+        case PROCESSOR_SHARING:
+            resourceName = SchedulingStrategy.PROCESSOR_SHARING.toString();
+            resource = schedulingFactory.createSimProcessorSharingResource(resourceName, getNextResourceId(),
+                    numberOfReplicas);
+            break;
+        default:
+            throw new EventSimException("Unknown scheduling policy: " + schedulingPolicy.toString());
+        }
 
-		final PCMRandomVariable latency = specification.getLatency_CommunicationLinkResourceSpecification();
-		final PCMRandomVariable throughput = specification.getThroughput_CommunicationLinkResourceSpecification();
+        SimActiveResource r = resourceFactory.createActiveResource(resource, processingRate.getSpecification(),
+                numberOfReplicas, schedulingPolicy, specification);
 
-		String resourceName = SchedulingStrategy.FCFS.toString();
-		EventSimActiveResourceModel systemModel = (EventSimActiveResourceModel) model;
-		IActiveResource resource = systemModel.getSchedulingFactory().createSimFCFSResource(resourceName, getNextResourceId());
+        return r;
+    }
 
-		final SimLinkingResource r = new SimLinkingResource(model, resource, latency.getSpecification(), throughput.getSpecification());
+    /**
+     * Creates a linking resource in accordance with the given resource specification.
+     * 
+     * @param model
+     *            the simulation model
+     * @param specification
+     *            the resource specification
+     * @return the created resource
+     */
+    public SimLinkingResource createLinkingResource(final ISimulationModel model,
+            final CommunicationLinkResourceSpecification specification) {
 
-		return r;
-	}
+        final PCMRandomVariable latency = specification.getLatency_CommunicationLinkResourceSpecification();
+        final PCMRandomVariable throughput = specification.getThroughput_CommunicationLinkResourceSpecification();
 
-	/**
-	 * Creates a passive resource in accordance with the given resource
-	 * specification.
-	 * 
-	 * @param model
-	 *            the simulation model
-	 * @param specification
-	 *            the resource specification
-	 * @param operatingSystem
-	 *            the operating system managing the passive resource
-	 * @param assemblyCtx
-	 *            the assembly context in which the passive resource is created
-	 * @return the created resource
-	 */
-	public static SimPassiveResource createPassiveResource(final ISimulationModel model,
-			final PassiveResource specification, final AssemblyContext assemblyCtx) {
-		// obtain capacity by evaluating the associated StoEx
-		final PCMRandomVariable capacitySpecification = specification.getCapacity_PassiveResource();
-		final int capacity = StackContext.evaluateStatic(capacitySpecification.getSpecification(), Integer.class);
+        String resourceName = SchedulingStrategy.FCFS.toString();
+        IActiveResource resource = schedulingFactory.createSimFCFSResource(resourceName, getNextResourceId());
 
-		// create the scheduler resource for the operating system
-		IPassiveResource schedulerResource = new SimSimpleFairPassiveResource(specification, assemblyCtx,
-				(SchedulerModel) model, new Long(capacity)); // TODO get rid of cast
+        SimLinkingResource r = resourceFactory.createLinkingResource(resource, latency.getSpecification(),
+                throughput.getSpecification());
 
-		return new SimPassiveResource(model, schedulerResource, specification);
-	}
+        return r;
+    }
 
-	/**
-	 * Creates a unique resource ID.
-	 * 
-	 * @return the ID
-	 */
-	private static String getNextResourceId() {
-		return Long.toString(idGenerator.incrementAndGet());
-	}
+    /**
+     * Creates a passive resource in accordance with the given resource specification.
+     * 
+     * @param model
+     *            the simulation model
+     * @param specification
+     *            the resource specification
+     * @param operatingSystem
+     *            the operating system managing the passive resource
+     * @param assemblyCtx
+     *            the assembly context in which the passive resource is created
+     * @return the created resource
+     */
+    public SimPassiveResource createPassiveResource(final ISimulationModel model, final PassiveResource specification,
+            final AssemblyContext assemblyCtx) {
+        // obtain capacity by evaluating the associated StoEx
+        final PCMRandomVariable capacitySpecification = specification.getCapacity_PassiveResource();
+        final int capacity = StackContext.evaluateStatic(capacitySpecification.getSpecification(), Integer.class);
+
+        // create the scheduler resource for the operating system
+        IPassiveResource schedulerResource = new SimSimpleFairPassiveResource(specification, assemblyCtx,
+                (SchedulerModel) model, new Long(capacity)); // TODO get rid of cast
+
+        SimPassiveResource r = resourceFactory.createPassiveResource(schedulerResource, specification);
+
+        return r;
+    }
+
+    /**
+     * Creates a unique resource ID.
+     * 
+     * @return the ID
+     */
+    private static String getNextResourceId() {
+        return Long.toString(idGenerator.incrementAndGet());
+    }
 
 }

@@ -11,6 +11,9 @@ import org.apache.log4j.Logger;
 import org.omg.CORBA.Request;
 import org.palladiosimulator.pcm.resourceenvironment.ProcessingResourceSpecification;
 
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+
 import de.uka.ipd.sdq.scheduler.IActiveResource;
 import de.uka.ipd.sdq.scheduler.ISchedulableProcess;
 import de.uka.ipd.sdq.scheduler.sensors.IActiveResourceStateSensor;
@@ -54,8 +57,10 @@ public class SimActiveResource extends EventSimEntity {
 	 * @param numberOfInstances
 	 * @param specification
 	 */
-	public SimActiveResource(ISimulationModel model, IActiveResource resource, String processingRate,
-			int numberOfInstances, SchedulingPolicy schedulingStrategy, ProcessingResourceSpecification specification) {
+	@Inject
+    public SimActiveResource(ISimulationModel model, @Assisted IActiveResource resource,
+            @Assisted String processingRate, @Assisted int numberOfInstances,
+            @Assisted SchedulingPolicy schedulingStrategy, @Assisted ProcessingResourceSpecification specification) {
 		super(model, "SimActiveResource");
 		this.schedulerResource = resource;
 		this.processingRate = processingRate;

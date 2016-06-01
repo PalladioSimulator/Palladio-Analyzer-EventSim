@@ -6,6 +6,9 @@ import java.util.List;
 import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 import org.palladiosimulator.pcm.repository.PassiveResource;
 
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+
 import de.uka.ipd.sdq.scheduler.IPassiveResource;
 import de.uka.ipd.sdq.scheduler.ISchedulableProcess;
 import de.uka.ipd.sdq.scheduler.sensors.IPassiveResourceSensor;
@@ -46,7 +49,9 @@ public class SimPassiveResource extends EventSimEntity {
 	 * @param specification
 	 *            the specification of this resource
 	 */
-    public SimPassiveResource(ISimulationModel model, IPassiveResource resource, PassiveResource specification) {
+    @Inject
+    public SimPassiveResource(ISimulationModel model, @Assisted IPassiveResource resource,
+            @Assisted PassiveResource specification) {
         super(model, "SimPassiveResource");
         this.schedulerResource = resource;
         this.listeners = new ArrayList<IPassiveResourceListener>();

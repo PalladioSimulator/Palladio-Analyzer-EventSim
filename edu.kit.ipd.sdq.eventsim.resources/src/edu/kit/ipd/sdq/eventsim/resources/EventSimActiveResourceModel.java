@@ -16,7 +16,6 @@ import org.palladiosimulator.pcm.resourcetype.ResourceType;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import de.uka.ipd.sdq.scheduler.ISchedulingFactory;
 import de.uka.ipd.sdq.scheduler.resources.active.AbstractActiveResource;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 import edu.kit.ipd.sdq.eventsim.api.IActiveResource;
@@ -43,9 +42,6 @@ public class EventSimActiveResourceModel implements IActiveResource {
 
 	private static final Logger logger = Logger.getLogger(EventSimActiveResourceModel.class);
 
-	@Inject
-	private ISchedulingFactory schedulingFactory;
-
 	// maps (ResourceContainer ID, ResourceType ID) -> SimActiveResource
 	private Map<String, SimActiveResource> containerToResourceMap;
 	
@@ -70,6 +66,9 @@ public class EventSimActiveResourceModel implements IActiveResource {
     
     @Inject
     private InstrumentationDescription instrumentation;
+    
+    @Inject
+    private ResourceFactory resourceFactory;
     
 	@Inject
     public EventSimActiveResourceModel(ISimulationMiddleware middleware) {
@@ -126,10 +125,6 @@ public class EventSimActiveResourceModel implements IActiveResource {
 		}
 		
 		AbstractActiveResource.cleanProcesses();
-	}
-
-	public ISchedulingFactory getSchedulingFactory() {
-		return schedulingFactory;
 	}
 
 	/**
@@ -193,7 +188,7 @@ public class EventSimActiveResourceModel implements IActiveResource {
 				throw new RuntimeException("refactoring went wrong :(");
 			}
 
-			SimActiveResource resource = ResourceFactory.createActiveResource(model, schedulingFactory, s);
+			SimActiveResource resource = resourceFactory.createActiveResource(s);
 
 			// register the created resource
 			registerResource(specification, resource, resourceType);

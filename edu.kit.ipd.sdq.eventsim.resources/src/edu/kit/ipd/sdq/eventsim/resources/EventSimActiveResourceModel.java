@@ -17,8 +17,6 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import de.uka.ipd.sdq.scheduler.ISchedulingFactory;
-import de.uka.ipd.sdq.scheduler.SchedulerModel;
-import de.uka.ipd.sdq.scheduler.factory.SchedulingFactory;
 import de.uka.ipd.sdq.scheduler.resources.active.AbstractActiveResource;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 import edu.kit.ipd.sdq.eventsim.api.IActiveResource;
@@ -82,10 +80,7 @@ public class EventSimActiveResourceModel implements IActiveResource {
 		requestToSimulatedProcessMap = new WeakHashMap<IRequest, SimulatedProcess>();
 	}
 
-	public void init() {		
-		// set up the resource scheduler
-//		this.schedulingFactory = new SchedulingFactory((SchedulerModel) model); // TODO get rid of cast
-		
+	public void init() {	
 		// setup measurement facade
 		Bundle bundle = Activator.getContext().getBundle();
 		measurementFacade = new MeasurementFacade<>(new ResourceProbeConfiguration(), new BundleProbeLocator<>(bundle));

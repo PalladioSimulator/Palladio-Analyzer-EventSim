@@ -11,10 +11,19 @@ import edu.kit.ipd.sdq.eventsim.system.entities.Request;
 
 public class ExtendedRequest extends Request {
 
+    private static int COUNTER = 0;
+
+    private int count;
+
     @Inject
     public ExtendedRequest(ISimulationModel model, @Assisted EntryLevelSystemCall call, @Assisted IUser user) {
         super(model, call, user);
-        System.out.println("Constructed extended request");
+        count = COUNTER++;
+        System.out.println("Constructed extended request #" + count);
+    }
+
+    public int getCounter() {
+        return count;
     }
 
 }

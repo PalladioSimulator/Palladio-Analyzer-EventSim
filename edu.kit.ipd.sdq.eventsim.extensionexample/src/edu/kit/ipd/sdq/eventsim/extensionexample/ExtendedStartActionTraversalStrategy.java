@@ -15,12 +15,24 @@ public class ExtendedStartActionTraversalStrategy extends StartActionTraversalSt
 
     @Inject
     ISimulationModel model;
-    
+
     @Override
     public ITraversalInstruction<AbstractAction, RequestState> traverse(StartAction action, Request request,
-            RequestState state) {
-        System.out.println("Before " + action + " @ " + model.getSimulationControl().getCurrentSimulationTime());
-        return super.traverse(action, request, state);
+            RequestState state) { 
+        ExtendedRequest ourRequest = (ExtendedRequest) request;
+        int counter = ourRequest.getCounter();
+
+        // before traverse
+        System.out.println("ExtendedRequest #" + counter + " is about to traverse " + action + " @ "
+                + model.getSimulationControl().getCurrentSimulationTime());
+
+        // delegate actual traverse to super class
+        ITraversalInstruction<AbstractAction, RequestState> instruction = super.traverse(action, request, state);
+
+        // after traverse
+        System.out.println("ExtendedRequest #" + counter + " finished traversal of " + action);
+
+        return instruction;
     }
 
 }

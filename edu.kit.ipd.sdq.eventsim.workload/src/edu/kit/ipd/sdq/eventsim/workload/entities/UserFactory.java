@@ -1,8 +1,6 @@
-package edu.kit.ipd.sdq.eventsim.workload.generator;
+package edu.kit.ipd.sdq.eventsim.workload.entities;
 
 import org.palladiosimulator.pcm.usagemodel.UsageScenario;
-
-import edu.kit.ipd.sdq.eventsim.workload.entities.User;
 
 public interface UserFactory {
 

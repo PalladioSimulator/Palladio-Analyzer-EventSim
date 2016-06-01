@@ -14,6 +14,7 @@ import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
 import edu.kit.ipd.sdq.eventsim.api.events.WorkloadUserFinishedEvent;
 import edu.kit.ipd.sdq.eventsim.entities.IEntityListener;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
+import edu.kit.ipd.sdq.eventsim.workload.entities.UserFactory;
 import edu.kit.ipd.sdq.eventsim.workload.events.BeginUsageTraversalEvent;
 import edu.kit.ipd.sdq.eventsim.workload.interpreter.UsageBehaviourInterpreter;
 

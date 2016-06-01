@@ -4,7 +4,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 
 import edu.kit.ipd.sdq.eventsim.api.IWorkload;
-import edu.kit.ipd.sdq.eventsim.workload.generator.UserFactory;
+import edu.kit.ipd.sdq.eventsim.workload.entities.UserFactory;
 import edu.kit.ipd.sdq.eventsim.workload.generator.WorkloadGeneratorFactory;
 
 /**

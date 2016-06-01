@@ -22,7 +22,7 @@ import edu.kit.ipd.sdq.eventsim.api.PCMModel;
 import edu.kit.ipd.sdq.eventsim.exceptions.unchecked.EventSimException;
 import edu.kit.ipd.sdq.eventsim.instrumentation.description.core.InstrumentationDescription;
 import edu.kit.ipd.sdq.eventsim.instrumentation.xml.DescriptionToXmlParser;
-import edu.kit.ipd.sdq.eventsim.launch.DefaultSimulationModule;
+import edu.kit.ipd.sdq.eventsim.launch.ExtendableSimulationModule;
 import edu.kit.ipd.sdq.eventsim.launch.SimulationDockWrapper;
 import edu.kit.ipd.sdq.eventsim.launch.SimulationManager;
 import edu.kit.ipd.sdq.eventsim.launch.runconfig.EventSimConfigurationConstants;
@@ -69,7 +69,7 @@ public class StartSimulationJob extends AbstractExtendableJob<MDSDBlackboard> {
 		config.setInstrumentationDescription(instrumentationDescription);
 
 		// assemble simulation components...
-		Injector injector = Guice.createInjector(new DefaultSimulationModule(config, instrumentationDescription));
+		Injector injector = Guice.createInjector(ExtendableSimulationModule.create(config, instrumentationDescription));
 
 		// ...and start simulation, displaying simulation progress in a simulation dock (progress viewer)
 		SimulationDockWrapper dock = SimulationDockWrapper.getBestFreeDock();

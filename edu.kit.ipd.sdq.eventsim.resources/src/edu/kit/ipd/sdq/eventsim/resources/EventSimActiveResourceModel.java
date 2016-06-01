@@ -25,6 +25,7 @@ import edu.kit.ipd.sdq.eventsim.api.IActiveResource;
 import edu.kit.ipd.sdq.eventsim.api.IRequest;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
 import edu.kit.ipd.sdq.eventsim.api.PCMModel;
+import edu.kit.ipd.sdq.eventsim.api.events.SimulationPrepareEvent;
 import edu.kit.ipd.sdq.eventsim.api.events.SimulationStopEvent;
 import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
 import edu.kit.ipd.sdq.eventsim.entities.IEntityListener;
@@ -44,6 +45,7 @@ public class EventSimActiveResourceModel implements IActiveResource {
 
 	private static final Logger logger = Logger.getLogger(EventSimActiveResourceModel.class);
 
+	@Inject
 	private ISchedulingFactory schedulingFactory;
 
 	// maps (ResourceContainer ID, ResourceType ID) -> SimActiveResource
@@ -54,36 +56,35 @@ public class EventSimActiveResourceModel implements IActiveResource {
 
 	private Instrumentor<SimActiveResource, ?> instrumentor;
 	
+	@Inject
 	private ISimulationModel model;
 
+	@Inject
 	private MeasurementStorage measurementStorage;
 	
+	@Inject
 	private ISimulationMiddleware middleware;
 	
+	@Inject
     private PCMModel pcm; 
     
     private MeasurementFacade<ResourceProbeConfiguration> measurementFacade;
     
+    @Inject
     private InstrumentationDescription instrumentation;
     
 	@Inject
-    public EventSimActiveResourceModel(ISimulationMiddleware middleware, ISimulationModel model,
-            MeasurementStorage measurementStorage, PCMModel pcm, InstrumentationDescription instrumentation) {
-	    this.middleware = middleware;
-	    this.model = model;
-	    this.measurementStorage = measurementStorage;
-	    this.pcm = pcm;
-	    this.instrumentation = instrumentation;
-	    
+    public EventSimActiveResourceModel(ISimulationMiddleware middleware) {
+        // initialize in simulation preparation phase
+        middleware.registerEventHandler(SimulationPrepareEvent.class, e -> init());
+        
 		containerToResourceMap = new HashMap<String, SimActiveResource>();
 		requestToSimulatedProcessMap = new WeakHashMap<IRequest, SimulatedProcess>();
-		
-		init();
 	}
 
 	public void init() {		
 		// set up the resource scheduler
-		this.schedulingFactory = new SchedulingFactory((SchedulerModel) model); // TODO get rid of cast
+//		this.schedulingFactory = new SchedulingFactory((SchedulerModel) model); // TODO get rid of cast
 		
 		// setup measurement facade
 		Bundle bundle = Activator.getContext().getBundle();
@@ -107,7 +108,6 @@ public class EventSimActiveResourceModel implements IActiveResource {
 	}
 	
 	private void registerEventHandler() {
-//		middleware.registerEventHandler(SimulationInitEvent.class, e -> init());
 		middleware.registerEventHandler(SimulationStopEvent.class, e -> finalise());
 	}
 

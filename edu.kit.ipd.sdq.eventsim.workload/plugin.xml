@@ -2,37 +2,43 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
-         point="edu.kit.ipd.sdq.eventsim.interpreter.strategy">
-      <strategy
-            action="org.palladiosimulator.pcm.usagemodel.Branch"
-            name="Branch"
-            strategy="edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies.BranchTraversalStrategy">
-      </strategy>
-      <strategy
-            action="org.palladiosimulator.pcm.usagemodel.Delay"
-            name="Delay"
-            strategy="edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies.DelayTraversalStrategy">
-      </strategy>
-      <strategy
-            action="org.palladiosimulator.pcm.usagemodel.EntryLevelSystemCall"
-            name="EntryLevelSystemCall"
-            strategy="edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies.EntryLevelSystemCallTraversalStrategy">
-      </strategy>
-      <strategy
-            action="org.palladiosimulator.pcm.usagemodel.Loop"
-            name="LoopAction"
-            strategy="edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies.LoopTraversalStrategy">
-      </strategy>
-      <strategy
-            action="org.palladiosimulator.pcm.usagemodel.Start"
-            name="Start"
-            strategy="edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies.StartTraversalStrategy">
-      </strategy>
-      <strategy
-            action="org.palladiosimulator.pcm.usagemodel.Stop"
-            name="Stop"
-            strategy="edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies.StopTraversalStrategy">
-      </strategy>
+         point="edu.kit.ipd.sdq.eventsim.module">
+      <simulation_module
+            guice_module="edu.kit.ipd.sdq.eventsim.workload.EventSimWorkloadModule"
+            id="edu.kit.ipd.sdq.eventsim.workload.module"
+            name="Workload Simulator"
+            priority="0">
+         <simulation_strategy
+               action="org.palladiosimulator.pcm.usagemodel.Branch"
+               name="Branch"
+               strategy="edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies.BranchTraversalStrategy">
+         </simulation_strategy>
+         <simulation_strategy
+               action="org.palladiosimulator.pcm.usagemodel.Delay"
+               name="Delay"
+               strategy="edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies.DelayTraversalStrategy">
+         </simulation_strategy>
+         <simulation_strategy
+               action="org.palladiosimulator.pcm.usagemodel.EntryLevelSystemCall"
+               name="EntryLevelSystemCall"
+               strategy="edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies.EntryLevelSystemCallTraversalStrategy">
+         </simulation_strategy>
+         <simulation_strategy
+               action="org.palladiosimulator.pcm.usagemodel.Loop"
+               name="Loop"
+               strategy="edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies.LoopTraversalStrategy">
+         </simulation_strategy>
+         <simulation_strategy
+               action="org.palladiosimulator.pcm.usagemodel.Start"
+               name="Start"
+               strategy="edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies.StartTraversalStrategy">
+         </simulation_strategy>
+         <simulation_strategy
+               action="org.palladiosimulator.pcm.usagemodel.Stop"
+               name="Stop"
+               strategy="edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies.StopTraversalStrategy">
+         </simulation_strategy>
+      </simulation_module>
    </extension>
 
 </plugin>

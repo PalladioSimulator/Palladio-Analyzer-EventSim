@@ -18,6 +18,6 @@ Require-Bundle: de.uka.ipd.sdq.simucomframework;bundle-version="2.0.0",
  edu.kit.ipd.sdq.eventsim.instrumentation.injection,
  edu.kit.ipd.sdq.eventsim.instrumentation.description
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Bundle-ActivationPolicy: lazy
 Export-Package: edu.kit.ipd.sdq.eventsim.resources,
  edu.kit.ipd.sdq.eventsim.resources.entities
+Bundle-ActivationPolicy: lazy

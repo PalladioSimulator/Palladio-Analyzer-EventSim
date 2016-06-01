@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="edu.kit.ipd.sdq.eventsim.module">
+      <simulation_module
+            guice_module="edu.kit.ipd.sdq.eventsim.resources.EventSimResourceModule"
+            id="edu.kit.ipd.sdq.eventsim.resources.module"
+            name="Resource Simulator"
+            priority="0">
+      </simulation_module>
+   </extension>
+
+</plugin>

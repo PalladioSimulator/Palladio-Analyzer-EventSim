@@ -2,5 +2,6 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension-point id="edu.kit.ipd.sdq.eventsim.interpreter.strategy" name="TraversalStrategy" schema="schema/edu.kit.ipd.sdq.eventsim.interpreter.strategy.exsd"/>
+   <extension-point id="edu.kit.ipd.sdq.eventsim.module" name="EventSim Simulation Module" schema="schema/edu.kit.ipd.sdq.eventsim.module.exsd"/>
 
 </plugin>

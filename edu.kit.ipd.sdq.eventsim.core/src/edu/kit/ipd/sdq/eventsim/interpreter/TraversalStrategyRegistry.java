@@ -4,13 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.IExtension;
-import org.eclipse.core.runtime.IExtensionPoint;
-import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.InvalidRegistryObjectException;
-import org.eclipse.core.runtime.Platform;
 import org.palladiosimulator.pcm.core.entity.Entity;
 import org.palladiosimulator.pcm.seff.AbstractAction;
 
@@ -19,6 +13,9 @@ import com.google.inject.Injector;
 import com.google.inject.Singleton;
 
 import edu.kit.ipd.sdq.eventsim.interpreter.state.AbstractInterpreterState;
+import edu.kit.ipd.sdq.eventsim.modules.SimulationModule;
+import edu.kit.ipd.sdq.eventsim.modules.SimulationModuleRegistry;
+import edu.kit.ipd.sdq.eventsim.modules.SimulationStrategy;
 
 /**
  * 
@@ -30,28 +27,23 @@ import edu.kit.ipd.sdq.eventsim.interpreter.state.AbstractInterpreterState;
 @Singleton
 public class TraversalStrategyRegistry<A extends Entity> {
 
-    private static final String INTERPRETER_STRATEGY_EXTENSION_POINT_ID = "edu.kit.ipd.sdq.eventsim.interpreter.strategy";
-
     private static final Logger logger = Logger.getLogger(TraversalStrategyRegistry.class);
 
     private final Map<Class<? extends A>, ITraversalStrategy<A, ? extends A, ?, AbstractInterpreterState<A>>> handlerMap = new HashMap<>();
 
     @Inject
-    public TraversalStrategyRegistry(Injector injector) {
-        IExtensionRegistry er = Platform.getExtensionRegistry();
-        IExtensionPoint ep = er.getExtensionPoint(INTERPRETER_STRATEGY_EXTENSION_POINT_ID);
-        for (IExtension extension : ep.getExtensions()) {
-            for (IConfigurationElement config : extension.getConfigurationElements()) {
+    public TraversalStrategyRegistry(Injector injector, SimulationModuleRegistry moduleRegistry) {
+        for (SimulationModule m : moduleRegistry.getModules()) {
+            for (SimulationStrategy s : m.getSimulationStrategies()) {
                 try {
-                    Class<? extends A> actionType = (Class<? extends A>) Class.forName(config.getAttribute("action"));
-                    ITraversalStrategy<A, ? extends A, ?, AbstractInterpreterState<A>> strategy = (ITraversalStrategy<A, ? extends A, ?, AbstractInterpreterState<A>>) config.createExecutableExtension("strategy");
+                    Class<? extends A> actionType = (Class<? extends A>) Class.forName(s.getActionType());
+                    ITraversalStrategy<A, ? extends A, ?, AbstractInterpreterState<A>> strategy = (ITraversalStrategy<A, ? extends A, ?, AbstractInterpreterState<A>>) s
+                            .getStrategy();
                     registerActionHandler(actionType, strategy);
                     injector.injectMembers(strategy);
                 } catch (ClassNotFoundException e) {
                     logger.error(e);
                 } catch (InvalidRegistryObjectException e) {
-                    logger.error(e);
-                } catch (CoreException e) {
                     logger.error(e);
                 }
             }
@@ -103,7 +95,8 @@ public class TraversalStrategyRegistry<A extends Entity> {
         handlerMap.remove(actionClass);
     }
 
-    public ITraversalStrategy<A, ? extends A, ?, ? extends AbstractInterpreterState<A>> lookup(Class<? extends A> type) {
+    public ITraversalStrategy<A, ? extends A, ?, ? extends AbstractInterpreterState<A>> lookup(
+            Class<? extends A> type) {
         return handlerMap.get(type);
     }
 

@@ -28,7 +28,7 @@ public class StoreRDSFileJob implements RJob {
 	public void process(RContext context) {
 		log.info("Saving measurements into RDS file. This can take a moment...");
 		try {
-			EvaluationHelper.evaluate(context, "saveRDS(mm, '" + convertToRCompliantPath(rdsFilePath) + "')");
+			EvaluationHelper.evaluateVoid(context, "saveRDS(mm, '" + convertToRCompliantPath(rdsFilePath) + "')");
 		} catch (EvaluationException e) {
 			log.error("Rserve reported an error while saving measurements to RDS file.", e);
 		}

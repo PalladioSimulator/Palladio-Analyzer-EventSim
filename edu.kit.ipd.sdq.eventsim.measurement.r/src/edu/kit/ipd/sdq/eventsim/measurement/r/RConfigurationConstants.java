@@ -6,4 +6,6 @@ public interface RConfigurationConstants {
 	
 	static final String RDS_FILE_PATH_KEY = "rserve.rdsfilepath";
 	
+	static final String BUFFER_CAPACITY = "buffer.capacity";
+	
 }

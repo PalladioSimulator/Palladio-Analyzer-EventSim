@@ -1,12 +1,12 @@
 package edu.kit.ipd.sdq.eventsim.middleware;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
-import com.google.inject.Singleton;
 
 import edu.kit.ipd.sdq.eventsim.api.ISimulationConfiguration;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 import edu.kit.ipd.sdq.eventsim.measurement.r.RMeasurementStore;
+import edu.kit.ipd.sdq.eventsim.measurement.r.connection.ConnectionRegistry;
+import edu.kit.ipd.sdq.eventsim.measurement.r.connection.RserveConnection;
 
 public class MeasurementStorageModule extends AbstractModule {
 
@@ -18,18 +18,16 @@ public class MeasurementStorageModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        // nothing to do
-    }
+        // lookup Rserve connection
+        RserveConnection connection = ConnectionRegistry.instance().getConnection();
+        bind(RserveConnection.class).toInstance(connection);
 
-    @Provides
-    @Singleton
-    public MeasurementStorage createMeasurementStorage() {
-        // bind measurement storage; currently fixed to RMeasurementStore
-        MeasurementStorage measurementStorage = RMeasurementStore.fromLaunchConfiguration(config.getConfigurationMap());
+        MeasurementStorage measurementStorage = RMeasurementStore.fromLaunchConfiguration(config.getConfigurationMap(),
+                connection);
         if (measurementStorage == null) {
             throw new RuntimeException("R measurement store could not bet constructed from launch configuration.");
         }
-        return measurementStorage;
+        bind(MeasurementStorage.class).toInstance(measurementStorage);
     }
 
 }

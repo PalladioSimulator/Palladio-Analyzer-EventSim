@@ -47,7 +47,7 @@ public class PushBufferToRJob implements RJob {
 		// first buffer? then initialize list of data frames, one data frame for each buffer
 		try {
 			if (bufferNumber == 0) {
-				EvaluationHelper.evaluate(context, "mm <- list()");
+				EvaluationHelper.evaluateVoid(context, "mm <- list()");
 			}
 		} catch (EvaluationException e) {
 			log.error(e);
@@ -57,7 +57,7 @@ public class PushBufferToRJob implements RJob {
 		try {
 			connection.assign("buffer", createDataFrameFromBuffer(buffer));
 			convertCategoricalColumnsToFactorColumns(context);
-			EvaluationHelper.evaluate(context, "mm[[length(mm)+1]] <- buffer");
+			EvaluationHelper.evaluateVoid(context, "mm[[length(mm)+1]] <- buffer");
 		} catch (RserveException | EvaluationException e) {
 			log.error(e);
 		}
@@ -69,7 +69,7 @@ public class PushBufferToRJob implements RJob {
 			for (Column<?> c : buffer.getColumns()) {
 				if (c.isFactorial()) {
 					String colName = "buffer$" + c.getName();
-					EvaluationHelper.evaluate(context, colName + " <- as.factor(" + colName + ")");
+					EvaluationHelper.evaluateVoid(context, colName + " <- as.factor(" + colName + ")");
 				}
 			}
 		} catch (EvaluationException e) {

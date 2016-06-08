@@ -26,6 +26,7 @@ import edu.kit.ipd.sdq.eventsim.api.events.SimulationStartEvent;
 import edu.kit.ipd.sdq.eventsim.api.events.SimulationStopEvent;
 import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
+import edu.kit.ipd.sdq.eventsim.measurement.r.connection.RserveConnection;
 import edu.kit.ipd.sdq.eventsim.middleware.events.EventManager;
 import edu.kit.ipd.sdq.eventsim.middleware.simulation.MaxMeasurementsStopCondition;
 
@@ -52,6 +53,9 @@ public class SimulationMiddleware implements ISimulationMiddleware {
 
     @Inject
     private IRandomGenerator randomNumberGenerator;
+
+    @Inject
+    private RserveConnection rConnection;
 
     private EventManager eventManager;
 
@@ -136,15 +140,22 @@ public class SimulationMiddleware implements ISimulationMiddleware {
      */
     @Override
     public void startSimulation(final IStatusObserver statusObserver) {
-        if (logger.isInfoEnabled()) {
-            logger.info("Simulation Started");
+        if (rConnection != null && rConnection.isConnected()) {
+            measurementStorage.start();
+        } else {
+            logger.error("No connection to R available, aborting simulation.");
+            notifyStopListeners();
+            eventManager.unregisterAllEventHandlers();
+            return;
         }
+
         // initialize before preparation phase so that the simulation model is already bound to the
         // simulation engine
         initialize();
-        
+
         eventManager.triggerEvent(new SimulationPrepareEvent());
         setupSimulationProgressObserver(statusObserver);
+
         model.getSimulationControl().start();
     }
 

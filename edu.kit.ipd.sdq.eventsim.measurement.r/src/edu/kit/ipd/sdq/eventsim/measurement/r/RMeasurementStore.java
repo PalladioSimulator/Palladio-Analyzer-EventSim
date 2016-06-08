@@ -4,12 +4,11 @@ import java.util.Map;
 import java.util.function.Function;
 
 import org.apache.log4j.Logger;
-import org.rosuda.REngine.Rserve.RConnection;
-import org.rosuda.REngine.Rserve.RserveException;
 
 import edu.kit.ipd.sdq.eventsim.measurement.Measurement;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 import edu.kit.ipd.sdq.eventsim.measurement.PropertyExtractor;
+import edu.kit.ipd.sdq.eventsim.measurement.r.connection.RserveConnection;
 import edu.kit.ipd.sdq.eventsim.measurement.r.jobs.FinalizeRProcessingJob;
 import edu.kit.ipd.sdq.eventsim.measurement.r.jobs.MergeBufferedDataFramesJob;
 import edu.kit.ipd.sdq.eventsim.measurement.r.jobs.PushBufferToRJob;
@@ -26,17 +25,9 @@ import edu.kit.ipd.sdq.eventsim.measurement.r.jobs.StoreRDSFileJob;
  */
 public class RMeasurementStore implements MeasurementStorage {
 
-	private static final String DEFAULT_HOST = "127.0.0.1";
-
-	private static final int DEFAULT_PORT = 6311;
-
-	static final Logger log = Logger.getLogger(RMeasurementStore.class);
+	private static final Logger log = Logger.getLogger(RMeasurementStore.class);
 
 	private static final int BUFFER_CAPACITY = 10_000;
-
-	private static final int CONNECTION_RETRIES_MAX = 60;
-
-	private static final int MILLISECONDS_BETWEEN_CONNECTION_RETRIES = 1000;
 
 	private Buffer buffer;
 
@@ -46,7 +37,7 @@ public class RMeasurementStore implements MeasurementStorage {
 
 	private PropertyExtractor typeExtractor;
 
-	private RConnection connection;
+	private RserveConnection connection;
 
 	private RJobProcessor rJobProcessor;
 
@@ -55,37 +46,28 @@ public class RMeasurementStore implements MeasurementStorage {
 	private boolean storeRds;
 	private String rdsFilePath;
 
-	public RMeasurementStore() {
-		this(DEFAULT_HOST, DEFAULT_PORT);
-	}
+    /**
+     * Use this constructor when no RDS file is to be created upon finish.
+     */
+    public RMeasurementStore(RserveConnection connection) {
+        this.connection = connection;
+        this.storeRds = false;
+    }
 	
-	/**
-	 * Use this constructor when no RDS file is to be created upon finish.
-	 */
-	public RMeasurementStore(String host, int port) {
-		this(host, port, "");
-		this.storeRds = false;
-	}
-	
-	public RMeasurementStore(String rdsFilePath) {
-		this(DEFAULT_HOST, DEFAULT_PORT, rdsFilePath);
-	}
-
 	/**
 	 * Use this constructor when an RDS file is to be created upon finish.
 	 * 
 	 * @param rdsFilePath
 	 *            the location of the file to be created.
 	 */
-	public RMeasurementStore(String host, int port, String rdsFilePath) {
+	public RMeasurementStore(RserveConnection connection, String rdsFilePath) {
+	    this.connection = connection;
 		this.storeRds = true;
 		this.rdsFilePath = rdsFilePath;
 		idExtractor = new PropertyExtractor();
 		nameExtractor = new PropertyExtractor();
 		typeExtractor = new PropertyExtractor();
-		connection = connectToR(host, port);
 		rJobProcessor = new RJobProcessor(connection);
-		rJobProcessor.start();
 
 		// add simple type extractor as a default
 		typeExtractor.add(Object.class, new Function<Object, String>() {
@@ -112,14 +94,14 @@ public class RMeasurementStore implements MeasurementStorage {
 	 * @return the constructed {@link RMeasurementStore}, or {@code null} if expected configuration options could not be
 	 *         found in the provided launch configuration.
 	 */
-	public static RMeasurementStore fromLaunchConfiguration(Map<String, Object> configuration) {
+	public static RMeasurementStore fromLaunchConfiguration(Map<String, Object> configuration, RserveConnection connection) {
 		Boolean createRds = (Boolean) configuration.get(RConfigurationConstants.CREATE_RDS_FILE_KEY);
-		if (!createRds) {
-			return new RMeasurementStore();
+        if (createRds == null || !createRds) {
+			return new RMeasurementStore(connection);
 		}
 		String rdsFilePath = (String) configuration.get(RConfigurationConstants.RDS_FILE_PATH_KEY);
 		if (rdsFilePath != null) {
-			return new RMeasurementStore(rdsFilePath);
+			return new RMeasurementStore(connection, rdsFilePath);
 		}
 		return null;
 	}
@@ -149,6 +131,11 @@ public class RMeasurementStore implements MeasurementStorage {
 	}
 
 	@Override
+	public void start() {
+	    rJobProcessor.start();
+	}
+	
+	@Override
 	public void finish() {
 		log.info("Closing R measurement store...");
 		buffer.shrinkToSize();
@@ -167,57 +154,11 @@ public class RMeasurementStore implements MeasurementStorage {
 
 		// clean up
 		// TODO really needed?
-		connection.close();
+//		connection.disconnect();
 		buffer = new Buffer(BUFFER_CAPACITY, idExtractor, nameExtractor, typeExtractor);
 		bufferNumber = 0;
 	}
 	
-	private RConnection connectToR(String host, int port) {
-		// try connecting to R
-		RConnection connection = null;
-		log.info("Establishing R connection to " + host + ":" + port+ "...");
-		for (int retries = 0; retries < CONNECTION_RETRIES_MAX; retries++) {
-			try {
-				connection = new RConnection(host, port);
-			} catch (RserveException e) {
-				// handled in the following
-			}
-
-			if (connection != null && connection.isConnected()) {
-				// successfully connected => leave for
-				break;
-			} else {
-				if (retries == 0) {
-					log.error("Could not establish Rserve connection to R. "
-							+ "Make sure to run Rserve, e.g. by calling \"library(Rserve); Rserve(port=" + port
-							+ ")\" in R. ");
-				}
-				if (retries % 20 == 0) {
-					log.error("Waiting for Rserve connection to " + host + ":" + port + "...");
-				}
-				// wait some time before retrying again
-				try {
-					Thread.sleep(MILLISECONDS_BETWEEN_CONNECTION_RETRIES);
-				} catch (InterruptedException e) {
-					log.error(e);
-				}
-			}
-		}
-
-		// still not yet connected? give up.
-		if (connection == null || !connection.isConnected()) {
-			throw new RuntimeException("Could not establish Rserve connection to R within " + CONNECTION_RETRIES_MAX
-					+ " attempts. Giving up now.");
-		}
-
-		// try loading "data.table" library
-		try {
-			connection.voidEval("library(data.table)");
-		} catch (RserveException e) {
-			throw new RuntimeException("R could not load library \"data.table\". "
-					+ "Please run \"install.packages('data.table')\" in R.");
-		}
-		return connection;
-	}
+	
 
 }

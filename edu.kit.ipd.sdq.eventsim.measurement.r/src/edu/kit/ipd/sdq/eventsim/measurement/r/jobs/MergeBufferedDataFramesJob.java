@@ -20,7 +20,7 @@ public class MergeBufferedDataFramesJob implements RJob {
 		try {
 			// fill=TRUE allows to merge data.frames with different column count, as long as columns are named to allow
 			// for matching them.   
-			EvaluationHelper.evaluate(context, "mm <- rbindlist(mm, fill=TRUE)");
+			EvaluationHelper.evaluateVoid(context, "mm <- rbindlist(mm, fill=TRUE)");
 		} catch (EvaluationException e) {
 			log.error(e);
 		}

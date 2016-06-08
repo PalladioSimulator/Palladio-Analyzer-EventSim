@@ -46,6 +46,8 @@ public interface MeasurementStorage {
 	 */
 	void put(Measurement<?> m);
 
-	void finish();
+	void start();
+
+    void finish();
 
 }

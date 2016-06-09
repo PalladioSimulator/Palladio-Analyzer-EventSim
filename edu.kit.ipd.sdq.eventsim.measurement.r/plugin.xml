@@ -3,14 +3,24 @@
 <plugin>
    <extension
          point="org.eclipse.ui.views">
-      <view
+      <e4view
             allowMultiple="false"
             class="edu.kit.ipd.sdq.eventsim.measurement.r.connection.ui.ConnectionView"
             icon="icons/connect.png"
             id="edu.kit.ipd.sdq.eventsim.measurement.r.connection"
             name="Rserve Connection"
             restorable="true">
-      </view>
+      </e4view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.services">
+      <sourceProvider
+            provider="edu.kit.ipd.sdq.eventsim.measurement.r.connection.ui.ConnectionStatusProvider">
+         <variable
+               name="edu.kit.ipd.sdq.eventsim.measurement.r.connection.status"
+               priorityLevel="workbench">
+         </variable>
+      </sourceProvider>
    </extension>
 
 </plugin>

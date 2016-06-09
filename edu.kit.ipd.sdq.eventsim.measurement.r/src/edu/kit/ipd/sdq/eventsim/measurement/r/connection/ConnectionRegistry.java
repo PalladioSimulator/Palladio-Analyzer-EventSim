@@ -21,7 +21,10 @@ public class ConnectionRegistry {
 
     public void setConnection(RserveConnection connection) {
         this.connection = connection;
+        connectionListener.forEach(l -> l.connectionAdded(connection));
     }
+    
+    // TODO remove connection method
 
     public RserveConnection getConnection() {
         return connection;

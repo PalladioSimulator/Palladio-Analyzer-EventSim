@@ -10,4 +10,6 @@ public interface ConnectionProgressListener {
 
     void cancelled();
     
+    void disconnected();
+    
 }

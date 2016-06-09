@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import javax.annotation.PostConstruct;
+
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
@@ -21,11 +23,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.part.ViewPart;
 
 import edu.kit.ipd.sdq.eventsim.measurement.r.connection.RserveConnection;
 
-public class ConnectionView extends ViewPart {
+public class ConnectionView {
 
     private static final String ICONS_FOLDER_LOCATION = "platform:/plugin/edu.kit.ipd.sdq.eventsim.measurement.r/icons/";
 
@@ -61,16 +62,15 @@ public class ConnectionView extends ViewPart {
     public ConnectionView() {
     }
 
-    @Override
-    public void createPartControl(Composite parent) {
+    @PostConstruct
+    public void createConrols(Composite parent) {
         viewListener = new ConnectionViewController(this);
 
         Composite container = new Composite(parent, SWT.NONE);
-        container.setLayout(new GridLayout(1, false));
+        container.setLayout(new FillLayout(SWT.VERTICAL));
 
         Group grpStatus = new Group(container, SWT.NONE);
         grpStatus.setLayout(new FillLayout(SWT.HORIZONTAL));
-        grpStatus.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         grpStatus.setText("Connection Status");
 
         compositeConnection = new Composite(grpStatus, SWT.NONE);
@@ -163,11 +163,9 @@ public class ConnectionView extends ViewPart {
                 image.dispose();
             }
         });
-        new Label(container, SWT.NONE);
 
         Group grpConnect = new Group(container, SWT.NONE);
         grpConnect.setText("Connect to R via Rserve");
-        grpConnect.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         grpConnect.setLayout(new GridLayout(6, false));
 
         Label lblServer = new Label(grpConnect, SWT.NONE);
@@ -266,9 +264,8 @@ public class ConnectionView extends ViewPart {
         return txtServer.getText();
     }
 
-    @Override
-    public void setFocus() {
-        // do nothing
-    }
+//    @Focus
+//    public void setFocus() {
+//    }
 
 }

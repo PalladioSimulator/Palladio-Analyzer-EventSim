@@ -59,4 +59,9 @@ public class ConnectionViewController implements ConnectionViewListener, Connect
         view.setDisconnected();
     }
 
+    @Override
+    public void disconnected() {
+        view.setDisconnected();
+    }
+
 }

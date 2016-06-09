@@ -1,6 +1,6 @@
 package edu.kit.ipd.sdq.eventsim.measurement.r.connection;
 
-public class AbstractConnectionStatusListener implements ConnectionProgressListener {
+public class AbstractConnectionStatusListener implements ConnectionStatusListener {
 
     @Override
     public void failed() {

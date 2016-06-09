@@ -1,6 +1,6 @@
 package edu.kit.ipd.sdq.eventsim.measurement.r.connection;
 
-public interface ConnectionProgressListener {
+public interface ConnectionStatusListener {
 
     void failed();
     

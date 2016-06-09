@@ -1,10 +1,10 @@
 package edu.kit.ipd.sdq.eventsim.measurement.r.connection.ui;
 
-import edu.kit.ipd.sdq.eventsim.measurement.r.connection.ConnectionProgressListener;
+import edu.kit.ipd.sdq.eventsim.measurement.r.connection.ConnectionStatusListener;
 import edu.kit.ipd.sdq.eventsim.measurement.r.connection.ConnectionRegistry;
 import edu.kit.ipd.sdq.eventsim.measurement.r.connection.RserveConnection;
 
-public class ConnectionViewController implements ConnectionViewListener, ConnectionProgressListener {
+public class ConnectionViewController implements ConnectionViewListener, ConnectionStatusListener {
 
     private ConnectionView view;
 

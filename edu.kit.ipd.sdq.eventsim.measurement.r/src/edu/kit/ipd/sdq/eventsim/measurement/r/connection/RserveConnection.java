@@ -30,7 +30,7 @@ public class RserveConnection {
 
     private Thread connectorThread;
 
-    private List<ConnectionProgressListener> statusListener;
+    private List<ConnectionStatusListener> statusListener;
 
     public RserveConnection() {
         this.statusListener = new CopyOnWriteArrayList<>();
@@ -101,11 +101,11 @@ public class RserveConnection {
         return connection != null && connection.isConnected();
     }
 
-    public void addListener(ConnectionProgressListener listener) {
+    public void addListener(ConnectionStatusListener listener) {
         statusListener.add(listener);
     }
 
-    public void removeListener(ConnectionProgressListener listener) {
+    public void removeListener(ConnectionStatusListener listener) {
         statusListener.remove(listener);
     }
 
@@ -154,7 +154,7 @@ public class RserveConnection {
                     }
                     // wait some time before retrying again
                     try {
-                        for (ConnectionProgressListener l : statusListener) {
+                        for (ConnectionStatusListener l : statusListener) {
                             l.connecting(retries);
                         }
                         Thread.sleep(MILLISECONDS_BETWEEN_CONNECTION_RETRIES);

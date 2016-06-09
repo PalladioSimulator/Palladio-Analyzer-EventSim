@@ -7,12 +7,12 @@ import org.eclipse.ui.AbstractSourceProvider;
 import org.eclipse.ui.ISources;
 
 import edu.kit.ipd.sdq.eventsim.measurement.r.connection.ConnectionListener;
-import edu.kit.ipd.sdq.eventsim.measurement.r.connection.ConnectionProgressListener;
+import edu.kit.ipd.sdq.eventsim.measurement.r.connection.ConnectionStatusListener;
 import edu.kit.ipd.sdq.eventsim.measurement.r.connection.ConnectionRegistry;
 import edu.kit.ipd.sdq.eventsim.measurement.r.connection.RserveConnection;
 
 public class ConnectionStatusProvider extends AbstractSourceProvider
-        implements ConnectionListener, ConnectionProgressListener {
+        implements ConnectionListener, ConnectionStatusListener {
 
     private static final String ID = "edu.kit.ipd.sdq.eventsim.measurement.r.connection.status";
 

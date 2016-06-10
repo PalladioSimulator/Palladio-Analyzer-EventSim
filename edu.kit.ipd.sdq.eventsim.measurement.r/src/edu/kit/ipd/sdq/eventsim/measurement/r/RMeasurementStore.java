@@ -50,6 +50,7 @@ public class RMeasurementStore implements MeasurementStorage {
      * Use this constructor when no RDS file is to be created upon finish.
      */
     public RMeasurementStore(RserveConnection connection) {
+        this(connection, "");
         this.connection = connection;
         this.storeRds = false;
     }

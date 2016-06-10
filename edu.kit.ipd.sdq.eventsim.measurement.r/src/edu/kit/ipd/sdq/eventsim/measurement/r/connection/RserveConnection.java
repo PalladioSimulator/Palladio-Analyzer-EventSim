@@ -84,12 +84,12 @@ public class RserveConnection {
 
     public void disconnect() {
         synchronized (connectionMonitor) {
-            statusListener.forEach(l -> l.disconnected());
             if (connection != null && connection.isConnected()) {
                 connection.close();
             } else {
                 log.warn("Tried to disconnect, but there is no open connection");
             }
+            statusListener.forEach(l -> l.disconnected());
         }
     }
 

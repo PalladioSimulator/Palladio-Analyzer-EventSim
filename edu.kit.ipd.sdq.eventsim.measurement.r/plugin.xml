@@ -22,5 +22,18 @@
          </variable>
       </sourceProvider>
    </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="org.palladiosimulator.pcmbench.perspectives.palladio">
+         <view
+               id="edu.kit.ipd.sdq.eventsim.measurement.r.connection"
+               minimized="false"
+               relationship="stack"
+               relative="org.eclipse.ui.console.ConsoleView"
+               visible="true">
+         </view>
+      </perspectiveExtension>
+   </extension>
 
 </plugin>

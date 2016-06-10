@@ -41,7 +41,7 @@ public final class RController {
 	private boolean librariesLoaded = false;
 
 	private static final String[] REQUIRED_LIBRARIES = new String[] {
-			"data.table", "ggplot2", "XML" };
+			"data.table", "ggplot2", "XML", "svglite" };
 
 	private static final String DIAGRAM_THEME = "theme()";
 	// "theme("
@@ -381,7 +381,7 @@ public final class RController {
 			LOG.error("Could not read assembly contexts from R", e);
 		}
 
-		return assemblyContexts;
+		return assemblyContexts != null ? assemblyContexts : Collections.emptyList();
 
 	}
 

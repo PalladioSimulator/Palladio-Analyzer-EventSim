@@ -16,6 +16,7 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -539,9 +540,14 @@ public class FilterView extends ViewPart {
 
 		compositeMetrics = new Composite(filterExpandMetric, SWT.NONE);
 		xpndtmWhatMetric.setControl(compositeMetrics);
-		xpndtmWhatMetric.setHeight(xpndtmWhatMetric.getControl()
-				.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
 		compositeMetrics.setLayout(new GridLayout(1, false));
+		compositeMetrics.addListener(SWT.Resize, event -> getDisplay().asyncExec(() -> {
+			if (compositeMetrics.isDisposed()) return;
+			Point size = compositeMetrics.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+			if (xpndtmWhatMetric.getHeight() != size.y) {
+				xpndtmWhatMetric.setHeight(size.y);
+			}
+		}));
 
 		Label lblSelectTheMetric = new Label(compositeMetrics, SWT.NONE);
 		lblSelectTheMetric.setLayoutData(
@@ -560,6 +566,13 @@ public class FilterView extends ViewPart {
 		xpndtmWhatTrigger.setControl(compositeTrigger);
 		GridLayout glCompositeTrigger = new GridLayout(1, false);
 		compositeTrigger.setLayout(glCompositeTrigger);
+		compositeTrigger.addListener(SWT.Resize, event -> getDisplay().asyncExec(() -> {
+			if (compositeTrigger.isDisposed()) return;
+			Point size = compositeTrigger.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+			if (xpndtmWhatTrigger.getHeight() != size.y) {
+				xpndtmWhatTrigger.setHeight(size.y);
+			}
+		}));
 
 		grpTriggerTypes = new Group(compositeTrigger, SWT.NONE);
 		grpTriggerTypes.setLayoutData(
@@ -646,7 +659,7 @@ public class FilterView extends ViewPart {
 		filterComboTriggerInstance
 				.setContentProvider(ArrayContentProvider.getInstance());
 		filterComboTriggerInstance.setLabelProvider(ENTITY_LABEL_PROVIDER);
-		xpndtmWhatTrigger.setHeight(250);
+		
 
 		ExpandItem expandItem = new ExpandItem(filterExpandMetric, 0);
 		expandItem.setText("Where: Assembly Context");
@@ -654,6 +667,13 @@ public class FilterView extends ViewPart {
 		compositeAssemblyCtx = new Composite(filterExpandMetric, SWT.NONE);
 		expandItem.setControl(compositeAssemblyCtx);
 		compositeAssemblyCtx.setLayout(new GridLayout(2, false));
+		compositeAssemblyCtx.addListener(SWT.Resize, event -> getDisplay().asyncExec(() -> {
+			if (compositeAssemblyCtx.isDisposed()) return;
+			Point size = compositeAssemblyCtx.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+			if (expandItem.getHeight() != size.y) {
+				expandItem.setHeight(size.y);
+			}
+		}));
 
 		Label lblSelectAnAssembly = new Label(compositeAssemblyCtx, SWT.NONE);
 		lblSelectAnAssembly.setLayoutData(
@@ -677,7 +697,6 @@ public class FilterView extends ViewPart {
 		filterComboAssemblyContext
 				.setContentProvider(ArrayContentProvider.getInstance());
 		filterComboAssemblyContext.setLabelProvider(ENTITY_LABEL_PROVIDER);
-		expandItem.setHeight(64);
 
 		ExpandItem xpndtmWhereMeasuringPoints = new ExpandItem(
 				filterExpandMetric, SWT.NONE);
@@ -687,6 +706,13 @@ public class FilterView extends ViewPart {
 		compositeMeasuringPoints = new Composite(filterExpandMetric, SWT.NONE);
 		xpndtmWhereMeasuringPoints.setControl(compositeMeasuringPoints);
 		compositeMeasuringPoints.setLayout(new GridLayout(2, false));
+		compositeMeasuringPoints.addListener(SWT.Resize, event -> getDisplay().asyncExec(() -> {
+			if (compositeMeasuringPoints.isDisposed()) return;
+			Point size = compositeMeasuringPoints.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+			if (xpndtmWhereMeasuringPoints.getHeight() != size.y) {
+				xpndtmWhereMeasuringPoints.setHeight(size.y);
+			}
+		}));
 
 		Label lblMPFrom = new Label(compositeMeasuringPoints, SWT.NONE);
 		lblMPFrom.setText("From:");
@@ -712,8 +738,6 @@ public class FilterView extends ViewPart {
 		filterComboMPTo.setContentProvider(ArrayContentProvider.getInstance());
 		filterComboMPTo.setLabelProvider(ENTITY_LABEL_PROVIDER);
 
-		xpndtmWhereMeasuringPoints.setHeight(60);
-
 		ExpandItem xpndtmWhenSimulationTime = new ExpandItem(filterExpandMetric,
 				SWT.NONE);
 		xpndtmWhenSimulationTime.setText("When: Simulation Time Span");
@@ -722,6 +746,13 @@ public class FilterView extends ViewPart {
 		xpndtmWhenSimulationTime.setControl(compositeTimeSpan);
 		GridLayout glCompositeTimeSpan = new GridLayout(5, false);
 		compositeTimeSpan.setLayout(glCompositeTimeSpan);
+		compositeTimeSpan.addListener(SWT.Resize, event -> getDisplay().asyncExec(() -> {
+			if (compositeTimeSpan.isDisposed()) return;
+			Point size = compositeTimeSpan.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+			if (xpndtmWhenSimulationTime.getHeight() != size.y) {
+				xpndtmWhenSimulationTime.setHeight(size.y);
+			}
+		}));
 
 		Label lblFrom = new Label(compositeTimeSpan, SWT.NONE);
 		lblFrom.setLayoutData(
@@ -757,7 +788,6 @@ public class FilterView extends ViewPart {
 		new Label(compositeTimeSpan, SWT.NONE);
 		new Label(compositeTimeSpan, SWT.NONE);
 		new Label(compositeTimeSpan, SWT.NONE);
-		xpndtmWhenSimulationTime.setHeight(60);
 
 		Composite compositeNorth = new Composite(container, SWT.NONE);
 		compositeNorth.setLayoutData(BorderLayout.NORTH);

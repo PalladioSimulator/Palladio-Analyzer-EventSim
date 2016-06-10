@@ -20,7 +20,9 @@ public class MeasurementStorageModule extends AbstractModule {
     protected void configure() {
         // lookup Rserve connection
         RserveConnection connection = ConnectionRegistry.instance().getConnection();
-        bind(RserveConnection.class).toInstance(connection);
+        if (connection != null) {
+            bind(RserveConnection.class).toInstance(connection);
+        }
 
         MeasurementStorage measurementStorage = RMeasurementStore.fromLaunchConfiguration(config.getConfigurationMap(),
                 connection);

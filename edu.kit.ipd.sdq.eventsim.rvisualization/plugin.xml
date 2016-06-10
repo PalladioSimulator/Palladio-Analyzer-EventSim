@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="R Visualization"
+            id="RVisualization">
+      </category>
+      <view
+            allowMultiple="false"
+            category="RVisualization"
+            class="edu.kit.ipd.sdq.eventsim.rvisualization.views.FilterView"
+            icon="icons/chart_bar.png"
+            id="edu.kit.ipd.sdq.eventsim.rvisualization.filterview"
+            name="R Visualization">
+      </view>
+      <view
+            allowMultiple="true"
+            category="RVisualization"
+            class="edu.kit.ipd.sdq.eventsim.rvisualization.views.DiagramView"
+            icon="icons/chart_bar.png"
+            id="edu.kit.ipd.sdq.eventsim.rvisualization.diagramview"
+            name="Diagram"
+            restorable="false">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="org.palladiosimulator.pcmbench.perspectives.palladio">
+         <view
+               id="edu.kit.ipd.sdq.eventsim.rvisualization.filterview"
+               relationship="stack"
+               relative="org.eclipse.ui.navigator.ProjectExplorer"
+               visible="true">
+         </view>
+         <view
+               id="edu.kit.ipd.sdq.eventsim.rvisualization.diagramview:*"
+               minimized="false"
+               relationship="stack"
+               relative="org.eclipse.ui.editorss"
+               visible="false">
+         </view>
+      </perspectiveExtension>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:edu.kit.ipd.sdq.eventsim.rvisualization.filterview">
+         <command
+               commandId="edu.kit.ipd.sdq.eventsim.rvisualization.filterview.refresh"
+               icon="icons/arrow_refresh.png"
+               label="Reload measurements from R"
+               style="push"
+               tooltip="Reload measurements...">
+         </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:edu.kit.ipd.sdq.eventsim.rvisualization.diagramview">
+         <command
+               commandId="edu.kit.ipd.sdq.eventsim.rvisualization.diagramview.save"
+               icon="icons/disk.png"
+               label="Save diagram to new file"
+               style="push"
+               tooltip="Save diagram...">
+         </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:edu.kit.ipd.sdq.eventsim.rvisualization.diagramview">
+         <command
+               commandId="edu.kit.ipd.sdq.eventsim.rvisualization.diagramview.showscript"
+               icon="icons/script.png"
+               label="Show R command"
+               style="push"
+               tooltip="Show R command...">
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="edu.kit.ipd.sdq.eventsim.rvisualization.handlers.ReloadHandler"
+            commandId="edu.kit.ipd.sdq.eventsim.rvisualization.filterview.refresh">
+         <enabledWhen>
+            <with
+                  variable="edu.kit.ipd.sdq.eventsim.measurement.r.connection.status">
+               <equals
+                     value="true">
+               </equals>
+            </with>
+         </enabledWhen>
+      </handler>
+      <handler
+            class="edu.kit.ipd.sdq.eventsim.rvisualization.handlers.SaveDiagramHandler"
+            commandId="edu.kit.ipd.sdq.eventsim.rvisualization.diagramview.save">
+      </handler>
+      <handler
+            class="edu.kit.ipd.sdq.eventsim.rvisualization.handlers.ShowScriptHandler"
+            commandId="edu.kit.ipd.sdq.eventsim.rvisualization.diagramview.showscript">
+      </handler>
+   </extension>
+
+</plugin>

@@ -59,6 +59,8 @@ public class Controller {
      */
     private static final int DIAGRAM_SIZE_LIMIT = 10_000;
 
+    private boolean ignoreSelectionEvents;
+
     /**
      * Create an application controller.
      * 
@@ -70,48 +72,48 @@ public class Controller {
         viewCtrl = viewController;
         view = viewCtrl.getView();
         rCtrl = new RController();
+
     }
 
     public final void viewInitialized() {
         // initial population
         populateControls();
 
-        // populateControlsOnConnectOrDisconnect();
+        populateControlsOnConnectOrDisconnect();
     }
 
-    // private void populateControlsOnConnectOrDisconnect() {
-    // ConnectionStatusListener statusListener = new AbstractConnectionStatusListener() {
-    //
-    // @Override
-    // public void connected() {
-    // new Thread(() -> populateControls()).start();
-    // }
-    //
-    // @Override
-    // public void disconnected() {
-    // new Thread(() -> populateControls()).start();
-    // }
-    //
-    // };
-    // if (ConnectionRegistry.instance().getConnection() == null) {
-    // ConnectionRegistry.instance().addListener(new ConnectionListener() {
-    //
-    // @Override
-    // public void connectionRemoved(RserveConnection connection) {
-    // connection.removeListener(statusListener);
-    // }
-    //
-    // @Override
-    // public void connectionAdded(RserveConnection connection) {
-    // connection.addListener(statusListener);
-    // }
-    //
-    // });
-    // } else {
-    // ConnectionRegistry.instance().getConnection()
-    // .addListener(statusListener);
-    // }
-    // }
+    private void populateControlsOnConnectOrDisconnect() {
+        ConnectionStatusListener statusListener = new AbstractConnectionStatusListener() {
+
+            @Override
+            public void connected() {
+                view.getDisplay().asyncExec(() -> populateControls());
+            }
+
+            @Override
+            public void disconnected() {
+                view.getDisplay().asyncExec(() -> populateControls());
+            }
+
+        };
+        if (ConnectionRegistry.instance().getConnection() == null) {
+            ConnectionRegistry.instance().addListener(new ConnectionListener() {
+
+                @Override
+                public void connectionRemoved(RserveConnection connection) {
+                    connection.removeListener(statusListener);
+                }
+
+                @Override
+                public void connectionAdded(RserveConnection connection) {
+                    connection.addListener(statusListener);
+                }
+
+            });
+        } else {
+            ConnectionRegistry.instance().getConnection().addListener(statusListener);
+        }
+    }
 
     /**
      * Trigger a metric change.
@@ -121,9 +123,11 @@ public class Controller {
      * 
      */
     public final void metricSelected() {
-        populateTriggerTypes();
-        populateAssemblyContexts();
-        // populateMeasuringPoints();
+        if (!ignoreSelectionEvents) {
+            populateMeasuringPoints();
+            populateAssemblyContexts();
+            populateTriggerTypes();
+        }
     }
 
     /**
@@ -139,24 +143,28 @@ public class Controller {
      * Trigger a trigger change.
      */
     public final void triggerTypeSelected() {
-        populateTriggerInstances();
-        populateMeasuringPoints();
+        if (!ignoreSelectionEvents) {
+            populateTriggerInstances();
+        }
     }
 
     /**
      * Trigger a trigger instance change.
      */
     public final void triggerInstanceSelected() {
-        populateMeasuringPoints();
+        if (!ignoreSelectionEvents) {
+            populateMeasuringPoints();
+        }
     }
 
     /**
      * Trigger a trigger span change.
      */
     public final void triggerSimulationBoundsChanged() {
-
-        populateTriggerInstances();
-        populateMeasuringPoints();
+        if (!ignoreSelectionEvents) {
+            populateTriggerInstances();
+            // populateMeasuringPoints();
+        }
 
     }
 
@@ -178,7 +186,9 @@ public class Controller {
      * Trigger a assembly context change.
      */
     public final void assemblyContextSelected() {
-        populateMeasuringPoints();
+        if (!ignoreSelectionEvents) {
+            populateMeasuringPoints();
+        }
     }
 
     /**
@@ -269,14 +279,23 @@ public class Controller {
     }
 
     public final void populateControls() {
+        // prevent repeated selection events by ignoring them temporarily
+        ignoreSelectionEvents = true;
+
         populateMeasurementsCount();
         populateMetrics();
-        populateSimulationTimeBounds();
-        populateDiagramTypes();
         populateTriggerTypes();
         populateTriggerInstances();
         populateAssemblyContexts();
         populateMeasuringPoints();
+        populateSimulationTimeBounds();
+        populateDiagramTypes();
+
+        if (!isConnected()) {
+            view.enablePlotButton(false);
+        }
+
+        ignoreSelectionEvents = false;
     }
 
     private void populateMeasurementsCount() {
@@ -298,11 +317,11 @@ public class Controller {
             view.enableMeasuringPointsComposite(false);
             return;
         }
+        view.enableMeasuringPointsComposite(true);
 
         Set<MeasurementFilter> filterSet = createFilterSetFromView();
         List<Pair<Entity>> mp = rCtrl.getMeasuringPoints(filterSet);
         viewCtrl.setMeasuringPoints(mp);
-        view.enableMeasuringPointsComposite(true);
     }
 
     private void populateTriggerTypes() {

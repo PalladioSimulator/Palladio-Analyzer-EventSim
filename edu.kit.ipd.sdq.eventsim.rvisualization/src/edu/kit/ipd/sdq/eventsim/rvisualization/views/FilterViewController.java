@@ -107,8 +107,10 @@ public final class FilterViewController {
             measuringPoints[i] = pair.getFirst();
             i++;
         }
-        filterView.setMeasuringPointsFrom(measuringPoints);
         filterView.setMeasuringPointsTo(new Entity[0]);
+        filterView.enableMeasuringPointsToCombo(false);
+        
+        filterView.setMeasuringPointsFrom(measuringPoints);
 
         // The available 'to' measuring points are set in the
         // setRelatedToMeasuringPoints() method which will be invoked after

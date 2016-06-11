@@ -1,5 +1,6 @@
 package edu.kit.ipd.sdq.eventsim.rvisualization.views;
 
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -120,12 +121,13 @@ public class FilterView extends ViewPart {
         return ctrl;
     }
 
-    private Display getDisplay() {
+    public Display getDisplay() {
         return viewParent != null ? viewParent.getDisplay() : Display.getDefault();
     }
 
     public void setMeasurementsCount(int count) {
-        this.lblMeasurementsCount.setText(Integer.toString(count));
+        String formatted = String.format(Locale.US, "%,d", count);
+        this.lblMeasurementsCount.setText(formatted);
     }
 
     /**
@@ -223,8 +225,14 @@ public class FilterView extends ViewPart {
 
         // Enable or disable the combo box.
         boolean enabled = mp.length > 0 ? true : false;
-        Helper.setEnabledRecursive(cmpMeasuringPoints, enabled);
         btnPlot.setEnabled(enabled);
+        Helper.setEnabledRecursive(cmpMeasuringPoints, enabled);
+
+        // select first element
+        if (mp.length > 0) {
+            ISelection selection = new StructuredSelection(mp[0]);
+            cmbMeasuringPointFrom.setSelection(selection);
+        }
     }
 
     /**
@@ -236,8 +244,7 @@ public class FilterView extends ViewPart {
     public final void setMeasuringPointsTo(final Entity[] mp) {
         cmbMeasuringPointTo.setInput(mp);
 
-        boolean enabled = mp.length > 0 ? true : false;
-        cmbMeasuringPointTo.getControl().setEnabled(enabled);
+        enableMeasuringPointsToCombo(mp.length > 0 ? true : false);
 
         // select first element
         if (mp.length > 0) {
@@ -464,6 +471,14 @@ public class FilterView extends ViewPart {
 
     public void enableMeasuringPointsComposite(boolean enabled) {
         Helper.setEnabledRecursive(cmpMeasuringPoints, enabled);
+    }
+
+    public void enableMeasuringPointsToCombo(boolean enabled) {
+        cmbMeasuringPointTo.getCombo().setEnabled(enabled);
+    }
+
+    public void enablePlotButton(boolean enabled) {
+        btnPlot.setEnabled(enabled);
     }
 
     /**
@@ -825,15 +840,10 @@ public class FilterView extends ViewPart {
 
         spnTriggerFrom.addModifyListener(triggerSpinnerModifyListener);
         spnTriggerTo.addModifyListener(triggerSpinnerModifyListener);
-
         cmbMetric.addModifyListener(l -> ctrl.metricSelected());
-
         cmbTriggerType.addModifyListener(l -> ctrl.triggerTypeSelected());
-
         cmbTriggerInstance.addSelectionChangedListener(l -> ctrl.triggerInstanceSelected());
-
         cmbMeasuringPointFrom.addSelectionChangedListener(l -> ctrl.fromMeasuringPointSelected());
-
         cmbAssemblyCtx.addSelectionChangedListener(l -> ctrl.assemblyContextSelected());
     }
 

@@ -166,8 +166,8 @@ public class Controller {
      * Default values from RDS file will be delegated to the {@link gui.FilterViewController}.
      */
     public final void resetTriggerSimulationTimeBounds() {
-        view.setTriggerStart(rCtrl.getSimulationTimeMin());
-        view.setTriggerEnd(rCtrl.getSimulationTimeMax());
+        view.setSelectedTriggerTimeSpanLower(rCtrl.getSimulationTimeMin());
+        view.setSelectedTriggerTimeSpanUpper(rCtrl.getSimulationTimeMax());
     }
 
     public final void resetSimulationTimeBounds() {
@@ -197,7 +197,7 @@ public class Controller {
             String diagramSubTitle = createDiagramSubTitle();
             Set<MeasurementFilter> filterSet = new HashSet<MeasurementFilter>();
 
-            checkTimespanValues(view.getTimeSpanStart(), view.getTimeSpanEnd());
+            checkTimespanValues(view.getSelectedTimeSpanLower(), view.getSelectedTimeSpanUpper());
 
             filterSet = createFilterSet();
             printFilterInfo(filterSet, "Filter Set which is used to plot a " + diagramType + ".");
@@ -337,9 +337,9 @@ public class Controller {
 
         try {
             String metric = viewCtrl.getMetric();
-            String triggerType = view.getTrigger();
-            int triggerStart = view.getTriggerStart();
-            int triggerEnd = view.getTriggerEnd();
+            String triggerType = view.getSelectedTriggerType();
+            int triggerStart = view.getSelectedTriggerTimeSpanLower();
+            int triggerEnd = view.getSelectedTriggerTimeSpanUpper();
 
             // return if no trigger type is selected.
             if (triggerType == null) {
@@ -447,8 +447,8 @@ public class Controller {
         int upper = rCtrl.getSimulationTimeMax();
         view.setTimeSpanBounds(lower, upper);
 
-        view.setTimeSpanLower(lower);
-        view.setTimeSpanUpper(upper);
+        view.setSelectedTimeSpanLower(lower);
+        view.setSelectedTimeSpanUpper(upper);
 
         view.setTimeSpanDescription("Simulation starts at " + rCtrl.getSimulationTimeMin() + " and ends at "
                 + rCtrl.getSimulationTimeMax());
@@ -469,11 +469,11 @@ public class Controller {
         // Get filter settings.
         String metric = viewCtrl.getMetric();
         Pair<Entity> mp = viewCtrl.getMeasuringPoints();
-        String trigger = view.getTrigger();
-        Entity triggerInstance = view.getTriggerInstance();
-        Entity assemblyContext = view.getAssemblyContext();
-        int timespanStart = view.getTimeSpanStart();
-        int timespanEnd = view.getTimeSpanEnd();
+        String trigger = view.getSelectedTriggerType();
+        Entity triggerInstance = view.getSelectedTriggerInstance();
+        Entity assemblyContext = view.getSelectedAssemblyContext();
+        int timespanStart = view.getSelectedTimeSpanLower();
+        int timespanEnd = view.getSelectedTimeSpanUpper();
 
         // Add metric filter.
         filterSet.add(new MeasurementFilter("what", "==", metric));
@@ -513,10 +513,10 @@ public class Controller {
 
     private Set<MeasurementFilter> createFilterSetFromView() {
         // Get current filter settings and create set of filters.
-        String triggerType = view.getTrigger();
-        Entity triggerInstance = view.getTriggerInstance();
+        String triggerType = view.getSelectedTriggerType();
+        Entity triggerInstance = view.getSelectedTriggerInstance();
         String metric = viewCtrl.getMetric();
-        Entity assemblyContext = view.getAssemblyContext();
+        Entity assemblyContext = view.getSelectedAssemblyContext();
 
         LOG.trace("_");
         LOG.trace("Creating filter set based on the following information:");
@@ -607,9 +607,9 @@ public class Controller {
         String diagramSubTitle = "";
 
         diagramSubTitle += "Simulation time span: ";
-        diagramSubTitle += view.getTimeSpanStart();
+        diagramSubTitle += view.getSelectedTimeSpanLower();
         diagramSubTitle += " - ";
-        diagramSubTitle += view.getTimeSpanEnd();
+        diagramSubTitle += view.getSelectedTimeSpanUpper();
 
         return diagramSubTitle;
     }

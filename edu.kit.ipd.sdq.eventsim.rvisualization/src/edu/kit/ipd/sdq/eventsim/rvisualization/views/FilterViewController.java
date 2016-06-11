@@ -75,7 +75,7 @@ public final class FilterViewController {
      *             If an invalid technical name was used.
      */
     public String getMetric() {
-        return GUIStrings.getTechnicalName(GUIStrings.getMetrics(), filterView.getMetric());
+        return GUIStrings.getTechnicalName(GUIStrings.getMetrics(), filterView.getSelectedMetric());
     }
 
     /**
@@ -84,7 +84,7 @@ public final class FilterViewController {
      * @return Measuring point pair.
      */
     public Pair<Entity> getMeasuringPoints() {
-        Pair<Entity> mp = new Pair<>(filterView.getFromMeasuringPoint(), filterView.getToMeasuringPoint());
+        Pair<Entity> mp = new Pair<>(filterView.getSelectedMeasuringPointFrom(), filterView.getSelectedMeasuringPointTo());
         return mp;
     }
 
@@ -106,8 +106,8 @@ public final class FilterViewController {
             measuringPoints[i] = pair.getFirst();
             i++;
         }
-        filterView.setFromMeasuringPoints(measuringPoints);
-        filterView.setToMeasuringPoints(new Entity[0]);
+        filterView.setMeasuringPointsFrom(measuringPoints);
+        filterView.setMeasuringPointsTo(new Entity[0]);
 
         // The available 'to' measuring points are set in the
         // setRelatedToMeasuringPoints() method which will be invoked after
@@ -141,7 +141,7 @@ public final class FilterViewController {
      *             If an invalid technical name was used.
      */
     public DiagramType getDiagramType() {
-        return GUIStrings.getTechnicalName(GUIStrings.getDiagramTypes(), filterView.getDiagramType());
+        return GUIStrings.getTechnicalName(GUIStrings.getDiagramTypes(), filterView.getSelectedDiagramType());
     }
 
     /**
@@ -198,9 +198,9 @@ public final class FilterViewController {
      * 
      */
     public void setRelatedToMeasuringPoints() {
-        Entity from = filterView.getFromMeasuringPoint();
+        Entity from = filterView.getSelectedMeasuringPointFrom();
         Entity[] tos = getRelatedToMeasuringPoints(from.getId(), measuringPoints);
-        filterView.setToMeasuringPoints(tos);
+        filterView.setMeasuringPointsTo(tos);
     }
 
 }

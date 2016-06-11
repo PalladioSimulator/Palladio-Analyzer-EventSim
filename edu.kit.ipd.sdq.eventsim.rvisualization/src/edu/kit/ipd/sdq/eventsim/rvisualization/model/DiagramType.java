@@ -9,14 +9,20 @@ package edu.kit.ipd.sdq.eventsim.rvisualization.model;
  */
 public enum DiagramType {
 
-    HISTOGRAM(true), POINT_GRAPH(false);
+    HISTOGRAM("Histogram", true), POINT_GRAPH("X/Y Point Graph", false);
+
+    private String name;
 
     private boolean aggregating;
 
-    private DiagramType(boolean aggregating) {
+    private DiagramType(String name, boolean aggregating) {
         this.aggregating = aggregating;
     }
 
+    public String getName() {
+        return name;
+    }
+    
     /**
      * returns {@code true}, if this diagram type aggregates simulation results (like a histogram);
      * {@code false}, if not (like a point chart).

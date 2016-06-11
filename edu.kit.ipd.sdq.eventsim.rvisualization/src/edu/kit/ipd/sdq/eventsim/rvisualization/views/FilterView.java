@@ -33,6 +33,7 @@ import org.eclipse.ui.part.ViewPart;
 import org.eclipse.wb.swt.ResourceManager;
 
 import edu.kit.ipd.sdq.eventsim.rvisualization.Controller;
+import edu.kit.ipd.sdq.eventsim.rvisualization.model.DiagramType;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.Entity;
 import edu.kit.ipd.sdq.eventsim.rvisualization.util.Helper;
 import swing2swt.layout.BorderLayout;
@@ -80,14 +81,17 @@ public class FilterView extends ViewPart {
     private Label lblTriggerInstanceNumber;
     private Label lblTriggerInstanceDescription;
     private Label lblSimulationTimeSpanDescription;
+    private Label lblMeasurementsCount;
 
     private Composite cmpMetric;
+    private Composite cmpTrigger;
     private Composite cmpAssemblyCtx;
     private Composite cmpMeasuringPoints;
     private Composite cmpTimeSpan;
     private Composite cmpCenter;
 
-    private Label lblMeasurementsCount;
+    private Group grpTriggerTypes;
+    private Group grpTriggerInstances;
 
     private static final LabelProvider ENTITY_LABEL_PROVIDER = new LabelProvider() {
 
@@ -99,9 +103,15 @@ public class FilterView extends ViewPart {
 
     };
 
-    private Group grpTriggerTypes;
+    private static final LabelProvider DIAGRAM_TYPE_LABEL_PROVIDER = new LabelProvider() {
 
-    private Group grpTriggerInstances;
+        @Override
+        public String getText(Object element) {
+            DiagramType t = (DiagramType) element;
+            return t.toString();
+        }
+
+    };
 
     public FilterView() {
     }
@@ -112,6 +122,10 @@ public class FilterView extends ViewPart {
 
     private Display getDisplay() {
         return viewParent != null ? viewParent.getDisplay() : Display.getDefault();
+    }
+
+    public void setMeasurementsCount(int count) {
+        this.lblMeasurementsCount.setText(Integer.toString(count));
     }
 
     /**
@@ -131,166 +145,6 @@ public class FilterView extends ViewPart {
     }
 
     /**
-     * Get selected metric.
-     * 
-     * @return Currently selected metric as GUI string (e.g. 'queue length').
-     */
-    public final String getMetric() {
-        return cmbMetric.getText();
-    }
-
-    /**
-     * Set the available 'from' measuring points. Select first item by default.
-     * 
-     * @param mp
-     *            List of available 'from' measuring points.
-     */
-    public final void setFromMeasuringPoints(final Entity[] mp) {
-        // Set or reset (in case of an empty array) the combo box items.
-        cmbMeasuringPointFrom.setInput(mp);
-
-        // Enable or disable the combo box.
-        boolean enabled = mp.length > 0 ? true : false;
-        Helper.setEnabledRecursive(cmpMeasuringPoints, enabled);
-        btnPlot.setEnabled(enabled);
-    }
-
-    /**
-     * Get the currently selected 'from' measuring point.
-     * 
-     * @return Readable string of 'from' measuring point (contains name + id), or {@code null} if no
-     *         'from' measuring points are available.
-     * 
-     * @see getIdFromReadableString(String)
-     */
-    public final Entity getFromMeasuringPoint() {
-        StructuredSelection selection = (StructuredSelection) cmbMeasuringPointFrom.getSelection();
-        if (!selection.isEmpty()) {
-            return (Entity) selection.getFirstElement();
-        }
-        return null;
-    }
-
-    /**
-     * Set the available 'to' measuring points. Select first item by default.
-     * 
-     * @param mp
-     *            List of available 'to' measuring points.
-     */
-    public final void setToMeasuringPoints(final Entity[] mp) {
-        cmbMeasuringPointTo.setInput(mp);
-
-        boolean enabled = mp.length > 0 ? true : false;
-        cmbMeasuringPointTo.getControl().setEnabled(enabled);
-        if (enabled) {
-            // select first element
-            ISelection selection = new StructuredSelection(mp[0]);
-            cmbMeasuringPointTo.setSelection(selection);
-        }
-    }
-
-    /**
-     * Get the currently selected 'to' measuring point.
-     * 
-     * @return Readable string of 'to' measuring point (contains name + id), or {@code null} if no
-     *         'to' measuring points are available.
-     * 
-     * @see getIdFromReadableString(String)
-     */
-    public final Entity getToMeasuringPoint() {
-        StructuredSelection selection = (StructuredSelection) cmbMeasuringPointTo.getSelection();
-        if (!selection.isEmpty()) {
-            return (Entity) selection.getFirstElement();
-        }
-        return null;
-    }
-
-    /**
-     * Get current start value of simulation time span.
-     * 
-     * @return Time span start value.
-     */
-    public final int getTimeSpanStart() {
-        return spnTimeSpanFrom.getSelection();
-    }
-
-    /**
-     * Set time span start value.
-     * 
-     * @param startValue
-     *            New time span start value.
-     */
-    public final void setTimeSpanLower(final int startValue) {
-        spnTimeSpanFrom.setSelection(startValue);
-    }
-
-    public final void setTimeSpanBounds(int lower, int upper) {
-        spnTimeSpanFrom.setMinimum(lower);
-        spnTimeSpanTo.setMinimum(lower);
-
-        spnTimeSpanFrom.setMaximum(upper);
-        spnTimeSpanTo.setMaximum(upper);
-    }
-
-    /**
-     * Get current end value of simulation time span.
-     * 
-     * @return Time span end value.
-     */
-    public final int getTimeSpanEnd() {
-        return spnTimeSpanTo.getSelection();
-    }
-
-    /**
-     * Set time span end value.
-     * 
-     * @param endValue
-     *            New time span end value.
-     */
-    public final void setTimeSpanUpper(final int endValue) {
-        spnTimeSpanTo.setSelection(endValue);
-    }
-
-    /**
-     * Set time span description.
-     * 
-     * @param description
-     *            Time span description.
-     */
-    public final void setTimeSpanDescription(final String description) {
-        lblSimulationTimeSpanDescription.setText(description);
-    }
-
-    public void setMeasurementsCount(int count) {
-        this.lblMeasurementsCount.setText(Integer.toString(count));
-    }
-
-    /**
-     * Set the currently available diagram types.
-     * 
-     * @param diagramTypes
-     *            List of all available diagram types with their enums (
-     *            {@link edu.kit.ipd.sdq.eventsim.rvisualization.model.DiagramType} ).
-     */
-    public final void setDiagramTypes(final String[] diagramTypes) {
-
-        cmbDiagramType.setItems(diagramTypes);
-        cmbDiagramType.select(0);
-    }
-
-    /**
-     * Get selected diagram type.
-     * 
-     * @return Currently selected diagram type (
-     *         {@link edu.kit.ipd.sdq.eventsim.rvisualization.model.DiagramType} ).
-     * @throws Exception
-     *             If an invalid technical name was used.
-     */
-    public final String getDiagramType() {
-        return cmbDiagramType.getText();
-    }
-
-    /**
      * Set the available triggers.
      * 
      * @param trigger
@@ -298,53 +152,6 @@ public class FilterView extends ViewPart {
      */
     public final void setTriggers(final String[] trigger) {
         cmbTriggerType.setItems(trigger);
-    }
-
-    /**
-     * Get selected trigger.
-     * 
-     * @return Currently selected trigger.
-     */
-    public final String getTrigger() {
-        return cmbTriggerType.getText().isEmpty() ? null : cmbTriggerType.getText();
-    }
-
-    /**
-     * Get current start value of trigger time span.
-     * 
-     * @return Time span start value.
-     */
-    public final int getTriggerStart() {
-        return spnTriggerFrom.getSelection();
-    }
-
-    /**
-     * Set trigger start value.
-     * 
-     * @param startValue
-     *            New trigger start value.
-     */
-    public final void setTriggerStart(final int startValue) {
-        spnTriggerFrom.setSelection(startValue);
-    }
-
-    /**
-     * Get current end value of trigger time span.
-     * 
-     * @return Trigger end value.
-     */
-    public final int getTriggerEnd() {
-        return spnTriggerTo.getSelection();
-    }
-
-    /**
-     * Set trigger end value.
-     * 
-     * @param endValue
-     *            New trigger end value.
-     */
-    public final void setTriggerEnd(final int endValue) {
-        spnTriggerTo.setSelection(endValue);
     }
 
     /**
@@ -358,11 +165,269 @@ public class FilterView extends ViewPart {
     }
 
     /**
+     * Set the trigger instance description.
+     * 
+     * @param description
+     *            Description to be set.
+     */
+    public final void setTriggerInstanceDescription(final String description) {
+        lblTriggerInstanceDescription.setText(description);
+    }
+
+    /**
+     * Set number of available instances in GUI.
+     * 
+     * @param number
+     *            Number of available trigger instance.
+     * @param warning
+     *            Print number as warning (red) or not.
+     */
+    public final void setTriggerInstanceNumber(final String number, final boolean warning) {
+        if (warning) {
+            lblTriggerInstanceNumber.setForeground(getDisplay().getSystemColor(SWT.COLOR_RED));
+        } else {
+            lblTriggerInstanceNumber.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
+        }
+        lblTriggerInstanceNumber.setText(number);
+    }
+
+    /**
+     * Set the number of currently available trigger instances on GUI.
+     * 
+     * @param number
+     *            Number to be set.
+     */
+    public final void setTriggerInstanceNumber(final String number) {
+        setTriggerInstanceNumber(number, false);
+    }
+
+    /**
+     * Set the currently available assembly contexts.
+     * 
+     * @param ctxs
+     *            Array of all available assembly contexts.
+     */
+    public final void setAssemblyContexts(final Entity[] ctxs) {
+        cmbAssemblyCtx.setInput(ctxs);
+    }
+
+    /**
+     * Set the available 'from' measuring points. Select first item by default.
+     * 
+     * @param mp
+     *            List of available 'from' measuring points.
+     */
+    public final void setMeasuringPointsFrom(final Entity[] mp) {
+        // Set or reset (in case of an empty array) the combo box items.
+        cmbMeasuringPointFrom.setInput(mp);
+
+        // Enable or disable the combo box.
+        boolean enabled = mp.length > 0 ? true : false;
+        Helper.setEnabledRecursive(cmpMeasuringPoints, enabled);
+        btnPlot.setEnabled(enabled);
+    }
+
+    /**
+     * Set the available 'to' measuring points. Select first item by default.
+     * 
+     * @param mp
+     *            List of available 'to' measuring points.
+     */
+    public final void setMeasuringPointsTo(final Entity[] mp) {
+        cmbMeasuringPointTo.setInput(mp);
+
+        boolean enabled = mp.length > 0 ? true : false;
+        cmbMeasuringPointTo.getControl().setEnabled(enabled);
+        if (enabled) {
+            // select first element
+            ISelection selection = new StructuredSelection(mp[0]);
+            cmbMeasuringPointTo.setSelection(selection);
+        }
+    }
+
+    public final void setTimeSpanBounds(int lower, int upper) {
+        spnTimeSpanFrom.setMinimum(lower);
+        spnTimeSpanTo.setMinimum(lower);
+
+        spnTimeSpanFrom.setMaximum(upper);
+        spnTimeSpanTo.setMaximum(upper);
+    }
+
+    /**
+     * Set time span description.
+     * 
+     * @param description
+     *            Time span description.
+     */
+    public final void setTimeSpanDescription(final String description) {
+        lblSimulationTimeSpanDescription.setText(description);
+    }
+
+    /**
+     * Set the currently available diagram types.
+     * 
+     * @param diagramTypes
+     *            List of all available diagram types with their enums (
+     *            {@link edu.kit.ipd.sdq.eventsim.rvisualization.model.DiagramType} ).
+     */
+    public final void setDiagramTypes(final String[] diagramTypes) {
+        cmbDiagramType.setItems(diagramTypes);
+        cmbDiagramType.select(0);
+    }
+
+    /**
+     * Get selected metric.
+     * 
+     * @return Currently selected metric as GUI string (e.g. 'queue length').
+     */
+    public final String getSelectedMetric() {
+        return cmbMetric.getText();
+    }
+
+    /**
+     * Get selected assembly context.
+     * 
+     * @return Currently selected assembly context.
+     */
+    public final Entity getSelectedAssemblyContext() {
+        return (Entity) cmbAssemblyCtx.getStructuredSelection().getFirstElement();
+    }
+
+    /**
+     * Get the currently selected 'from' measuring point.
+     * 
+     * @return Readable string of 'from' measuring point (contains name + id), or {@code null} if no
+     *         'from' measuring points are available.
+     * 
+     * @see getIdFromReadableString(String)
+     */
+    public final Entity getSelectedMeasuringPointFrom() {
+        StructuredSelection selection = (StructuredSelection) cmbMeasuringPointFrom.getSelection();
+        if (!selection.isEmpty()) {
+            return (Entity) selection.getFirstElement();
+        }
+        return null;
+    }
+
+    /**
+     * Get the currently selected 'to' measuring point.
+     * 
+     * @return Readable string of 'to' measuring point (contains name + id), or {@code null} if no
+     *         'to' measuring points are available.
+     * 
+     * @see getIdFromReadableString(String)
+     */
+    public final Entity getSelectedMeasuringPointTo() {
+        StructuredSelection selection = (StructuredSelection) cmbMeasuringPointTo.getSelection();
+        if (!selection.isEmpty()) {
+            return (Entity) selection.getFirstElement();
+        }
+        return null;
+    }
+
+    /**
+     * Get current start value of simulation time span.
+     * 
+     * @return Time span start value.
+     */
+    public final int getSelectedTimeSpanLower() {
+        return spnTimeSpanFrom.getSelection();
+    }
+
+    /**
+     * Set time span start value.
+     * 
+     * @param startValue
+     *            New time span start value.
+     */
+    public final void setSelectedTimeSpanLower(final int startValue) {
+        spnTimeSpanFrom.setSelection(startValue);
+    }
+
+    /**
+     * Get current end value of simulation time span.
+     * 
+     * @return Time span end value.
+     */
+    public final int getSelectedTimeSpanUpper() {
+        return spnTimeSpanTo.getSelection();
+    }
+
+    /**
+     * Set time span end value.
+     * 
+     * @param endValue
+     *            New time span end value.
+     */
+    public final void setSelectedTimeSpanUpper(final int endValue) {
+        spnTimeSpanTo.setSelection(endValue);
+    }
+
+    /**
+     * Get selected diagram type.
+     * 
+     * @return Currently selected diagram type (
+     *         {@link edu.kit.ipd.sdq.eventsim.rvisualization.model.DiagramType} ).
+     * @throws Exception
+     *             If an invalid technical name was used.
+     */
+    public final String getSelectedDiagramType() {
+        return cmbDiagramType.getText();
+    }
+
+    /**
+     * Get selected trigger.
+     * 
+     * @return Currently selected trigger.
+     */
+    public final String getSelectedTriggerType() {
+        return cmbTriggerType.getText().isEmpty() ? null : cmbTriggerType.getText();
+    }
+
+    /**
+     * Get current start value of trigger time span.
+     * 
+     * @return Time span start value.
+     */
+    public final int getSelectedTriggerTimeSpanLower() {
+        return spnTriggerFrom.getSelection();
+    }
+
+    /**
+     * Set trigger start value.
+     * 
+     * @param startValue
+     *            New trigger start value.
+     */
+    public final void setSelectedTriggerTimeSpanLower(final int startValue) {
+        spnTriggerFrom.setSelection(startValue);
+    }
+
+    /**
+     * Get current end value of trigger time span.
+     * 
+     * @return Trigger end value.
+     */
+    public final int getSelectedTriggerTimeSpanUpper() {
+        return spnTriggerTo.getSelection();
+    }
+
+    /**
+     * Set trigger end value.
+     * 
+     * @param endValue
+     *            New trigger end value.
+     */
+    public final void setSelectedTriggerTimeSpanUpper(final int endValue) {
+        spnTriggerTo.setSelection(endValue);
+    }
+
+    /**
      * Get the selected trigger instance.
      * 
      * @return Currently selected trigger instance.
      */
-    public final Entity getTriggerInstance() {
+    public final Entity getSelectedTriggerInstance() {
         return (Entity) cmbTriggerInstance.getStructuredSelection().getFirstElement();
     }
 
@@ -393,63 +458,6 @@ public class FilterView extends ViewPart {
 
     public void enableMeasuringPointsComposite(boolean enabled) {
         Helper.setEnabledRecursive(cmpMeasuringPoints, enabled);
-    }
-
-    /**
-     * Set number of available instances in GUI.
-     * 
-     * @param number
-     *            Number of available trigger instance.
-     * @param warning
-     *            Print number as warning (red) or not.
-     */
-    public final void setTriggerInstanceNumber(final String number, final boolean warning) {
-
-        if (warning) {
-            lblTriggerInstanceNumber.setForeground(getDisplay().getSystemColor(SWT.COLOR_RED));
-        } else {
-            lblTriggerInstanceNumber.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
-        }
-        lblTriggerInstanceNumber.setText(number);
-    }
-
-    /**
-     * Set the number of currently available trigger instances on GUI.
-     * 
-     * @param number
-     *            Number to be set.
-     */
-    public final void setTriggerInstanceNumber(final String number) {
-        setTriggerInstanceNumber(number, false);
-    }
-
-    /**
-     * Set the trigger instance description.
-     * 
-     * @param description
-     *            Description to be set.
-     */
-    public final void setTriggerInstanceDescription(final String description) {
-        lblTriggerInstanceDescription.setText(description);
-    }
-
-    /**
-     * Set the currently available assembly contexts.
-     * 
-     * @param ctxs
-     *            Array of all available assembly contexts.
-     */
-    public final void setAssemblyContexts(final Entity[] ctxs) {
-        cmbAssemblyCtx.setInput(ctxs);
-    }
-
-    /**
-     * Get selected assembly context.
-     * 
-     * @return Currently selected assembly context.
-     */
-    public final Entity getAssemblyContext() {
-        return (Entity) cmbAssemblyCtx.getStructuredSelection().getFirstElement();
     }
 
     /**
@@ -648,9 +656,8 @@ public class FilterView extends ViewPart {
     }
 
     private void createTriggerExpandItem(ExpandBar expandBar) {
-        Composite cmpTrigger = new Composite(expandBar, SWT.NONE);
-        GridLayout layout = new GridLayout(1, false);
-        cmpTrigger.setLayout(layout);
+        cmpTrigger = new Composite(expandBar, SWT.NONE);
+        cmpTrigger.setLayout(new GridLayout(1, false));
 
         ExpandItem xpiTrigger = new ExpandItem(expandBar, SWT.NONE);
         xpiTrigger.setText("Who: Trigger");
@@ -727,31 +734,24 @@ public class FilterView extends ViewPart {
         cmbTriggerType.setSize(349, 22);
 
         Button btnClear = new Button(grpTriggerTypes, SWT.NONE);
+        btnClear.setText("Clear");
         btnClear.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 cmbTriggerType.deselectAll();
             }
         });
-        btnClear.setText("Clear");
     }
 
     private void createMetricExpandItem(ExpandBar expandBar) {
+        cmpMetric = new Composite(expandBar, SWT.NONE);
+        cmpMetric.setLayout(new GridLayout(1, false));
+
         ExpandItem xpiMetric = new ExpandItem(expandBar, SWT.NONE);
         xpiMetric.setExpanded(true);
         xpiMetric.setText("What: Metric");
-
-        cmpMetric = new Composite(expandBar, SWT.NONE);
         xpiMetric.setControl(cmpMetric);
-        cmpMetric.setLayout(new GridLayout(1, false));
-        cmpMetric.addListener(SWT.Resize, event -> getDisplay().asyncExec(() -> {
-            if (cmpMetric.isDisposed())
-                return;
-            Point size = cmpMetric.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-            if (xpiMetric.getHeight() != size.y) {
-                xpiMetric.setHeight(size.y);
-            }
-        }));
+        xpiMetric.setHeight(xpiMetric.getControl().computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
 
         Label lblSelectTheMetric = new Label(cmpMetric, SWT.NONE);
         lblSelectTheMetric.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
@@ -759,7 +759,8 @@ public class FilterView extends ViewPart {
 
         cmbMetric = new Combo(cmpMetric, SWT.READ_ONLY);
         cmbMetric.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-        xpiMetric.setHeight(xpiMetric.getControl().computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
+
+        keepSameHeight(cmpMetric, xpiMetric);
     }
 
     /**

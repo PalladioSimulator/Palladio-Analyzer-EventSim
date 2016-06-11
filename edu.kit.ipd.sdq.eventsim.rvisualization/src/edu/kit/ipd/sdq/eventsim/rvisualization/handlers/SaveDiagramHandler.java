@@ -20,67 +20,62 @@ import edu.kit.ipd.sdq.eventsim.rvisualization.views.DiagramView;
 import edu.kit.ipd.sdq.eventsim.rvisualization.views.FilterView;
 
 /**
- * Saves the diagram displayed in the {@link FilterView} to a location specified
- * by the user.
+ * Saves the diagram displayed in the {@link FilterView} to a location specified by the user.
  * 
  * @author Benjamin Rupp
  * @author Philipp Merkle
  */
 public class SaveDiagramHandler extends AbstractHandler {
 
-	@Override
-	public Object execute(ExecutionEvent event) throws ExecutionException {
-		DiagramView view = (DiagramView) HandlerUtil
-				.getActiveWorkbenchWindow(event).getActivePage()
-				.getActivePart();
+    @Override
+    public Object execute(ExecutionEvent event) throws ExecutionException {
+        DiagramView view = (DiagramView) HandlerUtil.getActiveWorkbenchWindow(event).getActivePage().getActivePart();
 
-		exportDiagram(view.getPathToDiagramImage());
+        exportDiagram(view.getPathToDiagramImage());
 
-		return null;
-	}
+        return null;
+    }
 
-	private void exportDiagram(String pathToDiagramImage) {
+    private void exportDiagram(String pathToDiagramImage) {
 
-		Shell shell = Display.getCurrent().getActiveShell();
-		FileDialog dialog = new FileDialog(shell, SWT.SAVE);
-		dialog.setFilterNames(new String[] { "All Files (*.*)" });
-		dialog.setFilterExtensions(new String[] { "*.*" });
-		dialog.setOverwrite(true);
-		dialog.setText("Export diagram image");
+        Shell shell = Display.getCurrent().getActiveShell();
+        FileDialog dialog = new FileDialog(shell, SWT.SAVE);
+        dialog.setFilterNames(new String[] { "All Files (*.*)" });
+        dialog.setFilterExtensions(new String[] { "*.*" });
+        dialog.setOverwrite(true);
+        dialog.setText("Export diagram image");
 
-		Path sourcePath = Paths.get(pathToDiagramImage);
+        Path sourcePath = Paths.get(pathToDiagramImage);
 
-		if (sourcePath == null) {
-			return;
-		}
+        if (sourcePath == null) {
+            return;
+        }
 
-		Path fileName = sourcePath.getFileName();
+        Path fileName = sourcePath.getFileName();
 
-		if (fileName == null) {
-			return;
-		}
+        if (fileName == null) {
+            return;
+        }
 
-		String fileNameStr = fileName.toString();
-		dialog.setFileName(fileNameStr);
+        String fileNameStr = fileName.toString();
+        dialog.setFileName(fileNameStr);
 
-		String destination = dialog.open();
+        String destination = dialog.open();
 
-		if (destination == null) {
-			return;
-		}
+        if (destination == null) {
+            return;
+        }
 
-		Path destinationPath = new File(destination).toPath();
+        Path destinationPath = new File(destination).toPath();
 
-		try {
+        try {
 
-			Files.copy(sourcePath, destinationPath,
-					StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
 
-		} catch (IOException e) {
-			throw new RuntimeException(
-					"Error while exporting diagram image to " + destination, e);
-		}
+        } catch (IOException e) {
+            throw new RuntimeException("Error while exporting diagram image to " + destination, e);
+        }
 
-	}
+    }
 
 }

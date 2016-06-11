@@ -10,20 +10,19 @@ import edu.kit.ipd.sdq.eventsim.rvisualization.views.FilterView;
 
 public class ReloadHandler extends AbstractHandler {
 
-	@Override
-	public Object execute(ExecutionEvent event) throws ExecutionException {
-		FilterView view;
-		try {
-			view = (FilterView) PlatformUI.getWorkbench()
-					.getActiveWorkbenchWindow().getActivePage()
-					.showView(FilterView.ID);
-		} catch (PartInitException e) {
-			throw new ExecutionException("Could not reload measurements", e);
-		}
+    @Override
+    public Object execute(ExecutionEvent event) throws ExecutionException {
+        FilterView view;
+        try {
+            view = (FilterView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+                    .showView(FilterView.ID);
+        } catch (PartInitException e) {
+            throw new ExecutionException("Could not reload measurements", e);
+        }
 
-		view.getController().populateControls();
+        view.getController().populateControls();
 
-		return null;
-	}
+        return null;
+    }
 
 }

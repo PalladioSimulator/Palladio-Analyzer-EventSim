@@ -13,33 +13,31 @@ import edu.kit.ipd.sdq.eventsim.rvisualization.views.DiagramView;
 import edu.kit.ipd.sdq.eventsim.rvisualization.views.FilterView;
 
 /**
- * Opens a dialog that displays the R command used to generate the diagram
- * currently shown in the {@link FilterView}.
+ * Opens a dialog that displays the R command used to generate the diagram currently shown in the
+ * {@link FilterView}.
  * 
  * @author Benjamin Rupp
  * @author Philipp Merkle
  */
 public class ShowScriptHandler extends AbstractHandler {
 
-	@Override
-	public Object execute(ExecutionEvent event) throws ExecutionException {
-		DiagramView view = (DiagramView) HandlerUtil
-				.getActiveWorkbenchWindow(event).getActivePage()
-				.getActivePart();
+    @Override
+    public Object execute(ExecutionEvent event) throws ExecutionException {
+        DiagramView view = (DiagramView) HandlerUtil.getActiveWorkbenchWindow(event).getActivePage().getActivePart();
 
-		exportRCommand(view.getLastRCommand());
+        exportRCommand(view.getLastRCommand());
 
-		return null;
-	}
+        return null;
+    }
 
-	private void exportRCommand(String command) {
-		Display display = PlatformUI.getWorkbench().getDisplay();
-		Shell shell = display.getActiveShell();
+    private void exportRCommand(String command) {
+        Display display = PlatformUI.getWorkbench().getDisplay();
+        Shell shell = display.getActiveShell();
 
-		// open dialog
-		RCommandExportDialog dialog = new RCommandExportDialog(shell);
-		dialog.setCommand(command);
-		dialog.open();
-	}
+        // open dialog
+        RCommandExportDialog dialog = new RCommandExportDialog(shell);
+        dialog.setCommand(command);
+        dialog.open();
+    }
 
 }

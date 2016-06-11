@@ -18,114 +18,113 @@ import org.eclipse.ui.part.ViewPart;
  */
 public class DiagramView extends ViewPart {
 
-	public static final String ID = "edu.kit.ipd.sdq.eventsim.rvisualization.diagramview";
+    public static final String ID = "edu.kit.ipd.sdq.eventsim.rvisualization.diagramview";
 
-	private static final Logger LOG = LogManager.getLogger(DiagramView.class);
+    private static final Logger LOG = LogManager.getLogger(DiagramView.class);
 
-	/**
-	 * SWT Browser for showing diagram image.
-	 */
-	private Browser browser;
+    /**
+     * SWT Browser for showing diagram image.
+     */
+    private Browser browser;
 
-	/**
-	 * Path to the diagram image which will be displayed in the browser.
-	 */
-	private String pathToDiagramImage;
+    /**
+     * Path to the diagram image which will be displayed in the browser.
+     */
+    private String pathToDiagramImage;
 
-	/**
-	 * R command string which was used to plot the diagram.
-	 */
-	private String rCommandString;
+    /**
+     * R command string which was used to plot the diagram.
+     */
+    private String rCommandString;
 
-	/**
-	 * Create a new diagram view to show a diagram.
-	 * 
-	 * The diagram image must be set by using the
-	 * {@link #setDiagramImage(String)} method and the R command string by using
-	 * the {@link #setRCommandString(String)}.
-	 */
-	public DiagramView() {
-	}
+    /**
+     * Create a new diagram view to show a diagram.
+     * 
+     * The diagram image must be set by using the {@link #setDiagramImage(String)} method and the R
+     * command string by using the {@link #setRCommandString(String)}.
+     */
+    public DiagramView() {
+    }
 
-	public String getPathToDiagramImage() {
-		return pathToDiagramImage;
-	}
+    public String getPathToDiagramImage() {
+        return pathToDiagramImage;
+    }
 
-	public String getLastRCommand() {
-		return rCommandString;
-	}
+    public String getLastRCommand() {
+        return rCommandString;
+    }
 
-	@Override
-	public final void createPartControl(final Composite parent) {
-		parent.setLayout(new FillLayout());
+    @Override
+    public final void createPartControl(final Composite parent) {
+        parent.setLayout(new FillLayout());
 
-		// TODO: Check whether the browser is able to show SVG files!?
-		// If SVG support is needed, use SWT.Mozilla (XULRunner)?!
-		this.browser = new Browser(parent, SWT.NONE);
-	}
+        // TODO: Check whether the browser is able to show SVG files!?
+        // If SVG support is needed, use SWT.Mozilla (XULRunner)?!
+        this.browser = new Browser(parent, SWT.NONE);
+    }
 
-	@Override
-	public void setFocus() {
-	}
+    @Override
+    public void setFocus() {
+    }
 
-	@Override
-	public final void dispose() {
-		removeDiagramImage(this.pathToDiagramImage);
-	}
+    @Override
+    public final void dispose() {
+        removeDiagramImage(this.pathToDiagramImage);
+    }
 
-	/**
-	 * Set views diagram image.
-	 * 
-	 * @param pathToImage
-	 *            Path to an image.
-	 */
-	public final void setDiagramImage(final String pathToImage) {
+    /**
+     * Set views diagram image.
+     * 
+     * @param pathToImage
+     *            Path to an image.
+     */
+    public final void setDiagramImage(final String pathToImage) {
 
-		this.browser.setUrl(pathToImage);
+        this.browser.setUrl(pathToImage);
 
-		if (this.pathToDiagramImage != null) {
-			removeDiagramImage(this.pathToDiagramImage);
-		}
-		this.pathToDiagramImage = pathToImage;
+        if (this.pathToDiagramImage != null) {
+            removeDiagramImage(this.pathToDiagramImage);
+        }
+        this.pathToDiagramImage = pathToImage;
 
-	}
+    }
 
-	/**
-	 * Set R command string which was used to plot the diagram.
-	 * 
-	 * @param rCmd
-	 *            R command string.
-	 */
-	public final void setRCommandString(final String rCmd) {
-		this.rCommandString = rCmd;
-	}
+    /**
+     * Set R command string which was used to plot the diagram.
+     * 
+     * @param rCmd
+     *            R command string.
+     */
+    public final void setRCommandString(final String rCmd) {
+        this.rCommandString = rCmd;
+    }
 
-	/**
-	 * Set views title.
-	 * 
-	 * @param title
-	 *            View title.
-	 */
-	public final void setViewTitle(final String title) {
-		this.setPartName(title);
-	}
+    /**
+     * Set views title.
+     * 
+     * @param title
+     *            View title.
+     */
+    public final void setViewTitle(final String title) {
+        this.setPartName(title);
+    }
 
-	/**
-	 * Remove a stored diagram image.
-	 * 
-	 * @param path
-	 *            Path to the diagram image to remove.
-	 */
-	private void removeDiagramImage(final String path) {
+    /**
+     * Remove a stored diagram image.
+     * 
+     * @param path
+     *            Path to the diagram image to remove.
+     */
+    private void removeDiagramImage(final String path) {
 
-		if (path == null || path.isEmpty()) {
-			return;
-		}
+        if (path == null || path.isEmpty()) {
+            return;
+        }
 
-		File fileToRemove = new File(path);
-		if (fileToRemove.exists() && !fileToRemove.isDirectory()) {
-			fileToRemove.delete();
-		}
+        File fileToRemove = new File(path);
+        if (fileToRemove.exists() && !fileToRemove.isDirectory()) {
+            fileToRemove.delete();
+        }
 
-	}
+    }
 }

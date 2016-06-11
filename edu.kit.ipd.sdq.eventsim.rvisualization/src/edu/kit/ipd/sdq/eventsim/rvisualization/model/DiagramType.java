@@ -16,6 +16,7 @@ public enum DiagramType {
     private boolean aggregating;
 
     private DiagramType(String name, boolean aggregating) {
+        this.name = name;
         this.aggregating = aggregating;
     }
 

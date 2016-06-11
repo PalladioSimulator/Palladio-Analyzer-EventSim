@@ -46,9 +46,6 @@ public final class GUIStrings {
         metrics.put("TIME_SPAN", "Time Span (Response Time)");
         metrics.put("WAITING_TIME", "Waiting Time for Passive Resources");
 
-        diagramTypes = new HashMap<DiagramType, String>();
-        diagramTypes.put(DiagramType.HISTOGRAM, "Histogram");
-        diagramTypes.put(DiagramType.POINT_GRAPH, "X/Y Point Graph");
     }
 
     /**

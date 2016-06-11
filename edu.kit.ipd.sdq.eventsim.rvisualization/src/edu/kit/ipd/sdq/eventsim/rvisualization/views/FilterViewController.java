@@ -84,7 +84,8 @@ public final class FilterViewController {
      * @return Measuring point pair.
      */
     public Pair<Entity> getMeasuringPoints() {
-        Pair<Entity> mp = new Pair<>(filterView.getSelectedMeasuringPointFrom(), filterView.getSelectedMeasuringPointTo());
+        Pair<Entity> mp = new Pair<>(filterView.getSelectedMeasuringPointFrom(),
+                filterView.getSelectedMeasuringPointTo());
         return mp;
     }
 
@@ -117,31 +118,9 @@ public final class FilterViewController {
 
     /**
      * Set the currently available diagram types.
-     * 
-     * Converts {@link DiagramType}s to GUI strings.
-     * 
-     * @see GUIStrings
-     * 
-     * @param diagramTypes
-     *            List of all available diagram types with their enums (
-     *            {@link edu.kit.ipd.sdq.eventsim.rvisualization.model.DiagramType} ).
      */
-    public void setDiagramTypes(final List<DiagramType> diagramTypes) {
-        String[] types = GUIStrings.getGUIStrings(GUIStrings.getDiagramTypes(), diagramTypes);
-        filterView.setDiagramTypes(types);
-    }
-
-    /**
-     * Get selected diagram type.
-     * 
-     * Converts GUI string to the technical string used in R file.
-     * 
-     * @return Currently selected diagram type ({@link DiagramType}).
-     * @throws Exception
-     *             If an invalid technical name was used.
-     */
-    public DiagramType getDiagramType() {
-        return GUIStrings.getTechnicalName(GUIStrings.getDiagramTypes(), filterView.getSelectedDiagramType());
+    public void setDiagramTypesFromEnum() {
+        filterView.setDiagramTypes(DiagramType.values());
     }
 
     /**

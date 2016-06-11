@@ -67,7 +67,7 @@ public class FilterView extends ViewPart {
     private ComboViewer cmbAssemblyCtx;
     private ComboViewer cmbMeasuringPointFrom;
     private ComboViewer cmbMeasuringPointTo;
-    private Combo cmbDiagramType; // TOOD use combo viewer
+    private ComboViewer cmbDiagramType;
 
     private Spinner spnTriggerFrom;
     private Spinner spnTriggerTo;
@@ -108,7 +108,7 @@ public class FilterView extends ViewPart {
         @Override
         public String getText(Object element) {
             DiagramType t = (DiagramType) element;
-            return t.toString();
+            return t.getName();
         }
 
     };
@@ -136,8 +136,8 @@ public class FilterView extends ViewPart {
      */
     public final void setMetrics(final String[] metrics) {
         cmbMetric.setItems(metrics);
-        cmbMetric.select(0);
         if (metrics.length > 0) {
+            cmbMetric.select(0);
             Helper.setEnabledRecursive(cmpMetric, true);
         } else {
             Helper.setEnabledRecursive(cmpMetric, false);
@@ -238,8 +238,9 @@ public class FilterView extends ViewPart {
 
         boolean enabled = mp.length > 0 ? true : false;
         cmbMeasuringPointTo.getControl().setEnabled(enabled);
-        if (enabled) {
-            // select first element
+
+        // select first element
+        if (mp.length > 0) {
             ISelection selection = new StructuredSelection(mp[0]);
             cmbMeasuringPointTo.setSelection(selection);
         }
@@ -270,9 +271,14 @@ public class FilterView extends ViewPart {
      *            List of all available diagram types with their enums (
      *            {@link edu.kit.ipd.sdq.eventsim.rvisualization.model.DiagramType} ).
      */
-    public final void setDiagramTypes(final String[] diagramTypes) {
-        cmbDiagramType.setItems(diagramTypes);
-        cmbDiagramType.select(0);
+    public final void setDiagramTypes(final DiagramType[] diagramTypes) {
+        cmbDiagramType.setInput(diagramTypes);
+
+        // select first entry
+        if (diagramTypes.length > 0) {
+            ISelection selection = new StructuredSelection(diagramTypes[0]);
+            cmbDiagramType.setSelection(selection);
+        }
     }
 
     /**
@@ -371,8 +377,8 @@ public class FilterView extends ViewPart {
      * @throws Exception
      *             If an invalid technical name was used.
      */
-    public final String getSelectedDiagramType() {
-        return cmbDiagramType.getText();
+    public final DiagramType getSelectedDiagramType() {
+        return (DiagramType) cmbDiagramType.getStructuredSelection().getFirstElement();
     }
 
     /**
@@ -508,11 +514,15 @@ public class FilterView extends ViewPart {
         Composite cmpSouth = new Composite(cmpRoot, SWT.NONE);
         cmpSouth.setLayoutData(BorderLayout.SOUTH);
         cmpSouth.setLayout(new GridLayout(2, false));
+
         Label lblDiagramType = new Label(cmpSouth, SWT.NONE);
         lblDiagramType.setText("Diagram Type:");
 
-        cmbDiagramType = new Combo(cmpSouth, SWT.READ_ONLY);
-        cmbDiagramType.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+        cmbDiagramType = new ComboViewer(cmpSouth, SWT.READ_ONLY);
+        cmbDiagramType.getCombo().setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+        cmbDiagramType.setContentProvider(ArrayContentProvider.getInstance());
+        cmbDiagramType.setLabelProvider(DIAGRAM_TYPE_LABEL_PROVIDER);
+
         btnPlot = new Button(cmpSouth, SWT.NONE);
         btnPlot.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
         btnPlot.setImage(

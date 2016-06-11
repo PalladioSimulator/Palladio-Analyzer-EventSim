@@ -191,7 +191,7 @@ public class Controller {
 
         try {
 
-            DiagramType diagramType = viewCtrl.getDiagramType();
+            DiagramType diagramType = view.getSelectedDiagramType();
             String diagramTitle = createDiagramTitle();
             String shortDiagramTitle = createShortDiagramTitle();
             String diagramSubTitle = createDiagramSubTitle();
@@ -200,7 +200,7 @@ public class Controller {
             checkTimespanValues(view.getSelectedTimeSpanLower(), view.getSelectedTimeSpanUpper());
 
             filterSet = createFilterSet();
-            printFilterInfo(filterSet, "Filter Set which is used to plot a " + diagramType + ".");
+            printFilterInfo(filterSet, "Filter Set which is used to plot a " + diagramType.getName() + ".");
 
             // Save the diagram image in temp directory.
             String diagramImageFileExtension = ".svg";
@@ -406,8 +406,7 @@ public class Controller {
     }
 
     private void populateDiagramTypes() {
-        List<DiagramType> types = Arrays.asList(DiagramType.values());
-        viewCtrl.setDiagramTypes(types);
+        viewCtrl.setDiagramTypesFromEnum();
     }
 
     private void populateMetrics() {
@@ -566,8 +565,7 @@ public class Controller {
         }
 
         try {
-            diagramTitle += " (" + GUIStrings.getGUIString(GUIStrings.getDiagramTypes(), viewCtrl.getDiagramType())
-                    + ")";
+            diagramTitle += " (" + view.getSelectedDiagramType().getName() + ")";
         } catch (Exception e) {
             LOG.error("Cannot get selected diagram type " + "to create diagram title.");
         }

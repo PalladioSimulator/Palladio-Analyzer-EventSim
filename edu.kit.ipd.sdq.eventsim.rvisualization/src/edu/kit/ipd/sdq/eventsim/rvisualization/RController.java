@@ -16,6 +16,10 @@ import edu.kit.ipd.sdq.eventsim.measurement.r.connection.ConnectionRegistry;
 import edu.kit.ipd.sdq.eventsim.measurement.r.connection.RserveConnection;
 import edu.kit.ipd.sdq.eventsim.measurement.r.jobs.EvaluationException;
 import edu.kit.ipd.sdq.eventsim.measurement.r.jobs.EvaluationHelper;
+import edu.kit.ipd.sdq.eventsim.rvisualization.ggplot.Aesthetic;
+import edu.kit.ipd.sdq.eventsim.rvisualization.ggplot.Geom;
+import edu.kit.ipd.sdq.eventsim.rvisualization.ggplot.Ggplot;
+import edu.kit.ipd.sdq.eventsim.rvisualization.ggplot.Theme;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.DiagramType;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.Entity;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.MeasurementFilter;
@@ -503,24 +507,28 @@ public final class RController {
      */
     private String getDiagramSpecificPlotCommand(final DiagramType type, final String rPlotDataVar,
             final String rImageVar, final String diagramTitle, final String diagramSubTitle) {
-
-        String rCmd = "";
+        Ggplot plot = new Ggplot().data(rPlotDataVar);
 
         switch (type) {
-
         case HISTOGRAM:
-            rCmd += getRCommandForHistogramPlot(rPlotDataVar, rImageVar, diagramTitle, diagramSubTitle);
+            plot.map(Aesthetic.X, "value");
+            plot.add(Geom.HISTOGRAM.asLayer());
             break;
-
         case POINT_GRAPH:
-            rCmd += getRCommandForLineGraphPlot(rPlotDataVar, rImageVar, diagramTitle, diagramSubTitle);
+            plot.map(Aesthetic.X, "when").map(Aesthetic.Y, "value");
+            plot.add(Geom.POINT.asLayer());
             break;
-
+        case CDF:
+            plot.map(Aesthetic.X, "value");
+            plot.add(Geom.ECDF.asLayer());
+            break;
         default:
-            throw new RuntimeException("Diagram type is not supported! " + "Diagram type was " + type + ".");
+            throw new RuntimeException("Unsupported diagram type: " + type);
         }
 
-        return rCmd;
+        plot.add(new Theme("theme")); // TODO
+        String title = createTitle(diagramTitle, diagramSubTitle);
+        return rImageVar + "=" + plot.toPlot() + " + " + title + "; ";
     }
 
     /**
@@ -599,49 +607,8 @@ public final class RController {
         return rCmd;
     }
 
-    /**
-     * Get R command string for plotting a histogram.
-     * 
-     * @param dataVar
-     *            Variable name of the data table stored in R which includes the data for plotting
-     *            the diagram.
-     * @param imgVar
-     *            Variable name of the R variable which contains the ggplot data and is used for
-     *            exporting the plot as an image.
-     * @param diagramTitle
-     *            Diagram title.
-     * @param diagramSubTitle
-     *            Diagram sub title.
-     * @return R command as string.
-     */
-    private String getRCommandForHistogramPlot(final String dataVar, final String imgVar, final String diagramTitle,
-            final String diagramSubTitle) {
-
-        return imgVar + "=qplot(value, data=" + dataVar + ", geom='histogram') + " + DIAGRAM_THEME + " + "
-                + "ggtitle(expression(atop('" + diagramTitle + "', " + "atop(italic('" + diagramSubTitle
-                + "'), ''))));";
-    }
-
-    /**
-     * Get R command string for plotting a line graph.
-     * 
-     * @param dataVar
-     *            Variable name of the data table stored in R which includes the data for plotting
-     *            the diagram.
-     * @param imgVar
-     *            Variable name of the R variable which contains the ggplot data and is used for
-     *            exporting the plot as an image.
-     * @param diagramTitle
-     *            Diagram title.
-     * @param diagramSubTitle
-     *            Diagram sub title.
-     * @return R command as string.
-     */
-    private String getRCommandForLineGraphPlot(final String dataVar, final String imgVar, final String diagramTitle,
-            final String diagramSubTitle) {
-        return imgVar + "=qplot(x=when, y=value, data=" + dataVar + ", geom='point') + " + DIAGRAM_THEME + " + "
-                + "ggtitle(expression(atop('" + diagramTitle + "', " + "atop(italic('" + diagramSubTitle
-                + "'), ''))));";
+    private String createTitle(String title, String subtitle) {
+        return "ggtitle(expression(atop('" + title + "', " + "atop(italic('" + subtitle + "'), ''))))";
     }
 
     /**

@@ -336,14 +336,10 @@ public class Controller {
      * @return Short diagram title.
      */
     private String createShortDiagramTitle() {
-
-        String diagramTitle = "";
-        Entity mp = selectionModel.getMeasuringPointFrom();
-
-        // diagramTitle += GUIStrings.getGUIString(GUIStrings.getMetrics(), viewCtrl.getMetric());
-        diagramTitle += selectionModel.getMetric().getTranslation();
-
-        diagramTitle += " of " + mp;
+        Entity measuringPoint = selectionModel.getMeasuringPointFrom();
+        String diagramTitle = selectionModel.getMetric().getTranslation();
+        diagramTitle += " of " + measuringPoint;
+        // TODO also consider "to" measuring point
 
         return diagramTitle;
     }
@@ -354,9 +350,7 @@ public class Controller {
      * @return Diagram subtitle.
      */
     private String createDiagramSubTitle() {
-        String diagramSubTitle = "";
-
-        diagramSubTitle += "Simulation time span: ";
+        String diagramSubTitle = "Simulation time span: ";
         diagramSubTitle += selectionModel.getSimulationTimeLower();
         diagramSubTitle += " - ";
         diagramSubTitle += selectionModel.getSimulationTimeUpper();
@@ -554,6 +548,7 @@ public class Controller {
             model.setTriggerInstances(null);
             TranslatableEntity triggerType = selectionModel.getTriggerType();
 
+            // return if trigger instance selection has not been enabled by the user
             if (!selectionModel.isTriggerInstanceSelectionEnabled()) {
                 return;
             }
@@ -572,20 +567,17 @@ public class Controller {
             }
 
             if (numTriggerInstances <= MAX_TRIGGER_INSTANCES) {
+                // hide trigger warning, if shown
                 view.showTriggerWarning(false, MAX_TRIGGER_INSTANCES, numTriggerInstances);
-                // view.enableTriggerInstanceComboBox(true); // TODO necessary?
-                // view.setTriggerInstanceNumber(Integer.toString(numTriggerInstances));
 
-                // Set trigger instances.
+                // reload trigger instances from R
                 List<Entity> triggerInstances = rCtrl.getTriggerInstances();
                 model.setTriggerInstances(triggerInstances);
-                // viewCtrl.setTriggerInstances(triggerInstances);
 
             } else {
-                // view.setTriggerInstanceNumber(Integer.toString(numTriggerInstances), true);
                 model.setTriggerInstances(null);
 
-                // Show user info with the number of available instances.
+                // show trigger warning with the number of trigger instances currently selected
                 view.showTriggerWarning(true, MAX_TRIGGER_INSTANCES, numTriggerInstances);
             }
         }

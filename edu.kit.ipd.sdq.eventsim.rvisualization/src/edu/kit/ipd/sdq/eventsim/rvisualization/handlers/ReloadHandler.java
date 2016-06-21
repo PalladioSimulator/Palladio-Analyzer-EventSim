@@ -8,6 +8,13 @@ import org.eclipse.ui.PlatformUI;
 
 import edu.kit.ipd.sdq.eventsim.rvisualization.views.FilterView;
 
+/**
+ * Refreshes the {@link FilterView} by populating their controls, mainly combo boxes, from latest
+ * measurements.
+ * 
+ * @author Philipp Merkle
+ *
+ */
 public class ReloadHandler extends AbstractHandler {
 
     @Override

@@ -2,14 +2,8 @@ package edu.kit.ipd.sdq.eventsim.rvisualization.model;
 
 public class Entity {
 
-    /**
-     * Id of the entity.
-     */
     private final String id;
 
-    /**
-     * Name of the entity.
-     */
     private final String name;
 
     public Entity(final String id, String name) {

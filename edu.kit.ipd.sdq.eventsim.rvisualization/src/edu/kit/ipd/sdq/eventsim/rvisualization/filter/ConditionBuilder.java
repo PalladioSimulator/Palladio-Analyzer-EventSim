@@ -92,37 +92,9 @@ public class ConditionBuilder {
         return "'" + string + "'";
     }
 
-    // public String build() {
-    // String filter = "";
-    // boolean excludeEmptyConditions = false; // TODO true
-    // for (int i = conditions.length - 1; i >= 0; i--) {
-    // if (excludeEmptyConditions) {
-    // if (conditions[i].matches("unique\\(.*\\)")) {
-    // continue;
-    // } else {
-    // excludeEmptyConditions = false;
-    // }
-    // }
-    // filter = conditions[i] + "," + filter;
-    // }
-    // // remove trailing ","
-    // if (filter.length() > 0) {
-    // filter = filter.substring(0, filter.length() - 1);
-    // }
-    // System.out.println(".(" + filter + ")");
-    // return ".(" + filter + ")";
-    // }
-
     public String build() {
         String[] conditionsArray = conditions.toArray(new String[conditions.size()]);
         return String.join(" & ", conditionsArray);
     }
-
-    // public static String createKeys(String dataTableVar) {
-    // String cmd = "setkey(" + dataTableVar
-    // + ", what, where.first.id, where.second.id, assemblycontext.id, who.type, who.id)";
-    // System.out.println(cmd);
-    // return cmd;
-    // }
 
 }

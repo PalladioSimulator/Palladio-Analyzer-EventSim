@@ -46,16 +46,9 @@ public final class RController {
 
     private static final String[] REQUIRED_LIBRARIES = new String[] { "data.table", "ggplot2", "XML", "svglite" };
 
-    private static final String DIAGRAM_THEME = "theme()";
-
     private FilterModel model;
 
     private FilterSelectionModel selectionModel;
-
-    // "theme("
-    // + "axis.text=element_text(size=20),"
-    // + "axis.title=element_text(size=22, face='bold'),"
-    // + "plot.title=element_text(size=24))";
 
     public RController(FilterModel model, FilterSelectionModel selectionModel) {
         this.model = model;
@@ -230,8 +223,7 @@ public final class RController {
             String[] ids = columnList.at("id").asStrings();
             String[] names = columnList.at("name").asStrings();
 
-            // Iterate over all instances and save information about name and
-            // id.
+            // Iterate over all instances and save information about name and id.
             for (int i = 0; i < ids.length; i++) {
                 triggerInstances.add(new Entity(ids[i], names[i]));
             }
@@ -326,11 +318,6 @@ public final class RController {
 
         List<Entity> assemblyContexts = new ArrayList<>();
         try {
-            // String rCmd = "unique(" + CONTENT_VARIABLE + "[complete.cases(" + CONTENT_VARIABLE +
-            // "), list("
-            // + "type=assemblycontext.type, " + "id=assemblycontext.id, " +
-            // "name=assemblycontext.name" + ")])";
-
             RList columnList = evalRCommand(rCmd).asList();
             if (columnList.size() == 0) {
                 return Collections.emptyList();
@@ -338,8 +325,7 @@ public final class RController {
             String[] ids = columnList.at("id").asStrings();
             String[] names = columnList.at("name").asStrings();
 
-            // Iterate over all entries and save information about name, id and
-            // type.
+            // Iterate over all entries and save information about name, id and type.
             for (int i = 0; i < ids.length; i++) {
                 assemblyContexts.add(new Entity(ids[i], names[i]));
             }

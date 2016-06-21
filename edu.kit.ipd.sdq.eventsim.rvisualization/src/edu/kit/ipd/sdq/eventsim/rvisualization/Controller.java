@@ -5,7 +5,6 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 
@@ -34,7 +33,20 @@ import edu.kit.ipd.sdq.eventsim.rvisualization.views.DiagramView;
 import edu.kit.ipd.sdq.eventsim.rvisualization.views.FilterView;
 
 /**
- * Controls data exchange between R and Application.
+ * Glues together the {@link FilterView} and {@link DiagramView} on the one side, and the
+ * {@link FilterModel} and {@link FilterSelectionModel} on the other side.
+ * <p>
+ * Responsibilities of this controller include:
+ * <ul>
+ * <li>observe {@link FilterSelectionModel} for selection events (mainly triggered by the user), and
+ * react to the selection by modifying the {@link FilterModel}. Data binding established by the
+ * {@link FilterView} ensures that the view reflects the model at any time. Explicit view updates
+ * triggered by this controller are not required, usually. Likewise, it is not necessary to query
+ * the view's (selection) state because the (selection) model provides that information.</li>
+ * <li>populate the {@link FilterModel} from measurements stored in R with the help of the
+ * {@link RController}.</li>
+ * <li>trigger diagram plots in R with the help of the {@link RController}.</li>
+ * </ul>
  * 
  * @author Benjamin Rupp
  * @author Philipp Merkle

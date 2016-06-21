@@ -1,4 +1,4 @@
-package edu.kit.ipd.sdq.eventsim.rvisualization.gui;
+package edu.kit.ipd.sdq.eventsim.rvisualization.views;
 
 import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;

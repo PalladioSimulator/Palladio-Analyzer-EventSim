@@ -1,11 +1,12 @@
 package edu.kit.ipd.sdq.eventsim.rvisualization;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Matcher;
 
 import org.apache.log4j.LogManager;
@@ -13,6 +14,7 @@ import org.apache.log4j.Logger;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -22,15 +24,14 @@ import edu.kit.ipd.sdq.eventsim.measurement.r.connection.ConnectionListener;
 import edu.kit.ipd.sdq.eventsim.measurement.r.connection.ConnectionRegistry;
 import edu.kit.ipd.sdq.eventsim.measurement.r.connection.ConnectionStatusListener;
 import edu.kit.ipd.sdq.eventsim.measurement.r.connection.RserveConnection;
-import edu.kit.ipd.sdq.eventsim.rvisualization.gui.ErrorDialog;
-import edu.kit.ipd.sdq.eventsim.rvisualization.gui.GUIStrings;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.DiagramType;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.Entity;
-import edu.kit.ipd.sdq.eventsim.rvisualization.model.MeasurementFilter;
-import edu.kit.ipd.sdq.eventsim.rvisualization.model.Pair;
+import edu.kit.ipd.sdq.eventsim.rvisualization.model.FilterModel;
+import edu.kit.ipd.sdq.eventsim.rvisualization.model.FilterSelectionModel;
+import edu.kit.ipd.sdq.eventsim.rvisualization.model.TranslatableEntity;
+import edu.kit.ipd.sdq.eventsim.rvisualization.util.Procedure;
 import edu.kit.ipd.sdq.eventsim.rvisualization.views.DiagramView;
 import edu.kit.ipd.sdq.eventsim.rvisualization.views.FilterView;
-import edu.kit.ipd.sdq.eventsim.rvisualization.views.FilterViewController;
 
 /**
  * Controls data exchange between R and Application.
@@ -43,14 +44,20 @@ public class Controller {
 
     private static final Logger LOG = LogManager.getLogger(Controller.class);
 
-    private RController rCtrl;
-    private FilterViewController viewCtrl;
+    private FilterModel model;
+
+    private FilterSelectionModel selectionModel;
+
     private FilterView view;
+
+    private RController rCtrl;
+
+    private SelectionHandler selectionHandler = new SelectionHandler();
 
     /**
      * Maximum number of trigger instances to show in a combo box.
      */
-    private static final int MAX_NUMBER_OF_TRIGGER_INSTANCES_TO_SHOW = 15;
+    private static final int MAX_TRIGGER_INSTANCES = 1_000;
 
     /**
      * If a non-aggregated diagram (e.g. a line graph) has more than DIAGRAM_SIZE_LIMIT values, a
@@ -59,7 +66,9 @@ public class Controller {
      */
     private static final int DIAGRAM_SIZE_LIMIT = 10_000;
 
-    private boolean ignoreSelectionEvents;
+    private static final String DIAGRAM_FILE_PREFIX = "diagram_";
+
+    private static final String DIAGRAM_FILE_EXTENSION = ".svg";
 
     /**
      * Create an application controller.
@@ -67,32 +76,293 @@ public class Controller {
      * The application controller creates a RController to manage the R connection and a
      * MeasurementView to open the main SWT dialog.
      */
-    public Controller(FilterViewController viewController) {
-        LOG.trace("Set up RController ...");
-        viewCtrl = viewController;
-        view = viewCtrl.getView();
-        rCtrl = new RController();
+    public Controller(FilterView view, FilterSelectionModel selectionModel, FilterModel model) {
+        this.view = view;
+        this.selectionModel = selectionModel;
+        this.model = model;
 
+        rCtrl = new RController(model, selectionModel);
+
+        // observe model to disable empty controls (enable non-empty controls, respectively)
+        model.addPropertyChangeListener(new DisableEmptyControlsHandler());
+        model.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                boolean enabled = model.getSimulationTimeMax() > model.getSimulationTimeMin();
+                view.enableSimulationTimeComposite(enabled);
+            }
+        });
+
+        // observe selection model and react to selection events
+        selectionModel.addPropertyChangeListener(selectionHandler);
+
+        // observe selection model to enable/disable plot button according to current selection
+        selectionModel.addPropertyChangeListener(event -> enableOrDisablePlotButton());
     }
 
     public final void viewInitialized() {
         // initial population
-        populateControls();
+        withBusyCursor(() -> reload());
 
-        populateControlsOnConnectOrDisconnect();
+        // setup handler that triggers reload on connect/disconnect events
+        reloadOnConnectOrDisconnect();
     }
 
-    private void populateControlsOnConnectOrDisconnect() {
+    public final void reload() {
+        model.clear();
+        selectionModel.clear();
+
+        if (rCtrl.isConnected()) {
+            rCtrl.initialize();
+
+            reloadMeasurementsCount();
+            reloadMemoryConsumption();
+            reloadDiagramTypes();
+            selectionHandler.reloadMetrics();
+            reloadSimulationTimeBounds();
+
+            selectFirstMetric();
+            selectFirstDiagramType();
+        } else {
+            view.setMeasurementsCount(0);
+            view.setMemoryConsmption(0);
+        }
+    }
+
+    private void reloadMeasurementsCount() {
+        int count = rCtrl.getMeasurementsCount();
+        view.setMeasurementsCount(count);
+    }
+
+    private void reloadMemoryConsumption() {
+        int consumption = rCtrl.getMemoryConsumptionInMB();
+        view.setMemoryConsmption(consumption);
+    }
+
+    /**
+     * Trigger time span reset.
+     * 
+     * Default values from RDS file will be delegated to the {@link gui.FilterViewController}.
+     */
+    private final void reloadSimulationTimeBounds() {
+        int min = rCtrl.getSimulationTimeMin();
+        int max = rCtrl.getSimulationTimeMax();
+        model.setSimulationTimeMin(min);
+        model.setSimulationTimeMax(max);
+
+        selectionModel.setSimulationTimeLower(min);
+        selectionModel.setSimulationTimeUpper(max);
+    }
+
+    private void reloadDiagramTypes() {
+        List<TranslatableEntity> diagramTypes = new ArrayList<>();
+        for (DiagramType type : DiagramType.values()) {
+            // TODO translation unused, currently
+            diagramTypes.add(new TranslatableEntity(type.name(), type.getName()));
+        }
+        model.setDiagramTypes(diagramTypes);
+    }
+
+    private void enableOrDisablePlotButton() {
+        Entity mpFrom = selectionModel.getMeasuringPointFrom();
+        Entity mpTo = selectionModel.getMeasuringPointTo();
+
+        boolean hasMeasuringPointTo = model.getMeasuringPointsTo() == null ? false
+                : !model.getMeasuringPointsTo().isEmpty();
+
+        if (mpFrom != null && !hasMeasuringPointTo) {
+            view.enablePlotButton(true);
+        } else if (mpFrom != null && mpTo != null) {
+            view.enablePlotButton(true);
+        } else {
+            view.enablePlotButton(false);
+        }
+    }
+
+    private void selectFirstMetric() {
+        List<TranslatableEntity> metrics = model.getMetrics();
+        if (metrics != null && !metrics.isEmpty()) {
+            selectionModel.setMetric(metrics.get(0));
+        }
+    }
+
+    private void selectFirstDiagramType() {
+        List<TranslatableEntity> types = model.getDiagramTypes();
+        if (types != null && !types.isEmpty()) {
+            selectionModel.setDiagramType(types.get(0));
+        }
+    }
+
+    public final void resetSimulationTimeBounds() {
+        int min = model.getSimulationTimeMin();
+        int max = model.getSimulationTimeMax();
+
+        selectionModel.setSimulationTimeLower(min);
+        selectionModel.setSimulationTimeUpper(max);
+    }
+
+    public void clearSelectionTriggerTypes() {
+        clearSelectionTriggerInstances();
+        selectionModel.setTriggerType(null);
+    }
+
+    public void clearSelectionTriggerInstances() {
+        selectionModel.setTriggerInstance(null);
+    }
+
+    /**
+     * Plots the diagram according to the current {@link FilterSelectionModel}. The generated
+     * diagram will be opened in a new {@link DiagramView}.
+     */
+    public final void plotDiagram() {
+        withBusyCursor(() -> plotDiagramInternal());
+    }
+
+    private void plotDiagramInternal() {
+        TranslatableEntity selectedDiagramType = selectionModel.getDiagramType();
+        DiagramType diagramType = DiagramType.valueOf(selectedDiagramType.getName());
+
+        // ensure that lower simulation time <= upper simulation time
+        throwExceptionOnIncorrectSimulationTimeBounds();
+
+        // Check whether the SVG output gets too huge and show warning.
+        int diagramSize = rCtrl.getNumberOfDiagramValues();
+        LOG.trace("DIAGRAM SIZE: " + diagramSize);
+
+        if (!diagramType.isAggregating() && diagramSize > DIAGRAM_SIZE_LIMIT) {
+
+            MessageDialog dialog = new MessageDialog(Display.getCurrent().getActiveShell(), "Huge diagram output", null,
+                    "The diagram plot will contain more than " + DIAGRAM_SIZE_LIMIT + " values (" + diagramSize
+                            + "). This may cause an SVG 'Huge output " + "error'. Do you want to continue or "
+                            + "restrict the time span to reduce the number " + "of values used for the diagram plot?",
+                    MessageDialog.WARNING, new String[] { "No, cancel diagram plot", "Yes, plot diagram" }, 0);
+
+            int result = dialog.open();
+
+            // Cancel plot process if user selected 'No'.
+            if (result == 0) {
+                return;
+            }
+
+        }
+
+        // Save the diagram image in temp directory.
+        String diagramPath = createTemporaryDiagramFilePath();
+        LOG.trace("DIAGRAM PATH: " + diagramPath);
+
+        // plot diagram to temporary file
+        String title = createShortDiagramTitle();
+        String subTitle = createDiagramSubTitle();
+        String plotCommand = rCtrl.plotDiagramToFile(diagramType, diagramPath, title, subTitle);
+
+        // Open new view to display the diagram.
+        String viewTitle = createDiagramTitle();
+        try {
+            openDiagramView(viewTitle, diagramPath, plotCommand);
+        } catch (PartInitException e) {
+            LOG.error("Could not open diagram view", e);
+        }
+    }
+
+    private void throwExceptionOnIncorrectSimulationTimeBounds() {
+        int lower = selectionModel.getSimulationTimeLower();
+        int upper = selectionModel.getSimulationTimeUpper();
+        if (lower > upper) {
+            throw new RuntimeException(
+                    "Cannot plot diagram with simulation time lower bound being greater than upper bound");
+        }
+    }
+
+    private String createTemporaryDiagramFilePath() {
+        File tempFile = null;
+        try {
+            tempFile = File.createTempFile(DIAGRAM_FILE_PREFIX, DIAGRAM_FILE_EXTENSION);
+        } catch (IOException e) {
+            throw new RuntimeException("Could not create temporary file for diagram image", e);
+        }
+        String imagePath = tempFile.getAbsolutePath();
+
+        // Replace '\' with '/' because R cannot handle backslashes.
+        imagePath = imagePath.replaceAll(Matcher.quoteReplacement("\\"), "/");
+
+        return imagePath;
+    }
+
+    private void openDiagramView(String title, String imagePath, String rCommand) throws PartInitException {
+        DiagramView view = (DiagramView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+                .showView(DiagramView.ID, title, IWorkbenchPage.VIEW_ACTIVATE);
+        view.setViewTitle(title);
+        view.setDiagramImage(imagePath);
+        view.setRCommandString(rCommand);
+    }
+
+    /**
+     * Create the diagram title based on the filter settings.
+     * 
+     * @return Diagram title.
+     */
+    private String createDiagramTitle() {
+
+        String diagramTitle = "";
+
+        diagramTitle += createShortDiagramTitle();
+
+        DiagramType diagramType = DiagramType.valueOf(selectionModel.getDiagramType().getName());
+        String diagramName = diagramType.getShortName();
+        try {
+            diagramTitle += " [" + diagramName + "]";
+        } catch (Exception e) {
+            LOG.error("Cannot get selected diagram type " + "to create diagram title.");
+        }
+
+        return diagramTitle;
+    }
+
+    /**
+     * Create the short version of the diagram title.
+     * 
+     * @return Short diagram title.
+     */
+    private String createShortDiagramTitle() {
+
+        String diagramTitle = "";
+        Entity mp = selectionModel.getMeasuringPointFrom();
+
+        // diagramTitle += GUIStrings.getGUIString(GUIStrings.getMetrics(), viewCtrl.getMetric());
+        diagramTitle += selectionModel.getMetric().getTranslation();
+
+        diagramTitle += " of " + mp;
+
+        return diagramTitle;
+    }
+
+    /**
+     * Create the diagram subtitle based on the filter settings.
+     * 
+     * @return Diagram subtitle.
+     */
+    private String createDiagramSubTitle() {
+        String diagramSubTitle = "";
+
+        diagramSubTitle += "Simulation time span: ";
+        diagramSubTitle += selectionModel.getSimulationTimeLower();
+        diagramSubTitle += " - ";
+        diagramSubTitle += selectionModel.getSimulationTimeUpper();
+
+        return diagramSubTitle;
+    }
+
+    private void reloadOnConnectOrDisconnect() {
         ConnectionStatusListener statusListener = new AbstractConnectionStatusListener() {
 
             @Override
             public void connected() {
-                view.getDisplay().asyncExec(() -> populateControls());
+                view.getDisplay().asyncExec(() -> withBusyCursor(() -> reload()));
             }
 
             @Override
             public void disconnected() {
-                view.getDisplay().asyncExec(() -> populateControls());
+                view.getDisplay().asyncExec(() -> withBusyCursor(() -> reload()));
             }
 
         };
@@ -115,560 +385,204 @@ public class Controller {
         }
     }
 
-    /**
-     * Trigger a metric change.
-     * 
-     * Measuring points of the new selected metric will be delegated to the
-     * {@link FilterViewController}.
-     * 
-     */
-    public final void metricSelected() {
-        if (!ignoreSelectionEvents) {
-            populateMeasuringPoints();
-            populateAssemblyContexts();
-            populateTriggerTypes();
-        }
-    }
-
-    /**
-     * Trigger the change of the 'from' measuring point.
-     * 
-     * This method invokes the {@link #getRelatedToMeasuringPoints(String, List) method.
-     */
-    public void fromMeasuringPointSelected() {
-        viewCtrl.setRelatedToMeasuringPoints();
-    }
-
-    /**
-     * Trigger a trigger change.
-     */
-    public final void triggerTypeSelected() {
-        if (!ignoreSelectionEvents) {
-            populateTriggerInstances();
-        }
-    }
-
-    /**
-     * Trigger a trigger instance change.
-     */
-    public final void triggerInstanceSelected() {
-        if (!ignoreSelectionEvents) {
-            populateMeasuringPoints();
-        }
-    }
-
-    /**
-     * Trigger a trigger span change.
-     */
-    public final void triggerSimulationBoundsChanged() {
-        if (!ignoreSelectionEvents) {
-            populateTriggerInstances();
-            // populateMeasuringPoints();
-        }
-
-    }
-
-    /**
-     * Trigger trigger reset.
-     * 
-     * Default values from RDS file will be delegated to the {@link gui.FilterViewController}.
-     */
-    public final void resetTriggerSimulationTimeBounds() {
-        view.setSelectedTriggerTimeSpanLower(rCtrl.getSimulationTimeMin());
-        view.setSelectedTriggerTimeSpanUpper(rCtrl.getSimulationTimeMax());
-    }
-
-    public final void resetSimulationTimeBounds() {
-        populateSimulationTimeBounds();
-    }
-
-    /**
-     * Trigger a assembly context change.
-     */
-    public final void assemblyContextSelected() {
-        if (!ignoreSelectionEvents) {
-            populateMeasuringPoints();
-        }
-    }
-
-    /**
-     * Trigger diagram plot.
-     * 
-     * Filter properties from {@link FilterViewController} will be delegated to the
-     * {@link RController}. A new {@link DiagramView} will be generated.
-     */
-    public final void plotDiagram() {
-
+    public void withBusyCursor(Procedure p) {
+        Display display = view.getDisplay();
+        Shell shell = display.getActiveShell();
         try {
-
-            DiagramType diagramType = view.getSelectedDiagramType();
-            String diagramTitle = createDiagramTitle();
-            String shortDiagramTitle = createShortDiagramTitle();
-            String diagramSubTitle = createDiagramSubTitle();
-            Set<MeasurementFilter> filterSet = new HashSet<MeasurementFilter>();
-
-            checkTimespanValues(view.getSelectedTimeSpanLower(), view.getSelectedTimeSpanUpper());
-
-            filterSet = createFilterSet();
-            printFilterInfo(filterSet, "Filter Set which is used to plot a " + diagramType.getName() + ".");
-
-            // Save the diagram image in temp directory.
-            String diagramImageFileExtension = ".svg";
-            String diagramImageName = "diagram_";
-            File tempFile = File.createTempFile(diagramImageName, diagramImageFileExtension);
-            String diagramImagePath = tempFile.getAbsolutePath();
-
-            // Replace '\' with '/' because R cannot handle backslashes.
-            diagramImagePath = diagramImagePath.replaceAll(Matcher.quoteReplacement("\\"), "/");
-            LOG.trace("DIAGRAM PATH: " + diagramImagePath);
-
-            // Check whether the SVG output gets to huge and show warning.
-            int diagramSize = rCtrl.getNumberOfDiagramValues(filterSet);
-            LOG.trace("DIAGRAM SIZE: " + diagramSize);
-
-            if (!diagramType.isAggregating() && diagramSize > DIAGRAM_SIZE_LIMIT) {
-
-                MessageDialog dialog = new MessageDialog(Display.getCurrent().getActiveShell(), "Huge diagram output",
-                        null,
-                        "The diagram plot will contain more than " + DIAGRAM_SIZE_LIMIT + " values (" + diagramSize
-                                + "). This may cause an SVG 'Huge output " + "error'. Do you want to continue or "
-                                + "restrict the time span to reduce the number "
-                                + "of values used for the diagram plot?",
-                        MessageDialog.WARNING, new String[] { "No, cancel diagram plot", "Yes, plot diagram" }, 0);
-
-                int result = dialog.open();
-
-                // Cancel plot process if user selected 'No'.
-                if (result == 0) {
-                    return;
-                }
-
+            if (shell != null) {
+                shell.setCursor(display.getSystemCursor(SWT.CURSOR_WAIT));
             }
-
-            try {
-                // Show busy cursor.
-                Display.getCurrent().getActiveShell().setCursor(Display.getDefault().getSystemCursor(SWT.CURSOR_WAIT));
-
-                // Plot diagram using R.
-                rCtrl.plotDiagram(diagramType, filterSet, diagramImagePath, shortDiagramTitle, diagramSubTitle);
-
-                String rCommandString = rCtrl.getRCommandForDiagramPlot(diagramType, "dat", filterSet, "img",
-                        shortDiagramTitle, diagramSubTitle);
-
-                // Open new view to display the diagram.
-                DiagramView view = (DiagramView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-                        .showView(DiagramView.ID, diagramTitle, IWorkbenchPage.VIEW_ACTIVATE);
-
-                view.setViewTitle(diagramTitle);
-                view.setDiagramImage(diagramImagePath);
-                view.setRCommandString(rCommandString);
-
-            } finally {
-
-                // Hide busy cursor. Regardless of whether the processing code
-                // terminates normally or throws an exception.
-                Display.getCurrent().getActiveShell().setCursor(Display.getDefault().getSystemCursor(SWT.CURSOR_ARROW));
+            p.execute();
+        } finally {
+            if (shell != null) {
+                shell.setCursor(display.getSystemCursor(SWT.CURSOR_ARROW));
             }
-
-        } catch (IOException e) {
-            LOG.error("Cannot read path of diagram image.", e);
-        } catch (PartInitException e) {
-            LOG.error("Cannot initialize view.", e);
         }
-
     }
 
-    public final void populateControls() {
-        // prevent repeated selection events by ignoring them temporarily
-        ignoreSelectionEvents = true;
-
-        populateMeasurementsCount();
-        populateMetrics();
-        populateTriggerTypes();
-        populateTriggerInstances();
-        populateAssemblyContexts();
-        populateMeasuringPoints();
-        populateSimulationTimeBounds();
-        populateDiagramTypes();
-
-        if (!isConnected()) {
-            view.enablePlotButton(false);
+    private final class DisableEmptyControlsHandler implements PropertyChangeListener {
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            boolean enable = evt.getNewValue() != null ? true : false;
+            switch (evt.getPropertyName()) {
+            case FilterModel.METRICS_PROPERTY:
+                view.enableMetricsCombo(enable);
+                break;
+            case FilterModel.TRIGGER_TYPES_PROPERTY:
+                view.enableTriggerTypeCombo(enable);
+                break;
+            case FilterModel.TRIGGER_INSTANCES_PROPERTY:
+                view.enableTriggerInstanceCombo(enable);
+                break;
+            case FilterModel.ASSEMBLY_CONTEXTS_PROPERTY:
+                view.enableAssemblyContextCombo(enable);
+                break;
+            case FilterModel.MEASURING_POINTS_FROM_PROPERTY:
+                view.enableMeasuringPointsFromCombo(enable);
+                break;
+            case FilterModel.MEASURING_POINTS_TO_PROPERTY:
+                view.enableMeasuringPointsToCombo(enable);
+                break;
+            case FilterModel.SIMULATION_TIME_MAX_PROPERTY:
+                break;
+            }
         }
-
-        ignoreSelectionEvents = false;
     }
 
-    private void populateMeasurementsCount() {
-        int count = 0;
-        if (isConnected()) {
-            count = rCtrl.getMeasurementsCount();
-        }
-        view.setMeasurementsCount(count);
-    }
+    private final class SelectionHandler implements PropertyChangeListener {
 
-    /**
-     * Invoke this method each time a filter has changed.
-     * 
-     * This method delegates the available measuring points due to the filter change from the
-     * {@link RController} to the {@link FilterViewController}.
-     */
-    private void populateMeasuringPoints() {
-        if (!isConnected()) {
-            view.enableMeasuringPointsComposite(false);
-            return;
-        }
-        view.enableMeasuringPointsComposite(true);
-
-        Set<MeasurementFilter> filterSet = createFilterSetFromView();
-        List<Pair<Entity>> mp = rCtrl.getMeasuringPoints(filterSet);
-        viewCtrl.setMeasuringPoints(mp);
-    }
-
-    private void populateTriggerTypes() {
-        if (!isConnected()) {
-            view.enableTriggerTypeGroup(false);
-            return;
-        }
-
-        String[] triggers = rCtrl.getTriggers();
-        view.setTriggers(triggers);
-
-        String description = "Restrict simulation scope to reduce the number " + "of available trigger instances (max. "
-                + MAX_NUMBER_OF_TRIGGER_INSTANCES_TO_SHOW + " instances allowed).";
-        resetTriggerSimulationTimeBounds();
-        view.enableTriggerInstanceGroup(false);
-        view.clearTriggerInstances();
-        view.setTriggerInstanceDescription(description);
-        view.enableTriggerTypeGroup(true);
-    }
-
-    /**
-     * Invoke this method to set the available trigger instances on the GUI.
-     * 
-     * This method delegates the available trigger instances due to the filter change from the
-     * {@link RController} to the {@link FilterViewController}.
-     */
-    private void populateTriggerInstances() {
-        if (!isConnected()) {
-            view.enableTriggerInstanceGroup(false);
-            return;
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            switch (evt.getPropertyName()) {
+            case FilterSelectionModel.METRIC_PROPERTY:
+                withBusyCursor(() -> metricSelected());
+                break;
+            case FilterSelectionModel.TRIGGER_TYPE_PROPERTY:
+                withBusyCursor(() -> triggerTypeSelected());
+                break;
+            case FilterSelectionModel.TRIGGER_INSTANCE_PROPERTY:
+                withBusyCursor(() -> triggerInstanceSelected());
+                break;
+            case FilterSelectionModel.TRIGGER_INSTANCE_SELECTION_ENABLED:
+                withBusyCursor(() -> triggerInstanceSelectionEnabledOrDisabled());
+                break;
+            case FilterSelectionModel.ASSEMBLY_CONTEXT_PROPERTY:
+                withBusyCursor(() -> assemblyContextSelected());
+                break;
+            case FilterSelectionModel.MEASURING_POINT_FROM_PROPERTY:
+                withBusyCursor(() -> measuringPointFromSelected());
+                break;
+            case FilterSelectionModel.MEASURING_POINT_TO_PROPERTY:
+                withBusyCursor(() -> measuringPointToSelected());
+                break;
+            case FilterSelectionModel.SIMULATION_TIME_LOWER_PROPERTY:
+                withBusyCursor(() -> simulationTimeLowerChanged());
+                break;
+            case FilterSelectionModel.SIMULATION_TIME_UPPER_PROPERTY:
+                withBusyCursor(() -> simulationTimeUpperChanged());
+                break;
+            }
         }
 
-        try {
-            String metric = viewCtrl.getMetric();
-            String triggerType = view.getSelectedTriggerType();
-            int triggerStart = view.getSelectedTriggerTimeSpanLower();
-            int triggerEnd = view.getSelectedTriggerTimeSpanUpper();
+        public final void metricSelected() {
+            reloadTriggerTypes();
+            reloadTriggerInstances();
+            reloadAssemblyContexts();
+            reloadMeasuringPointsFrom();
+            reloadMeasuringPointsTo();
+        }
+
+        public void measuringPointFromSelected() {
+            reloadMeasuringPointsTo();
+
+            // select first measuring point "to", if any
+            if (model.getMeasuringPointsTo() != null && !model.getMeasuringPointsTo().isEmpty()) {
+                selectionModel.setMeasuringPointTo(model.getMeasuringPointsTo().get(0));
+            }
+        }
+
+        public void measuringPointToSelected() {
+            // TODO
+        }
+
+        public final void triggerTypeSelected() {
+            reloadTriggerInstances();
+            reloadAssemblyContexts();
+            reloadMeasuringPointsFrom();
+            reloadMeasuringPointsTo();
+        }
+
+        public final void triggerInstanceSelected() {
+            // do nothing
+        }
+
+        public final void assemblyContextSelected() {
+            reloadMeasuringPointsFrom();
+            reloadMeasuringPointsTo();
+        }
+
+        public void simulationTimeUpperChanged() {
+            reloadTriggerInstances();
+        }
+
+        public void simulationTimeLowerChanged() {
+            reloadTriggerInstances();
+        }
+
+        private void triggerInstanceSelectionEnabledOrDisabled() {
+            reloadTriggerInstances();
+
+            // hide trigger warning, if visible
+            if (!selectionModel.isTriggerInstanceSelectionEnabled()) {
+                view.showTriggerWarning(false, 0, 0);
+            }
+        }
+
+        private void reloadMetrics() {
+            List<TranslatableEntity> metrics = rCtrl.getMetrics();
+            model.setMetrics(metrics);
+        }
+
+        private void reloadMeasuringPointsFrom() {
+            List<Entity> measuringPointsFrom = rCtrl.getMeasuringPointsFrom();
+            model.setMeasuringPointsFrom(measuringPointsFrom);
+        }
+
+        private void reloadMeasuringPointsTo() {
+            List<Entity> measuringPointsTo = rCtrl.getMeasuringPointsTo();
+            model.setMeasuringPointsTo(measuringPointsTo);
+        }
+
+        private void reloadTriggerTypes() {
+            List<TranslatableEntity> triggerTypes = rCtrl.getTriggerTypes();
+            model.setTriggerTypes(triggerTypes);
+        }
+
+        private void reloadTriggerInstances() {
+            model.setTriggerInstances(null);
+            TranslatableEntity triggerType = selectionModel.getTriggerType();
+
+            if (!selectionModel.isTriggerInstanceSelectionEnabled()) {
+                return;
+            }
 
             // return if no trigger type is selected.
             if (triggerType == null) {
-                view.clearTriggerInstances();
-                view.enableTriggerInstanceGroup(false);
                 return;
             }
 
-            // Create filter set.
-            Set<MeasurementFilter> filterSet = new HashSet<MeasurementFilter>();
-            filterSet.add(new MeasurementFilter("what", "==", metric));
-            filterSet.add(new MeasurementFilter("who.type", "==", triggerType));
-            filterSet.add(new MeasurementFilter("when", ">=", triggerStart));
-            filterSet.add(new MeasurementFilter("when", "<=", triggerEnd));
-
-            int numTriggerInstances = 0;
-
-            try {
-                // Show busy cursor.
-                Display.getCurrent().getActiveShell().setCursor(Display.getDefault().getSystemCursor(SWT.CURSOR_WAIT));
-
-                numTriggerInstances = rCtrl.getNumberOfTriggerInstances(filterSet);
-
-            } finally {
-
-                // Hide busy cursor. Regardless of whether the processing code
-                // terminates normally or throws an exception.
-                Display.getCurrent().getActiveShell().setCursor(Display.getDefault().getSystemCursor(SWT.CURSOR_ARROW));
-            }
-
-            LOG.trace("::: Number of trigger instances: " + numTriggerInstances);
+            // calculate number of trigger instances under current filter settings
+            int numTriggerInstances = rCtrl.getNumberOfTriggerInstances();
 
             // Return if no trigger instances are available.
-            if (numTriggerInstances <= 0) {
-                view.enableTriggerInstanceGroup(false);
+            if (numTriggerInstances == 0) {
                 return;
             }
 
-            // Show available trigger instances on GUI.
-            view.enableTriggerInstanceGroup(true);
-
-            if (numTriggerInstances <= MAX_NUMBER_OF_TRIGGER_INSTANCES_TO_SHOW) {
-
-                view.enableTriggerInstanceComboBox(true); // TODO necessary?
-                view.setTriggerInstanceNumber(Integer.toString(numTriggerInstances));
+            if (numTriggerInstances <= MAX_TRIGGER_INSTANCES) {
+                view.showTriggerWarning(false, MAX_TRIGGER_INSTANCES, numTriggerInstances);
+                // view.enableTriggerInstanceComboBox(true); // TODO necessary?
+                // view.setTriggerInstanceNumber(Integer.toString(numTriggerInstances));
 
                 // Set trigger instances.
-                List<Entity> triggerInstances = rCtrl.getTriggerInstances(filterSet);
-                viewCtrl.setTriggerInstances(triggerInstances);
+                List<Entity> triggerInstances = rCtrl.getTriggerInstances();
+                model.setTriggerInstances(triggerInstances);
+                // viewCtrl.setTriggerInstances(triggerInstances);
 
             } else {
-
-                view.clearTriggerInstances();
+                // view.setTriggerInstanceNumber(Integer.toString(numTriggerInstances), true);
+                model.setTriggerInstances(null);
 
                 // Show user info with the number of available instances.
-                view.setTriggerInstanceNumber(Integer.toString(numTriggerInstances), true);
-
+                view.showTriggerWarning(true, MAX_TRIGGER_INSTANCES, numTriggerInstances);
             }
+        }
 
-        } catch (Exception e) {
-            LOG.warn("Could not get current metric: " + e.getMessage());
+        private void reloadAssemblyContexts() {
+            List<Entity> assemblyContexts = rCtrl.getAssemblyContexts();
+            model.setAssemblyContexts(assemblyContexts);
         }
 
     }
 
-    private void populateDiagramTypes() {
-        viewCtrl.setDiagramTypesFromEnum();
-    }
-
-    private void populateMetrics() {
-        if (!isConnected()) {
-            view.enableMetricsComposite(false);
-            return;
-        }
-
-        List<String> metrics = rCtrl.getMetrics();
-        viewCtrl.setMetrics(metrics);
-        view.enableMetricsComposite(true);
-    }
-
-    private void populateAssemblyContexts() {
-        if (!isConnected()) {
-            view.enableAssemblyContextComposite(false);
-            return;
-        }
-
-        List<Entity> assemblyContexts = rCtrl.getAssemblyContexts();
-        viewCtrl.setAssemblyContexts(assemblyContexts);
-        view.enableAssemblyContextComposite(true);
-    }
-
-    /**
-     * Trigger time span reset.
-     * 
-     * Default values from RDS file will be delegated to the {@link gui.FilterViewController}.
-     */
-    private final void populateSimulationTimeBounds() {
-        if (!isConnected()) {
-            view.enableTimeSpanComposite(false);
-            return;
-        }
-
-        int lower = rCtrl.getSimulationTimeMin();
-        int upper = rCtrl.getSimulationTimeMax();
-        view.setTimeSpanBounds(lower, upper);
-
-        view.setSelectedTimeSpanLower(lower);
-        view.setSelectedTimeSpanUpper(upper);
-
-        view.setTimeSpanDescription("Simulation starts at " + rCtrl.getSimulationTimeMin() + " and ends at "
-                + rCtrl.getSimulationTimeMax());
-        view.enableTimeSpanComposite(true);
-    }
-
-    /**
-     * Create a set of filters based on the current filter settings.
-     * 
-     * @return Set of relevant filters.
-     * @throws Exception
-     *             If an error occurs while collecting the filter settings.
-     */
-    private Set<MeasurementFilter> createFilterSet() {
-
-        Set<MeasurementFilter> filterSet = new HashSet<MeasurementFilter>();
-
-        // Get filter settings.
-        String metric = viewCtrl.getMetric();
-        Pair<Entity> mp = viewCtrl.getMeasuringPoints();
-        String trigger = view.getSelectedTriggerType();
-        Entity triggerInstance = view.getSelectedTriggerInstance();
-        Entity assemblyContext = view.getSelectedAssemblyContext();
-        int timespanStart = view.getSelectedTimeSpanLower();
-        int timespanEnd = view.getSelectedTimeSpanUpper();
-
-        // Add metric filter.
-        filterSet.add(new MeasurementFilter("what", "==", metric));
-
-        // Add measuring point filter.
-        if (mp.getFirst() != null) {
-
-            filterSet.add(new MeasurementFilter("where.first.id", "==", mp.getFirst().getId()));
-
-        }
-
-        if (mp.getSecond() != null) {
-
-            filterSet.add(new MeasurementFilter("where.second.id", "==", mp.getSecond().getId()));
-
-        }
-
-        // Add time span filter.
-        filterSet.add(new MeasurementFilter("when", ">=", timespanStart));
-        filterSet.add(new MeasurementFilter("when", "<=", timespanEnd));
-
-        // Add trigger filter.
-        if (trigger != null) {
-            filterSet.add(new MeasurementFilter("who.type", "==", trigger));
-        }
-        if (triggerInstance != null) {
-            filterSet.add(new MeasurementFilter("who.id", "==", triggerInstance.getId()));
-        }
-
-        // Add assembly context filter.
-        if (assemblyContext != null) {
-            filterSet.add(new MeasurementFilter("assemblycontext.id", "==", assemblyContext.getId()));
-        }
-
-        return filterSet;
-    }
-
-    private Set<MeasurementFilter> createFilterSetFromView() {
-        // Get current filter settings and create set of filters.
-        String triggerType = view.getSelectedTriggerType();
-        Entity triggerInstance = view.getSelectedTriggerInstance();
-        String metric = viewCtrl.getMetric();
-        Entity assemblyContext = view.getSelectedAssemblyContext();
-
-        LOG.trace("_");
-        LOG.trace("Creating filter set based on the following information:");
-        LOG.trace("Trigger: " + triggerType);
-        LOG.trace("Trigger instance: " + triggerInstance);
-        LOG.trace("Metric: " + metric);
-        LOG.trace("Assembly context: " + assemblyContext);
-        LOG.trace("_");
-
-        Set<MeasurementFilter> filterSet = new HashSet<MeasurementFilter>();
-
-        filterSet.add(new MeasurementFilter("what", "==", metric));
-
-        // If 'all triggers' are selected no trigger filter will be applied.
-        if (triggerType != null) {
-            filterSet.add(new MeasurementFilter("who.type", "==", triggerType));
-        }
-
-        // If 'all trigger instances' are selected no trigger instance
-        // filter will be applied.
-        if (triggerInstance != null) {
-            filterSet.add(new MeasurementFilter("who.id", "==", triggerInstance.getId()));
-        }
-
-        // If 'all assembly contexts' are selected no assembly context
-        // filter will be applied.
-        if (assemblyContext != null) {
-            filterSet.add(new MeasurementFilter("assemblycontext.id", "==", assemblyContext.getId()));
-        }
-        return filterSet;
-    }
-
-    /**
-     * Create the diagram title based on the filter settings.
-     * 
-     * @return Diagram title.
-     */
-    private String createDiagramTitle() {
-
-        String diagramTitle = "";
-        Pair<Entity> mp = viewCtrl.getMeasuringPoints();
-
-        diagramTitle += createShortDiagramTitle();
-
-        if (mp.getSecond() != null) {
-            diagramTitle += " to " + mp.getSecond();
-        }
-
-        try {
-            diagramTitle += " (" + view.getSelectedDiagramType().getName() + ")";
-        } catch (Exception e) {
-            LOG.error("Cannot get selected diagram type " + "to create diagram title.");
-        }
-
-        return diagramTitle;
-    }
-
-    /**
-     * Create the short version of the diagram title.
-     * 
-     * @return Short diagram title.
-     */
-    private String createShortDiagramTitle() {
-
-        String diagramTitle = "";
-        Pair<Entity> mp = viewCtrl.getMeasuringPoints();
-
-        try {
-
-            diagramTitle += GUIStrings.getGUIString(GUIStrings.getMetrics(), viewCtrl.getMetric());
-
-        } catch (Exception e) {
-            LOG.error("Cannot get selected metric " + "to create the diagram title.");
-        }
-
-        diagramTitle += " of " + mp.getFirst();
-
-        return diagramTitle;
-    }
-
-    /**
-     * Create the diagram subtitle based on the filter settings.
-     * 
-     * @return Diagram subtitle.
-     */
-    private String createDiagramSubTitle() {
-        String diagramSubTitle = "";
-
-        diagramSubTitle += "Simulation time span: ";
-        diagramSubTitle += view.getSelectedTimeSpanLower();
-        diagramSubTitle += " - ";
-        diagramSubTitle += view.getSelectedTimeSpanUpper();
-
-        return diagramSubTitle;
-    }
-
-    /**
-     * Print filter information for logging purposes.
-     * 
-     * @param filterSet
-     *            Current set of filters.
-     * @param description
-     *            Short description, e.g. the usage of the filter set.
-     */
-    private void printFilterInfo(Set<MeasurementFilter> filterSet, String description) {
-        LOG.trace("---------------- Filter Set ------------------");
-        LOG.trace(description);
-        for (MeasurementFilter filter : filterSet) {
-            LOG.trace(filter.getProperty() + " " + filter.getOperator() + " " + filter.getCondition());
-        }
-        LOG.trace("----------------------------------------------");
-    }
-
-    private boolean isConnected() {
-        return rCtrl.getConnection() != null && rCtrl.getConnection().isConnected();
-    }
-
-    /**
-     * Check start and end values of a time span.
-     * 
-     * @param timespanStart
-     *            Start value.
-     * @param timespanEnd
-     *            End value.
-     */
-    private void checkTimespanValues(int timespanStart, int timespanEnd) {
-        if (timespanEnd <= timespanStart) {
-            LOG.error("Cannot plot diagram! " + "Time span to-value have to be greater than the "
-                    + "time span from-value.");
-
-            new ErrorDialog("Error: Invalid time span values!",
-                    "Time span to-value have to be greater than the " + "time span from-value!");
-
-            return;
-        }
-    }
 }

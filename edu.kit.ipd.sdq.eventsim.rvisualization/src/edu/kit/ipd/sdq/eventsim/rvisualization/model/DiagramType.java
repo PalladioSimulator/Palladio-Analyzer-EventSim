@@ -9,15 +9,24 @@ package edu.kit.ipd.sdq.eventsim.rvisualization.model;
  */
 public enum DiagramType {
 
-    HISTOGRAM("Histogram", true), POINT_GRAPH("X/Y Point Graph", false), CDF("CDF (Cumulative Distribution Function)",
-            true);
+    /** */
+    HISTOGRAM("Histogram", "Histogram", true),
+
+    /** */
+    POINT_GRAPH("X/Y Point Graph", "Point Graph", false),
+
+    /** */
+    CDF("CDF (Cumulative Distribution Function)", "CDF", true);
 
     private String name;
+    
+    private String shortName;
 
     private boolean aggregating;
 
-    private DiagramType(String name, boolean aggregating) {
+    private DiagramType(String name, String shortName, boolean aggregating) {
         this.name = name;
+        this.shortName = shortName;
         this.aggregating = aggregating;
     }
 
@@ -25,6 +34,10 @@ public enum DiagramType {
         return name;
     }
 
+    public String getShortName() {
+        return shortName;
+    }
+    
     /**
      * returns {@code true}, if this diagram type aggregates simulation results (like a histogram);
      * {@code false}, if not (like a point chart).

@@ -8,13 +8,18 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  edu.kit.ipd.sdq.eventsim.measurement.r;bundle-version="2.0.0",
  org.rosuda.rJavaAndRserve;bundle-version="1.0.0",
- org.apache.log4j;bundle-version="1.2.15"
+ org.apache.log4j;bundle-version="1.2.15",
+ org.eclipse.core.databinding,
+ org.eclipse.core.databinding.beans,
+ org.eclipse.core.databinding.observable,
+ org.eclipse.core.databinding.property,
+ org.eclipse.jface.databinding,
+ com.ibm.icu
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,
  swing2swt.jar
 Export-Package: edu.kit.ipd.sdq.eventsim.rvisualization,
- edu.kit.ipd.sdq.eventsim.rvisualization.gui,
  edu.kit.ipd.sdq.eventsim.rvisualization.model,
  edu.kit.ipd.sdq.eventsim.rvisualization.util,
  edu.kit.ipd.sdq.eventsim.rvisualization.views

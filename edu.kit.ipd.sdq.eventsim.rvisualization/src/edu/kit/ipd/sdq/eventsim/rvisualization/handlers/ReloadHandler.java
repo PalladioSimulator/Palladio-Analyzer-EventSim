@@ -20,7 +20,7 @@ public class ReloadHandler extends AbstractHandler {
             throw new ExecutionException("Could not reload measurements", e);
         }
 
-        view.getController().populateControls();
+        view.getController().reload();
 
         return null;
     }

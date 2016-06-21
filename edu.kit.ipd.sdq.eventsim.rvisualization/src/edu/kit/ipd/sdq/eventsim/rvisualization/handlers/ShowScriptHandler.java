@@ -8,9 +8,9 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import edu.kit.ipd.sdq.eventsim.rvisualization.gui.RCommandExportDialog;
 import edu.kit.ipd.sdq.eventsim.rvisualization.views.DiagramView;
 import edu.kit.ipd.sdq.eventsim.rvisualization.views.FilterView;
+import edu.kit.ipd.sdq.eventsim.rvisualization.views.RCommandExportDialog;
 
 /**
  * Opens a dialog that displays the R command used to generate the diagram currently shown in the

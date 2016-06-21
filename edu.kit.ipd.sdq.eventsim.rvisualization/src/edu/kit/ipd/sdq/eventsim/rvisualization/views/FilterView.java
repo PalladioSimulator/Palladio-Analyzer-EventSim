@@ -1,20 +1,21 @@
 package edu.kit.ipd.sdq.eventsim.rvisualization.views;
 
 import java.util.Locale;
-import java.util.Timer;
-import java.util.TimerTask;
 
-import org.eclipse.jface.resource.JFaceResources;
-import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.core.databinding.DataBindingContext;
+import org.eclipse.core.databinding.beans.BeanProperties;
+import org.eclipse.core.databinding.beans.PojoObservables;
+import org.eclipse.core.databinding.observable.list.IObservableList;
+import org.eclipse.core.databinding.observable.map.IObservableMap;
+import org.eclipse.core.databinding.observable.value.IObservableValue;
+import org.eclipse.jface.databinding.swt.WidgetProperties;
+import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
+import org.eclipse.jface.databinding.viewers.ViewerProperties;
 import org.eclipse.jface.viewers.ComboViewer;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ExpandEvent;
 import org.eclipse.swt.events.ExpandListener;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
@@ -22,20 +23,24 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.ExpandBar;
 import org.eclipse.swt.widgets.ExpandItem;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Scale;
 import org.eclipse.swt.widgets.Spinner;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.wb.swt.ResourceManager;
+import org.eclipse.wb.swt.SWTResourceManager;
 
 import edu.kit.ipd.sdq.eventsim.rvisualization.Controller;
-import edu.kit.ipd.sdq.eventsim.rvisualization.model.DiagramType;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.Entity;
+import edu.kit.ipd.sdq.eventsim.rvisualization.model.FilterModel;
+import edu.kit.ipd.sdq.eventsim.rvisualization.model.FilterSelectionModel;
+import edu.kit.ipd.sdq.eventsim.rvisualization.model.TranslatableEntity;
 import edu.kit.ipd.sdq.eventsim.rvisualization.util.Helper;
 import swing2swt.layout.BorderLayout;
 
@@ -47,6 +52,8 @@ import swing2swt.layout.BorderLayout;
  *
  */
 public class FilterView extends ViewPart {
+    
+    private DataBindingContext m_bindingContext;
 
     /**
      * The ID of the view as specified by the extension.
@@ -62,26 +69,17 @@ public class FilterView extends ViewPart {
      */
     private static final int TIMESPAN_MAX_VALUE = 1_000_000;
 
-    private Combo cmbMetric;
-    private Combo cmbTriggerType;
+    private ComboViewer cmbMetric;
+    private ComboViewer cmbTriggerType;
     private ComboViewer cmbTriggerInstance;
     private ComboViewer cmbAssemblyCtx;
     private ComboViewer cmbMeasuringPointFrom;
     private ComboViewer cmbMeasuringPointTo;
     private ComboViewer cmbDiagramType;
-
-    private Spinner spnTriggerFrom;
-    private Spinner spnTriggerTo;
     private Spinner spnTimeSpanFrom;
     private Spinner spnTimeSpanTo;
-
-    private Button btnTriggerReset;
     private Button btnTimespanReset;
     private Button btnPlot;
-
-    private Label lblTriggerInstanceNumber;
-    private Label lblTriggerInstanceDescription;
-    private Label lblSimulationTimeSpanDescription;
     private Label lblMeasurementsCount;
 
     private Composite cmpMetric;
@@ -94,27 +92,70 @@ public class FilterView extends ViewPart {
     private Group grpTriggerTypes;
     private Group grpTriggerInstances;
 
-    private static final LabelProvider ENTITY_LABEL_PROVIDER = new LabelProvider() {
+    private Button btnClearTriggerTypes;
 
-        @Override
-        public String getText(Object element) {
-            Entity p = (Entity) element;
-            return p.toString();
-        }
+    private Button btnClearTriggerInstances;
+    private Scale scaleLower;
+    private Scale scaleUpper;
 
-    };
+    private ExpandItem xpiTrigger;
+    private Text txtTriggerWarning1;
+    private Text txtTriggerWarning2;
+    private Text txtReduceSimulationTime;
+    private Composite cmpTriggerWarning;
 
-    private static final LabelProvider DIAGRAM_TYPE_LABEL_PROVIDER = new LabelProvider() {
+    private Button btnClearAssemblyContext;
 
-        @Override
-        public String getText(Object element) {
-            DiagramType t = (DiagramType) element;
-            return t.getName();
-        }
-
-    };
+    private FilterSelectionModel selectionModel;
+    private FilterModel model;
+    private Label lblMemoryConsumption;
+    private Label lblMemory;
+    private Button btnEnableTriggerInstance;
 
     public FilterView() {
+        this.selectionModel = new FilterSelectionModel();
+        this.model = new FilterModel();
+    }
+
+    /**
+     * This is a callback that will allow us to create the UI and initialize it.
+     * 
+     * @param parent
+     *            Parent UI element.
+     */
+    public final void createPartControl(final Composite parent) {
+        viewParent = parent;
+
+        Composite cmpRoot = new Composite(parent, SWT.NONE);
+        cmpRoot.setLayout(new BorderLayout(0, 0));
+
+        createNorthBar(cmpRoot);
+        createExpandBar(cmpRoot);
+        createSouthBar(cmpRoot);
+
+        showTriggerWarning(false, 0, 0);
+        enableMetricsCombo(false);
+        enableTriggerTypeCombo(false);
+        enableTriggerInstanceCombo(false);
+        enableAssemblyContextCombo(false);
+        enableMeasuringPointsFromCombo(false);
+        enableMeasuringPointsToCombo(false);
+        enablePlotButton(false);
+
+        // create controller
+        ctrl = new Controller(this, selectionModel, model);
+        ctrl.viewInitialized();
+
+        initDataBindings();
+
+        addEventHandler();
+    }
+
+    /**
+     * Passing the focus request.
+     */
+    public final void setFocus() {
+        viewParent.setFocus();
     }
 
     public Controller getController() {
@@ -130,386 +171,62 @@ public class FilterView extends ViewPart {
         this.lblMeasurementsCount.setText(formatted);
     }
 
+    public void setMemoryConsmption(int megabytes) {
+        String formatted = String.format(Locale.US, "%,d", megabytes);
+        this.lblMemory.setText(formatted + " MB");
+    }
+
     /**
-     * Set the currently available metrics.
      * 
-     * @param metrics
-     *            Array of all available metrics with their technical names (e.g. QUEUE_LENGTH).
+     * @param show
+     * @param max
+     *            the upper limit of triggers allowed to be displayed
+     * @param current
+     *            the current number of triggers within the selected simulation time span
      */
-    public final void setMetrics(final String[] metrics) {
-        cmbMetric.setItems(metrics);
-        if (metrics.length > 0) {
-            cmbMetric.select(0);
-            Helper.setEnabledRecursive(cmpMetric, true);
-        } else {
-            Helper.setEnabledRecursive(cmpMetric, false);
+    public void showTriggerWarning(boolean show, int max, int current) {
+        cmpTriggerWarning.setVisible(show);
+        if (show) {
+            txtTriggerWarning1.setText("Cannot display more than " + max + " triggers.");
+            txtTriggerWarning2.setText("Triggers within time span: " + current);
         }
     }
 
-    /**
-     * Set the available triggers.
-     * 
-     * @param trigger
-     *            List of all available triggers.
-     */
-    public final void setTriggers(final String[] trigger) {
-        cmbTriggerType.setItems(trigger);
+    public void enableMetricsCombo(boolean enabled) {
+        cmbMetric.getCombo().setEnabled(enabled);
     }
 
-    /**
-     * Set trigger instances.
-     * 
-     * @param instances
-     *            Array of all available trigger instances.
-     */
-    public final void setTriggerInstances(final Entity[] instances) {
-        cmbTriggerInstance.setInput(instances);
+    public final void enableTriggerTypeCombo(boolean enabled) {
+        cmbTriggerType.getCombo().setEnabled(enabled);
+        btnClearTriggerTypes.setEnabled(enabled);
     }
 
-    /**
-     * Set the trigger instance description.
-     * 
-     * @param description
-     *            Description to be set.
-     */
-    public final void setTriggerInstanceDescription(final String description) {
-        lblTriggerInstanceDescription.setText(description);
-    }
-
-    /**
-     * Set number of available instances in GUI.
-     * 
-     * @param number
-     *            Number of available trigger instance.
-     * @param warning
-     *            Print number as warning (red) or not.
-     */
-    public final void setTriggerInstanceNumber(final String number, final boolean warning) {
-        if (warning) {
-            lblTriggerInstanceNumber.setForeground(getDisplay().getSystemColor(SWT.COLOR_RED));
-        } else {
-            lblTriggerInstanceNumber.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
-        }
-        lblTriggerInstanceNumber.setText(number);
-    }
-
-    /**
-     * Set the number of currently available trigger instances on GUI.
-     * 
-     * @param number
-     *            Number to be set.
-     */
-    public final void setTriggerInstanceNumber(final String number) {
-        setTriggerInstanceNumber(number, false);
-    }
-
-    /**
-     * Set the currently available assembly contexts.
-     * 
-     * @param ctxs
-     *            Array of all available assembly contexts.
-     */
-    public final void setAssemblyContexts(final Entity[] ctxs) {
-        cmbAssemblyCtx.setInput(ctxs);
-    }
-
-    /**
-     * Set the available 'from' measuring points. Select first item by default.
-     * 
-     * @param mp
-     *            List of available 'from' measuring points.
-     */
-    public final void setMeasuringPointsFrom(final Entity[] mp) {
-        // Set or reset (in case of an empty array) the combo box items.
-        cmbMeasuringPointFrom.setInput(mp);
-
-        // Enable or disable the combo box.
-        boolean enabled = mp.length > 0 ? true : false;
-        btnPlot.setEnabled(enabled);
-        Helper.setEnabledRecursive(cmpMeasuringPoints, enabled);
-
-        // select first element
-        if (mp.length > 0) {
-            ISelection selection = new StructuredSelection(mp[0]);
-            cmbMeasuringPointFrom.setSelection(selection);
-        }
-    }
-
-    /**
-     * Set the available 'to' measuring points. Select first item by default.
-     * 
-     * @param mp
-     *            List of available 'to' measuring points.
-     */
-    public final void setMeasuringPointsTo(final Entity[] mp) {
-        cmbMeasuringPointTo.setInput(mp);
-
-        enableMeasuringPointsToCombo(mp.length > 0 ? true : false);
-
-        // select first element
-        if (mp.length > 0) {
-            ISelection selection = new StructuredSelection(mp[0]);
-            cmbMeasuringPointTo.setSelection(selection);
-        }
-    }
-
-    public final void setTimeSpanBounds(int lower, int upper) {
-        spnTimeSpanFrom.setMinimum(lower);
-        spnTimeSpanTo.setMinimum(lower);
-
-        spnTimeSpanFrom.setMaximum(upper);
-        spnTimeSpanTo.setMaximum(upper);
-    }
-
-    /**
-     * Set time span description.
-     * 
-     * @param description
-     *            Time span description.
-     */
-    public final void setTimeSpanDescription(final String description) {
-        lblSimulationTimeSpanDescription.setText(description);
-    }
-
-    /**
-     * Set the currently available diagram types.
-     * 
-     * @param diagramTypes
-     *            List of all available diagram types with their enums (
-     *            {@link edu.kit.ipd.sdq.eventsim.rvisualization.model.DiagramType} ).
-     */
-    public final void setDiagramTypes(final DiagramType[] diagramTypes) {
-        cmbDiagramType.setInput(diagramTypes);
-
-        // select first entry
-        if (diagramTypes.length > 0) {
-            ISelection selection = new StructuredSelection(diagramTypes[0]);
-            cmbDiagramType.setSelection(selection);
-        }
-    }
-
-    /**
-     * Get selected metric.
-     * 
-     * @return Currently selected metric as GUI string (e.g. 'queue length').
-     */
-    public final String getSelectedMetric() {
-        return cmbMetric.getText();
-    }
-
-    /**
-     * Get selected assembly context.
-     * 
-     * @return Currently selected assembly context.
-     */
-    public final Entity getSelectedAssemblyContext() {
-        return (Entity) cmbAssemblyCtx.getStructuredSelection().getFirstElement();
-    }
-
-    /**
-     * Get the currently selected 'from' measuring point.
-     * 
-     * @return Readable string of 'from' measuring point (contains name + id), or {@code null} if no
-     *         'from' measuring points are available.
-     * 
-     * @see getIdFromReadableString(String)
-     */
-    public final Entity getSelectedMeasuringPointFrom() {
-        StructuredSelection selection = (StructuredSelection) cmbMeasuringPointFrom.getSelection();
-        if (!selection.isEmpty()) {
-            return (Entity) selection.getFirstElement();
-        }
-        return null;
-    }
-
-    /**
-     * Get the currently selected 'to' measuring point.
-     * 
-     * @return Readable string of 'to' measuring point (contains name + id), or {@code null} if no
-     *         'to' measuring points are available.
-     * 
-     * @see getIdFromReadableString(String)
-     */
-    public final Entity getSelectedMeasuringPointTo() {
-        StructuredSelection selection = (StructuredSelection) cmbMeasuringPointTo.getSelection();
-        if (!selection.isEmpty()) {
-            return (Entity) selection.getFirstElement();
-        }
-        return null;
-    }
-
-    /**
-     * Get current start value of simulation time span.
-     * 
-     * @return Time span start value.
-     */
-    public final int getSelectedTimeSpanLower() {
-        return spnTimeSpanFrom.getSelection();
-    }
-
-    /**
-     * Set time span start value.
-     * 
-     * @param startValue
-     *            New time span start value.
-     */
-    public final void setSelectedTimeSpanLower(final int startValue) {
-        spnTimeSpanFrom.setSelection(startValue);
-    }
-
-    /**
-     * Get current end value of simulation time span.
-     * 
-     * @return Time span end value.
-     */
-    public final int getSelectedTimeSpanUpper() {
-        return spnTimeSpanTo.getSelection();
-    }
-
-    /**
-     * Set time span end value.
-     * 
-     * @param endValue
-     *            New time span end value.
-     */
-    public final void setSelectedTimeSpanUpper(final int endValue) {
-        spnTimeSpanTo.setSelection(endValue);
-    }
-
-    /**
-     * Get selected diagram type.
-     * 
-     * @return Currently selected diagram type (
-     *         {@link edu.kit.ipd.sdq.eventsim.rvisualization.model.DiagramType} ).
-     * @throws Exception
-     *             If an invalid technical name was used.
-     */
-    public final DiagramType getSelectedDiagramType() {
-        return (DiagramType) cmbDiagramType.getStructuredSelection().getFirstElement();
-    }
-
-    /**
-     * Get selected trigger.
-     * 
-     * @return Currently selected trigger.
-     */
-    public final String getSelectedTriggerType() {
-        return cmbTriggerType.getText().isEmpty() ? null : cmbTriggerType.getText();
-    }
-
-    /**
-     * Get current start value of trigger time span.
-     * 
-     * @return Time span start value.
-     */
-    public final int getSelectedTriggerTimeSpanLower() {
-        return spnTriggerFrom.getSelection();
-    }
-
-    /**
-     * Set trigger start value.
-     * 
-     * @param startValue
-     *            New trigger start value.
-     */
-    public final void setSelectedTriggerTimeSpanLower(final int startValue) {
-        spnTriggerFrom.setSelection(startValue);
-    }
-
-    /**
-     * Get current end value of trigger time span.
-     * 
-     * @return Trigger end value.
-     */
-    public final int getSelectedTriggerTimeSpanUpper() {
-        return spnTriggerTo.getSelection();
-    }
-
-    /**
-     * Set trigger end value.
-     * 
-     * @param endValue
-     *            New trigger end value.
-     */
-    public final void setSelectedTriggerTimeSpanUpper(final int endValue) {
-        spnTriggerTo.setSelection(endValue);
-    }
-
-    /**
-     * Get the selected trigger instance.
-     * 
-     * @return Currently selected trigger instance.
-     */
-    public final Entity getSelectedTriggerInstance() {
-        return (Entity) cmbTriggerInstance.getStructuredSelection().getFirstElement();
-    }
-
-    public final void enableTriggerInstanceGroup(boolean enabled) {
-        Helper.setEnabledRecursive(grpTriggerInstances, enabled);
-
-    }
-
-    public final void enableTriggerTypeGroup(boolean enabled) {
-        Helper.setEnabledRecursive(grpTriggerTypes, enabled);
-    }
-
-    public final void enableMetricsComposite(boolean enabled) {
-        Helper.setEnabledRecursive(cmpMetric, enabled);
-    }
-
-    public final void enableTriggerInstanceComboBox(boolean enabled) {
+    public void enableTriggerInstanceCombo(boolean enabled) {
         cmbTriggerInstance.getCombo().setEnabled(enabled);
+        btnClearTriggerInstances.setEnabled(enabled);
     }
 
-    public void enableTimeSpanComposite(boolean enabled) {
-        Helper.setEnabledRecursive(cmpTimeSpan, enabled);
+    public void enableAssemblyContextCombo(boolean enabled) {
+        cmbAssemblyCtx.getCombo().setEnabled(enabled);
+        btnClearAssemblyContext.setEnabled(enabled);
+
     }
 
-    public void enableAssemblyContextComposite(boolean enabled) {
-        Helper.setEnabledRecursive(cmpAssemblyCtx, enabled);
-    }
-
-    public void enableMeasuringPointsComposite(boolean enabled) {
-        Helper.setEnabledRecursive(cmpMeasuringPoints, enabled);
+    public void enableMeasuringPointsFromCombo(boolean enabled) {
+        cmbMeasuringPointFrom.getCombo().setEnabled(enabled);
     }
 
     public void enableMeasuringPointsToCombo(boolean enabled) {
         cmbMeasuringPointTo.getCombo().setEnabled(enabled);
     }
 
+    public void enableSimulationTimeComposite(boolean enabled) {
+        Helper.setEnabledRecursive(cmpTimeSpan, enabled);
+
+    }
+
     public void enablePlotButton(boolean enabled) {
         btnPlot.setEnabled(enabled);
-    }
-
-    /**
-     * Clears the trigger instance combo box.
-     */
-    public void clearTriggerInstances() {
-        setTriggerInstances(new Entity[0]);
-    }
-
-    /**
-     * This is a callback that will allow us to create the UI and initialize it.
-     * 
-     * @param parent
-     *            Parent UI element.
-     */
-    public final void createPartControl(final Composite parent) {
-        viewParent = parent;
-
-        // create controller
-        ctrl = new Controller(new FilterViewController(this));
-
-        Composite cmpRoot = new Composite(parent, SWT.NONE);
-        cmpRoot.setLayout(new BorderLayout(0, 0));
-
-        createNorthBar(cmpRoot);
-        createExpandBar(cmpRoot);
-        createSouthBar(cmpRoot);
-
-        addEventHandler();
-
-        ctrl.viewInitialized();
     }
 
     private void createNorthBar(Composite cmpRoot) {
@@ -523,6 +240,13 @@ public class FilterView extends ViewPart {
         lblMeasurementsCount = new Label(cmpNorth, SWT.NONE);
         lblMeasurementsCount.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         lblMeasurementsCount.setText("0");
+
+        lblMemoryConsumption = new Label(cmpNorth, SWT.NONE);
+        lblMemoryConsumption.setText("Memory consumption:");
+
+        lblMemory = new Label(cmpNorth, SWT.NONE);
+        lblMemory.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+        lblMemory.setText("0");
     }
 
     private void createSouthBar(Composite cmpRoot) {
@@ -535,14 +259,13 @@ public class FilterView extends ViewPart {
 
         cmbDiagramType = new ComboViewer(cmpSouth, SWT.READ_ONLY);
         cmbDiagramType.getCombo().setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-        cmbDiagramType.setContentProvider(ArrayContentProvider.getInstance());
-        cmbDiagramType.setLabelProvider(DIAGRAM_TYPE_LABEL_PROVIDER);
 
         btnPlot = new Button(cmpSouth, SWT.NONE);
         btnPlot.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
         btnPlot.setImage(
                 ResourceManager.getPluginImage("edu.kit.ipd.sdq.eventsim.rvisualization", "icons/chart_bar.png"));
         btnPlot.setText("Plot Diagram");
+        m_bindingContext = initDataBindings();
     }
 
     private void createExpandBar(Composite cmpRoot) {
@@ -564,113 +287,98 @@ public class FilterView extends ViewPart {
         });
 
         createMetricExpandItem(expandBar);
+        createSimulationTimeExpandItem(expandBar);
         createTriggerExpandItem(expandBar);
         createAssemblyContextExpandItem(expandBar);
         createMeasuringPointsExpandItem(expandBar);
-        createSimulationTimeExpandItem(expandBar);
     }
 
     private void createSimulationTimeExpandItem(ExpandBar expandBar) {
         ExpandItem xpiSimulationTime = new ExpandItem(expandBar, SWT.NONE);
-        xpiSimulationTime.setText("When: Simulation Time Span");
+        xpiSimulationTime.setText("When: Simulation Time Bounds");
 
         cmpTimeSpan = new Composite(expandBar, SWT.NONE);
         xpiSimulationTime.setControl(cmpTimeSpan);
-        xpiSimulationTime.setHeight(100);
-        GridLayout glCompositeTimeSpan = new GridLayout(5, false);
+        xpiSimulationTime.setHeight(150);
+        GridLayout glCompositeTimeSpan = new GridLayout(2, false);
         cmpTimeSpan.setLayout(glCompositeTimeSpan);
-        cmpTimeSpan.addListener(SWT.Resize, event -> getDisplay().asyncExec(() -> {
-            if (cmpTimeSpan.isDisposed())
-                return;
-            Point size = cmpTimeSpan.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-            if (xpiSimulationTime.getHeight() != size.y) {
-                xpiSimulationTime.setHeight(size.y);
-            }
-        }));
 
         Label lblFrom = new Label(cmpTimeSpan, SWT.NONE);
         lblFrom.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-        lblFrom.setText("From");
+        lblFrom.setText("Lower bound:");
+
+        Label lblTo = new Label(cmpTimeSpan, SWT.NONE);
+        lblTo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+        lblTo.setText("Upper bound:");
+
+        scaleLower = new Scale(cmpTimeSpan, SWT.NONE);
+        scaleLower.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+
+        scaleUpper = new Scale(cmpTimeSpan, SWT.NONE);
+        scaleUpper.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
         spnTimeSpanFrom = new Spinner(cmpTimeSpan, SWT.BORDER);
         spnTimeSpanFrom.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         spnTimeSpanFrom.setMaximum(TIMESPAN_MAX_VALUE);
 
-        Label lblTo = new Label(cmpTimeSpan, SWT.NONE);
-        lblTo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-        lblTo.setText("To");
-
         spnTimeSpanTo = new Spinner(cmpTimeSpan, SWT.BORDER);
         spnTimeSpanTo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         spnTimeSpanTo.setMaximum(TIMESPAN_MAX_VALUE);
 
+        keepSameHeight(cmpTimeSpan, xpiSimulationTime);
+        new Label(cmpTimeSpan, SWT.NONE);
+
         btnTimespanReset = new Button(cmpTimeSpan, SWT.NONE);
         btnTimespanReset.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
         btnTimespanReset.setText("Reset");
-
-        lblSimulationTimeSpanDescription = new Label(cmpTimeSpan, SWT.NONE);
-        lblSimulationTimeSpanDescription.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 5, 1));
     }
 
     private void createMeasuringPointsExpandItem(ExpandBar expandBar) {
         ExpandItem xpiMeasuringPoints = new ExpandItem(expandBar, SWT.NONE);
         xpiMeasuringPoints.setExpanded(true);
-        xpiMeasuringPoints.setText("Where: Measuring Points");
+        xpiMeasuringPoints.setText("Where: Measuring Point / Range");
 
         cmpMeasuringPoints = new Composite(expandBar, SWT.NONE);
         xpiMeasuringPoints.setControl(cmpMeasuringPoints);
         xpiMeasuringPoints.setHeight(100);
-        cmpMeasuringPoints.setLayout(new GridLayout(2, false));
-        cmpMeasuringPoints.addListener(SWT.Resize, event -> getDisplay().asyncExec(() -> {
-            if (cmpMeasuringPoints.isDisposed())
-                return;
-            Point size = cmpMeasuringPoints.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-            if (xpiMeasuringPoints.getHeight() != size.y) {
-                xpiMeasuringPoints.setHeight(size.y);
-            }
-        }));
+        GridLayout gl_cmpMeasuringPoints = new GridLayout(2, false);
+        gl_cmpMeasuringPoints.marginBottom = 10;
+        gl_cmpMeasuringPoints.marginTop = 10;
+        cmpMeasuringPoints.setLayout(gl_cmpMeasuringPoints);
 
         Label lblMPFrom = new Label(cmpMeasuringPoints, SWT.NONE);
         lblMPFrom.setText("From:");
 
         cmbMeasuringPointFrom = new ComboViewer(cmpMeasuringPoints, SWT.READ_ONLY);
-        Combo combo = cmbMeasuringPointFrom.getCombo();
-        combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-        cmbMeasuringPointFrom.setContentProvider(ArrayContentProvider.getInstance());
-        cmbMeasuringPointFrom.setLabelProvider(ENTITY_LABEL_PROVIDER);
+        cmbMeasuringPointFrom.getCombo().setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
         Label lblMPTo = new Label(cmpMeasuringPoints, SWT.NONE);
         lblMPTo.setText("To:");
 
         cmbMeasuringPointTo = new ComboViewer(cmpMeasuringPoints, SWT.READ_ONLY);
-        Combo combo_1 = cmbMeasuringPointTo.getCombo();
-        combo_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+        cmbMeasuringPointTo.getCombo().setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
-        cmbMeasuringPointTo.setContentProvider(ArrayContentProvider.getInstance());
-        cmbMeasuringPointTo.setLabelProvider(ENTITY_LABEL_PROVIDER);
+        keepSameHeight(cmpMeasuringPoints, xpiMeasuringPoints);
     }
 
     private void createAssemblyContextExpandItem(ExpandBar expandBar) {
         cmpAssemblyCtx = new Composite(expandBar, SWT.NONE);
-        cmpAssemblyCtx.setLayout(new GridLayout(2, false));
+        GridLayout gl_cmpAssemblyCtx = new GridLayout(2, false);
+        gl_cmpAssemblyCtx.marginBottom = 10;
+        gl_cmpAssemblyCtx.marginTop = 10;
+        cmpAssemblyCtx.setLayout(gl_cmpAssemblyCtx);
 
         ExpandItem xpiAssemblyCtx = new ExpandItem(expandBar, 0);
         xpiAssemblyCtx.setText("Where: Assembly Context");
         xpiAssemblyCtx.setControl(cmpAssemblyCtx);
         xpiAssemblyCtx.setHeight(100);
 
-        Label lblSelectAnAssembly = new Label(cmpAssemblyCtx, SWT.NONE);
-        lblSelectAnAssembly.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 2, 1));
-        lblSelectAnAssembly.setText("Select an assembly context.");
-
         cmbAssemblyCtx = new ComboViewer(cmpAssemblyCtx, SWT.READ_ONLY);
         cmbAssemblyCtx.getCombo().setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-        cmbAssemblyCtx.setContentProvider(ArrayContentProvider.getInstance());
-        cmbAssemblyCtx.setLabelProvider(ENTITY_LABEL_PROVIDER);
 
-        Button btnClear = new Button(cmpAssemblyCtx, SWT.NONE);
-        btnClear.setText("Clear");
-        btnClear.addSelectionListener(new SelectionAdapter() {
+        btnClearAssemblyContext = new Button(cmpAssemblyCtx, SWT.NONE);
+        btnClearAssemblyContext.setText("Clear");
+        btnClearAssemblyContext.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 cmbAssemblyCtx.setSelection(StructuredSelection.EMPTY);
@@ -682,12 +390,13 @@ public class FilterView extends ViewPart {
 
     private void createTriggerExpandItem(ExpandBar expandBar) {
         cmpTrigger = new Composite(expandBar, SWT.NONE);
-        cmpTrigger.setLayout(new GridLayout(1, false));
+        GridLayout gl_cmpTrigger = new GridLayout(1, false);
+        cmpTrigger.setLayout(gl_cmpTrigger);
 
-        ExpandItem xpiTrigger = new ExpandItem(expandBar, SWT.NONE);
+        xpiTrigger = new ExpandItem(expandBar, SWT.NONE);
         xpiTrigger.setText("Who: Trigger");
         xpiTrigger.setControl(cmpTrigger);
-        xpiTrigger.setHeight(300);
+        xpiTrigger.setHeight(250);
 
         keepSameHeight(cmpTrigger, xpiTrigger);
 
@@ -697,102 +406,71 @@ public class FilterView extends ViewPart {
 
     private void createTriggerInstancesGroup(Composite compositeTrigger) {
         grpTriggerInstances = new Group(compositeTrigger, SWT.NONE);
-        grpTriggerInstances.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 1, 1));
+        grpTriggerInstances.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
         grpTriggerInstances.setText("Trigger instance");
-        grpTriggerInstances.setLayout(new GridLayout(5, false));
+        GridLayout gl_grpTriggerInstances = new GridLayout(2, false);
+        grpTriggerInstances.setLayout(gl_grpTriggerInstances);
 
-        lblTriggerInstanceDescription = new Label(grpTriggerInstances, SWT.WRAP);
-        lblTriggerInstanceDescription.setFont(JFaceResources.getFontRegistry().getItalic(JFaceResources.DEFAULT_FONT));
-        lblTriggerInstanceDescription.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 5, 1));
-
-        Label lblFromTrigger = new Label(grpTriggerInstances, SWT.NONE);
-        lblFromTrigger.setText("From");
-
-        spnTriggerFrom = new Spinner(grpTriggerInstances, SWT.BORDER);
-        GridData gdSpinnerTriggerFrom = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
-        gdSpinnerTriggerFrom.widthHint = 60;
-        spnTriggerFrom.setLayoutData(gdSpinnerTriggerFrom);
-        spnTriggerFrom.setMaximum(TIMESPAN_MAX_VALUE);
-
-        Label lblToTrigger = new Label(grpTriggerInstances, SWT.NONE);
-        lblToTrigger.setText("To");
-
-        spnTriggerTo = new Spinner(grpTriggerInstances, SWT.BORDER);
-        GridData gdSpinnerTriggerTo = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
-        gdSpinnerTriggerTo.widthHint = 60;
-        spnTriggerTo.setLayoutData(gdSpinnerTriggerTo);
-        spnTriggerTo.setMaximum(TIMESPAN_MAX_VALUE);
-
-        btnTriggerReset = new Button(grpTriggerInstances, SWT.NONE);
-        btnTriggerReset.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-        btnTriggerReset.setText("Reset");
-
-        Label lblTriggerAvailableInstances = new Label(grpTriggerInstances, SWT.WRAP);
-        lblTriggerAvailableInstances.setText("available instances:");
-        lblTriggerAvailableInstances.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, true, 2, 1));
-        lblTriggerAvailableInstances.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));
-
-        lblTriggerInstanceNumber = new Label(grpTriggerInstances, SWT.NONE);
-        lblTriggerInstanceNumber.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, true, 2, 1));
-        new Label(grpTriggerInstances, SWT.NONE);
+        btnEnableTriggerInstance = new Button(grpTriggerInstances, SWT.CHECK);
+        btnEnableTriggerInstance.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
+        btnEnableTriggerInstance.setText("Enable trigger instance selection");
 
         cmbTriggerInstance = new ComboViewer(grpTriggerInstances, SWT.READ_ONLY);
-        cmbTriggerInstance.getCombo().setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 5, 1));
-        cmbTriggerInstance.setContentProvider(ArrayContentProvider.getInstance());
-        cmbTriggerInstance.setLabelProvider(ENTITY_LABEL_PROVIDER);
+        cmbTriggerInstance.getCombo().setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+
+        btnClearTriggerInstances = new Button(grpTriggerInstances, SWT.NONE);
+        btnClearTriggerInstances.setText("Clear");
+
+        cmpTriggerWarning = new Composite(grpTriggerInstances, SWT.NONE);
+        FillLayout fl_cmpTriggerWarning = new FillLayout(SWT.VERTICAL);
+        fl_cmpTriggerWarning.spacing = 3;
+        cmpTriggerWarning.setLayout(fl_cmpTriggerWarning);
+        cmpTriggerWarning.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
+
+        txtTriggerWarning1 = new Text(cmpTriggerWarning, SWT.READ_ONLY);
+        txtTriggerWarning1.setText("Cannot display more than <x> triggers.");
+
+        txtTriggerWarning2 = new Text(cmpTriggerWarning, SWT.READ_ONLY);
+        txtTriggerWarning2.setText("Triggers within time span: <y>");
+
+        txtReduceSimulationTime = new Text(cmpTriggerWarning, SWT.READ_ONLY);
+        txtReduceSimulationTime.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
+        txtReduceSimulationTime.setText("Reduce simulation time span.");
+        txtTriggerWarning1.addListener(SWT.Modify, event -> {
+            adjustHeight(cmpTrigger, xpiTrigger);
+        });
     }
 
     private void createTriggerTypesGroup(Composite compositeTrigger) {
         grpTriggerTypes = new Group(compositeTrigger, SWT.NONE);
-        grpTriggerTypes.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+        grpTriggerTypes.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false, 1, 1));
         grpTriggerTypes.setText("Trigger type");
         grpTriggerTypes.setLayout(new GridLayout(2, false));
 
-        Label lblSelectTriggerType = new Label(grpTriggerTypes, SWT.NONE);
-        lblSelectTriggerType.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
-        lblSelectTriggerType.setSize(349, 14);
-        lblSelectTriggerType.setText("Select a trigger type.");
-        new Label(grpTriggerTypes, SWT.NONE);
+        cmbTriggerType = new ComboViewer(grpTriggerTypes, SWT.READ_ONLY);
+        cmbTriggerType.getCombo().setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
-        cmbTriggerType = new Combo(grpTriggerTypes, SWT.READ_ONLY);
-        cmbTriggerType.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-        cmbTriggerType.setSize(349, 22);
-
-        Button btnClear = new Button(grpTriggerTypes, SWT.NONE);
-        btnClear.setText("Clear");
-        btnClear.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                cmbTriggerType.deselectAll();
-            }
-        });
+        btnClearTriggerTypes = new Button(grpTriggerTypes, SWT.NONE);
+        btnClearTriggerTypes.setText("Clear");
     }
 
     private void createMetricExpandItem(ExpandBar expandBar) {
         cmpMetric = new Composite(expandBar, SWT.NONE);
-        cmpMetric.setLayout(new GridLayout(1, false));
+        GridLayout gl_cmpMetric = new GridLayout(1, false);
+        gl_cmpMetric.marginBottom = 10;
+        gl_cmpMetric.marginTop = 10;
+        cmpMetric.setLayout(gl_cmpMetric);
 
         ExpandItem xpiMetric = new ExpandItem(expandBar, SWT.NONE);
         xpiMetric.setExpanded(true);
         xpiMetric.setText("What: Metric");
         xpiMetric.setControl(cmpMetric);
-        xpiMetric.setHeight(xpiMetric.getControl().computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
+        xpiMetric.setHeight(50);
 
-        Label lblSelectTheMetric = new Label(cmpMetric, SWT.NONE);
-        lblSelectTheMetric.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
-        lblSelectTheMetric.setText("Select the metric to be plotted.");
-
-        cmbMetric = new Combo(cmpMetric, SWT.READ_ONLY);
-        cmbMetric.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+        cmbMetric = new ComboViewer(cmpMetric, SWT.READ_ONLY);
+        cmbMetric.getCombo().setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
         keepSameHeight(cmpMetric, xpiMetric);
-    }
-
-    /**
-     * Passing the focus request.
-     */
-    public final void setFocus() {
-        viewParent.setFocus();
     }
 
     /**
@@ -803,63 +481,27 @@ public class FilterView extends ViewPart {
     private void addEventHandler() {
         btnPlot.addListener(SWT.Selection, l -> ctrl.plotDiagram());
         btnTimespanReset.addListener(SWT.Selection, l -> ctrl.resetSimulationTimeBounds());
-        btnTriggerReset.addListener(SWT.Selection, l -> ctrl.resetTriggerSimulationTimeBounds());
-
-        ModifyListener triggerSpinnerModifyListener = new ModifyListener() {
-
-            private Timer timer = new Timer();
-            private final long timerDelay = 900;
-
-            @Override
-            public void modifyText(final ModifyEvent e) {
-
-                if (timer != null) {
-                    timer.cancel();
-                }
-
-                timer = new Timer();
-
-                // Set timer to delay the modify event to prevent multiple
-                // events in a row.
-                TimerTask task = new TimerTask() {
-                    @Override
-                    public void run() {
-
-                        Display.getDefault().asyncExec(new Runnable() {
-                            public void run() {
-                                ctrl.triggerSimulationBoundsChanged();
-                            }
-                        });
-                        timer.cancel();
-                    }
-                };
-                timer.schedule(task, timerDelay);
-
-            }
-        };
-
-        spnTriggerFrom.addModifyListener(triggerSpinnerModifyListener);
-        spnTriggerTo.addModifyListener(triggerSpinnerModifyListener);
-        cmbMetric.addModifyListener(l -> ctrl.metricSelected());
-        cmbTriggerType.addModifyListener(l -> ctrl.triggerTypeSelected());
-        cmbTriggerInstance.addSelectionChangedListener(l -> ctrl.triggerInstanceSelected());
-        cmbMeasuringPointFrom.addSelectionChangedListener(l -> ctrl.fromMeasuringPointSelected());
-        cmbAssemblyCtx.addSelectionChangedListener(l -> ctrl.assemblyContextSelected());
+        btnClearTriggerTypes.addListener(SWT.Selection, l -> ctrl.clearSelectionTriggerTypes());
+        btnClearTriggerInstances.addListener(SWT.Selection, l -> ctrl.clearSelectionTriggerInstances());
     }
 
     private void keepSameHeight(Composite observedComposite, ExpandItem exandItemToResize) {
         observedComposite.addListener(SWT.Resize, event -> getDisplay().asyncExec(() -> {
-            if (observedComposite.isDisposed())
-                return;
-            Point size = observedComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-            if (exandItemToResize.getHeight() != size.y) {
-                exandItemToResize.setHeight(size.y);
-            }
+            adjustHeight(observedComposite, exandItemToResize);
         }));
     }
 
+    private void adjustHeight(Composite observedComposite, ExpandItem exandItemToResize) {
+        if (observedComposite.isDisposed())
+            return;
+        Point size = observedComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+        if (exandItemToResize.getHeight() != size.y) {
+            exandItemToResize.setHeight(size.y);
+        }
+    }
+
     /**
-     * Re-layout the view.
+     * Re-layout the
      */
     private void layoutView() {
         getDisplay().asyncExec(new Runnable() {
@@ -867,5 +509,138 @@ public class FilterView extends ViewPart {
                 viewParent.layout();
             }
         });
+    }
+    protected DataBindingContext initDataBindings() {
+        DataBindingContext bindingContext = new DataBindingContext();
+        //
+        ObservableListContentProvider listContentProvider = new ObservableListContentProvider();
+        IObservableMap[] observeMap = PojoObservables.observeMaps(listContentProvider.getKnownElements(), Entity.class, new String[]{"name", "id"});
+        cmbMeasuringPointFrom.setLabelProvider(new EntityLabelProvider(observeMap));
+        cmbMeasuringPointFrom.setContentProvider(listContentProvider);
+        //
+        IObservableList measuringPointsFromModelObserveList = BeanProperties.list("measuringPointsFrom").observe(model);
+        cmbMeasuringPointFrom.setInput(measuringPointsFromModelObserveList);
+        //
+        IObservableValue observeSingleSelectionFilterViewgetCmbMeasuringPointFrom = ViewerProperties.singleSelection().observe(cmbMeasuringPointFrom);
+        IObservableValue measuringPointFromSelectionModelObserveValue = BeanProperties.value("measuringPointFrom").observe(selectionModel);
+        bindingContext.bindValue(observeSingleSelectionFilterViewgetCmbMeasuringPointFrom, measuringPointFromSelectionModelObserveValue, null, null);
+        //
+        ObservableListContentProvider listContentProvider_1 = new ObservableListContentProvider();
+        IObservableMap observeMap_1 = PojoObservables.observeMap(listContentProvider_1.getKnownElements(), TranslatableEntity.class, "translation");
+        cmbMetric.setLabelProvider(new TranslatableEntityLabelProvider(observeMap_1));
+        cmbMetric.setContentProvider(listContentProvider_1);
+        //
+        IObservableList metricsModelObserveList = BeanProperties.list("metrics").observe(model);
+        cmbMetric.setInput(metricsModelObserveList);
+        //
+        IObservableValue observeSingleSelectionFilterViewgetCmbMetric = ViewerProperties.singleSelection().observe(cmbMetric);
+        IObservableValue metricSelectionModelObserveValue = BeanProperties.value("metric").observe(selectionModel);
+        bindingContext.bindValue(observeSingleSelectionFilterViewgetCmbMetric, metricSelectionModelObserveValue, null, null);
+        //
+        ObservableListContentProvider listContentProvider_2 = new ObservableListContentProvider();
+        IObservableMap observeMap_2 = PojoObservables.observeMap(listContentProvider_2.getKnownElements(), TranslatableEntity.class, "translation");
+        cmbTriggerType.setLabelProvider(new TranslatableEntityLabelProvider(observeMap_2));
+        cmbTriggerType.setContentProvider(listContentProvider_2);
+        //
+        IObservableList triggerTypesModelObserveList = BeanProperties.list("triggerTypes").observe(model);
+        cmbTriggerType.setInput(triggerTypesModelObserveList);
+        //
+        IObservableValue observeSingleSelectionFilterViewgetCmbTriggerType = ViewerProperties.singleSelection().observe(cmbTriggerType);
+        IObservableValue triggerTypeSelectionModelObserveValue = BeanProperties.value("triggerType").observe(selectionModel);
+        bindingContext.bindValue(observeSingleSelectionFilterViewgetCmbTriggerType, triggerTypeSelectionModelObserveValue, null, null);
+        //
+        ObservableListContentProvider listContentProvider_4 = new ObservableListContentProvider();
+        IObservableMap observeMap_4 = PojoObservables.observeMap(listContentProvider_4.getKnownElements(), Entity.class, "name");
+        cmbAssemblyCtx.setLabelProvider(new EntityLabelProvider(observeMap_4));
+        cmbAssemblyCtx.setContentProvider(listContentProvider_4);
+        //
+        IObservableList assemblyContextsModelObserveList = BeanProperties.list("assemblyContexts").observe(model);
+        cmbAssemblyCtx.setInput(assemblyContextsModelObserveList);
+        //
+        IObservableValue observeSingleSelectionFilterViewgetCmbAssemblyCtx = ViewerProperties.singleSelection().observe(cmbAssemblyCtx);
+        IObservableValue assemblyContextSelectionModelObserveValue = BeanProperties.value("assemblyContext").observe(selectionModel);
+        bindingContext.bindValue(observeSingleSelectionFilterViewgetCmbAssemblyCtx, assemblyContextSelectionModelObserveValue, null, null);
+        //
+        ObservableListContentProvider listContentProvider_5 = new ObservableListContentProvider();
+        IObservableMap observeMap_5 = PojoObservables.observeMap(listContentProvider_5.getKnownElements(), Entity.class, "name");
+        cmbMeasuringPointTo.setLabelProvider(new EntityLabelProvider(observeMap_5));
+        cmbMeasuringPointTo.setContentProvider(listContentProvider_5);
+        //
+        IObservableList measuringPointsToModelObserveList = BeanProperties.list("measuringPointsTo").observe(model);
+        cmbMeasuringPointTo.setInput(measuringPointsToModelObserveList);
+        //
+        IObservableValue observeSingleSelectionFilterViewgetCmbMeasuringPointTo = ViewerProperties.singleSelection().observe(cmbMeasuringPointTo);
+        IObservableValue measuringPointToSelectionModelObserveValue = BeanProperties.value("measuringPointTo").observe(selectionModel);
+        bindingContext.bindValue(observeSingleSelectionFilterViewgetCmbMeasuringPointTo, measuringPointToSelectionModelObserveValue, null, null);
+        //
+        IObservableValue observeMinFilterViewgetSpnTimeSpanFromObserveWidget = WidgetProperties.minimum().observe(spnTimeSpanFrom);
+        IObservableValue simulationTimeMinModelObserveValue = BeanProperties.value("simulationTimeMin").observe(model);
+        bindingContext.bindValue(observeMinFilterViewgetSpnTimeSpanFromObserveWidget, simulationTimeMinModelObserveValue, null, null);
+        //
+        IObservableValue observeMaxFilterViewgetSpnTimeSpanFromObserveWidget = WidgetProperties.maximum().observe(spnTimeSpanFrom);
+        IObservableValue simulationTimeUpperSelectionModelObserveValue = BeanProperties.value("simulationTimeUpper").observe(selectionModel);
+        bindingContext.bindValue(observeMaxFilterViewgetSpnTimeSpanFromObserveWidget, simulationTimeUpperSelectionModelObserveValue, null, null);
+        //
+        IObservableValue observeSelectionFilterViewgetSpnTimeSpanFromObserveWidget = WidgetProperties.selection().observeDelayed(300, spnTimeSpanFrom);
+        IObservableValue simulationTimeLowerSelectionModelObserveValue = BeanProperties.value("simulationTimeLower").observe(selectionModel);
+        bindingContext.bindValue(observeSelectionFilterViewgetSpnTimeSpanFromObserveWidget, simulationTimeLowerSelectionModelObserveValue, null, null);
+        //
+        IObservableValue observeMinFilterViewgetSpnTimeSpanToObserveWidget = WidgetProperties.minimum().observe(spnTimeSpanTo);
+        bindingContext.bindValue(observeMinFilterViewgetSpnTimeSpanToObserveWidget, simulationTimeLowerSelectionModelObserveValue, null, null);
+        //
+        IObservableValue observeMaxFilterViewgetSpnTimeSpanToObserveWidget = WidgetProperties.maximum().observe(spnTimeSpanTo);
+        IObservableValue simulationTimeMaxModelObserveValue = BeanProperties.value("simulationTimeMax").observe(model);
+        bindingContext.bindValue(observeMaxFilterViewgetSpnTimeSpanToObserveWidget, simulationTimeMaxModelObserveValue, null, null);
+        //
+        IObservableValue observeSelectionFilterViewgetSpnTimeSpanToObserveWidget = WidgetProperties.selection().observeDelayed(300, spnTimeSpanTo);
+        bindingContext.bindValue(observeSelectionFilterViewgetSpnTimeSpanToObserveWidget, simulationTimeUpperSelectionModelObserveValue, null, null);
+        //
+        IObservableValue observeMinFilterViewgetScaleLowerObserveWidget = WidgetProperties.minimum().observe(scaleLower);
+        bindingContext.bindValue(observeMinFilterViewgetScaleLowerObserveWidget, simulationTimeMinModelObserveValue, null, null);
+        //
+        IObservableValue observeMaxFilterViewgetScaleLowerObserveWidget = WidgetProperties.maximum().observe(scaleLower);
+        bindingContext.bindValue(observeMaxFilterViewgetScaleLowerObserveWidget, simulationTimeUpperSelectionModelObserveValue, null, null);
+        //
+        IObservableValue observeSelectionFilterViewgetScaleLowerObserveWidget = WidgetProperties.selection().observeDelayed(300, scaleLower);
+        bindingContext.bindValue(observeSelectionFilterViewgetScaleLowerObserveWidget, simulationTimeLowerSelectionModelObserveValue, null, null);
+        //
+        IObservableValue observeMinFilterViewgetScaleUpperObserveWidget = WidgetProperties.minimum().observe(scaleUpper);
+        bindingContext.bindValue(observeMinFilterViewgetScaleUpperObserveWidget, simulationTimeLowerSelectionModelObserveValue, null, null);
+        //
+        IObservableValue observeMaxFilterViewgetScaleUpperObserveWidget = WidgetProperties.maximum().observe(scaleUpper);
+        bindingContext.bindValue(observeMaxFilterViewgetScaleUpperObserveWidget, simulationTimeMaxModelObserveValue, null, null);
+        //
+        IObservableValue observeSelectionFilterViewgetScaleUpperObserveWidget = WidgetProperties.selection().observeDelayed(300, scaleUpper);
+        bindingContext.bindValue(observeSelectionFilterViewgetScaleUpperObserveWidget, simulationTimeUpperSelectionModelObserveValue, null, null);
+        //
+        ObservableListContentProvider listContentProvider_3 = new ObservableListContentProvider();
+        IObservableMap[] observeMaps = PojoObservables.observeMaps(listContentProvider_3.getKnownElements(), Entity.class, new String[]{"name", "id"});
+        cmbTriggerInstance.setLabelProvider(new EntityLabelProvider(observeMaps));
+        cmbTriggerInstance.setContentProvider(listContentProvider_3);
+        //
+        IObservableList triggerInstancesModelObserveList = BeanProperties.list("triggerInstances").observe(model);
+        cmbTriggerInstance.setInput(triggerInstancesModelObserveList);
+        //
+        IObservableValue observeSingleSelectionCmbTriggerInstance = ViewerProperties.singleSelection().observe(cmbTriggerInstance);
+        IObservableValue triggerInstanceSelectionModelObserveValue = BeanProperties.value("triggerInstance").observe(selectionModel);
+        bindingContext.bindValue(observeSingleSelectionCmbTriggerInstance, triggerInstanceSelectionModelObserveValue, null, null);
+        //
+        IObservableValue observeSelectionBtnEnableTriggerInstanceObserveWidget = WidgetProperties.selection().observe(btnEnableTriggerInstance);
+        IObservableValue triggerInstanceSelectionEnabledSelectionModelObserveValue = BeanProperties.value("triggerInstanceSelectionEnabled").observe(selectionModel);
+        bindingContext.bindValue(observeSelectionBtnEnableTriggerInstanceObserveWidget, triggerInstanceSelectionEnabledSelectionModelObserveValue, null, null);
+        //
+        ObservableListContentProvider listContentProvider_6 = new ObservableListContentProvider();
+        IObservableMap[] observeMaps_1 = PojoObservables.observeMaps(listContentProvider_6.getKnownElements(), TranslatableEntity.class, new String[]{"name", "translation"});
+        cmbDiagramType.setLabelProvider(new TranslatableEntityLabelProvider(observeMaps_1));
+        cmbDiagramType.setContentProvider(listContentProvider_6);
+        //
+        IObservableList diagramTypesModelObserveList = BeanProperties.list("diagramTypes").observe(model);
+        cmbDiagramType.setInput(diagramTypesModelObserveList);
+        //
+        IObservableValue observeSingleSelectionCmbDiagramType = ViewerProperties.singleSelection().observe(cmbDiagramType);
+        IObservableValue diagramTypeSelectionModelObserveValue = BeanProperties.value("diagramType").observe(selectionModel);
+        bindingContext.bindValue(observeSingleSelectionCmbDiagramType, diagramTypeSelectionModelObserveValue, null, null);
+        //
+        return bindingContext;
     }
 }

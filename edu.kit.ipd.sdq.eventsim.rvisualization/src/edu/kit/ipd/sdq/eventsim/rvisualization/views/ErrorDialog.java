@@ -1,4 +1,4 @@
-package edu.kit.ipd.sdq.eventsim.rvisualization.gui;
+package edu.kit.ipd.sdq.eventsim.rvisualization.views;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;

@@ -3,6 +3,7 @@ package edu.kit.ipd.sdq.eventsim.rvisualization;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -23,8 +24,8 @@ import edu.kit.ipd.sdq.eventsim.rvisualization.model.DiagramType;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.Entity;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.FilterModel;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.FilterSelectionModel;
-import edu.kit.ipd.sdq.eventsim.rvisualization.model.Metric;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.TranslatableEntity;
+import edu.kit.ipd.sdq.eventsim.rvisualization.util.Helper;
 
 /**
  * Controls communication with R via RServe.
@@ -117,12 +118,12 @@ public final class RController {
             return Collections.emptyList();
         }
 
-        String[] metrics = null;
+        String[] metricNames = null;
         String rCmd = "levels(" + CONTENT_VARIABLE + "$what)";
         try {
             REXP exp = evalRCommand(rCmd);
             if (!exp.isNull()) {
-                metrics = exp.asStrings();
+                metricNames = exp.asStrings();
             } else {
                 return Collections.emptyList();
             }
@@ -132,10 +133,17 @@ public final class RController {
             LOG.error("Could not read metrics from R", e);
         }
 
+        // for each metric found in measurements, look up the corresponding label to be
+        // displayed in the GUI
         List<TranslatableEntity> metricsList = new ArrayList<>();
-        for (String m : metrics) {
-            Metric metric = Metric.fromMeasurementsName(m);
-            metricsList.add(new TranslatableEntity(metric.getNameInMeasurements(), metric.getName()));
+        Map<String, TranslatableEntity> metricsMap = Helper.getMetricsLabelExtensions();
+        for (String name : metricNames) {
+            TranslatableEntity entity = metricsMap.get(name);
+            if (entity == null) {
+                // if no label is supplied via an extension, use the metric's technical name
+                entity = new TranslatableEntity(name, name);
+            }
+            metricsList.add(entity);
         }
 
         return metricsList;

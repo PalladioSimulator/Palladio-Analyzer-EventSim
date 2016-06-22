@@ -1,7 +1,14 @@
 package edu.kit.ipd.sdq.eventsim.rvisualization.util;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+
+import edu.kit.ipd.sdq.eventsim.rvisualization.model.TranslatableEntity;
 
 /**
  * Provides some helper methods.
@@ -11,6 +18,8 @@ import org.eclipse.swt.widgets.Control;
  *
  */
 public final class Helper {
+
+    private static final String METRICS_EXTENSION_POINT_ID = "edu.kit.ipd.sdq.eventsim.rvisualization.metriclabels";
 
     /**
      * Private constructor because methods are only accessed in a static way.
@@ -34,6 +43,19 @@ public final class Helper {
                 setEnabledRecursive(child, enabled);
             }
         }
+    }
+
+    public static Map<String, TranslatableEntity> getMetricsLabelExtensions() {
+        IConfigurationElement[] config = Platform.getExtensionRegistry()
+                .getConfigurationElementsFor(METRICS_EXTENSION_POINT_ID);
+
+        Map<String, TranslatableEntity> entities = new HashMap<>();
+        for (IConfigurationElement c : config) {
+            String name = c.getAttribute("name");
+            String label = c.getAttribute("label");
+            entities.put(name, new TranslatableEntity(name, label));
+        }
+        return entities;
     }
 
 }

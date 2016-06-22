@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+   <extension-point id="edu.kit.ipd.sdq.eventsim.rvisualization.metriclabels" name="Metric Labels" schema="schema/edu.kit.ipd.sdq.eventsim.rvisualization.metriclabels.exsd"/>
 
    <extension
          point="org.eclipse.ui.views">
@@ -103,6 +104,29 @@
             class="edu.kit.ipd.sdq.eventsim.rvisualization.handlers.ShowScriptHandler"
             commandId="edu.kit.ipd.sdq.eventsim.rvisualization.diagramview.showscript">
       </handler>
+   </extension>
+   <extension
+         point="edu.kit.ipd.sdq.eventsim.rvisualization.metriclabels">
+      <metric
+            label="Hold Time of Passive Resources"
+            name="HOLD_TIME">
+      </metric>
+      <metric
+            label="Queue Length of Resources"
+            name="QUEUE_LENGTH">
+      </metric>
+      <metric
+            label="Resource Demand"
+            name="RESOURCE_DEMAND">
+      </metric>
+      <metric
+            label="Response Time (Time Span)"
+            name="TIME_SPAN">
+      </metric>
+      <metric
+            label="Waiting Time for Passive Resources"
+            name="WAITING_TIME">
+      </metric>
    </extension>
 
 </plugin>

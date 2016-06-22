@@ -222,7 +222,10 @@ public class FilterView extends ViewPart {
 
     public void enableSimulationTimeComposite(boolean enabled) {
         Helper.setEnabledRecursive(cmpTimeSpan, enabled);
-
+    }
+    
+    public void enableDiagramTypeCombo(boolean enable) {
+        cmbDiagramType.getCombo().setEnabled(enable);
     }
 
     public void enablePlotButton(boolean enabled) {

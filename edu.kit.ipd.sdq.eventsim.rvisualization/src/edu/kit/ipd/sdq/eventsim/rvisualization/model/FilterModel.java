@@ -169,6 +169,7 @@ public class FilterModel {
         setAssemblyContexts(null);
         setSimulationTimeMin(0);
         setSimulationTimeMax(0);
+        setDiagramTypes(null);
     }
 
 }

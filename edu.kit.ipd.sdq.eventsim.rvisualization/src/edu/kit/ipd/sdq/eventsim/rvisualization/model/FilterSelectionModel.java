@@ -165,6 +165,7 @@ public class FilterSelectionModel {
         setMeasuringPointTo(null);
         setSimulationTimeLower(0);
         setSimulationTimeUpper(0);
+        setDiagramType(null);
     }
 
 }

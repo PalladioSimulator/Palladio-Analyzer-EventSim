@@ -97,13 +97,6 @@ public class Controller {
 
         // observe model to disable empty controls (enable non-empty controls, respectively)
         model.addPropertyChangeListener(new DisableEmptyControlsHandler());
-        model.addPropertyChangeListener(new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                boolean enabled = model.getSimulationTimeMax() > model.getSimulationTimeMin();
-                view.enableSimulationTimeComposite(enabled);
-            }
-        });
 
         // observe selection model and react to selection events
         selectionModel.addPropertyChangeListener(selectionHandler);
@@ -430,6 +423,11 @@ public class Controller {
                 view.enableMeasuringPointsToCombo(enable);
                 break;
             case FilterModel.SIMULATION_TIME_MAX_PROPERTY:
+                enable = model.getSimulationTimeMax() > model.getSimulationTimeMin();
+                view.enableSimulationTimeComposite(enable);
+                break;
+            case FilterModel.DIAGRAM_TYPE_PROPERTY:
+                view.enableDiagramTypeCombo(enable);
                 break;
             }
         }

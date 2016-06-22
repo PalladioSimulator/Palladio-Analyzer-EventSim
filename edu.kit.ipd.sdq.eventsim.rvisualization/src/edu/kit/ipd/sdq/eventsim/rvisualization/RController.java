@@ -393,7 +393,7 @@ public final class RController {
         try {
             String rCmd = "tables(silent=TRUE)[NAME=='" + CONTENT_VARIABLE + "']$MB";
             REXP evaluated = evalRCommand(rCmd);
-            memoryConsumption = Integer.parseInt(evaluated.asString());
+            memoryConsumption = Integer.parseInt(evaluated.asString().replace(",", "").replace(".", ""));
         } catch (REXPMismatchException e) {
             LOG.error("Could not calculate memory consumption", e);
         } catch (EvaluationException e) {

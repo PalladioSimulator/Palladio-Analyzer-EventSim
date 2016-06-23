@@ -17,7 +17,7 @@ import edu.kit.ipd.sdq.eventsim.measurement.r.jobs.MergeBufferedDataFramesJob;
  */
 public class CalculateResourceUtilization implements RJob {
 
-    private static final Logger log = Logger.getLogger(MergeBufferedDataFramesJob.class);
+    private static final Logger log = Logger.getLogger(CalculateResourceUtilization.class);
 
     private static final int WINDOW_SIZE = 10; // in simulation time units
 

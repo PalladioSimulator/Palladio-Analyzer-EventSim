@@ -10,5 +10,19 @@
             priority="0">
       </simulation_module>
    </extension>
+   <extension
+         point="edu.kit.ipd.sdq.eventsim.measurement.r.rjobs">
+      <rjob
+            job="edu.kit.ipd.sdq.eventsim.resources.CalculateResourceUtilization"
+            name="Calculate Resource Utilization">
+      </rjob>
+   </extension>
+   <extension
+         point="edu.kit.ipd.sdq.eventsim.rvisualization.metriclabels">
+      <metric
+            label="Utilization of Resources in Percent"
+            name="UTILIZATION">
+      </metric>
+   </extension>
 
 </plugin>

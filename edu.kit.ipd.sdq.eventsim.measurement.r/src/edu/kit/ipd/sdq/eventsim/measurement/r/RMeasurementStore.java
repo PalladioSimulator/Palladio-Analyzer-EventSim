@@ -143,6 +143,13 @@ public class RMeasurementStore implements MeasurementStorage {
 
 		rJobProcessor.enqueue(new PushBufferToRJob(buffer, bufferNumber++));
 		rJobProcessor.enqueue(new MergeBufferedDataFramesJob());
+		
+		// handle R job extensions
+		for(RJob job : JobExtensionHelper.createExtensionJobs()) {
+		    log.info("Processing R extension job: " + job.getName());
+		    rJobProcessor.enqueue(job);    
+		}
+		
 		if (storeRds) {
 			rJobProcessor.enqueue(new StoreRDSFileJob(rdsFilePath));
 		} else {
@@ -155,11 +162,8 @@ public class RMeasurementStore implements MeasurementStorage {
 
 		// clean up
 		// TODO really needed?
-//		connection.disconnect();
 		buffer = new Buffer(BUFFER_CAPACITY, idExtractor, nameExtractor, typeExtractor);
 		bufferNumber = 0;
 	}
 	
-	
-
 }

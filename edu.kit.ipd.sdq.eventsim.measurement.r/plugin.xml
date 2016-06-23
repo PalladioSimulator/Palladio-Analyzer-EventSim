@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+   <extension-point id="edu.kit.ipd.sdq.eventsim.measurement.r.rjobs" name="RJobs" schema="schema/edu.kit.ipd.sdq.eventsim.measurement.r.rjobs.exsd"/>
    <extension
          point="org.eclipse.ui.views">
       <e4view

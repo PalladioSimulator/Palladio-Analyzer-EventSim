@@ -10,6 +10,9 @@ import java.util.regex.Matcher;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.eclipse.core.commands.Command;
+import org.eclipse.core.commands.IStateListener;
+import org.eclipse.core.commands.State;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
@@ -17,6 +20,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.commands.ICommandService;
 
 import edu.kit.ipd.sdq.eventsim.measurement.r.connection.AbstractConnectionStatusListener;
 import edu.kit.ipd.sdq.eventsim.measurement.r.connection.ConnectionListener;
@@ -27,6 +31,7 @@ import edu.kit.ipd.sdq.eventsim.rvisualization.model.DiagramType;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.Entity;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.FilterModel;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.FilterSelectionModel;
+import edu.kit.ipd.sdq.eventsim.rvisualization.model.StatisticsModel;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.TranslatableEntity;
 import edu.kit.ipd.sdq.eventsim.rvisualization.util.Procedure;
 import edu.kit.ipd.sdq.eventsim.rvisualization.views.DiagramView;
@@ -259,12 +264,13 @@ public class Controller {
         String title = createShortDiagramTitle();
         String subTitle = createDiagramSubTitle();
         String subsubTitle = createDiagramSubSubTitle();
-        String plotCommand = rCtrl.plotDiagramToFile(diagramType, diagramPath, title, subTitle, subsubTitle);
+        String filter = rCtrl.getFilterExpression();
+        String plotCommand = rCtrl.plotDiagramToFile(diagramType, diagramPath, title, subTitle, subsubTitle, filter);
 
         // Open new view to display the diagram.
         String viewTitle = createDiagramTitle();
         try {
-            openDiagramView(viewTitle, diagramPath, plotCommand);
+            openDiagramView(viewTitle, diagramPath, plotCommand, filter);
         } catch (PartInitException e) {
             LOG.error("Could not open diagram view", e);
         }
@@ -294,12 +300,21 @@ public class Controller {
         return imagePath;
     }
 
-    private void openDiagramView(String title, String imagePath, String rCommand) throws PartInitException {
+    private void openDiagramView(String title, String imagePath, String rCommand, String filter)
+            throws PartInitException {
         DiagramView view = (DiagramView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
                 .showView(DiagramView.ID, title, IWorkbenchPage.VIEW_ACTIVATE);
         view.setViewTitle(title);
         view.setDiagramImage(imagePath);
         view.setRCommandString(rCommand);
+        view.setController(this);
+        view.setFilterExpression(filter);
+
+        ICommandService commandService = (ICommandService) PlatformUI.getWorkbench().getService(ICommandService.class);
+        Command command = commandService.getCommand("edu.kit.ipd.sdq.eventsim.rvisualization.diagramview.statistics");
+        State toggleState = command
+                .getState("edu.kit.ipd.sdq.eventsim.rvisualization.diagramview.statistics.togglestate");
+        toggleState.addListener(new StatisticsSelectionHandler(view));
     }
 
     /**
@@ -330,7 +345,8 @@ public class Controller {
      * @return Short diagram title.
      */
     private String createShortDiagramTitle() {
-        String diagramTitle = selectionModel.getMetric().getTranslation() + " of " + selectionModel.getMeasuringPointFrom().getName();
+        String diagramTitle = selectionModel.getMetric().getTranslation() + " of "
+                + selectionModel.getMeasuringPointFrom().getName();
         // TODO also consider "to" measuring point
         return diagramTitle;
     }
@@ -344,7 +360,7 @@ public class Controller {
         Entity measuringPoint = selectionModel.getMeasuringPointFrom();
         return "ID: " + measuringPoint.getId();
     }
-    
+
     private String createDiagramSubSubTitle() {
         String diagramSubSubTitle = "Simulation time span: ";
         diagramSubSubTitle += selectionModel.getSimulationTimeLower();
@@ -399,6 +415,52 @@ public class Controller {
                 shell.setCursor(display.getSystemCursor(SWT.CURSOR_ARROW));
             }
         }
+    }
+
+    private final class StatisticsSelectionHandler implements IStateListener {
+
+        private DiagramView diagramView;
+
+        public StatisticsSelectionHandler(DiagramView diagramView) {
+            this.diagramView = diagramView;
+        }
+
+        @Override
+        public void handleStateChange(State state, Object oldValue) {
+            boolean enabled = (boolean) state.getValue();
+            boolean previouslyEnabled = (boolean) oldValue;
+            if (enabled && !previouslyEnabled) {
+                reloadStatistics();
+                diagramView.showStatisticsArea(true);
+            } else if (!enabled) {
+                diagramView.showStatisticsArea(false);
+            }
+
+        }
+
+        private void reloadStatistics() {
+            double[] statistics = rCtrl.getStatistics(diagramView.getFilterExpression());
+            StatisticsModel statisticsModel = diagramView.getStatisticsViewer().getModel();
+
+            if (statistics != null && statistics.length == 6) {
+                int observations = rCtrl.getNumberOfDiagramValues();
+                double min = statistics[0];
+                double firstQuartile = statistics[1];
+                double median = statistics[2];
+                double mean = statistics[3];
+                double thirdQuartile = statistics[4];
+                double max = statistics[5];
+
+                statisticsModel.setObservations(observations);
+                statisticsModel.setMin(min);
+                statisticsModel.setFirstQuartile(firstQuartile);
+                statisticsModel.setMedian(median);
+                statisticsModel.setMean(mean);
+                statisticsModel.setThirdQuartile(thirdQuartile);
+                statisticsModel.setMax(max);
+            }
+        }
+
     }
 
     private final class DisableEmptyControlsHandler implements PropertyChangeListener {

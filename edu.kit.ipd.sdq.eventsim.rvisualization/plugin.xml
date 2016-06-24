@@ -63,10 +63,20 @@
             allPopups="false"
             locationURI="toolbar:edu.kit.ipd.sdq.eventsim.rvisualization.diagramview">
          <command
+               commandId="edu.kit.ipd.sdq.eventsim.rvisualization.diagramview.statistics"
+               icon="icons/sum.png"
+               label="Calculate statistics"
+               style="toggle">
+         </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:edu.kit.ipd.sdq.eventsim.rvisualization.diagramview">
+         <command
                commandId="edu.kit.ipd.sdq.eventsim.rvisualization.diagramview.save"
                icon="icons/disk.png"
                id="edu.kit.ipd.sdq.eventsim.rvisualization.diagramview.save.menu"
-               label="Save diagram to new file"
+               label="Save or export diagram"
                style="pulldown"
                tooltip="Save diagram...">
          </command>
@@ -119,6 +129,10 @@
             class="edu.kit.ipd.sdq.eventsim.rvisualization.handlers.ShowScriptHandler"
             commandId="edu.kit.ipd.sdq.eventsim.rvisualization.diagramview.showscript">
       </handler>
+      <handler
+            class="edu.kit.ipd.sdq.eventsim.rvisualization.handlers.ShowStatisticsHandler"
+            commandId="edu.kit.ipd.sdq.eventsim.rvisualization.diagramview.statistics">
+      </handler>
    </extension>
    <extension
          point="edu.kit.ipd.sdq.eventsim.rvisualization.metriclabels">
@@ -153,6 +167,14 @@
                name="format"
                optional="true">
          </commandParameter>
+      </command>
+      <command
+            id="edu.kit.ipd.sdq.eventsim.rvisualization.diagramview.statistics"
+            name="Calculate statistics">
+         <state
+               class="org.eclipse.jface.commands.ToggleState"
+               id="edu.kit.ipd.sdq.eventsim.rvisualization.diagramview.statistics.togglestate">
+         </state>
       </command>
    </extension>
 

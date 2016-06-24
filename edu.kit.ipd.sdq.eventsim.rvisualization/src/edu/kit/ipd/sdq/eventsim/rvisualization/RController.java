@@ -468,6 +468,30 @@ public final class RController {
         }
     }
 
+    public double[] getStatistics(String expression) {
+        if (!isConnected()) {
+            return null;
+        }
+
+        try {
+            REXP statistics = evalRCommand("summary(" + expression + "$value)");
+            return statistics.asDoubles();
+        } catch (REXPMismatchException e) {
+            LOG.error("Could not calculate statistics via R", e);
+        } catch (EvaluationException e) {
+            LOG.error("Could not calculate statistics via R", e);
+        }
+        return null;
+    }
+
+    public String getFilterExpression() {
+        ConditionBuilder conditions = new ConditionBuilder(model, selectionModel).metric().lowerTime().upperTime()
+                .triggerType().triggerInstance().assembly().from().to();
+        String selection = conditions.build();
+        String projection = "";
+        return CONTENT_VARIABLE + "[" + selection + ", " + projection + "]";
+    }
+
     /**
      * Plot a diagram by R based on the given filters and stored in the given path.
      * 
@@ -483,17 +507,19 @@ public final class RController {
      *             If invalid diagram type was used.
      */
     public String plotDiagramToFile(final DiagramType type, final String diagramImagePath, final String diagramTitle,
-            final String diagramSubTitle, String diagramSubSubTitle) {
+            final String diagramSubTitle, String diagramSubSubTitle, String filterExpression) {
 
-        ConditionBuilder conditions = new ConditionBuilder(model, selectionModel).metric().lowerTime().upperTime()
-                .triggerType().triggerInstance().assembly().from().to();
-        String selection = conditions.build();
-        String projection = "";
+        // ConditionBuilder conditions = new ConditionBuilder(model,
+        // selectionModel).metric().lowerTime().upperTime()
+        // .triggerType().triggerInstance().assembly().from().to();
+        // String selection = conditions.build();
+        // String projection = "";
 
-        String rPlotDataVar = CONTENT_VARIABLE + "[" + selection + ", " + projection + "]";
+        // String rPlotDataVar = fCONTENT_VARIABLE + "[" + selection + ", " + projection + "]";
         String rImageVar = "image";
 
-        String plotCommand = getDiagramSpecificPlotCommand(type, rPlotDataVar, rImageVar, diagramTitle, diagramSubTitle, "");
+        String plotCommand = getDiagramSpecificPlotCommand(type, filterExpression, rImageVar, diagramTitle,
+                diagramSubTitle, "");
 
         // Save plot to SVG file.
         String rCmd = plotCommand + "ggsave(file='" + diagramImagePath + "', plot=" + rImageVar
@@ -554,8 +580,8 @@ public final class RController {
         case BAR:
             plot = new Ggplot().data(addDurationColumn(rPlotDataVar));
             plot.map(Aesthetic.X, "when").map(Aesthetic.Y, "value");
-            plot.add(Geom.BAR.asLayer().param("stat", "identity").map(Aesthetic.WIDTH, "duration").param("fill",
-                    PLOT_MAIN_COLOR).param("color", PLOT_MAIN_COLOR));
+            plot.add(Geom.BAR.asLayer().param("stat", "identity").map(Aesthetic.WIDTH, "duration")
+                    .param("fill", PLOT_MAIN_COLOR).param("color", PLOT_MAIN_COLOR));
             break;
         case LINE:
             plot.map(Aesthetic.X, "when").map(Aesthetic.Y, "value");

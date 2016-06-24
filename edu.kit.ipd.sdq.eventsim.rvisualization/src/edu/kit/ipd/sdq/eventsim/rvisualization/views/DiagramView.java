@@ -6,14 +6,18 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
+
+import edu.kit.ipd.sdq.eventsim.rvisualization.Controller;
 
 /**
  * View used to display a generated diagram.
  * 
  * @author Benjamin Rupp
+ * @author Philipp Merkle
  *
  */
 public class DiagramView extends ViewPart {
@@ -21,6 +25,8 @@ public class DiagramView extends ViewPart {
     public static final String ID = "edu.kit.ipd.sdq.eventsim.rvisualization.diagramview";
 
     private static final Logger LOG = LogManager.getLogger(DiagramView.class);
+    
+    private Controller ctrl;
 
     /**
      * SWT Browser for showing diagram image.
@@ -36,6 +42,12 @@ public class DiagramView extends ViewPart {
      * R command string which was used to plot the diagram.
      */
     private String rCommandString;
+    
+    private String filterExpression;
+
+    private SashForm sashForm;
+
+    private StatisticsViewer statisticsViewer;
 
     /**
      * Create a new diagram view to show a diagram.
@@ -44,6 +56,14 @@ public class DiagramView extends ViewPart {
      * command string by using the {@link #setRCommandString(String)}.
      */
     public DiagramView() {
+    }
+    
+    public String getFilterExpression() {
+        return filterExpression;
+    }
+
+    public void setFilterExpression(String filterExpression) {
+        this.filterExpression = filterExpression;
     }
 
     public String getPathToDiagramImage() {
@@ -58,9 +78,29 @@ public class DiagramView extends ViewPart {
     public final void createPartControl(final Composite parent) {
         parent.setLayout(new FillLayout());
 
+        sashForm = new SashForm(parent, SWT.NONE);
+
         // TODO: Check whether the browser is able to show SVG files!?
         // If SVG support is needed, use SWT.Mozilla (XULRunner)?!
-        this.browser = new Browser(parent, SWT.NONE);
+        this.browser = new Browser(sashForm, SWT.NONE);
+
+        Composite composite = new Composite(sashForm, SWT.NONE);
+        composite.setLayout(new FillLayout(SWT.HORIZONTAL));
+
+        statisticsViewer = new StatisticsViewer(composite, SWT.NONE);
+        showStatisticsArea(false);
+    }
+
+    public StatisticsViewer getStatisticsViewer() {
+        return statisticsViewer;
+    }
+
+    public void showStatisticsArea(boolean show) {
+        if (show) {
+            sashForm.setWeights(new int[] { 2, 1 });
+        } else {
+            sashForm.setWeights(new int[] { 1, 0 });
+        }
     }
 
     @Override
@@ -72,6 +112,10 @@ public class DiagramView extends ViewPart {
         removeDiagramImage(this.pathToDiagramImage);
     }
 
+    public void setController(Controller ctrl) {
+        this.ctrl = ctrl;
+    }
+    
     /**
      * Set views diagram image.
      * 

@@ -36,6 +36,8 @@ import edu.kit.ipd.sdq.eventsim.rvisualization.util.Helper;
  */
 public final class RController {
 
+    private static final String PLOT_MAIN_COLOR = "#4699dd"; // light blue
+
     private static final Logger LOG = LogManager.getLogger(RController.class);
 
     /**
@@ -481,7 +483,7 @@ public final class RController {
      *             If invalid diagram type was used.
      */
     public String plotDiagramToFile(final DiagramType type, final String diagramImagePath, final String diagramTitle,
-            final String diagramSubTitle) {
+            final String diagramSubTitle, String diagramSubSubTitle) {
 
         ConditionBuilder conditions = new ConditionBuilder(model, selectionModel).metric().lowerTime().upperTime()
                 .triggerType().triggerInstance().assembly().from().to();
@@ -491,7 +493,7 @@ public final class RController {
         String rPlotDataVar = CONTENT_VARIABLE + "[" + selection + ", " + projection + "]";
         String rImageVar = "image";
 
-        String plotCommand = getRCommandForDiagramPlot(type, rPlotDataVar, rImageVar, diagramTitle, diagramSubTitle);
+        String plotCommand = getDiagramSpecificPlotCommand(type, rPlotDataVar, rImageVar, diagramTitle, diagramSubTitle, "");
 
         // Save plot to SVG file.
         String rCmd = plotCommand + "ggsave(file='" + diagramImagePath + "', plot=" + rImageVar
@@ -516,28 +518,6 @@ public final class RController {
     }
 
     /**
-     * Get the R command string for plotting a diagram.
-     * 
-     * @param type
-     *            Type of the diagram ({@link DiagramType}).
-     * @param rPlotDataVar
-     *            R variable which contains the filtered data.
-     * @param rImageVar
-     *            R variable where the image data should be stored.
-     * @param diagramTitle
-     *            Diagram title.
-     * @param diagramSubTitle
-     *            Diagram sub title.
-     * @return R command string.
-     * @throws Exception
-     *             If a invalid diagram type was used.
-     */
-    private String getRCommandForDiagramPlot(final DiagramType type, final String rPlotDataVar, final String rImageVar,
-            final String diagramTitle, final String diagramSubTitle) {
-        return getDiagramSpecificPlotCommand(type, rPlotDataVar, rImageVar, diagramTitle, diagramSubTitle);
-    }
-
-    /**
      * Get the diagram specific R command string for plotting the diagram.
      * 
      * @param type
@@ -555,37 +535,38 @@ public final class RController {
      *             If an invalid diagram type was used.
      */
     private String getDiagramSpecificPlotCommand(final DiagramType type, final String rPlotDataVar,
-            final String rImageVar, final String diagramTitle, final String diagramSubTitle) {
+            final String rImageVar, final String diagramTitle, final String diagramSubTitle, String subsubtitle) {
         Ggplot plot = new Ggplot().data(rPlotDataVar);
 
         switch (type) {
         case HISTOGRAM:
             plot.map(Aesthetic.X, "value");
-            plot.add(Geom.HISTOGRAM.asLayer());
+            plot.add(Geom.HISTOGRAM.asLayer().param("fill", PLOT_MAIN_COLOR).param("color", "white"));
             break;
         case POINT_GRAPH:
             plot.map(Aesthetic.X, "when").map(Aesthetic.Y, "value");
-            plot.add(Geom.POINT.asLayer());
+            plot.add(Geom.POINT.asLayer().param("color", PLOT_MAIN_COLOR));
             break;
         case CDF:
             plot.map(Aesthetic.X, "value");
-            plot.add(Geom.ECDF.asLayer());
+            plot.add(Geom.ECDF.asLayer().param("color", PLOT_MAIN_COLOR));
             break;
         case BAR:
             plot = new Ggplot().data(addDurationColumn(rPlotDataVar));
             plot.map(Aesthetic.X, "when").map(Aesthetic.Y, "value");
-            plot.add(Geom.BAR.asLayer().param("stat", "identity").map(Aesthetic.WIDTH, "duration"));
+            plot.add(Geom.BAR.asLayer().param("stat", "identity").map(Aesthetic.WIDTH, "duration").param("fill",
+                    PLOT_MAIN_COLOR).param("color", PLOT_MAIN_COLOR));
             break;
         case LINE:
             plot.map(Aesthetic.X, "when").map(Aesthetic.Y, "value");
-            plot.add(Geom.LINE.asLayer());
+            plot.add(Geom.LINE.asLayer().param("color", PLOT_MAIN_COLOR));
             break;
         default:
             throw new RuntimeException("Unsupported diagram type: " + type);
         }
 
         plot.add(new Theme("theme_bw")); // TODO
-        String title = createTitle(diagramTitle, diagramSubTitle);
+        String title = createTitle(diagramTitle, diagramSubTitle, subsubtitle);
         return rImageVar + "=" + plot.toPlot() + " + " + title + "; ";
     }
 
@@ -615,8 +596,8 @@ public final class RController {
         return evaluated;
     }
 
-    private String createTitle(String title, String subtitle) {
-        return "ggtitle(expression(atop('" + title + "', " + "atop(italic('" + subtitle + "'), ''))))";
+    private String createTitle(String title, String subtitle, String subsubtitle) {
+        return "ggtitle(expression(atop('" + title + "', " + "atop('" + subtitle + "', atop('" + subsubtitle + "')))))";
     }
 
     private RserveConnection lookupConnection() {

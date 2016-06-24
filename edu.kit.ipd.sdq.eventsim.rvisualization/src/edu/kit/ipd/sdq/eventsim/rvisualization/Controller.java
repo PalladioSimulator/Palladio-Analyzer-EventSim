@@ -258,7 +258,8 @@ public class Controller {
         // plot diagram to temporary file
         String title = createShortDiagramTitle();
         String subTitle = createDiagramSubTitle();
-        String plotCommand = rCtrl.plotDiagramToFile(diagramType, diagramPath, title, subTitle);
+        String subsubTitle = createDiagramSubSubTitle();
+        String plotCommand = rCtrl.plotDiagramToFile(diagramType, diagramPath, title, subTitle, subsubTitle);
 
         // Open new view to display the diagram.
         String viewTitle = createDiagramTitle();
@@ -329,11 +330,8 @@ public class Controller {
      * @return Short diagram title.
      */
     private String createShortDiagramTitle() {
-        Entity measuringPoint = selectionModel.getMeasuringPointFrom();
-        String diagramTitle = selectionModel.getMetric().getTranslation();
-        diagramTitle += " of " + measuringPoint;
+        String diagramTitle = selectionModel.getMetric().getTranslation() + " of " + selectionModel.getMeasuringPointFrom().getName();
         // TODO also consider "to" measuring point
-
         return diagramTitle;
     }
 
@@ -343,12 +341,16 @@ public class Controller {
      * @return Diagram subtitle.
      */
     private String createDiagramSubTitle() {
-        String diagramSubTitle = "Simulation time span: ";
-        diagramSubTitle += selectionModel.getSimulationTimeLower();
-        diagramSubTitle += " - ";
-        diagramSubTitle += selectionModel.getSimulationTimeUpper();
-
-        return diagramSubTitle;
+        Entity measuringPoint = selectionModel.getMeasuringPointFrom();
+        return "ID: " + measuringPoint.getId();
+    }
+    
+    private String createDiagramSubSubTitle() {
+        String diagramSubSubTitle = "Simulation time span: ";
+        diagramSubSubTitle += selectionModel.getSimulationTimeLower();
+        diagramSubSubTitle += " - ";
+        diagramSubSubTitle += selectionModel.getSimulationTimeUpper();
+        return diagramSubSubTitle;
     }
 
     private void reloadOnConnectOrDisconnect() {

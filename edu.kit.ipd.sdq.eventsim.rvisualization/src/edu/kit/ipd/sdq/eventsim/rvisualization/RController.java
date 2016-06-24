@@ -572,8 +572,9 @@ public final class RController {
             plot.add(Geom.ECDF.asLayer());
             break;
         case BAR:
+            plot = new Ggplot().data(addDurationColumn(rPlotDataVar));
             plot.map(Aesthetic.X, "when").map(Aesthetic.Y, "value");
-            plot.add(Geom.BAR.asLayer().param("stat", "identity"));
+            plot.add(Geom.BAR.asLayer().param("stat", "identity").map(Aesthetic.WIDTH, "duration"));
             break;
         case LINE:
             plot.map(Aesthetic.X, "when").map(Aesthetic.Y, "value");
@@ -586,6 +587,10 @@ public final class RController {
         plot.add(new Theme("theme_bw")); // TODO
         String title = createTitle(diagramTitle, diagramSubTitle);
         return rImageVar + "=" + plot.toPlot() + " + " + title + "; ";
+    }
+
+    private String addDurationColumn(String expression) {
+        return expression + "[, duration := shift(.SD$when, 1, type='lead') - when]";
     }
 
     /**

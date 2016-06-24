@@ -2,7 +2,7 @@ package edu.kit.ipd.sdq.eventsim.rvisualization.ggplot;
 
 public enum Aesthetic implements Plottable {
 
-    X("x"), Y("y"), COLOR("color"), LINETYPE("linetype");
+    X("x"), Y("y"), COLOR("color"), LINETYPE("linetype"), WIDTH("width");
 
     private String representation;
 

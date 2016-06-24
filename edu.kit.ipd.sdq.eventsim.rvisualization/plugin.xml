@@ -65,8 +65,9 @@
          <command
                commandId="edu.kit.ipd.sdq.eventsim.rvisualization.diagramview.save"
                icon="icons/disk.png"
+               id="edu.kit.ipd.sdq.eventsim.rvisualization.diagramview.save.menu"
                label="Save diagram to new file"
-               style="push"
+               style="pulldown"
                tooltip="Save diagram...">
          </command>
       </menuContribution>
@@ -79,6 +80,20 @@
                label="Show R command"
                style="push"
                tooltip="Show R command...">
+         </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:edu.kit.ipd.sdq.eventsim.rvisualization.diagramview.save.menu">
+         <command
+               commandId="edu.kit.ipd.sdq.eventsim.rvisualization.diagramview.save"
+               icon="icons/image.png"
+               label="Save SVG as..."
+               style="push">
+            <parameter
+                  name="edu.kit.ipd.sdq.eventsim.rvisualization.diagramview.save.format"
+                  value="SVG">
+            </parameter>
          </command>
       </menuContribution>
    </extension>
@@ -127,6 +142,18 @@
             label="Waiting Time for Passive Resources"
             name="WAITING_TIME">
       </metric>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="edu.kit.ipd.sdq.eventsim.rvisualization.diagramview.save"
+            name="Save diagram to new file">
+         <commandParameter
+               id="edu.kit.ipd.sdq.eventsim.rvisualization.diagramview.save.format"
+               name="format"
+               optional="true">
+         </commandParameter>
+      </command>
    </extension>
 
 </plugin>

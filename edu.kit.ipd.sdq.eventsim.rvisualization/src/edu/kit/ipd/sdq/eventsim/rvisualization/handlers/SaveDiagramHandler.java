@@ -1,6 +1,5 @@
 package edu.kit.ipd.sdq.eventsim.rvisualization.handlers;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,9 +10,9 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import edu.kit.ipd.sdq.eventsim.rvisualization.views.DiagramView;
@@ -27,53 +26,73 @@ import edu.kit.ipd.sdq.eventsim.rvisualization.views.FilterView;
  */
 public class SaveDiagramHandler extends AbstractHandler {
 
+    private static final String FORMAT_PARAMETER_ID = "edu.kit.ipd.sdq.eventsim.rvisualization.diagramview.save.format";
+
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
         DiagramView view = (DiagramView) HandlerUtil.getActiveWorkbenchWindow(event).getActivePage().getActivePart();
 
-        exportDiagram(view.getPathToDiagramImage());
+        String format = event.getParameter(FORMAT_PARAMETER_ID);
+        if (format == null) {
+            format = "SVG";
+        }
+
+        switch (format) {
+        case "SVG":
+            String existingDiagramLocation = view.getPathToDiagramImage();
+            openFileChooserDialog("Save diagram as SVG...", new SVGHandler(existingDiagramLocation));
+            break;
+        }
 
         return null;
     }
 
-    private void exportDiagram(String pathToDiagramImage) {
-
-        Shell shell = Display.getCurrent().getActiveShell();
+    private void openFileChooserDialog(String title, SaveAsHandler handler) {
+        // prepare dialog
+        Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
         FileDialog dialog = new FileDialog(shell, SWT.SAVE);
         dialog.setFilterNames(new String[] { "All Files (*.*)" });
         dialog.setFilterExtensions(new String[] { "*.*" });
         dialog.setOverwrite(true);
-        dialog.setText("Export diagram image");
+        dialog.setText(title);
 
-        Path sourcePath = Paths.get(pathToDiagramImage);
-
-        if (sourcePath == null) {
-            return;
-        }
-
-        Path fileName = sourcePath.getFileName();
-
-        if (fileName == null) {
-            return;
-        }
-
-        String fileNameStr = fileName.toString();
-        dialog.setFileName(fileNameStr);
-
+        // open dialog and get selected file path
         String destination = dialog.open();
-
         if (destination == null) {
             return;
         }
+        Path destinationPath = Paths.get(destination);
 
-        Path destinationPath = new File(destination).toPath();
+        // invoke handler
+        handler.saveAs(destinationPath);
+    }
 
-        try {
+    private static interface SaveAsHandler {
 
-            Files.copy(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
+        public void saveAs(Path destination);
 
-        } catch (IOException e) {
-            throw new RuntimeException("Error while exporting diagram image to " + destination, e);
+    }
+
+    private static class SVGHandler implements SaveAsHandler {
+
+        private String existingDiagramLocation;
+
+        public SVGHandler(String existingDiagramLocation) {
+            this.existingDiagramLocation = existingDiagramLocation;
+        }
+
+        @Override
+        public void saveAs(Path destination) {
+            Path source = Paths.get(existingDiagramLocation);
+            if (source == null) {
+                // TODO show warning
+                return;
+            }
+            try {
+                Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException e) {
+                throw new RuntimeException("Error while exporting diagram image to " + destination, e);
+            }
         }
 
     }

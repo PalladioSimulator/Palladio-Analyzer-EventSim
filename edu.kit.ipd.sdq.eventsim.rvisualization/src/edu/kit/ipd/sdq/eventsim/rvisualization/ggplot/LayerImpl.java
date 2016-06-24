@@ -1,6 +1,8 @@
 package edu.kit.ipd.sdq.eventsim.rvisualization.ggplot;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -12,9 +14,12 @@ public class LayerImpl implements Layer {
 
     private Map<Aesthetic, String> aestheticMappings;
 
+    private Map<String, String> parameters;
+
     public LayerImpl(String representation) {
         this.representation = representation;
         aestheticMappings = new HashMap<>();
+        parameters = new HashMap<>();
     }
 
     @Override
@@ -30,22 +35,32 @@ public class LayerImpl implements Layer {
     }
 
     @Override
+    public Layer param(String name, String value) {
+        parameters.put(name, value);
+        return this;
+    }
+
+    @Override
     public String toPlot() {
         String dataPlot = plotData();
         String aesPlot = plotAesthetics();
+        String parametersPlot = plotParameters();
 
-        String result = representation + "(";
+        List<String> plotList = new ArrayList<>();
         if (!dataPlot.isEmpty()) {
-            result += dataPlot;
-            if (!aesPlot.isEmpty()) {
-                result += ", ";
-            }
+            plotList.add(dataPlot);
         }
         if (!aesPlot.isEmpty()) {
-            result += aesPlot;
+            plotList.add(aesPlot);
         }
-        result += ")";
-        return result;
+        if (!parametersPlot.isEmpty()) {
+            plotList.add(parametersPlot);
+        }
+        
+        String[] plots = new String[plotList.size()];
+        plotList.toArray(plots);
+
+        return representation + "(" + String.join(", ", plots) + ")";
     }
 
     private String plotData() {
@@ -68,6 +83,21 @@ public class LayerImpl implements Layer {
             i++;
         }
         return "aes(" + String.join(", ", mappings) + ")";
+    }
+    
+    private String plotParameters() {
+        String[] params = new String[parameters.size()];
+        if (params.length == 0) {
+            return "";
+        }
+        int i = 0;
+        for (Entry<String, String> entry : parameters.entrySet()) {
+            String name = entry.getKey();
+            String value = entry.getValue();
+            params[i] = name + "='" + value + "'";
+            i++;
+        }
+        return String.join(", ", params);
     }
 
 }

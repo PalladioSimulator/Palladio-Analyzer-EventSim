@@ -571,6 +571,14 @@ public final class RController {
             plot.map(Aesthetic.X, "value");
             plot.add(Geom.ECDF.asLayer());
             break;
+        case BAR:
+            plot.map(Aesthetic.X, "when").map(Aesthetic.Y, "value");
+            plot.add(Geom.BAR.asLayer().param("stat", "identity"));
+            break;
+        case LINE:
+            plot.map(Aesthetic.X, "when").map(Aesthetic.Y, "value");
+            plot.add(Geom.LINE.asLayer());
+            break;
         default:
             throw new RuntimeException("Unsupported diagram type: " + type);
         }

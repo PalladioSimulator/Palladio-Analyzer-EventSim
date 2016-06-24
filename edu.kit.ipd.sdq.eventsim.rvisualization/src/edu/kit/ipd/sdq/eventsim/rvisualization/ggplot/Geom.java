@@ -2,7 +2,7 @@ package edu.kit.ipd.sdq.eventsim.rvisualization.ggplot;
 
 public enum Geom implements Plottable {
 
-    POINT("geom_point"), LINE("geom_line"), HISTOGRAM("geom_histogram"),
+    POINT("geom_point"), LINE("geom_line"), HISTOGRAM("geom_histogram"), BAR("geom_bar"),
 
     /** TODO actually no geom, but pretty much works like one */
     ECDF("stat_ecdf");

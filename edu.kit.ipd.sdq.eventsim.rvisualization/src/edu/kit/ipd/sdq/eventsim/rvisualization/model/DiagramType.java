@@ -13,13 +13,19 @@ public enum DiagramType {
     HISTOGRAM("Histogram", "Histogram", true),
 
     /** */
-    POINT_GRAPH("X/Y Point Graph", "Point Graph", false),
+    POINT_GRAPH("Point Chart", "Point", false),
 
     /** */
-    CDF("CDF (Cumulative Distribution Function)", "CDF", true);
+    CDF("CDF (Cumulative Distribution Function)", "CDF", true),
+
+    /** */
+    BAR("Bar Chart", "Bar", false),
+    
+    /** */
+    LINE("Line Chart", "Line", false);
 
     private String name;
-    
+
     private String shortName;
 
     private boolean aggregating;
@@ -37,7 +43,7 @@ public enum DiagramType {
     public String getShortName() {
         return shortName;
     }
-    
+
     /**
      * returns {@code true}, if this diagram type aggregates simulation results (like a histogram);
      * {@code false}, if not (like a point chart).

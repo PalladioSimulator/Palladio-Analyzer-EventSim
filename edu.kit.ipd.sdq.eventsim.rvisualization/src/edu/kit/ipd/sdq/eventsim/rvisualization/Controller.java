@@ -319,6 +319,15 @@ public class Controller {
         State toggleState = command.getState(ShowStatisticsHandler.TOGGLE_STATE_ID);
         toggleState.addListener(statisticsHandler);
 
+        // once view gets disposed, deregister view from toggle state
+        view.addDisposeListener(new Procedure() {
+            @Override
+            public void execute() {
+                toggleState.removeListener(statisticsHandler);
+                view.removeDisposeListener(this);
+            }
+        });
+
         // if statistics are already enabled
         if ((Boolean) toggleState.getValue()) {
             statisticsHandler.reloadStatistics();

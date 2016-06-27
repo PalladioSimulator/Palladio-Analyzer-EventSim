@@ -1,6 +1,8 @@
 package edu.kit.ipd.sdq.eventsim.rvisualization.views;
 
 import java.io.File;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -12,6 +14,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 
 import edu.kit.ipd.sdq.eventsim.rvisualization.Controller;
+import edu.kit.ipd.sdq.eventsim.rvisualization.util.Procedure;
+
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.GridData;
 
@@ -27,8 +31,10 @@ public class DiagramView extends ViewPart {
     public static final String ID = "edu.kit.ipd.sdq.eventsim.rvisualization.diagramview";
 
     private static final Logger LOG = LogManager.getLogger(DiagramView.class);
-    
+
     private Controller ctrl;
+
+    private List<Procedure> disposeListener;
 
     /**
      * SWT Browser for showing diagram image.
@@ -44,7 +50,7 @@ public class DiagramView extends ViewPart {
      * R command string which was used to plot the diagram.
      */
     private String rCommandString;
-    
+
     private String filterExpression;
 
     private SashForm sashForm;
@@ -58,8 +64,17 @@ public class DiagramView extends ViewPart {
      * command string by using the {@link #setRCommandString(String)}.
      */
     public DiagramView() {
+        disposeListener = new CopyOnWriteArrayList<>();
     }
-    
+
+    public void addDisposeListener(Procedure p) {
+        disposeListener.add(p);
+    }
+
+    public void removeDisposeListener(Procedure p) {
+        disposeListener.remove(p);
+    }
+
     public String getFilterExpression() {
         return filterExpression;
     }
@@ -113,12 +128,13 @@ public class DiagramView extends ViewPart {
     @Override
     public final void dispose() {
         removeDiagramImage(this.pathToDiagramImage);
+        disposeListener.forEach(listener -> listener.execute());
     }
 
     public void setController(Controller ctrl) {
         this.ctrl = ctrl;
     }
-    
+
     /**
      * Set views diagram image.
      * 

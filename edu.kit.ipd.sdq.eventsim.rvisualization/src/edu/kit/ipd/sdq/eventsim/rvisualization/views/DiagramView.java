@@ -12,6 +12,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 
 import edu.kit.ipd.sdq.eventsim.rvisualization.Controller;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.GridData;
 
 /**
  * View used to display a generated diagram.
@@ -85,9 +87,10 @@ public class DiagramView extends ViewPart {
         this.browser = new Browser(sashForm, SWT.NONE);
 
         Composite composite = new Composite(sashForm, SWT.NONE);
-        composite.setLayout(new FillLayout(SWT.HORIZONTAL));
+        composite.setLayout(new GridLayout(1, false));
 
-        statisticsViewer = new StatisticsViewer(composite, SWT.NONE);
+        statisticsViewer = new StatisticsViewer(composite, SWT.BORDER);
+        statisticsViewer.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 1, 1));
         showStatisticsArea(false);
     }
 
@@ -97,7 +100,7 @@ public class DiagramView extends ViewPart {
 
     public void showStatisticsArea(boolean show) {
         if (show) {
-            sashForm.setWeights(new int[] { 2, 1 });
+            sashForm.setWeights(new int[] { 3, 1 });
         } else {
             sashForm.setWeights(new int[] { 1, 0 });
         }

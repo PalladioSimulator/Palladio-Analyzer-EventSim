@@ -12,23 +12,31 @@ import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.commands.IElementUpdater;
 import org.eclipse.ui.menus.UIElement;
 
+/**
+ * 
+ * @author Philipp Merkle
+ * @see http://eclipsesource.com/blogs/2009/01/15/toggling-a-command-contribution/
+ *
+ */
 public class ShowStatisticsHandler extends AbstractHandler implements IElementUpdater {
+
+    private static final String COMMAND_ID = "edu.kit.ipd.sdq.eventsim.rvisualization.diagramview.statistics";
+    
+    private static final String TOGGLE_STATE_ID = "edu.kit.ipd.sdq.eventsim.rvisualization.diagramview.statistics.togglestate";
 
     private ICommandService commandService;
 
-    // TODO caching allowed?
-    private State toggleState;
-
     public ShowStatisticsHandler() {
         commandService = (ICommandService) PlatformUI.getWorkbench().getService(ICommandService.class);
-        Command command = commandService.getCommand("edu.kit.ipd.sdq.eventsim.rvisualization.diagramview.statistics");
-        toggleState = command.getState("edu.kit.ipd.sdq.eventsim.rvisualization.diagramview.statistics.togglestate");
     }
 
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
         // toggle state
+        State toggleState = getToggleState();
         toggleState.setValue(!(Boolean) toggleState.getValue());
+
+        // refresh toggle buttons
         commandService.refreshElements(event.getCommand().getId(), null);
 
         return null;
@@ -36,8 +44,14 @@ public class ShowStatisticsHandler extends AbstractHandler implements IElementUp
 
     @Override
     public void updateElement(UIElement element, Map parameters) {
+        State toggleState = getToggleState();
         boolean checked = (Boolean) toggleState.getValue();
         element.setChecked(checked);
+    }
+
+    private State getToggleState() {
+        Command command = commandService.getCommand(COMMAND_ID);
+        return command.getState(TOGGLE_STATE_ID);
     }
 
 }

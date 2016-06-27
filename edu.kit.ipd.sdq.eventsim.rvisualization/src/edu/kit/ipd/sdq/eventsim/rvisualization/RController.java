@@ -474,8 +474,33 @@ public final class RController {
         }
 
         try {
-            REXP statistics = evalRCommand("summary(" + expression + "$value)");
-            return statistics.asDoubles();
+            String rCmd = expression + "[, .(count=.N, mean=mean(.SD$value, na.rm=TRUE), "
+                    + "quartiles=quantile(.SD$value, probs = seq(0, 1, 0.25), na.rm=TRUE), "
+                    + "quantiles=quantile(.SD$value, probs=seq(0.1, 0.9, by=0.1), na.rm=TRUE))]";
+            RList statistics = evalRCommand(rCmd).asList();
+
+            double[] count = statistics.at("count").asDoubles(); // 1 row result size
+            double[] mean = statistics.at("mean").asDoubles(); // 1 row result size
+            double[] quartiles = statistics.at("quartiles").asDoubles(); // 5 rows result size
+            double[] quantiles = statistics.at("quantiles").asDoubles(); // 9 rows result size
+
+            double[] stats = new double[1 + 1 + 5 + 9];
+            int offset = 0;
+            stats[0] = count[0];
+            stats[1] = mean[0];
+
+            // quartiles
+            offset = 2;
+            for (int i = 0; i < 5; i++) {
+                stats[i + offset] = quartiles[i];
+            }
+
+            // quantiles
+            offset = offset + 5;
+            for (int i = 0; i < 9; i++) {
+                stats[i + offset] = quantiles[i];
+            }
+            return stats;
         } catch (REXPMismatchException e) {
             LOG.error("Could not calculate statistics via R", e);
         } catch (EvaluationException e) {

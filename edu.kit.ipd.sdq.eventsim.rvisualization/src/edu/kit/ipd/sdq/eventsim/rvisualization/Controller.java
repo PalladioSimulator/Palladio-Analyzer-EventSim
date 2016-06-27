@@ -442,14 +442,25 @@ public class Controller {
             double[] statistics = rCtrl.getStatistics(diagramView.getFilterExpression());
             StatisticsModel statisticsModel = diagramView.getStatisticsViewer().getModel();
 
-            if (statistics != null && statistics.length == 6) {
-                int observations = rCtrl.getNumberOfDiagramValues();
-                double min = statistics[0];
-                double firstQuartile = statistics[1];
-                double median = statistics[2];
-                double mean = statistics[3];
-                double thirdQuartile = statistics[4];
-                double max = statistics[5];
+            if (statistics != null && statistics.length == 16) {
+                int observations = (int) statistics[0];
+                double mean = statistics[1];
+
+                double min = statistics[2];
+                double firstQuartile = statistics[3];
+                double median = statistics[4];
+                double thirdQuartile = statistics[5];
+                double max = statistics[6];
+
+                double quantile1 = statistics[7];
+                double quantile2 = statistics[8];
+                double quantile3 = statistics[9];
+                double quantile4 = statistics[10];
+                double quantile5 = statistics[11];
+                double quantile6 = statistics[12];
+                double quantile7 = statistics[13];
+                double quantile8 = statistics[14];
+                double quantile9 = statistics[15];
 
                 statisticsModel.setObservations(observations);
                 statisticsModel.setMin(min);
@@ -458,6 +469,16 @@ public class Controller {
                 statisticsModel.setMean(mean);
                 statisticsModel.setThirdQuartile(thirdQuartile);
                 statisticsModel.setMax(max);
+
+                statisticsModel.setQuantile1(quantile1);
+                statisticsModel.setQuantile2(quantile2);
+                statisticsModel.setQuantile3(quantile3);
+                statisticsModel.setQuantile4(quantile4);
+                statisticsModel.setQuantile5(quantile5);
+                statisticsModel.setQuantile6(quantile6);
+                statisticsModel.setQuantile7(quantile7);
+                statisticsModel.setQuantile8(quantile8);
+                statisticsModel.setQuantile9(quantile9);
             }
         }
 

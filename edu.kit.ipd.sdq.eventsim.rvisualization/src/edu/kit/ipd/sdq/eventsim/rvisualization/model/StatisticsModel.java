@@ -20,6 +20,24 @@ public class StatisticsModel {
     private double thirdQuartile;
 
     private double max;
+    
+    private double quantile1;
+    
+    private double quantile2;
+    
+    private double quantile3;
+    
+    private double quantile4;
+    
+    private double quantile5;
+    
+    private double quantile6;
+    
+    private double quantile7;
+    
+    private double quantile8;
+    
+    private double quantile9;
 
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         pcs.addPropertyChangeListener(listener);
@@ -99,4 +117,96 @@ public class StatisticsModel {
         pcs.firePropertyChange("max", oldValue, max);
     }
 
+    public double getQuantile1() {
+        return quantile1;
+    }
+
+    public void setQuantile1(double quantile1) {
+        double oldValue = this.quantile1;
+        this.quantile1 = quantile1;
+        pcs.firePropertyChange("quantile1", oldValue, quantile1);
+    }
+
+    public double getQuantile2() {
+        return quantile2;
+    }
+
+    public void setQuantile2(double quantile2) {
+        double oldValue = this.quantile2;
+        this.quantile2 = quantile2;
+        pcs.firePropertyChange("quantile2", oldValue, quantile2);
+    }
+
+    public double getQuantile3() {
+        return quantile3;
+    }
+
+    public void setQuantile3(double quantile3) {
+        double oldValue = this.quantile3;
+        this.quantile3 = quantile3;
+        pcs.firePropertyChange("quantile3", oldValue, quantile3);
+    }
+
+    public double getQuantile4() {
+        return quantile4;
+    }
+
+    public void setQuantile4(double quantile4) {
+        double oldValue = this.quantile4;
+        this.quantile4 = quantile4;
+        pcs.firePropertyChange("quantile4", oldValue, quantile4);
+    }
+
+    public double getQuantile5() {
+        return quantile5;
+    }
+
+    public void setQuantile5(double quantile5) {
+        double oldValue = this.quantile5;
+        this.quantile5 = quantile5;
+        pcs.firePropertyChange("quantile5", oldValue, quantile5);
+    }
+
+    public double getQuantile6() {
+        return quantile6;
+    }
+
+    public void setQuantile6(double quantile6) {
+        double oldValue = this.quantile6;
+        this.quantile6 = quantile6;
+        pcs.firePropertyChange("quantile6", oldValue, quantile6);
+    }
+
+    public double getQuantile7() {
+        return quantile7;
+    }
+
+    public void setQuantile7(double quantile7) {
+        double oldValue = this.quantile7;
+        this.quantile7 = quantile7;
+        pcs.firePropertyChange("quantile7", oldValue, quantile7);
+    }
+
+    public double getQuantile8() {
+        return quantile8;
+    }
+
+    public void setQuantile8(double quantile8) {
+        double oldValue = this.quantile8;
+        this.quantile8 = quantile8;
+        pcs.firePropertyChange("quantile8", oldValue, quantile8);
+    }
+
+    public double getQuantile9() {
+        return quantile9;
+    }
+
+    public void setQuantile9(double quantile9) {
+        double oldValue = this.quantile9;
+        this.quantile9 = quantile9;
+        pcs.firePropertyChange("quantile9", oldValue, quantile9);
+    }
+
+
+    
 }

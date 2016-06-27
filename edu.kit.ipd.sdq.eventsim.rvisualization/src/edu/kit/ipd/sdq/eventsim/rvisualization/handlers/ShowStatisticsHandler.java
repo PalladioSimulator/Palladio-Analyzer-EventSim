@@ -20,9 +20,9 @@ import org.eclipse.ui.menus.UIElement;
  */
 public class ShowStatisticsHandler extends AbstractHandler implements IElementUpdater {
 
-    private static final String COMMAND_ID = "edu.kit.ipd.sdq.eventsim.rvisualization.diagramview.statistics";
+    public static final String COMMAND_ID = "edu.kit.ipd.sdq.eventsim.rvisualization.diagramview.statistics";
     
-    private static final String TOGGLE_STATE_ID = "edu.kit.ipd.sdq.eventsim.rvisualization.diagramview.statistics.togglestate";
+    public static final String TOGGLE_STATE_ID = "edu.kit.ipd.sdq.eventsim.rvisualization.diagramview.statistics.togglestate";
 
     private ICommandService commandService;
 

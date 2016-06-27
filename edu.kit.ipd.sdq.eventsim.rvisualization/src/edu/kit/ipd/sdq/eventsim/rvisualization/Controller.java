@@ -27,6 +27,7 @@ import edu.kit.ipd.sdq.eventsim.measurement.r.connection.ConnectionListener;
 import edu.kit.ipd.sdq.eventsim.measurement.r.connection.ConnectionRegistry;
 import edu.kit.ipd.sdq.eventsim.measurement.r.connection.ConnectionStatusListener;
 import edu.kit.ipd.sdq.eventsim.measurement.r.connection.RserveConnection;
+import edu.kit.ipd.sdq.eventsim.rvisualization.handlers.ShowStatisticsHandler;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.DiagramType;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.Entity;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.FilterModel;
@@ -310,11 +311,19 @@ public class Controller {
         view.setController(this);
         view.setFilterExpression(filter);
 
+        StatisticsSelectionHandler statisticsHandler = new StatisticsSelectionHandler(view);
+
+        // register as toggle listener
         ICommandService commandService = (ICommandService) PlatformUI.getWorkbench().getService(ICommandService.class);
-        Command command = commandService.getCommand("edu.kit.ipd.sdq.eventsim.rvisualization.diagramview.statistics");
-        State toggleState = command
-                .getState("edu.kit.ipd.sdq.eventsim.rvisualization.diagramview.statistics.togglestate");
-        toggleState.addListener(new StatisticsSelectionHandler(view));
+        Command command = commandService.getCommand(ShowStatisticsHandler.COMMAND_ID);
+        State toggleState = command.getState(ShowStatisticsHandler.TOGGLE_STATE_ID);
+        toggleState.addListener(statisticsHandler);
+
+        // if statistics are already enabled
+        if ((Boolean) toggleState.getValue()) {
+            statisticsHandler.reloadStatistics();
+            view.showStatisticsArea(true);
+        }
     }
 
     /**
@@ -438,7 +447,7 @@ public class Controller {
 
         }
 
-        private void reloadStatistics() {
+        public void reloadStatistics() {
             double[] statistics = rCtrl.getStatistics(diagramView.getFilterExpression());
             StatisticsModel statisticsModel = diagramView.getStatisticsViewer().getModel();
 

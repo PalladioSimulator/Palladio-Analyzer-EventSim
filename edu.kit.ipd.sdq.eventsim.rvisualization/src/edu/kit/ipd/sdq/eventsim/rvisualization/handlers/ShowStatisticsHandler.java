@@ -21,7 +21,7 @@ import org.eclipse.ui.menus.UIElement;
 public class ShowStatisticsHandler extends AbstractHandler implements IElementUpdater {
 
     public static final String COMMAND_ID = "edu.kit.ipd.sdq.eventsim.rvisualization.diagramview.statistics";
-    
+
     public static final String TOGGLE_STATE_ID = "edu.kit.ipd.sdq.eventsim.rvisualization.diagramview.statistics.togglestate";
 
     private ICommandService commandService;
@@ -35,6 +35,11 @@ public class ShowStatisticsHandler extends AbstractHandler implements IElementUp
         // toggle state
         State toggleState = getToggleState();
         toggleState.setValue(!(Boolean) toggleState.getValue());
+
+        /*
+         * actual handling of this toggle event takes place in the Controller class, which observes
+         * the toggle state for state changes
+         */
 
         // refresh toggle buttons
         commandService.refreshElements(event.getCommand().getId(), null);

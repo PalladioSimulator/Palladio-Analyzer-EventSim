@@ -448,8 +448,10 @@ public class Controller {
             boolean enabled = (boolean) state.getValue();
             boolean previouslyEnabled = (boolean) oldValue;
             if (enabled && !previouslyEnabled) {
-                reloadStatistics();
-                diagramView.showStatisticsArea(true);
+                withBusyCursor(() -> {
+                    reloadStatistics();
+                    diagramView.showStatisticsArea(true);
+                });
             } else if (!enabled) {
                 diagramView.showStatisticsArea(false);
             }

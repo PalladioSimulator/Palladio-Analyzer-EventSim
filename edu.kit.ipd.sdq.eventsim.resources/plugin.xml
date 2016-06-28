@@ -13,15 +13,27 @@
    <extension
          point="edu.kit.ipd.sdq.eventsim.measurement.r.rjobs">
       <rjob
-            job="edu.kit.ipd.sdq.eventsim.resources.CalculateResourceUtilizationEquidistant"
-            name="Calculate Resource Utilization">
+            job="edu.kit.ipd.sdq.eventsim.resources.rjobs.CalculateResourceUtilizationEquidistant"
+            name="Calculate Equidistant Resource Utilization">
+      </rjob>
+      <rjob
+            job="edu.kit.ipd.sdq.eventsim.resources.rjobs.CalculateMeanQueueLength"
+            name="Calculate Equidistant Queue Length Means">
+      </rjob>
+      <rjob
+            job="edu.kit.ipd.sdq.eventsim.resources.rjobs.DeleteRawQueueLengthMeasurements"
+            name="Delete Queue Length Measurements">
       </rjob>
    </extension>
    <extension
          point="edu.kit.ipd.sdq.eventsim.rvisualization.metriclabels">
       <metric
-            label="Utilization of Resources over Time"
+            label="Resource Utilization"
             name="UTILIZATION">
+      </metric>
+      <metric
+            label="Mean Resource Queue Length"
+            name="MEAN_QUEUE_LENGTH">
       </metric>
    </extension>
 

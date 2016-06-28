@@ -1,4 +1,4 @@
-package edu.kit.ipd.sdq.eventsim.resources;
+package edu.kit.ipd.sdq.eventsim.resources.rjobs;
 
 import org.apache.log4j.Logger;
 import org.rosuda.REngine.REXP;
@@ -13,6 +13,19 @@ import edu.kit.ipd.sdq.eventsim.measurement.r.RJob;
 import edu.kit.ipd.sdq.eventsim.measurement.r.jobs.EvaluationException;
 import edu.kit.ipd.sdq.eventsim.measurement.r.jobs.EvaluationHelper;
 
+/**
+ * Calculates the {@code UTILIZATION} of active/passive resources over time, based on raw
+ * {@code QUEUE_LENGTH} measurements already contained in the measurement data.
+ * <p>
+ * For a given window size, this job calculates the fraction of busy time vs. window size, i.e. the
+ * fraction of (simulation) time the resource has been working actually, expressed in percent.
+ * <p>
+ * More formally, the utilization u(w) for a window w is calculated as
+ * {@code u(w) := 100 * busy_time / total_time}, with total_time being the window size.
+ * 
+ * @author Philipp Merkle
+ * 
+ */
 public class CalculateResourceUtilizationEquidistant implements RJob {
 
     private static final Logger log = Logger.getLogger(CalculateResourceUtilizationEquidistant.class);
@@ -92,11 +105,6 @@ public class CalculateResourceUtilizationEquidistant implements RJob {
         return result;
     }
 
-    @Override
-    public String getName() {
-        return "Calculating resource utilizations (equidistantly spaced) based on queue lengths over time";
-    }
-
     private double[][] calculateUtilization(double[] when, int[] states, int windowSize) {
         double whenMax = when[when.length - 1];
         int windowCount = (int) Math.ceil(whenMax / (double) windowSize);
@@ -133,6 +141,11 @@ public class CalculateResourceUtilizationEquidistant implements RJob {
         }
 
         return new double[][] { windowEndTimes, utilizations };
+    }
+
+    @Override
+    public String getName() {
+        return "Calculating resource utilizations (equidistantly spaced) based on queue lengths over time";
     }
 
 }

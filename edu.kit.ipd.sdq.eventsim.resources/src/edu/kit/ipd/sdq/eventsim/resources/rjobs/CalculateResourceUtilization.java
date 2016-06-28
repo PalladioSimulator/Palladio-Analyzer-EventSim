@@ -1,4 +1,4 @@
-package edu.kit.ipd.sdq.eventsim.resources;
+package edu.kit.ipd.sdq.eventsim.resources.rjobs;
 
 import org.apache.log4j.Logger;
 

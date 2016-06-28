@@ -120,8 +120,14 @@ public final class RController {
             return Collections.emptyList();
         }
 
+        
+        ConditionBuilder conditions = new ConditionBuilder(model, selectionModel).metric();
+        String selection = conditions.build();
+        String projection = "what";
+        String rCmd = unique(LOOKUP_TABLE_VARIABLE + "[" + selection + ", " + projection + "]", true);
+        
         String[] metricNames = null;
-        String rCmd = "levels(" + CONTENT_VARIABLE + "$what)";
+//        String rCmd = "levels(" + CONTENT_VARIABLE + "$what)";
         try {
             REXP exp = evalRCommand(rCmd);
             if (!exp.isNull()) {
@@ -606,7 +612,7 @@ public final class RController {
             plot = new Ggplot().data(addDurationColumn(rPlotDataVar));
             plot.map(Aesthetic.X, "when").map(Aesthetic.Y, "value");
             plot.add(Geom.BAR.asLayer().param("stat", "identity").map(Aesthetic.WIDTH, "duration")
-                    .param("fill", PLOT_MAIN_COLOR).param("color", PLOT_MAIN_COLOR));
+                    .param("fill", PLOT_MAIN_COLOR)); //.param("color", PLOT_MAIN_COLOR));
             break;
         case LINE:
             plot.map(Aesthetic.X, "when").map(Aesthetic.Y, "value");

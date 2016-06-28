@@ -6,13 +6,13 @@ import edu.kit.ipd.sdq.eventsim.measurement.r.RContext;
 import edu.kit.ipd.sdq.eventsim.measurement.r.RJob;
 import edu.kit.ipd.sdq.eventsim.measurement.r.jobs.EvaluationException;
 import edu.kit.ipd.sdq.eventsim.measurement.r.jobs.EvaluationHelper;
-import edu.kit.ipd.sdq.eventsim.measurement.r.jobs.MergeBufferedDataFramesJob;
 
 /**
  * Calculates the {@code UTILIZATION} of active/passive resources, based on the {@code QUEUE_LENGTH}
  * measurements already contained in the measurement data.
  * 
  * @author Philipp Merkle
+ * @deprecated
  *
  */
 public class CalculateResourceUtilization implements RJob {

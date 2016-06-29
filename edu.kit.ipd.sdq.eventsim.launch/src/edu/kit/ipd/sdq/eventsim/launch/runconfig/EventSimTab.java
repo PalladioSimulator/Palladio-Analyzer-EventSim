@@ -1,5 +1,6 @@
 package edu.kit.ipd.sdq.eventsim.launch.runconfig;
 
+import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -7,15 +8,19 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
 import org.eclipse.debug.ui.ILaunchConfigurationTab2;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -26,8 +31,10 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
+import org.osgi.framework.Bundle;
 
 import de.uka.ipd.sdq.workflow.launchconfig.tabs.TabHelper;
+import edu.kit.ipd.sdq.eventsim.launch.Activator;
 import edu.kit.ipd.sdq.eventsim.modules.SimulationModule;
 import edu.kit.ipd.sdq.eventsim.modules.SimulationModuleRegistry;
 
@@ -44,6 +51,10 @@ public class EventSimTab extends AbstractLaunchConfigurationTab {
 
     private Map<String, TableItem> tableItemsMap;
 
+    private Image checkedImage;
+    private Image uncheckedImage;
+    private Image tabImage;
+
     public EventSimTab() {
         this.enabledModules = new HashSet<>();
         this.tableItemsMap = new HashMap<>();
@@ -55,6 +66,10 @@ public class EventSimTab extends AbstractLaunchConfigurationTab {
      */
     @Override
     public void createControl(Composite parent) {
+        checkedImage = getImage("plugin.png");
+        uncheckedImage = getImage("plugin_disabled.png");
+        tabImage = getImage("package_green.png");
+        
         final ModifyListener modifyListener = new ModifyListener() {
             @Override
             public void modifyText(final ModifyEvent e) {
@@ -97,7 +112,7 @@ public class EventSimTab extends AbstractLaunchConfigurationTab {
         contributionsContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
         StackLayout contributionsLayout = new StackLayout();
         contributionsContainer.setLayout(contributionsLayout);
-
+        
         modulesTable.addListener(SWT.Selection, new Listener() {
 
             @Override
@@ -110,11 +125,11 @@ public class EventSimTab extends AbstractLaunchConfigurationTab {
                     boolean checked = selectedItem.getChecked();
                     if (checked) {
                         enabledModules.add(selectedModule.getId());
+                        selectedItem.setImage(checkedImage);
                     } else {
                         enabledModules.remove(selectedModule.getId());
+                        selectedItem.setImage(uncheckedImage);
                     }
-                    // workaround so that apply/revert buttons become enabled
-                    enabledModules = new HashSet<>(enabledModules);
                     setDirty(true);
                     updateLaunchConfigurationDialog();
                 } else {
@@ -131,6 +146,8 @@ public class EventSimTab extends AbstractLaunchConfigurationTab {
         for (SimulationModule module : moduleRegistry.getModules()) {
             TableItem tableItem = new TableItem(modulesTable, SWT.NONE);
             tableItem.setText(new String[] { module.getName(), Integer.toString(module.getPriority()) });
+            tableItem.setImage(checkedImage);
+
             if (module.getLaunchContribution() != null) {
                 ILaunchConfigurationTab2 control = module.getLaunchContribution();
                 control.createControl(contributionsContainer);
@@ -140,13 +157,23 @@ public class EventSimTab extends AbstractLaunchConfigurationTab {
 
     }
 
+    /**
+     * @see http://www.vogella.com/tutorials/EclipseJFaceTable/article.html
+     */
+    private static Image getImage(String file) {
+        Bundle bundle = Activator.getDefault().getBundle();
+        URL url = FileLocator.find(bundle, new Path("icons/" + file), null);
+        ImageDescriptor image = ImageDescriptor.createFromURL(url);
+        return image.createImage();
+    }
+
     @Override
     public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
         // delegate to simulation module contributions
         moduleRegistry.getModules().forEach(m -> m.getLaunchContribution().setDefaults(configuration));
 
         // enable all simulation modules
-        enabledModules.addAll(getSimulationModulesEnabledDefault());
+        enabledModules = new HashSet<>(getSimulationModulesEnabledDefault());
 
         configuration.setAttribute(EventSimConfigurationConstants.INSTRUMENTATION_FILE,
                 EventSimConfigurationConstants.INSTRUMENTATION_FILE_DEFAULT);
@@ -163,12 +190,17 @@ public class EventSimTab extends AbstractLaunchConfigurationTab {
             moduleRegistry.getModules().forEach(m -> m.getLaunchContribution().initializeFrom(configuration));
 
             // enabled simulation modules
-            enabledModules = configuration.getAttribute(EventSimConfigurationConstants.ENABLED_MODULES,
-                    getSimulationModulesEnabledDefault());
+            enabledModules = new HashSet<>(configuration.getAttribute(EventSimConfigurationConstants.ENABLED_MODULES,
+                    getSimulationModulesEnabledDefault()));
             // uncheck all table items, first
-            tableItemsMap.values().forEach(item -> item.setChecked(false));
+            tableItemsMap.values().forEach(item -> {
+                item.setChecked(false);
+                item.setImage(uncheckedImage);
+            });
             for (String moduleId : enabledModules) {
-                tableItemsMap.get(moduleId).setChecked(true);
+                TableItem item = tableItemsMap.get(moduleId);
+                item.setChecked(true);
+                item.setImage(checkedImage);
             }
 
             instrumentationDescriptionLocation
@@ -195,6 +227,24 @@ public class EventSimTab extends AbstractLaunchConfigurationTab {
     @Override
     public String getName() {
         return "EventSim";
+    }
+
+    
+    
+    @Override
+    public Image getImage() {
+        return tabImage;
+    }
+
+    @Override
+    public void dispose() {
+        if (checkedImage != null) {
+            checkedImage.dispose();
+        }
+        if (uncheckedImage != null) {
+            uncheckedImage.dispose();
+        }
+        super.dispose();
     }
 
 }

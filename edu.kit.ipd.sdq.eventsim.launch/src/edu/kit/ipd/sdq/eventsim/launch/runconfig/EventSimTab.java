@@ -16,6 +16,7 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -54,6 +55,7 @@ public class EventSimTab extends AbstractLaunchConfigurationTab {
     private Image checkedImage;
     private Image uncheckedImage;
     private Image tabImage;
+    private Image infoImage;
 
     public EventSimTab() {
         this.enabledModules = new HashSet<>();
@@ -69,6 +71,7 @@ public class EventSimTab extends AbstractLaunchConfigurationTab {
         checkedImage = getImage("plugin.png");
         uncheckedImage = getImage("plugin_disabled.png");
         tabImage = getImage("package_green.png");
+        infoImage = getImage("information.png");
 
         final ModifyListener modifyListener = new ModifyListener() {
             @Override
@@ -81,6 +84,10 @@ public class EventSimTab extends AbstractLaunchConfigurationTab {
         Composite container = new Composite(parent, SWT.NONE);
         this.setControl(container);
         container.setLayout(new GridLayout());
+        
+        CLabel lblChooseEventSimInfo = new CLabel(container, SWT.NONE);
+        lblChooseEventSimInfo.setText("Choose EventSim in the Simulation tab for these settings to be effective.");
+        lblChooseEventSimInfo.setImage(infoImage);
 
         instrumentationDescriptionLocation = new Text(container, SWT.SINGLE | SWT.BORDER);
         TabHelper.createFileInputSection(container, modifyListener, "Instrumentation Description File",

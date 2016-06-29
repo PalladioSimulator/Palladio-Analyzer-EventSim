@@ -1,5 +1,8 @@
 package edu.kit.ipd.sdq.eventsim.launch;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Platform;
 
@@ -10,6 +13,7 @@ import com.google.inject.util.Modules;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationConfiguration;
 import edu.kit.ipd.sdq.eventsim.api.PCMModel;
 import edu.kit.ipd.sdq.eventsim.instrumentation.description.core.InstrumentationDescription;
+import edu.kit.ipd.sdq.eventsim.launch.runconfig.EventSimConfigurationConstants;
 import edu.kit.ipd.sdq.eventsim.middleware.MeasurementStorageModule;
 import edu.kit.ipd.sdq.eventsim.middleware.SimulationMiddlewareModule;
 import edu.kit.ipd.sdq.eventsim.modules.SimulationModule;
@@ -49,19 +53,36 @@ public class ExtendableSimulationModule extends AbstractModule {
 
         Module module = new ExtendableSimulationModule(config, instrumentationDescription, moduleRegistry);
 
-        // install Guice modules of extensions, starting with extensions of lower priority
+        // install enabled Guice modules of extensions, starting with extensions of lower priority
+        Set<SimulationModule> enabledModules = loadEnabledModulesFromConfig(config);
         for (SimulationModule m : moduleRegistry.getModules()) {
-            logger.info("Installing simulation module " + m.getName() + " (" + m.getId() + "), priority = "
-                    + m.getPriority());
-            if (m.getGuiceModule() != null) {
-                // workaround to allow redefinition of Guice bindings, so that simulation modules
-                // with higher priority may override existing bindings of modules with lower
-                // priority
-                module = Modules.override(module).with(m.getGuiceModule());
+            boolean enabled = enabledModules.contains(m.getId());
+            if (enabled) {
+                logger.info("Installing simulation module " + m.getName() + " (" + m.getId() + "), priority = "
+                        + m.getPriority());
+                if (m.getGuiceModule() != null) {
+                    // workaround to allow redefinition of Guice bindings, so that simulation
+                    // modules
+                    // with higher priority may override existing bindings of modules with lower
+                    // priority
+                    module = Modules.override(module).with(m.getGuiceModule());
+                }
+            } else {
+                logger.info("Skipping disabled simulation module " + m.getName() + " (" + m.getId() + "), priority = "
+                        + m.getPriority());
             }
         }
 
         return module;
+    }
+
+    private static Set<SimulationModule> loadEnabledModulesFromConfig(ISimulationConfiguration config) {
+        Set<SimulationModule> enabledModules = new HashSet<>();
+        if (config.getConfigurationMap().get(EventSimConfigurationConstants.ENABLED_MODULES) != null) {
+            enabledModules = (Set<SimulationModule>) config.getConfigurationMap()
+                    .get(EventSimConfigurationConstants.ENABLED_MODULES);
+        }
+        return enabledModules;
     }
 
 }

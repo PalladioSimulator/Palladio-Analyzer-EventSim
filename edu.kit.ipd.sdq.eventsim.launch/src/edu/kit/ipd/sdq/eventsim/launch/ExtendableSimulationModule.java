@@ -66,6 +66,8 @@ public class ExtendableSimulationModule extends AbstractModule {
                     // modules with higher priority may override existing bindings of modules with
                     // lower priority
                     module = Modules.override(module).with(m.getGuiceModule());
+                } else {
+                    logger.info("No Guice module defined for simulation module " + m.getName());
                 }
             } else {
                 logger.info("Skipping disabled simulation module " + m.getName() + " (" + m.getId() + "), priority = "

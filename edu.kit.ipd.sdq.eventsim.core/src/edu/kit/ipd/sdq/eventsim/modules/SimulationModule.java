@@ -20,7 +20,7 @@ public class SimulationModule implements Comparable<SimulationModule> {
     private Module guiceModule;
 
     private int priority;
-    
+
     private boolean enabled;
 
     private ILaunchContribution launchContribution;
@@ -50,11 +50,11 @@ public class SimulationModule implements Comparable<SimulationModule> {
     public int getPriority() {
         return priority;
     }
-    
+
     public boolean isEnabled() {
         return enabled;
     }
-    
+
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
@@ -72,9 +72,11 @@ public class SimulationModule implements Comparable<SimulationModule> {
 
         String name = config.getAttribute("name");
         String id = config.getAttribute("id");
-        Object guiceModule;
+        Object guiceModule = null;
         try {
-            guiceModule = config.createExecutableExtension("guice_module");
+            if (config.getAttribute("guice_module") != null) {
+                guiceModule = config.createExecutableExtension("guice_module");
+            }
         } catch (CoreException e) {
             throw new RuntimeException(e);
         }

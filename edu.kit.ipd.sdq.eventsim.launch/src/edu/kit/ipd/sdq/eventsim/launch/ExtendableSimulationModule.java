@@ -62,9 +62,8 @@ public class ExtendableSimulationModule extends AbstractModule {
                         + m.getPriority());
                 if (m.getGuiceModule() != null) {
                     // workaround to allow redefinition of Guice bindings, so that simulation
-                    // modules
-                    // with higher priority may override existing bindings of modules with lower
-                    // priority
+                    // modules with higher priority may override existing bindings of modules with
+                    // lower priority
                     module = Modules.override(module).with(m.getGuiceModule());
                 }
             } else {

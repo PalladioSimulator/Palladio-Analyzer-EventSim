@@ -57,6 +57,7 @@ public class ExtendableSimulationModule extends AbstractModule {
         Set<SimulationModule> enabledModules = loadEnabledModulesFromConfig(config);
         for (SimulationModule m : moduleRegistry.getModules()) {
             boolean enabled = enabledModules.contains(m.getId());
+            m.setEnabled(enabled);
             if (enabled) {
                 logger.info("Installing simulation module " + m.getName() + " (" + m.getId() + "), priority = "
                         + m.getPriority());

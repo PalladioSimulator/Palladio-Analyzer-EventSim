@@ -34,6 +34,10 @@ public class TraversalStrategyRegistry<A extends Entity> {
     @Inject
     public TraversalStrategyRegistry(Injector injector, SimulationModuleRegistry moduleRegistry) {
         for (SimulationModule m : moduleRegistry.getModules()) {
+            // skip, if module is disabled
+            if (!m.isEnabled()) {
+                continue;
+            }
             for (SimulationStrategy s : m.getSimulationStrategies()) {
                 try {
                     Class<? extends A> actionType = (Class<? extends A>) Class.forName(s.getActionType());

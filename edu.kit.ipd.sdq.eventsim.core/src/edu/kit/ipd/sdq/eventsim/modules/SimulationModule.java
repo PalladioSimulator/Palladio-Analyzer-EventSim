@@ -21,6 +21,8 @@ public class SimulationModule implements Comparable<SimulationModule> {
     private Module guiceModule;
 
     private int priority;
+    
+    private boolean enabled;
 
     private ILaunchConfigurationTab2 launchContribution;
 
@@ -48,6 +50,14 @@ public class SimulationModule implements Comparable<SimulationModule> {
 
     public int getPriority() {
         return priority;
+    }
+    
+    public boolean isEnabled() {
+        return enabled;
+    }
+    
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     public ILaunchConfigurationTab2 getLaunchContribution() {

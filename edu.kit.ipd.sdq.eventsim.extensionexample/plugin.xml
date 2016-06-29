@@ -6,12 +6,13 @@
       <simulation_module
             guice_module="edu.kit.ipd.sdq.eventsim.extensionexample.ExampleExtensionSimulationModule"
             id="edu.kit.ipd.sdq.eventsim.system.ext"
-            name="Example EventSim Simulation Module"
+            launch_contribution="edu.kit.ipd.sdq.eventsim.extensionexample.launch.ExampleModuleLaunchContribution"
+            name="Example Simulation Module"
             priority="10">
          <simulation_strategy
                action="org.palladiosimulator.pcm.seff.StartAction"
                name="StartAction Decorator"
-               strategy="edu.kit.ipd.sdq.eventsim.extensionexample.ExtendedStartActionTraversalStrategy">
+               strategy="edu.kit.ipd.sdq.eventsim.extensionexample.strategies.ExtendedStartActionTraversalStrategy">
          </simulation_strategy>
       </simulation_module>
    </extension>

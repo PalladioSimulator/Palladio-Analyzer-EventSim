@@ -1,4 +1,4 @@
-package edu.kit.ipd.sdq.eventsim.extensionexample;
+package edu.kit.ipd.sdq.eventsim.extensionexample.entites;
 
 import org.palladiosimulator.pcm.usagemodel.EntryLevelSystemCall;
 

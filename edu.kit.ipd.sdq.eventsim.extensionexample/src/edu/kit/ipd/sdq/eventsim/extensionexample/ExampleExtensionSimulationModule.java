@@ -3,6 +3,7 @@ package edu.kit.ipd.sdq.eventsim.extensionexample;
 import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 
+import edu.kit.ipd.sdq.eventsim.extensionexample.entites.ExtendedRequest;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
 import edu.kit.ipd.sdq.eventsim.system.entities.RequestFactory;
 

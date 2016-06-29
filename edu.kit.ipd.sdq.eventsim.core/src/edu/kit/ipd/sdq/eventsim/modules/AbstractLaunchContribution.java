@@ -32,4 +32,11 @@ public abstract class AbstractLaunchContribution extends AbstractLaunchConfigura
         return null;
     }
 
+    @Override
+    public void dispose() {
+        dirtyListeners.clear();
+    }
+    
+    
+
 }

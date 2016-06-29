@@ -240,6 +240,9 @@ public class EventSimTab extends AbstractLaunchConfigurationTab {
 
     @Override
     public void dispose() {
+        // delegate to simulation module contributions
+        moduleRegistry.getModules().forEach(m -> m.getLaunchContribution().dispose());
+
         if (checkedImage != null) {
             checkedImage.dispose();
         }

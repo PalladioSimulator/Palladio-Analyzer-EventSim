@@ -8,5 +8,7 @@ public class EventSimConfigurationConstants {
 
     /** location of default instrumentation description */
     public static final String INSTRUMENTATION_FILE_DEFAULT = "platform:/plugin/edu.kit.ipd.sdq.eventsim.core/defaultModels/default.eventsim_instrumentation";
+    
+    public static final String ENABLED_MODULES = "enabledModules";
 
 }

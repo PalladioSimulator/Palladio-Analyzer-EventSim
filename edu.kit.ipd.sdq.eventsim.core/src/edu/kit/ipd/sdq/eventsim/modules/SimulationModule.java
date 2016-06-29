@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.debug.ui.ILaunchConfigurationTab2;
 
 import com.google.inject.Module;
 
@@ -20,6 +21,8 @@ public class SimulationModule implements Comparable<SimulationModule> {
     private Module guiceModule;
 
     private int priority;
+
+    private ILaunchConfigurationTab2 launchContribution;
 
     private List<SimulationStrategy> simulationStrategies;
 
@@ -47,6 +50,10 @@ public class SimulationModule implements Comparable<SimulationModule> {
         return priority;
     }
 
+    public ILaunchConfigurationTab2 getLaunchContribution() {
+        return launchContribution;
+    }
+
     public List<SimulationStrategy> getSimulationStrategies() {
         return Collections.unmodifiableList(simulationStrategies);
     }
@@ -63,11 +70,22 @@ public class SimulationModule implements Comparable<SimulationModule> {
             throw new RuntimeException(e);
         }
         String priority = config.getAttribute("priority");
+        Object launchContribution = null;
+        try {
+            if (config.getAttribute("launch_contribution") != null) {
+                launchContribution = config.createExecutableExtension("launch_contribution");
+            } else {
+                launchContribution = new DefaultLaunchContribution();
+            }
+        } catch (CoreException e) {
+            throw new RuntimeException(e);
+        }
 
         module.name = name;
         module.id = id;
         module.guiceModule = guiceModule != null ? (Module) guiceModule : null;
         module.priority = priority != null ? Integer.parseInt(priority) : PRIORITY_DEFAULT;
+        module.launchContribution = launchContribution != null ? (ILaunchConfigurationTab2) launchContribution : null;
 
         for (IConfigurationElement e : config.getChildren("simulation_strategy")) {
             SimulationStrategy s = SimulationStrategy.createFrom(e);

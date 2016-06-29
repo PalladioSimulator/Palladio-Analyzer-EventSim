@@ -83,6 +83,16 @@
                </documentation>
             </annotation>
          </attribute>
+         <attribute name="launch_contribution" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="java" basedOn=":org.eclipse.debug.ui.ILaunchConfigurationTab2"/>
+               </appinfo>
+            </annotation>
+         </attribute>
       </complexType>
    </element>
 

@@ -31,6 +31,15 @@ public class SimulationModuleRegistry {
         return Collections.unmodifiableList(modules);
     }
 
+    public SimulationModule getModuleByName(String moduleName) {
+        for (SimulationModule module : getModules()) {
+            if (module.getName().equals(moduleName)) {
+                return module;
+            }
+        }
+        return null;
+    }
+
     public static SimulationModuleRegistry createFrom(IExtensionRegistry extensionRegistry) {
         SimulationModuleRegistry registry = new SimulationModuleRegistry();
 

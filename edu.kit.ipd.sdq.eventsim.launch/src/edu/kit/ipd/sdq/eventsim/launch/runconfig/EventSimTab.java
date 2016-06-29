@@ -14,7 +14,6 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
-import org.eclipse.debug.ui.ILaunchConfigurationTab2;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
@@ -35,6 +34,7 @@ import org.osgi.framework.Bundle;
 
 import de.uka.ipd.sdq.workflow.launchconfig.tabs.TabHelper;
 import edu.kit.ipd.sdq.eventsim.launch.Activator;
+import edu.kit.ipd.sdq.eventsim.modules.ILaunchContribution;
 import edu.kit.ipd.sdq.eventsim.modules.SimulationModule;
 import edu.kit.ipd.sdq.eventsim.modules.SimulationModuleRegistry;
 
@@ -69,7 +69,7 @@ public class EventSimTab extends AbstractLaunchConfigurationTab {
         checkedImage = getImage("plugin.png");
         uncheckedImage = getImage("plugin_disabled.png");
         tabImage = getImage("package_green.png");
-        
+
         final ModifyListener modifyListener = new ModifyListener() {
             @Override
             public void modifyText(final ModifyEvent e) {
@@ -112,7 +112,7 @@ public class EventSimTab extends AbstractLaunchConfigurationTab {
         contributionsContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
         StackLayout contributionsLayout = new StackLayout();
         contributionsContainer.setLayout(contributionsLayout);
-        
+
         modulesTable.addListener(SWT.Selection, new Listener() {
 
             @Override
@@ -149,8 +149,12 @@ public class EventSimTab extends AbstractLaunchConfigurationTab {
             tableItem.setImage(checkedImage);
 
             if (module.getLaunchContribution() != null) {
-                ILaunchConfigurationTab2 control = module.getLaunchContribution();
-                control.createControl(contributionsContainer);
+                ILaunchContribution contribution = module.getLaunchContribution();
+                contribution.createControl(contributionsContainer);
+                contribution.addDirtyListener((observable, arg) -> {
+                    setDirty(true);
+                    updateLaunchConfigurationDialog();
+                });
             }
             tableItemsMap.put(module.getId(), tableItem);
         }
@@ -229,8 +233,6 @@ public class EventSimTab extends AbstractLaunchConfigurationTab {
         return "EventSim";
     }
 
-    
-    
     @Override
     public Image getImage() {
         return tabImage;

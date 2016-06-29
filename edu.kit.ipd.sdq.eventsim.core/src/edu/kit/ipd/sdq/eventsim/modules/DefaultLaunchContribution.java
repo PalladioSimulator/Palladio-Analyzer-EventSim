@@ -2,14 +2,13 @@ package edu.kit.ipd.sdq.eventsim.modules;
 
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
-import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.layout.GridData;
 
-public class DefaultLaunchContribution extends AbstractLaunchConfigurationTab {
+public class DefaultLaunchContribution extends AbstractLaunchContribution {
 
     /**
      * @wbp.parser.entryPoint

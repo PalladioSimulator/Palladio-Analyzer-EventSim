@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.debug.ui.ILaunchConfigurationTab2;
 
 import com.google.inject.Module;
 
@@ -24,7 +23,7 @@ public class SimulationModule implements Comparable<SimulationModule> {
     
     private boolean enabled;
 
-    private ILaunchConfigurationTab2 launchContribution;
+    private ILaunchContribution launchContribution;
 
     private List<SimulationStrategy> simulationStrategies;
 
@@ -60,7 +59,7 @@ public class SimulationModule implements Comparable<SimulationModule> {
         this.enabled = enabled;
     }
 
-    public ILaunchConfigurationTab2 getLaunchContribution() {
+    public ILaunchContribution getLaunchContribution() {
         return launchContribution;
     }
 
@@ -95,7 +94,7 @@ public class SimulationModule implements Comparable<SimulationModule> {
         module.id = id;
         module.guiceModule = guiceModule != null ? (Module) guiceModule : null;
         module.priority = priority != null ? Integer.parseInt(priority) : PRIORITY_DEFAULT;
-        module.launchContribution = launchContribution != null ? (ILaunchConfigurationTab2) launchContribution : null;
+        module.launchContribution = launchContribution != null ? (ILaunchContribution) launchContribution : null;
 
         for (IConfigurationElement e : config.getChildren("simulation_strategy")) {
             SimulationStrategy s = SimulationStrategy.createFrom(e);

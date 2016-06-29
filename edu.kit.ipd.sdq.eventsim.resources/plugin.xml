@@ -6,6 +6,8 @@
       <simulation_module
             guice_module="edu.kit.ipd.sdq.eventsim.resources.EventSimResourceModule"
             id="edu.kit.ipd.sdq.eventsim.resources.module"
+            launchContribution="edu.kit.ipd.sdq.eventsim.resources.launch.ResourcesModuleLaunchControl"
+            launch_contribution="edu.kit.ipd.sdq.eventsim.resources.launch.ResourcesModuleLaunchContribution"
             name="Resource Simulator"
             priority="0">
       </simulation_module>

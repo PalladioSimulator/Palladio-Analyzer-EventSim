@@ -5,6 +5,8 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -12,7 +14,9 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
-public class ExampleModuleLaunchContribution extends AbstractLaunchConfigurationTab {
+import edu.kit.ipd.sdq.eventsim.modules.AbstractLaunchContribution;
+
+public class ExampleModuleLaunchContribution extends AbstractLaunchContribution {
 
     private Text txtPrefix;
 
@@ -21,6 +25,14 @@ public class ExampleModuleLaunchContribution extends AbstractLaunchConfiguration
      */
     @Override
     public void createControl(Composite parent) {
+        final ModifyListener modifyListener = new ModifyListener() {
+            @Override
+            public void modifyText(final ModifyEvent e) {
+                setDirty(true);
+                updateLaunchConfigurationDialog();
+            }
+        };
+        
         final Composite container = new Composite(parent, SWT.NONE);
         this.setControl(container);
         container.setLayout(new GridLayout());
@@ -36,6 +48,7 @@ public class ExampleModuleLaunchContribution extends AbstractLaunchConfiguration
 
         txtPrefix = new Text(grpExampleOptions, SWT.BORDER);
         txtPrefix.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+        txtPrefix.addModifyListener(modifyListener);
     }
 
     @Override

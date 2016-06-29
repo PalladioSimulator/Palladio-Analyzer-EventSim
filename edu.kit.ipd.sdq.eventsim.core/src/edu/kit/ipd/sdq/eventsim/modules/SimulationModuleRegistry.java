@@ -1,9 +1,9 @@
 package edu.kit.ipd.sdq.eventsim.modules;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtensionRegistry;
@@ -13,7 +13,7 @@ public class SimulationModuleRegistry {
     private List<SimulationModule> modules;
 
     private SimulationModuleRegistry() {
-        modules = new ArrayList<>();
+        modules = new CopyOnWriteArrayList<>();
     }
 
     private void addModule(SimulationModule module) {

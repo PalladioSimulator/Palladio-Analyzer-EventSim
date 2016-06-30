@@ -5,8 +5,8 @@ Bundle-SymbolicName: edu.kit.ipd.sdq.eventsim.instrumentation.description;single
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: edu.kit.ipd.sdq.eventsim.instrumentation.description.Activator
 Require-Bundle: org.eclipse.core.runtime,
- org.palladiosimulator.pcm,
- edu.kit.ipd.sdq.eventsim.instrumentation.utils
+ org.palladiosimulator.pcm;bundle-version="4.0.0",
+ edu.kit.ipd.sdq.eventsim.instrumentation.utils;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: edu.kit.ipd.sdq.eventsim.instrumentation.description,

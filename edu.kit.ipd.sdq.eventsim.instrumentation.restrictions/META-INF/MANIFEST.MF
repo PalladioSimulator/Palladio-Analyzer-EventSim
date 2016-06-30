@@ -4,11 +4,11 @@ Bundle-Name: EventSim Instrumentation Description Restrictions
 Bundle-SymbolicName: edu.kit.ipd.sdq.eventsim.instrumentation.restrictions;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: edu.kit.ipd.sdq.eventsim.instrumentation.restrictions.Activator
-Require-Bundle: edu.kit.ipd.sdq.eventsim.instrumentation.description,
- org.palladiosimulator.pcm,
- edu.kit.ipd.sdq.eventsim.instrumentation.specification,
- org.palladiosimulator.analyzer.workflow,
- edu.kit.ipd.sdq.eventsim.core,
+Require-Bundle: edu.kit.ipd.sdq.eventsim.instrumentation.description;bundle-version="1.0.0",
+ org.palladiosimulator.pcm;bundle-version="4.0.0",
+ edu.kit.ipd.sdq.eventsim.instrumentation.specification;bundle-version="1.0.0",
+ org.palladiosimulator.analyzer.workflow;bundle-version="1.0.0",
+ edu.kit.ipd.sdq.eventsim.core;bundle-version="2.0.0",
  edu.kit.ipd.sdq.eventsim.api;bundle-version="2.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy

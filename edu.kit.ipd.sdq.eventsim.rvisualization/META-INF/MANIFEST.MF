@@ -11,10 +11,8 @@ Require-Bundle: org.eclipse.ui,
  org.apache.log4j;bundle-version="1.2.15",
  org.eclipse.core.databinding,
  org.eclipse.core.databinding.beans,
- org.eclipse.core.databinding.observable,
- org.eclipse.core.databinding.property,
  org.eclipse.jface.databinding,
- com.ibm.icu
+ org.eclipse.core.databinding.property
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,

@@ -4,8 +4,10 @@
   <rm:locator pattern="^com\.google\.inject\.guice.*" searchPathRef="EventSim" failOnError="false"/>
   <rm:locator pattern="^org\.mockito.*" searchPathRef="EventSim" failOnError="false"/>
   <rm:locator pattern="^org\.rosuda.*" searchPathRef="ThirdPartyWrapper" failOnError="false"/>
+  <rm:locator pattern="^de\.desmoj.*" searchPathRef="ThirdPartyWrapper" failOnError="false"/>
   <rm:locator pattern="^org\.eclipse.*" searchPathRef="EclipseMars"/>
-  <rm:locator pattern="^de\.uka\.ipd\.sdq\.pcm\.gmf.*" searchPathRef="PalladioNightly"/>
+  <rm:locator pattern="^de\.uka\.ipd\.sdq.*" searchPathRef="PalladioNightly"/>
+  <rm:locator pattern="^org\.palladiosimulator\.*" searchPathRef="PalladioNightly"/>
   <rm:searchPath name="EventSim">
     <rm:provider componentTypes="eclipse.feature,osgi.bundle" readerType="svn">
       <rm:uri format="https://anonymous:anonymous@svnserver.informatik.kit.edu/i43/svn/code/Palladio/Addons/EventSim/trunk/{0}">

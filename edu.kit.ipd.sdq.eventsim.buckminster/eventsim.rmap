@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rm:rmap xmlns:bc="http://www.eclipse.org/buckminster/Common-1.0" xmlns:rm="http://www.eclipse.org/buckminster/RMap-1.0">
   <rm:locator pattern="^edu\.kit\.ipd\.sdq\.eventsim.*" searchPathRef="EventSim" failOnError="false"/>
-  <rm:locator pattern="^com\.google\.inject\.guice.*" searchPathRef="EventSim" failOnError="false"/>
+  <rm:locator pattern="^com\.google\.inject.*" searchPathRef="EventSim" failOnError="false"/>
   <rm:locator pattern="^org\.mockito.*" searchPathRef="EventSim" failOnError="false"/>
   <rm:locator pattern="^org\.rosuda.*" searchPathRef="ThirdPartyWrapper" failOnError="false"/>
   <rm:locator pattern="^de\.desmoj.*" searchPathRef="ThirdPartyWrapper" failOnError="false"/>
+  <rm:locator pattern="^org\.jscience.*" searchPathRef="ThirdPartyWrapper" failOnError="false"/>
+  <rm:locator pattern="^org\.apache.*" searchPathRef="ThirdPartyWrapper" failOnError="false"/>
+  <rm:locator pattern="^org\.antlr.*" searchPathRef="ThirdPartyWrapper" failOnError="false"/>
+  <rm:locator pattern="^org\.antlr.*" searchPathRef="ThirdPartyWrapper" failOnError="false"/>
   <rm:locator pattern="^org\.eclipse.*" searchPathRef="EclipseMars"/>
   <rm:locator pattern="^de\.uka\.ipd\.sdq.*" searchPathRef="PalladioNightly"/>
   <rm:locator pattern="^org\.palladiosimulator\.*" searchPathRef="PalladioNightly"/>

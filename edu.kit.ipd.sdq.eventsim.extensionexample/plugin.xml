@@ -5,7 +5,7 @@
          point="edu.kit.ipd.sdq.eventsim.module">
       <simulation_module
             guice_module="edu.kit.ipd.sdq.eventsim.extensionexample.ExampleExtensionSimulationModule"
-            id="edu.kit.ipd.sdq.eventsim.system.ext"
+            id="edu.kit.ipd.sdq.eventsim.extensionexample"
             launch_contribution="edu.kit.ipd.sdq.eventsim.extensionexample.launch.ExampleModuleLaunchContribution"
             name="Example Simulation Module"
             priority="10">

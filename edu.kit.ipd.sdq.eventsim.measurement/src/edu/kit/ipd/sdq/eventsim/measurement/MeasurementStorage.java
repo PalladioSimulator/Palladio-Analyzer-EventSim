@@ -46,7 +46,7 @@ public interface MeasurementStorage {
 	 */
 	void put(Measurement<?> m);
 
-	void start();
+	void start() throws MeasurementStorageStartException;
 
     void finish();
 

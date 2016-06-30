@@ -26,6 +26,7 @@ import edu.kit.ipd.sdq.eventsim.api.events.SimulationStartEvent;
 import edu.kit.ipd.sdq.eventsim.api.events.SimulationStopEvent;
 import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
+import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorageStartException;
 import edu.kit.ipd.sdq.eventsim.measurement.r.connection.RserveConnection;
 import edu.kit.ipd.sdq.eventsim.middleware.events.EventManager;
 import edu.kit.ipd.sdq.eventsim.middleware.simulation.MaxMeasurementsStopCondition;
@@ -140,10 +141,10 @@ public class SimulationMiddleware implements ISimulationMiddleware {
      */
     @Override
     public void startSimulation(final IStatusObserver statusObserver) {
-        if (rConnection != null && rConnection.isConnected()) {
+        try {
             measurementStorage.start();
-        } else {
-            logger.error("No connection to R available, aborting simulation.");
+        } catch (MeasurementStorageStartException e) {
+            logger.error("Could not start measurement storage, aborting simulation: " + e.getMessage());
             notifyStopListeners();
             eventManager.unregisterAllEventHandlers();
             return;

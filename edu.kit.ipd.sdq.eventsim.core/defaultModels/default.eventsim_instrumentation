@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ns2:instrumentation-description xmlns:ns2="edu.kit.ipd.sdq.eventsim.instrumentation.description">
-    <allocation-model>platform:/resource/Minimal/default.allocation</allocation-model>
+    <allocation-model></allocation-model>
     <repository-model></repository-model>
     <resourceenvironment-model></resourceenvironment-model>
     <rules>
@@ -127,36 +127,7 @@
                 <user-action-type>org.palladiosimulator.pcm.usagemodel.EntryLevelSystemCall</user-action-type>
             </user-action-set>
         </user-action-rule>
-        <action-rule name="InternalCallAction">
-            <calculators>
-                <calculator>
-                    <from>
-                        <property>before</property>
-                        <probed-type>org.palladiosimulator.pcm.seff.InternalCallAction</probed-type>
-                    </from>
-                    <metric>timespan_between_actions</metric>
-                    <to>
-                        <property>after</property>
-                        <probed-type>org.palladiosimulator.pcm.seff.InternalCallAction</probed-type>
-                    </to>
-                </calculator>
-            </calculators>
-            <probes>
-                <probe>
-                    <property>before</property>
-                    <probed-type>org.palladiosimulator.pcm.seff.InternalCallAction</probed-type>
-                </probe>
-                <probe>
-                    <property>after</property>
-                    <probed-type>org.palladiosimulator.pcm.seff.InternalCallAction</probed-type>
-                </probe>
-            </probes>
-            <action-set>
-                <restrictions/>
-                <action-type>org.palladiosimulator.pcm.seff.InternalCallAction</action-type>
-            </action-set>
-        </action-rule>
     </rules>
     <system-model></system-model>
-    <usage-model>platform:/resource/Minimal/default.usagemodel</usage-model>
+    <usage-model></usage-model>
 </ns2:instrumentation-description>

@@ -11,7 +11,6 @@
   <rm:locator pattern="^ch\.ethz\.iks.*" searchPathRef="ThirdPartyWrapper" failOnError="false"/>
   <rm:locator pattern="^org\.eclipse.*" searchPathRef="EclipseMars"/>
   <rm:locator pattern=".*" searchPathRef="PalladioNightly"/>
-  <rm:redirect href=""/>
   <rm:searchPath name="EventSim">
     <rm:provider componentTypes="eclipse.feature,osgi.bundle" readerType="svn">
       <rm:uri format="https://anonymous:anonymous@svnserver.informatik.kit.edu/i43/svn/code/Palladio/Addons/EventSim/trunk/{0}">

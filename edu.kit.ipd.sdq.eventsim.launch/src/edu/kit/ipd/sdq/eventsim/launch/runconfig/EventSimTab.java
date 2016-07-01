@@ -84,7 +84,7 @@ public class EventSimTab extends AbstractLaunchConfigurationTab {
         Composite container = new Composite(parent, SWT.NONE);
         this.setControl(container);
         container.setLayout(new GridLayout());
-        
+
         CLabel lblChooseEventSimInfo = new CLabel(container, SWT.NONE);
         lblChooseEventSimInfo.setText("Choose EventSim in the Simulation tab for these settings to be effective.");
         lblChooseEventSimInfo.setImage(infoImage);
@@ -168,14 +168,8 @@ public class EventSimTab extends AbstractLaunchConfigurationTab {
 
     }
 
-    /**
-     * @see http://www.vogella.com/tutorials/EclipseJFaceTable/article.html
-     */
     private static Image getImage(String file) {
-        Bundle bundle = Activator.getDefault().getBundle();
-        URL url = FileLocator.find(bundle, new Path("icons/" + file), null);
-        ImageDescriptor image = ImageDescriptor.createFromURL(url);
-        return image.createImage();
+        return Activator.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "icons/" + file).createImage();
     }
 
     @Override

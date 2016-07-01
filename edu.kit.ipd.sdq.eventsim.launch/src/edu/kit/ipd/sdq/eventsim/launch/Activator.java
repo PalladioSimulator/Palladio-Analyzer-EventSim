@@ -9,7 +9,7 @@ import org.osgi.framework.BundleContext;
 public class Activator extends AbstractUIPlugin {
 
 	// The plug-in ID
-	public static final String PLUGIN_ID = "edu.kit.ipd.sdq.eventsim.controller"; //$NON-NLS-1$
+	public static final String PLUGIN_ID = "edu.kit.ipd.sdq.eventsim.launch"; //$NON-NLS-1$
 
 	// The shared instance
 	private static Activator plugin;

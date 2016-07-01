@@ -109,7 +109,7 @@ public class BranchTests {
 		// check that actions have been simulated entirely and in the expected order
 		assertThat(trace.invocationCount("start_left") + trace.invocationCount("start_right"), equalTo(1000));
 
-		int tolerance = 25;
+		int tolerance = 50;
 		assertThat(trace.invocationCount("start_left"), approximately(750, tolerance));
 		assertThat(trace.invocationCount("start_right"), approximately(250, tolerance));
 

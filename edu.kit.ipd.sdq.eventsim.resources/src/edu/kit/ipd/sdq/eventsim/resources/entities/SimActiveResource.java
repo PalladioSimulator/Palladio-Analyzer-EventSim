@@ -22,7 +22,6 @@ import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
 import edu.kit.ipd.sdq.eventsim.resources.SchedulingPolicy;
 import edu.kit.ipd.sdq.eventsim.resources.listener.IDemandListener;
-import edu.kit.ipd.sdq.eventsim.resources.listener.IOverallUtilizationListener;
 import edu.kit.ipd.sdq.eventsim.resources.listener.IStateListener;
 
 /**
@@ -41,7 +40,6 @@ public class SimActiveResource extends EventSimEntity {
 	private int numberOfInstances;
 	private Map<Integer, List<IStateListener>> stateListener;
 	private List<IDemandListener> demandListener;
-	private List<IOverallUtilizationListener> overallUtilizationListener;
 	private SchedulingPolicy schedulingStrategy;
 	private long[] queueLength;
 	private ProcessingResourceSpecification specification;
@@ -73,7 +71,6 @@ public class SimActiveResource extends EventSimEntity {
 		for (int instance = 0; instance < numberOfInstances; instance++) {
 			stateListener.put(instance, new ArrayList<IStateListener>());
 		}
-		overallUtilizationListener = new ArrayList<IOverallUtilizationListener>();
 		demandListener = new ArrayList<IDemandListener>();
 		queueLength = new long[numberOfInstances];
 	}
@@ -174,10 +171,6 @@ public class SimActiveResource extends EventSimEntity {
 
 	public void addDemandListener(IDemandListener listener) {
 		demandListener.add(listener);
-	}
-
-	public void addOverallUtilizationListener(IOverallUtilizationListener listener) {
-		overallUtilizationListener.add(listener);
 	}
 
 	public void addStateListener(final IStateListener listener, int instance) {

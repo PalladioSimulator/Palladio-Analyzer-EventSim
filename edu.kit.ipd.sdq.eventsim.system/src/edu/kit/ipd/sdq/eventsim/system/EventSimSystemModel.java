@@ -6,8 +6,10 @@ import org.apache.log4j.Logger;
 import org.osgi.framework.Bundle;
 import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 import org.palladiosimulator.pcm.core.entity.Entity;
+import org.palladiosimulator.pcm.repository.Interface;
 import org.palladiosimulator.pcm.repository.OperationSignature;
 import org.palladiosimulator.pcm.seff.AbstractAction;
+import org.palladiosimulator.pcm.seff.ExternalCallAction;
 import org.palladiosimulator.pcm.usagemodel.EntryLevelSystemCall;
 
 import com.google.inject.Inject;
@@ -99,10 +101,10 @@ public class EventSimSystemModel implements ISystem {
 
     @Inject
     private InstrumentationDescription instrumentation;
-    
+
     @Inject
     private RequestFactory requestFactory;
-    
+
     private MeasurementFacade<SystemMeasurementConfiguration> measurementFacade;
 
     private SimulatedResourceEnvironment resourceEnvironment;
@@ -184,13 +186,12 @@ public class EventSimSystemModel implements ISystem {
         middleware.registerEventHandler(SystemRequestFinishedEvent.class, new AfterSystemCallParameterHandler());
     }
 
-    private void setupMeasurements() {        
+    private void setupMeasurements() {
         // create instrumentor for instrumentation description
         // TODO get rid of cast
         Instrumentor<?, ?> instrumentor = InstrumentorBuilder.buildFor(pcm).inBundle(Activator.getContext().getBundle())
                 .withDescription(instrumentation).withStorage(measurementStorage)
-                .forModelType(ActionRepresentative.class).withoutMapping()
-                .createFor(getMeasurementFacade());
+                .forModelType(ActionRepresentative.class).withoutMapping().createFor(getMeasurementFacade());
         instrumentor.instrumentAll();
 
         measurementStorage.addIdExtractor(Request.class, c -> Long.toString(((Request) c).getId()));
@@ -199,6 +200,12 @@ public class EventSimSystemModel implements ISystem {
         measurementStorage.addNameExtractor(ForkedRequest.class, c -> ((ForkedRequest) c).getName());
         measurementStorage.addIdExtractor(Entity.class, c -> ((Entity) c).getId());
         measurementStorage.addNameExtractor(Entity.class, c -> ((Entity) c).getEntityName());
+        measurementStorage.addNameExtractor(ExternalCallAction.class, c -> {
+            ExternalCallAction action = (ExternalCallAction) c;
+            OperationSignature calledSignature = action.getCalledService_ExternalService();
+            Interface calledInterface = calledSignature.getInterface__OperationSignature();
+            return calledInterface.getEntityName() + "." + calledSignature.getEntityName();
+        });
     }
 
     /**
@@ -239,5 +246,5 @@ public class EventSimSystemModel implements ISystem {
         }
         return measurementFacade;
     }
-    
+
 }

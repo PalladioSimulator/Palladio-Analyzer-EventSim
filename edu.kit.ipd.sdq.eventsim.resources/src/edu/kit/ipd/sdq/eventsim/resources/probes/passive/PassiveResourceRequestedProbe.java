@@ -9,7 +9,7 @@ import edu.kit.ipd.sdq.eventsim.resources.entities.SimPassiveResource;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimulatedProcess;
 import edu.kit.ipd.sdq.eventsim.resources.listener.IPassiveResourceListener;
 
-@Probe(type = SimPassiveResource.class, property = "request")
+@Probe(type = SimPassiveResource.class, property = "request_time")
 public class PassiveResourceRequestedProbe extends AbstractProbe<SimPassiveResource, ResourceProbeConfiguration> {
 
 	public PassiveResourceRequestedProbe(MeasuringPoint<SimPassiveResource> p, ResourceProbeConfiguration configuration) {

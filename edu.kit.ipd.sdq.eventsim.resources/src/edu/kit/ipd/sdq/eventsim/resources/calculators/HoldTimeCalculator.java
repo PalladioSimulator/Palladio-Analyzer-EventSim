@@ -15,7 +15,7 @@ import edu.kit.ipd.sdq.eventsim.resources.entities.SimPassiveResource;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimulatedProcess;
 
 @Calculator(metric = "hold_time", type = SimPassiveResource.class, intendedProbes = {
-		@ProbePair(from = "acquire", to = "release") })
+		@ProbePair(from = "acquire_time", to = "release_time") })
 public class HoldTimeCalculator extends AbstractBinaryCalculator<SimPassiveResource, SimPassiveResource> {
 
 	private static final Logger log = Logger.getLogger(HoldTimeCalculator.class);

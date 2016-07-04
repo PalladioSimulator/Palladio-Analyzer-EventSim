@@ -15,7 +15,7 @@ import edu.kit.ipd.sdq.eventsim.resources.entities.SimPassiveResource;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimulatedProcess;
 
 @Calculator(metric = "waiting_time", type = SimPassiveResource.class, intendedProbes = {
-		@ProbePair(from = "request", to = "acquire") })
+		@ProbePair(from = "request_time", to = "acquire_time") })
 public class WaitingTimeCalculator extends AbstractBinaryCalculator<SimPassiveResource, SimPassiveResource> {
 
 	private static final Logger log = Logger.getLogger(WaitingTimeCalculator.class);

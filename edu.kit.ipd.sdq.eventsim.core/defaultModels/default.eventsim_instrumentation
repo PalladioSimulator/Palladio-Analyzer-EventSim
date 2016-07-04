@@ -25,42 +25,46 @@
             <calculators>
                 <calculator>
                     <from>
-                        <property>acquire</property>
+                        <property>acquire_time</property>
                         <probed-type>edu.kit.ipd.sdq.eventsim.instrumentation.description.resource.PassiveResourceRep</probed-type>
                     </from>
                     <metric>hold_time</metric>
                     <to>
-                        <property>release</property>
+                        <property>release_time</property>
                         <probed-type>edu.kit.ipd.sdq.eventsim.instrumentation.description.resource.PassiveResourceRep</probed-type>
                     </to>
                 </calculator>
                 <calculator>
                     <from>
-                        <property>request</property>
+                        <property>request_time</property>
                         <probed-type>edu.kit.ipd.sdq.eventsim.instrumentation.description.resource.PassiveResourceRep</probed-type>
                     </from>
                     <metric>waiting_time</metric>
                     <to>
-                        <property>acquire</property>
+                        <property>acquire_time</property>
                         <probed-type>edu.kit.ipd.sdq.eventsim.instrumentation.description.resource.PassiveResourceRep</probed-type>
                     </to>
                 </calculator>
             </calculators>
             <probes>
                 <probe>
-                    <property>acquire</property>
-                    <probed-type>edu.kit.ipd.sdq.eventsim.instrumentation.description.resource.PassiveResourceRep</probed-type>
-                </probe>
-                <probe>
                     <property>queue_length</property>
                     <probed-type>edu.kit.ipd.sdq.eventsim.instrumentation.description.resource.PassiveResourceRep</probed-type>
                 </probe>
                 <probe>
-                    <property>release</property>
+                    <property>request_time</property>
                     <probed-type>edu.kit.ipd.sdq.eventsim.instrumentation.description.resource.PassiveResourceRep</probed-type>
                 </probe>
                 <probe>
-                    <property>request</property>
+                    <property>resource_demand</property>
+                    <probed-type>edu.kit.ipd.sdq.eventsim.instrumentation.description.resource.PassiveResourceRep</probed-type>
+                </probe>
+                <probe>
+                    <property>acquire_time</property>
+                    <probed-type>edu.kit.ipd.sdq.eventsim.instrumentation.description.resource.PassiveResourceRep</probed-type>
+                </probe>
+                <probe>
+                    <property>release_time</property>
                     <probed-type>edu.kit.ipd.sdq.eventsim.instrumentation.description.resource.PassiveResourceRep</probed-type>
                 </probe>
             </probes>
@@ -85,11 +89,11 @@
             </calculators>
             <probes>
                 <probe>
-                    <property>before</property>
+                    <property>after</property>
                     <probed-type>org.palladiosimulator.pcm.seff.ExternalCallAction</probed-type>
                 </probe>
                 <probe>
-                    <property>after</property>
+                    <property>before</property>
                     <probed-type>org.palladiosimulator.pcm.seff.ExternalCallAction</probed-type>
                 </probe>
             </probes>

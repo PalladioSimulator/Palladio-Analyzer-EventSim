@@ -105,38 +105,47 @@ public class CalculateMeanQueueLength implements RJob {
         return result;
     }
 
-    private double[][] calculateMeanQueueLengths(double[] when, int[] states, int windowSize) {
+    private double[][] calculateMeanQueueLengths(double[] when, int[] states, int windowDurationMax) {
         double whenMax = when[when.length - 1];
-        int windowCount = (int) Math.ceil(whenMax / (double) windowSize);
+        int windowCount = (int) Math.ceil(whenMax / (double) windowDurationMax);
 
         // sum of queue lengths per window, each multiplied by its duration
         double[] queueLengthSums = new double[windowCount];
-        double windowSizeActual = 0;
+        double windowDurationActual = 0;
         int wnd = 0;
         for (int i = 0; i < when.length - 1; i++) {
-            int state = states[i];
-            double duration = when[i + 1] - when[i]; // how long the state has been observed
-            if (windowSizeActual + duration >= windowSize) { // current window full
-                double durationOverflow = (windowSizeActual + duration) - windowSize;
-
-                queueLengthSums[wnd] += state * (duration - durationOverflow);
-
-                // overflow duration goes into next window
-                queueLengthSums[wnd + 1] = state * durationOverflow;
-
-                wnd++; // start filling next window
-                windowSizeActual = durationOverflow;
-            } else { // current window not full
-                queueLengthSums[wnd] += state * duration;
-                windowSizeActual += duration;
+            if (when[i] > when[i + 1]) {
+                throw new RuntimeException(
+                        "Simulation times in queue length measurements needs to be monotonically increasing.");
             }
+            int queueLength = states[i];
+            double duration = when[i + 1] - when[i]; // how long the state has been observed
+            double remainingDuration = duration;
+            do { // work off remaining duration
+                 // if current window will be filled completely
+                if (windowDurationActual + remainingDuration >= windowDurationMax) {
+                    double windowDurationFree = windowDurationMax - windowDurationActual;
+                    double consumedDuration = windowDurationFree;
+                    remainingDuration -= consumedDuration;
+                    
+                    queueLengthSums[wnd] += queueLength * consumedDuration;
+
+                    // start filling next window
+                    wnd++;
+                    windowDurationActual = 0;
+                } else { // current window won't be filled completely
+                    queueLengthSums[wnd] += queueLength * remainingDuration;
+                    windowDurationActual += remainingDuration;
+                    remainingDuration = 0;
+                }
+            } while (remainingDuration > 0);
         }
 
         double[] windowEndTimes = new double[windowCount];
         double[] queueLengthMeans = new double[windowCount];
         for (wnd = 0; wnd < windowCount; wnd++) {
-            windowEndTimes[wnd] = (wnd + 1) * windowSize;
-            queueLengthMeans[wnd] = queueLengthSums[wnd] / windowSize;
+            windowEndTimes[wnd] = (wnd + 1) * windowDurationMax;
+            queueLengthMeans[wnd] = queueLengthSums[wnd] / windowDurationMax;
         }
 
         return new double[][] { windowEndTimes, queueLengthMeans };

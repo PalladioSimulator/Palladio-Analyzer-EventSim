@@ -105,39 +105,46 @@ public class CalculateResourceUtilizationEquidistant implements RJob {
         return result;
     }
 
-    private double[][] calculateUtilization(double[] when, int[] states, int windowSize) {
+    private double[][] calculateUtilization(double[] when, int[] states, int windowDurationMax) {
         double whenMax = when[when.length - 1];
-        int windowCount = (int) Math.ceil(whenMax / (double) windowSize);
+        int windowCount = (int) Math.ceil(whenMax / (double) windowDurationMax);
 
         double[] idleDurations = new double[windowCount]; // sum of idle duration per window
-        double windowSizeActual = 0;
+        double windowDurationActual = 0;
         int wnd = 0;
         for (int i = 0; i < when.length - 1; i++) {
             int state = states[i];
             double duration = when[i + 1] - when[i]; // how long the state has been observed
-            if (windowSizeActual + duration >= windowSize) { // current window full
-                double durationOverflow = (windowSizeActual + duration) - windowSize;
-                if (state == 0) {
-                    idleDurations[wnd] += duration - durationOverflow;
+            double remainingDuration = duration;
+            do { // work off remaining duration
+                 // if current window will be filled completely
+                if (windowDurationActual + remainingDuration >= windowDurationMax) {
+                    double windowDurationFree = windowDurationMax - windowDurationActual;
+                    double consumedDuration = windowDurationFree;
+                    remainingDuration -= consumedDuration;
 
-                    // overflow duration goes into next window
-                    idleDurations[wnd + 1] = durationOverflow;
+                    if (state == 0) {
+                        idleDurations[wnd] += consumedDuration;
+                    }
+
+                    // start filling next window
+                    wnd++;
+                    windowDurationActual = 0;
+                } else { // current window won't be filled completely
+                    if (state == 0) {
+                        idleDurations[wnd] += remainingDuration;
+                    }
+                    windowDurationActual += remainingDuration;
+                    remainingDuration = 0;
                 }
-                wnd++; // start filling next window
-                windowSizeActual = durationOverflow;
-            } else { // current window not full
-                if (state == 0) {
-                    idleDurations[wnd] += duration;
-                }
-                windowSizeActual += duration;
-            }
+            } while (remainingDuration > 0);
         }
 
         double[] windowEndTimes = new double[windowCount];
         double[] utilizations = new double[windowCount];
         for (wnd = 0; wnd < windowCount; wnd++) {
-            windowEndTimes[wnd] = (wnd + 1) * windowSize;
-            utilizations[wnd] = 100 * (windowSize - idleDurations[wnd]) / windowSize;
+            windowEndTimes[wnd] = (wnd + 1) * windowDurationMax;
+            utilizations[wnd] = 100 * (windowDurationMax - idleDurations[wnd]) / windowDurationMax;
         }
 
         return new double[][] { windowEndTimes, utilizations };

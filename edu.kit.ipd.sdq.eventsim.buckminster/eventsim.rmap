@@ -5,8 +5,6 @@
   <rm:locator pattern="^org\.mockito.*" searchPathRef="EventSim" failOnError="false"/>
   <rm:locator pattern="^org\.rosuda.*" searchPathRef="ThirdPartyWrapper" failOnError="false"/>
   <rm:locator pattern="^de\.desmoj.*" searchPathRef="ThirdPartyWrapper" failOnError="false"/>
-  <rm:locator pattern="^org\.eclipse\.emf.*" searchPathRef="EMF"/>
-  <rm:locator pattern="^org\.eclipse.*" searchPathRef="EclipseMars"/>
   <rm:locator pattern=".*" searchPathRef="PalladioNightly"/>
   <rm:searchPath name="EventSim">
     <rm:provider componentTypes="eclipse.feature,osgi.bundle" readerType="svn">
@@ -20,19 +18,9 @@
       <rm:uri format="http://sdqweb.ipd.kit.edu/eclipse/thirdpartywrapper/nightly/"/>
     </rm:provider>
   </rm:searchPath>
-  <rm:searchPath name="EclipseMars">
-    <rm:provider componentTypes="eclipse.feature,osgi.bundle" readerType="p2">
-      <rm:uri format="http://download.eclipse.org/releases/mars"/>
-    </rm:provider>
-  </rm:searchPath>
   <rm:searchPath name="PalladioNightly">
     <rm:provider componentTypes="osgi.bundle,eclipse.feature" readerType="p2">
       <rm:uri format="https://sdqweb.ipd.kit.edu/eclipse/palladiosimulator/nightly/"/>
-    </rm:provider>
-  </rm:searchPath>
-  <rm:searchPath name="EMF">
-    <rm:provider componentTypes="eclipse.feature,osgi.bundle" readerType="p2">
-      <rm:uri format="http://www.eclipse.org/modeling/amalgam/downloads/package/modeling/mars"/>
     </rm:provider>
   </rm:searchPath>
 </rm:rmap>

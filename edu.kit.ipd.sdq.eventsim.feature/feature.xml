@@ -134,22 +134,20 @@ This Agreement is governed by the laws of the State of New York and the intellec
       <import plugin="de.uka.ipd.sdq.simucomframework" version="2.0.0" match="greaterOrEqual"/>
       <import plugin="edu.kit.ipd.sdq.eventsim.measurement.osgi" version="2.0.0" match="greaterOrEqual"/>
       <import plugin="edu.kit.ipd.sdq.eventsim.instrumentation.injection" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="edu.kit.ipd.sdq.eventsim.rvisualization" version="1.0.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.debug.ui" version="3.11.101" match="greaterOrEqual"/>
       <import plugin="org.palladiosimulator.recorderframework" version="2.0.1" match="greaterOrEqual"/>
       <import plugin="org.palladiosimulator.measurementframework" version="1.0.0" match="greaterOrEqual"/>
       <import plugin="de.uka.ipd.sdq.workflow.launchconfig" version="2.1.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.osgi" version="3.10.101" match="greaterOrEqual"/>
+      <import plugin="edu.kit.ipd.sdq.eventsim.instrumentation.utils" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="edu.kit.ipd.sdq.eventsim.instrumentation.specification" version="1.0.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.emf.edit.ui"/>
       <import plugin="org.eclipse.ui.ide"/>
-      <import plugin="org.palladiosimulator.editors.dialogs" version="1.0.0" match="greaterOrEqual"/>
-      <import plugin="de.uka.ipd.sdq.pcm.gmf.repository" version="2.0.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.core.databinding"/>
       <import plugin="org.eclipse.core.databinding.beans"/>
       <import plugin="org.eclipse.jface.databinding"/>
       <import plugin="org.eclipse.core.databinding.property"/>
-      <import plugin="edu.kit.ipd.sdq.eventsim.rvisualization" version="1.0.0" match="greaterOrEqual"/>
-      <import plugin="edu.kit.ipd.sdq.eventsim.instrumentation.utils" version="1.0.0" match="greaterOrEqual"/>
-      <import plugin="edu.kit.ipd.sdq.eventsim.instrumentation.specification" version="1.0.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin

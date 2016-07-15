@@ -42,6 +42,7 @@
       <import plugin="edu.kit.ipd.sdq.eventsim.test.util" version="2.0.0" match="greaterOrEqual"/>
       <import plugin="edu.kit.ipd.sdq.eventsim.instrumentation.description" version="1.0.0" match="greaterOrEqual"/>
       <import plugin="org.hamcrest.core" version="1.3.0" match="greaterOrEqual"/>
+      <import plugin="org.apache.log4j"/>
    </requires>
 
    <plugin

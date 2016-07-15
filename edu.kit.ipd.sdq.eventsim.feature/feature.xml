@@ -135,7 +135,7 @@ This Agreement is governed by the laws of the State of New York and the intellec
       <import plugin="edu.kit.ipd.sdq.eventsim.measurement.osgi" version="2.0.0" match="greaterOrEqual"/>
       <import plugin="edu.kit.ipd.sdq.eventsim.instrumentation.injection" version="1.0.0" match="greaterOrEqual"/>
       <import plugin="edu.kit.ipd.sdq.eventsim.rvisualization" version="1.0.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.debug.ui" version="3.11.101" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.debug.ui" version="3.11.100" match="greaterOrEqual"/>
       <import plugin="org.palladiosimulator.recorderframework" version="2.0.1" match="greaterOrEqual"/>
       <import plugin="org.palladiosimulator.measurementframework" version="1.0.0" match="greaterOrEqual"/>
       <import plugin="de.uka.ipd.sdq.workflow.launchconfig" version="2.1.0" match="greaterOrEqual"/>

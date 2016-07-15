@@ -5,8 +5,8 @@
   <rm:locator pattern="^org\.mockito.*" searchPathRef="EventSim" failOnError="false"/>
   <rm:locator pattern="^org\.rosuda.*" searchPathRef="ThirdPartyWrapper" failOnError="false"/>
   <rm:locator pattern="^de\.desmoj.*" searchPathRef="ThirdPartyWrapper" failOnError="false"/>
+  <rm:locator pattern="^org\.eclipse.*" searchPathRef="EclipseMars"/>
   <rm:locator pattern=".*" searchPathRef="PalladioNightly"/>
-  <rm:redirect pattern=".*" href="https://raw.githubusercontent.com/PalladioSimulator/Palladio-Editors-Commons/master/org.palladiosimulator.editors.commons.buckminster/editors.rmap"/>
   <rm:searchPath name="EventSim">
     <rm:provider componentTypes="eclipse.feature,osgi.bundle" readerType="svn">
       <rm:uri format="https://anonymous:anonymous@svnserver.informatik.kit.edu/i43/svn/code/Palladio/Addons/EventSim/trunk/{0}">
@@ -17,6 +17,11 @@
   <rm:searchPath name="ThirdPartyWrapper">
     <rm:provider componentTypes="osgi.bundle,eclipse.feature" readerType="p2">
       <rm:uri format="http://sdqweb.ipd.kit.edu/eclipse/thirdpartywrapper/nightly/"/>
+    </rm:provider>
+  </rm:searchPath>
+  <rm:searchPath name="EclipseMars">
+    <rm:provider componentTypes="eclipse.feature,osgi.bundle" readerType="p2">
+      <rm:uri format="http://download.eclipse.org/releases/mars"/>
     </rm:provider>
   </rm:searchPath>
   <rm:searchPath name="PalladioNightly">

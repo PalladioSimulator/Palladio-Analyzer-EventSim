@@ -13,9 +13,9 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.dialogs.WizardNewFileCreationPage;
 import org.eclipse.ui.part.FileEditorInput;
 
-import de.uka.ipd.sdq.pcm.gmf.repository.part.PalladioComponentModelCreationWizardPage;
 import edu.kit.ipd.sdq.eventsim.instrumentation.description.core.InstrumentationDescription;
 import edu.kit.ipd.sdq.eventsim.instrumentation.specification.editor.InstrumentationDescriptionEditor;
 import edu.kit.ipd.sdq.eventsim.instrumentation.xml.DescriptionToXmlParser;
@@ -34,7 +34,7 @@ import edu.kit.ipd.sdq.eventsim.instrumentation.xml.DescriptionToXmlParser;
  */
 public class NewDescriptionWizard extends Wizard implements INewWizard {
 
-	private PalladioComponentModelCreationWizardPage fileCreationPage;
+	private WizardNewFileCreationPage fileCreationPage;
 
 	private IStructuredSelection selection;
 
@@ -47,7 +47,7 @@ public class NewDescriptionWizard extends Wizard implements INewWizard {
 
 	@Override
 	public void addPages() {
-		fileCreationPage = new PalladioComponentModelCreationWizardPage("InstrumentationDescriptionFile", selection,
+		fileCreationPage = new InstrumentationDescriptionCreationWizardPage("InstrumentationDescriptionFile", selection,
 				"eventsim_instrumentation");
 		fileCreationPage.setTitle("Select File Name");
 		fileCreationPage.setDescription("Select the file name of the instrumentation description.");

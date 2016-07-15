@@ -32,7 +32,7 @@
   </rm:searchPath>
   <rm:searchPath name="EMF">
     <rm:provider componentTypes="eclipse.feature,osgi.bundle" readerType="p2">
-      <rm:uri format="http://www.eclipse.org/modeling/emf/updates/"/>
+      <rm:uri format="http://www.eclipse.org/modeling/amalgam/downloads/package/modeling/mars"/>
     </rm:provider>
   </rm:searchPath>
 </rm:rmap>

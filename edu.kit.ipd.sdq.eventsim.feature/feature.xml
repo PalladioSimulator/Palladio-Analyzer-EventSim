@@ -142,7 +142,7 @@ This Agreement is governed by the laws of the State of New York and the intellec
       <import plugin="org.eclipse.osgi" version="3.10.101" match="greaterOrEqual"/>
       <import plugin="edu.kit.ipd.sdq.eventsim.instrumentation.utils" version="1.0.0" match="greaterOrEqual"/>
       <import plugin="edu.kit.ipd.sdq.eventsim.instrumentation.specification" version="1.0.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.emf.edit.ui" version="3.11.100" match="greaterOrEqual" />
+      <import plugin="org.eclipse.emf.edit.ui" version="2.11.0" match="greaterOrEqual" />
       <import plugin="org.eclipse.ui.ide"/>
       <import plugin="org.eclipse.core.databinding"/>
       <import plugin="org.eclipse.core.databinding.beans"/>

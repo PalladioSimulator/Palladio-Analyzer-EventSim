@@ -7,6 +7,7 @@
   <rm:locator pattern="^de\.desmoj.*" searchPathRef="ThirdPartyWrapper" failOnError="false"/>
   <rm:locator pattern="^org\.eclipse.*" searchPathRef="EclipseMars"/>
   <rm:locator pattern=".*" searchPathRef="PalladioNightly"/>
+  <rm:locator pattern=".*" searchPathRef="EMF"/>
   <rm:searchPath name="EventSim">
     <rm:provider componentTypes="eclipse.feature,osgi.bundle" readerType="svn">
       <rm:uri format="https://anonymous:anonymous@svnserver.informatik.kit.edu/i43/svn/code/Palladio/Addons/EventSim/trunk/{0}">
@@ -27,6 +28,11 @@
   <rm:searchPath name="PalladioNightly">
     <rm:provider componentTypes="osgi.bundle,eclipse.feature" readerType="p2">
       <rm:uri format="https://sdqweb.ipd.kit.edu/eclipse/palladiosimulator/nightly/"/>
+    </rm:provider>
+  </rm:searchPath>
+  <rm:searchPath name="EMF">
+    <rm:provider componentTypes="eclipse.feature,osgi.bundle" readerType="p2">
+      <rm:uri format="http://www.eclipse.org/modeling/emf/updates/"/>
     </rm:provider>
   </rm:searchPath>
 </rm:rmap>

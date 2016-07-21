@@ -15,6 +15,7 @@ import edu.kit.ipd.sdq.eventsim.measurement.r.connection.ConnectionRegistry;
 import edu.kit.ipd.sdq.eventsim.measurement.r.connection.RserveConnection;
 import edu.kit.ipd.sdq.eventsim.measurement.r.jobs.EvaluationException;
 import edu.kit.ipd.sdq.eventsim.measurement.r.jobs.EvaluationHelper;
+import edu.kit.ipd.sdq.eventsim.measurement.r.utils.RHelper;
 import edu.kit.ipd.sdq.eventsim.rvisualization.filter.ConditionBuilder;
 import edu.kit.ipd.sdq.eventsim.rvisualization.ggplot.Aesthetic;
 import edu.kit.ipd.sdq.eventsim.rvisualization.ggplot.Geom;
@@ -99,9 +100,22 @@ public final class RController {
     private void buildLookupTable() {
         try {
             // TODO columns hard coded so far
+            List<String> groupByColumnsList = new ArrayList<>();
+            groupByColumnsList.add("what");
+            groupByColumnsList.add("where.first.id");
+            groupByColumnsList.add("where.first.name");
+            groupByColumnsList.add("where.second.id");
+            groupByColumnsList.add("where.second.name");
+            if (RHelper.hasColumn(lookupConnection().getConnection(), CONTENT_VARIABLE, "assemblycontext.id")) {
+                groupByColumnsList.add("assemblycontext.id");
+                groupByColumnsList.add("assemblycontext.name");
+            }
+            groupByColumnsList.add("who.type");
+            String[] groupByColumns = groupByColumnsList.toArray(new String[groupByColumnsList.size()]);
+
             String rCmd = "if (nrow(" + CONTENT_VARIABLE + ") > 0) {";
-            rCmd += LOOKUP_TABLE_VARIABLE + " <- " + CONTENT_VARIABLE
-                    + "[, .(.N), by=.(what, where.first.id, where.first.name, where.second.id, where.second.name, assemblycontext.id, assemblycontext.name, who.type)]";
+            rCmd += LOOKUP_TABLE_VARIABLE + " <- " + CONTENT_VARIABLE + "[, .(.N), by=.("
+                    + String.join(",", groupByColumns) + ")]";
             rCmd += "} else {" + LOOKUP_TABLE_VARIABLE + " <- " + CONTENT_VARIABLE + "}";
             evalRCommand(rCmd);
         } catch (EvaluationException e) {
@@ -120,14 +134,13 @@ public final class RController {
             return Collections.emptyList();
         }
 
-        
         ConditionBuilder conditions = new ConditionBuilder(model, selectionModel).metric();
         String selection = conditions.build();
         String projection = "what";
         String rCmd = unique(LOOKUP_TABLE_VARIABLE + "[" + selection + ", " + projection + "]", true);
-        
+
         String[] metricNames = null;
-//        String rCmd = "levels(" + CONTENT_VARIABLE + "$what)";
+        // String rCmd = "levels(" + CONTENT_VARIABLE + "$what)";
         try {
             REXP exp = evalRCommand(rCmd);
             if (!exp.isNull()) {
@@ -611,8 +624,8 @@ public final class RController {
         case BAR:
             plot = new Ggplot().data(addDurationColumn(rPlotDataVar));
             plot.map(Aesthetic.X, "when").map(Aesthetic.Y, "value");
-            plot.add(Geom.BAR.asLayer().param("stat", "identity").map(Aesthetic.WIDTH, "duration")
-                    .param("fill", PLOT_MAIN_COLOR)); //.param("color", PLOT_MAIN_COLOR));
+            plot.add(Geom.BAR.asLayer().param("stat", "identity").map(Aesthetic.WIDTH, "duration").param("fill",
+                    PLOT_MAIN_COLOR)); // .param("color", PLOT_MAIN_COLOR));
             break;
         case LINE:
             plot.map(Aesthetic.X, "when").map(Aesthetic.Y, "value");

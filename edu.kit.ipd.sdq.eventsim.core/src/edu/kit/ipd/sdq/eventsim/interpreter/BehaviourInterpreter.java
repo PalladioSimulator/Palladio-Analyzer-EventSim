@@ -56,11 +56,11 @@ public abstract class BehaviourInterpreter<A extends Entity, E extends EventSimE
 
     private static final Logger logger = Logger.getLogger(BehaviourInterpreter.class);
     private static final boolean debug = logger.isDebugEnabled();
-    
+
     @Inject
     /* use provider here to break dependency injection cycle */
     protected Provider<TraversalStrategyRegistry<A>> strategyRegistry;
-    
+
     /**
      * Begins or resumes the traversal with the specified action.
      * 
@@ -79,17 +79,17 @@ public abstract class BehaviourInterpreter<A extends Entity, E extends EventSimE
             // obtain traversal strategy for current action, based on the action's type
             @SuppressWarnings("unchecked")
             final ITraversalStrategy<A, A, E, S> t = (ITraversalStrategy<A, A, E, S>) strategyRegistry.get()
-                    .lookup((Class<? extends A>) currentAction.eClass().getInstanceClass()); 
+                    .lookup((Class<? extends A>) currentAction.eClass().getInstanceClass());
             if (t == null) {
-                throw new TraversalException("No traversal strategy could be found for "
-                        + PCMEntityHelper.toString(currentAction));
+                throw new TraversalException(
+                        "No traversal strategy could be found for " + PCMEntityHelper.toString(currentAction));
             }
 
             if (debug) {
                 logger.debug("Encountered action " + PCMEntityHelper.toString(currentAction) + " at t="
                         + entity.getModel().getSimulationControl().getCurrentSimulationTime());
             }
-            
+
             // notify traversal listeners. Do not change the order of the next two lines!
             this.notifyAfterListenerAboutFinishedActions(entity, currentAction, state);
             this.notifyBeforeListenerAboutStartedActions(entity, currentAction, state);
@@ -101,6 +101,7 @@ public abstract class BehaviourInterpreter<A extends Entity, E extends EventSimE
             // set the next action to be traversed according to the instructions provided by the
             // current traversal strategy
             final A nextAction = instruction.process(state);
+
             currentAction = nextAction;
 
             // check, whether the traversal is completed.
@@ -147,6 +148,7 @@ public abstract class BehaviourInterpreter<A extends Entity, E extends EventSimE
             final A action = state.dequeueFinishedAction();
             if (!action.getId().equals(currentAction.getId())) {
                 this.notifyAfterListener(action, entity, state);
+                state.removeInternalState(action); // TODO move to more suitable place
             }
         }
     }
@@ -159,7 +161,7 @@ public abstract class BehaviourInterpreter<A extends Entity, E extends EventSimE
      *            the type of the action
      * @return the traversal strategy which is able to traverse actions of the specified type
      */
-//    public abstract <T extends A> ITraversalStrategy<A, T, E, S> loadTraversalStrategy(T action);
+    // public abstract <T extends A> ITraversalStrategy<A, T, E, S> loadTraversalStrategy(T action);
 
     /**
      * This method is called whenever a simulated entity is about to traverse an action.

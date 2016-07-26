@@ -31,3 +31,4 @@ Export-Package: edu.kit.ipd.sdq.eventsim,
  edu.kit.ipd.sdq.eventsim.interpreter.state,
  edu.kit.ipd.sdq.eventsim.modules,
  edu.kit.ipd.sdq.eventsim.util
+DynamicImport-Package: *

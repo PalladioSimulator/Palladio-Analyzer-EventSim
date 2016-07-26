@@ -38,6 +38,13 @@ public abstract class AbstractStateStackFrame<A extends Entity> implements IInte
     public void addInternalState(final A action, final ITraversalStrategyState state) {
         this.internalStatesMap.put(action, state);
     }
+    
+    
+
+    @Override
+    public void removeInternalState(A action) {
+        this.internalStatesMap.remove(action);
+    }
 
     @Override
     public ITraversalStrategyState getInternalState(final A action) {
@@ -78,35 +85,38 @@ public abstract class AbstractStateStackFrame<A extends Entity> implements IInte
     public boolean hasFinishedActions() {
         return !this.finishedActionsQueue.isEmpty();
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
     public abstract Object clone() throws CloneNotSupportedException;
-    
+
     /**
-     * @param <T> 
-     * @param stackFrame an empty stack frame, which is to be filled
+     * @param <T>
+     * @param stackFrame
+     *            an empty stack frame, which is to be filled
      * @return
      */
-    public <T extends AbstractStateStackFrame<A>> T clone(final T stackFrame)
-    {
+    public <T extends AbstractStateStackFrame<A>> T clone(final T stackFrame) {
         T copy = stackFrame;
-        
+
         // copy internal states map
         for (Entry<A, ITraversalStrategyState> entry : this.internalStatesMap.entrySet()) {
-            // TODO clone map value as well?
-            copy.internalStatesMap.put(entry.getKey(), entry.getValue());
+            try {
+                copy.internalStatesMap.put(entry.getKey(), (ITraversalStrategyState) entry.getValue().clone());
+            } catch (CloneNotSupportedException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         // copy finished actions queue
         copy.finishedActionsQueue.addAll(this.finishedActionsQueue);
-        
+
         copy.currentPosition = this.currentPosition;
         copy.previousPosition = this.previousPosition;
 
         return copy;
     }
-    
+
 }

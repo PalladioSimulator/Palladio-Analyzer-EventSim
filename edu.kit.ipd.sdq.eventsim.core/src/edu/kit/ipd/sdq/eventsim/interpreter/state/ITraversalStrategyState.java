@@ -3,15 +3,21 @@ package edu.kit.ipd.sdq.eventsim.interpreter.state;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalStrategy;
 
 /**
- * A marker interface for classes storing the internal state of an {@link ITraversalStrategy}.
- * Traversal strategies that need to store their state on the {@link TraversalStateStack} implement
- * this interface to be able to store their state in an {@link AbstractStateStackFrame}.
+ * The internal state of an {@link ITraversalStrategy}. Traversal strategies that need to store
+ * their state on the {@link TraversalStateStack} implement this interface to be able to store their
+ * state in an {@link AbstractStateStackFrame}.
  * 
  * @author Philipp Merkle
  * 
  */
-public interface ITraversalStrategyState {
+public interface ITraversalStrategyState extends Cloneable {
 
-    // a marker interface is not supposed to declare method signatures
+    public void setProperty(Object key, Object value);
+
+    public <T> T getProperty(Object key, T defaultValue);
+    
+    public boolean hasProperty(Object key);
+
+    Object clone() throws CloneNotSupportedException;
 
 }

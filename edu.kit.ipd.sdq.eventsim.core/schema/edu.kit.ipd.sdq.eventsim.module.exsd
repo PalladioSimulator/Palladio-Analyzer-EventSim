@@ -93,6 +93,16 @@
                </appinfo>
             </annotation>
          </attribute>
+         <attribute name="entry_point" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="java" basedOn=":edu.kit.ipd.sdq.eventsim.modules.SimulationModuleEntryPoint"/>
+               </appinfo>
+            </annotation>
+         </attribute>
       </complexType>
    </element>
 

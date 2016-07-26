@@ -1,5 +1,8 @@
 package edu.kit.ipd.sdq.eventsim.interpreter.state;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.palladiosimulator.pcm.core.entity.Entity;
 
 import edu.kit.ipd.sdq.eventsim.interpreter.BehaviourInterpreter;

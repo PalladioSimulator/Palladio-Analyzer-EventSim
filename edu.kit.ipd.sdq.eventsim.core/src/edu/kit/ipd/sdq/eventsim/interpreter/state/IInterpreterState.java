@@ -31,6 +31,8 @@ public interface IInterpreterState<A extends Entity> {
      * @return the internal state
      */
     public ITraversalStrategyState getInternalState(final A action);
+    
+    public void removeInternalState(final A action);
 
     /**
      * Returns the current position of the traversal.

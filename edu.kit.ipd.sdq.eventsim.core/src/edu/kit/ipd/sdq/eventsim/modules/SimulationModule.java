@@ -19,6 +19,8 @@ public class SimulationModule implements Comparable<SimulationModule> {
 
     private Module guiceModule;
 
+    private Class<?> entryPoint;
+
     private int priority;
 
     private boolean enabled;
@@ -47,6 +49,10 @@ public class SimulationModule implements Comparable<SimulationModule> {
         return guiceModule;
     }
 
+    public Class<?> getEntryPoint() {
+        return entryPoint;
+    }
+
     public int getPriority() {
         return priority;
     }
@@ -72,6 +78,8 @@ public class SimulationModule implements Comparable<SimulationModule> {
 
         String name = config.getAttribute("name");
         String id = config.getAttribute("id");
+        
+        // guice module
         Object guiceModule = null;
         try {
             if (config.getAttribute("guice_module") != null) {
@@ -80,6 +88,19 @@ public class SimulationModule implements Comparable<SimulationModule> {
         } catch (CoreException e) {
             throw new RuntimeException(e);
         }
+        
+        // entry point
+        String entryPointClassName = null;
+        Class<?> entryPoint = null;
+        if (config.getAttribute("entry_point") != null) {
+            entryPointClassName = config.getAttribute("entry_point");
+            try {
+                entryPoint = Class.forName(entryPointClassName);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         String priority = config.getAttribute("priority");
         Object launchContribution = null;
         try {
@@ -95,6 +116,7 @@ public class SimulationModule implements Comparable<SimulationModule> {
         module.name = name;
         module.id = id;
         module.guiceModule = guiceModule != null ? (Module) guiceModule : null;
+        module.entryPoint = entryPoint;
         module.priority = priority != null ? Integer.parseInt(priority) : PRIORITY_DEFAULT;
         module.launchContribution = launchContribution != null ? (ILaunchContribution) launchContribution : null;
 

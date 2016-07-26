@@ -3,6 +3,7 @@ package edu.kit.ipd.sdq.eventsim.system.interpreter.strategies;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import org.apache.log4j.Logger;
 import org.palladiosimulator.pcm.resourcetype.ResourceType;
 import org.palladiosimulator.pcm.seff.AbstractAction;
 import org.palladiosimulator.pcm.seff.InternalAction;
@@ -16,11 +17,14 @@ import edu.kit.ipd.sdq.eventsim.api.IActiveResource;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalInstruction;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.interpreter.instructions.InterruptTraversal;
+import edu.kit.ipd.sdq.eventsim.interpreter.instructions.TraverseNextAction;
 import edu.kit.ipd.sdq.eventsim.interpreter.state.ITraversalStrategyState;
+import edu.kit.ipd.sdq.eventsim.interpreter.state.InternalState;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
 import edu.kit.ipd.sdq.eventsim.system.events.ResumeSeffTraversalEvent;
 import edu.kit.ipd.sdq.eventsim.system.interpreter.SeffBehaviourInterpreter;
 import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
+import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
 
 /**
  * This traversal strategy is responsible for {@link InternalAction}s.
@@ -29,82 +33,70 @@ import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
  * @author Christoph Föhrdes
  * 
  */
-public class InternalActionTraversalStrategy implements ITraversalStrategy<AbstractAction, InternalAction, Request, RequestState> {
+public class InternalActionTraversalStrategy
+        implements ITraversalStrategy<AbstractAction, InternalAction, Request, RequestState> {
+
+    private static Logger logger = Logger.getLogger(InternalActionTraversalStrategy.class);
+
+    private static final String PENDING_DEMANDS_PROPERTY = "pendingDemands";
 
     @Inject
     private IActiveResource activeResourceComponent;
-    
+
     @Inject
     private ISimulationModel model;
-    
+
     @Inject
     private SeffBehaviourInterpreter interpreter;
-    
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public ITraversalInstruction<AbstractAction, RequestState> traverse(final InternalAction action, final Request request, final RequestState state) {
-//	    System.out.println("--------------" + activeResource);
-	    
-		// restore or create state
-		InternalActionTraversalState internalState = (InternalActionTraversalState) state.getInternalState(action);
-		if (internalState == null) {
-			internalState = this.initialiseState(request, action, state);
-		}
-		request.setRequestState(state);
 
-		final ParametricResourceDemand demand = internalState.dequeueDemand();
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ITraversalInstruction<AbstractAction, RequestState> traverse(final InternalAction action,
+            final Request request, final RequestState state) {
+        // restore or create state
+        ITraversalStrategyState internalState = state.getInternalState(action);
+        if (internalState == null) { // TODO
+            internalState = new InternalState();
+            state.addInternalState(action, internalState);
+        }
 
-		double evaluatedDemand = NumberConverter.toDouble(state.getStoExContext().evaluate(demand.getSpecification_ParametericResourceDemand().getSpecification()));
-		ResourceType type = demand.getRequiredResource_ParametricResourceDemand();
-		
-		// consume the resource demand
+        if (!internalState.hasProperty(PENDING_DEMANDS_PROPERTY)) {
+            Queue<ParametricResourceDemand> pendingDemands = new LinkedList<>();
+            for (final ParametricResourceDemand d : action.getResourceDemand_Action()) {
+                pendingDemands.add(d);
+            }
+            internalState.setProperty(PENDING_DEMANDS_PROPERTY, pendingDemands);
+        }
+        Queue<ParametricResourceDemand> pendingDemands = internalState.getProperty(PENDING_DEMANDS_PROPERTY,
+                new LinkedList<>());
+
+        // TODO really necessary?
+        request.setRequestState(state);
+
+        final ParametricResourceDemand demand = pendingDemands.poll();
+        if (demand == null) {
+            logger.warn("Missing resource demand for " + PCMEntityHelper.toString(action));
+            return new TraverseNextAction<>(action.getSuccessor_AbstractAction());
+        }
+
+        double evaluatedDemand = NumberConverter.toDouble(state.getStoExContext()
+                .evaluate(demand.getSpecification_ParametericResourceDemand().getSpecification()));
+        ResourceType type = demand.getRequiredResource_ParametricResourceDemand();
+
+        // consume the resource demand
         activeResourceComponent.consume(request, state.getComponent().getResourceContainer().getSpecification(), type,
                 evaluatedDemand);
 
-		if (internalState.hasPendingDemands()) {
-			request.passivate(new ResumeSeffTraversalEvent(model, state, interpreter));
-			return new InterruptTraversal<>(action);
-		} else {
-			request.passivate(new ResumeSeffTraversalEvent(model, state, interpreter));
-			return new InterruptTraversal<>(action.getSuccessor_AbstractAction());
-		}
+        if (!pendingDemands.isEmpty()) { // has more demands
+            request.passivate(new ResumeSeffTraversalEvent(model, state, interpreter));
+            return new InterruptTraversal<>(action);
+        } else {
+            request.passivate(new ResumeSeffTraversalEvent(model, state, interpreter));
+            return new InterruptTraversal<>(action.getSuccessor_AbstractAction());
+        }
 
-	}
-
-	private InternalActionTraversalState initialiseState(final Request request, final InternalAction action, final RequestState state) {
-		// create and set state
-		final InternalActionTraversalState internalState = new InternalActionTraversalState();
-		for (final ParametricResourceDemand d : action.getResourceDemand_Action()) {
-			internalState.enqueueDemand(d);
-		}
-
-		state.addInternalState(action, internalState);
-
-		return internalState;
-	}
-
-	private static final class InternalActionTraversalState implements ITraversalStrategyState {
-
-		private final Queue<ParametricResourceDemand> pendingDemands;
-
-		public InternalActionTraversalState() {
-			this.pendingDemands = new LinkedList<ParametricResourceDemand>();
-		}
-
-		public void enqueueDemand(final ParametricResourceDemand demand) {
-			this.pendingDemands.add(demand);
-		}
-
-		public ParametricResourceDemand dequeueDemand() {
-			return this.pendingDemands.poll();
-		}
-
-		public boolean hasPendingDemands() {
-			return !this.pendingDemands.isEmpty();
-		}
-
-	}
+    }
 
 }

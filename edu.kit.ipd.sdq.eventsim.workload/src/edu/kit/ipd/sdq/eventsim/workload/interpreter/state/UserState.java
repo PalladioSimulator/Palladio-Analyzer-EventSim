@@ -82,6 +82,14 @@ public class UserState extends AbstractInterpreterState<AbstractUserAction> impl
      * {@inheritDoc}
      */
     @Override
+    public void removeInternalState(AbstractUserAction action) {
+        this.stack.peek().removeInternalState(action);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public AbstractUserAction dequeueFinishedAction() {
         return this.stack.peek().dequeueFinishedAction();
     }

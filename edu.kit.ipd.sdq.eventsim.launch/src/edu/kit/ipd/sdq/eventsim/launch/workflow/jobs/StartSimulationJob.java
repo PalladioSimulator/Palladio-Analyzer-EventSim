@@ -27,6 +27,8 @@ import edu.kit.ipd.sdq.eventsim.launch.SimulationDockWrapper;
 import edu.kit.ipd.sdq.eventsim.launch.SimulationManager;
 import edu.kit.ipd.sdq.eventsim.launch.runconfig.EventSimConfigurationConstants;
 import edu.kit.ipd.sdq.eventsim.launch.runconfig.EventSimWorkflowConfiguration;
+import edu.kit.ipd.sdq.eventsim.modules.SimulationModule;
+import edu.kit.ipd.sdq.eventsim.modules.SimulationModuleRegistry;
 
 /**
  * Starts an EventSim simulation.
@@ -38,46 +40,56 @@ import edu.kit.ipd.sdq.eventsim.launch.runconfig.EventSimWorkflowConfiguration;
  */
 public class StartSimulationJob extends AbstractExtendableJob<MDSDBlackboard> {
 
-	private final EventSimWorkflowConfiguration workflowConfiguration;
-	
-	public StartSimulationJob(EventSimWorkflowConfiguration workflowConfiguration) {
-		this.workflowConfiguration = workflowConfiguration;
-	}
+    private final EventSimWorkflowConfiguration workflowConfiguration;
 
-	public void execute(IProgressMonitor monitor) throws JobFailedException, UserCanceledException {
-		// derive configuration
-		SimulationConfiguration config = workflowConfiguration.getSimulationConfiguration();
+    public StartSimulationJob(EventSimWorkflowConfiguration workflowConfiguration) {
+        this.workflowConfiguration = workflowConfiguration;
+    }
 
-		// obtain PCM model from MDSD blackboard
-		// TODO multiple repositories are not supported by the following
-		PCMResourceSetPartition p = (PCMResourceSetPartition) getBlackboard()
-				.getPartition(LoadPCMModelsIntoBlackboardJob.PCM_MODELS_PARTITION_ID);
-		PCMModel model = new PCMModel(p.getAllocation(), p.getRepositories().get(0), p.getResourceEnvironment(),
-				p.getSystem(), p.getUsageModel(), p.getResourceTypeRepository());
-		config.setModel(model);
+    public void execute(IProgressMonitor monitor) throws JobFailedException, UserCanceledException {
+        // derive configuration
+        SimulationConfiguration config = workflowConfiguration.getSimulationConfiguration();
 
-		// read instrumentation description from specified file
-		InstrumentationDescription instrumentationDescription = null;
-		try {
+        // obtain PCM model from MDSD blackboard
+        // TODO multiple repositories are not supported by the following
+        PCMResourceSetPartition p = (PCMResourceSetPartition) getBlackboard()
+                .getPartition(LoadPCMModelsIntoBlackboardJob.PCM_MODELS_PARTITION_ID);
+        PCMModel model = new PCMModel(p.getAllocation(), p.getRepositories().get(0), p.getResourceEnvironment(),
+                p.getSystem(), p.getUsageModel(), p.getResourceTypeRepository());
+        config.setModel(model);
+
+        // read instrumentation description from specified file
+        InstrumentationDescription instrumentationDescription = null;
+        try {
             // TODO should be read from configuration rather than reading from raw attributes map
-		    String instrumentatinFileLocation = (String) workflowConfiguration.getAttributes().get(EventSimConfigurationConstants.INSTRUMENTATION_FILE);
-			URL url = new URL(instrumentatinFileLocation);
-			instrumentationDescription = new DescriptionToXmlParser().readFromInputStream(url.openStream());
-		} catch (JAXBException | IOException e) {
-			throw new EventSimException("Could not read default instrumentation description", e);
-		}
-		config.setInstrumentationDescription(instrumentationDescription);
+            String instrumentatinFileLocation = (String) workflowConfiguration.getAttributes()
+                    .get(EventSimConfigurationConstants.INSTRUMENTATION_FILE);
+            URL url = new URL(instrumentatinFileLocation);
+            instrumentationDescription = new DescriptionToXmlParser().readFromInputStream(url.openStream());
+        } catch (JAXBException | IOException e) {
+            throw new EventSimException("Could not read default instrumentation description", e);
+        }
+        config.setInstrumentationDescription(instrumentationDescription);
 
-		// assemble simulation components...
-		Injector injector = Guice.createInjector(ExtendableSimulationModule.create(config, instrumentationDescription));
+        // assemble simulation components...
+        Injector injector = Guice.createInjector(ExtendableSimulationModule.create(config, instrumentationDescription));
 
-		// ...and start simulation, displaying simulation progress in a simulation dock (progress viewer)
-		SimulationDockWrapper dock = SimulationDockWrapper.getBestFreeDock();
-		dock.start();
-		injector.getInstance(SimulationManager.class).startSimulation(dock);
-		dock.stop();
+        // instantiate simulation module entry points, if present
+        SimulationModuleRegistry moduleRegistry = injector.getInstance(SimulationModuleRegistry.class);
+        for (SimulationModule m : moduleRegistry.getModules()) {
+            if (m.isEnabled() && m.getEntryPoint() != null) {
+                injector.getInstance(m.getEntryPoint());
+            }
+        }
 
-		super.execute(monitor); // TODO needed?
-	}
+        // ...and start simulation, displaying simulation progress in a simulation dock (progress
+        // viewer)
+        SimulationDockWrapper dock = SimulationDockWrapper.getBestFreeDock();
+        dock.start();
+        injector.getInstance(SimulationManager.class).startSimulation(dock);
+        dock.stop();
+
+        super.execute(monitor); // TODO needed?
+    }
 
 }

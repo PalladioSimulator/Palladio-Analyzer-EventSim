@@ -22,7 +22,7 @@ import edu.kit.ipd.sdq.eventsim.system.staticstructure.ComponentInstance;
 public class RequestState extends AbstractInterpreterState<AbstractAction> implements IRequestState, Cloneable {
 
     private static final Logger logger = Logger.getLogger(RequestState.class);
-    private static final boolean debug = logger.isDebugEnabled(); 
+    private static final boolean debug = logger.isDebugEnabled();
 
     private final Stack<RequestStateStackFrame> stack;
     private final StackContext stoExContext;
@@ -100,6 +100,22 @@ public class RequestState extends AbstractInterpreterState<AbstractAction> imple
      * {@inheritDoc}
      */
     @Override
+    public void removeInternalState(AbstractAction action) {
+        this.stack.peek().removeInternalState(action);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ITraversalStrategyState getInternalState(final AbstractAction action) {
+        return this.stack.peek().getInternalState(action);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public AbstractAction dequeueFinishedAction() {
         return this.stack.peek().dequeueFinishedAction();
     }
@@ -118,14 +134,6 @@ public class RequestState extends AbstractInterpreterState<AbstractAction> imple
     @Override
     public AbstractAction getCurrentPosition() {
         return this.stack.peek().getCurrentPosition();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public ITraversalStrategyState getInternalState(final AbstractAction action) {
-        return this.stack.peek().getInternalState(action);
     }
 
     /**

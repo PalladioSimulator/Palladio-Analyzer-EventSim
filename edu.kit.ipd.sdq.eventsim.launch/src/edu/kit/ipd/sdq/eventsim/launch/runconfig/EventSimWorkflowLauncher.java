@@ -73,6 +73,7 @@ public class EventSimWorkflowLauncher extends AbstractPCMLaunchConfigurationDele
 		loggerList.add(setupLogger("edu.kit.ipd.sdq.eventsim", logLevel, Level.DEBUG == logLevel ? DETAILED_LOG_PATTERN : SHORT_LOG_PATTERN));
 		loggerList.add(setupLogger("de.uka.ipd.sdq.simulation", logLevel, Level.DEBUG == logLevel ? DETAILED_LOG_PATTERN : SHORT_LOG_PATTERN));
 		loggerList.add(setupLogger("edu.kit.ipd.sdq.simcomp", logLevel, Level.DEBUG == logLevel ? DETAILED_LOG_PATTERN : SHORT_LOG_PATTERN));
+		loggerList.add(setupLogger("org.palladiosimulator.transactions", logLevel, Level.DEBUG == logLevel ? DETAILED_LOG_PATTERN : SHORT_LOG_PATTERN)); // TODO
 
 		return loggerList;
 	}

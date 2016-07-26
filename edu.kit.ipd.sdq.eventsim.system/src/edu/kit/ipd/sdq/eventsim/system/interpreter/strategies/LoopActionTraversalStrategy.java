@@ -13,6 +13,7 @@ import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalInstruction;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.interpreter.instructions.TraverseNextAction;
 import edu.kit.ipd.sdq.eventsim.interpreter.state.ITraversalStrategyState;
+import edu.kit.ipd.sdq.eventsim.interpreter.state.InternalState;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
 import edu.kit.ipd.sdq.eventsim.system.interpreter.instructions.TraverseComponentBehaviourInstruction;
 import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
@@ -23,13 +24,18 @@ import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
  * @author Philipp Merkle
  * 
  */
-public class LoopActionTraversalStrategy implements ITraversalStrategy<AbstractAction, LoopAction, Request, RequestState> {
+public class LoopActionTraversalStrategy
+        implements ITraversalStrategy<AbstractAction, LoopAction, Request, RequestState> {
 
     private static Logger logger = Logger.getLogger(LoopActionTraversalStrategy.class);
 
+    private static final String ITERATION_CURRENT_PROPERTY = "iterationCurrent";
+
+    private static final String ITERATION_OVERALL_PROPERTY = "iterationOverall";
+
     @Inject
     private PCMModelCommandExecutor executor;
-    
+
     /**
      * {@inheritDoc}
      */
@@ -37,19 +43,23 @@ public class LoopActionTraversalStrategy implements ITraversalStrategy<AbstractA
     public ITraversalInstruction<AbstractAction, RequestState> traverse(final LoopAction loop, final Request request,
             final RequestState state) {
         // restore or create state
-        LoopActionTraversalState internalState = (LoopActionTraversalState) state.getInternalState(loop);
+        ITraversalStrategyState internalState = state.getInternalState(loop);
         if (internalState == null) {
             internalState = this.initialiseState(request, loop, state);
+            state.addInternalState(loop, internalState);
         }
+        int iterationCurrent = state.getInternalState(loop).getProperty(ITERATION_CURRENT_PROPERTY, 0);
+        int iterationOverall = state.getInternalState(loop).getProperty(ITERATION_OVERALL_PROPERTY, 0);
 
-        if (!this.doneAllIterations(internalState)) {
+        if (iterationCurrent <= iterationOverall) { // TODO check in debugger
             if (logger.isDebugEnabled()) {
-                logger.debug("Traversing iteration " + internalState.getCurrentIteration() + " of "
-                        + internalState.getOverallIterations());
+                logger.debug("Traversing iteration " + iterationCurrent + " of " + iterationOverall);
             }
 
+            // increment iteration counter
+            internalState.setProperty(ITERATION_CURRENT_PROPERTY, ++iterationCurrent);
+
             // traverse the body behaviour
-            internalState.incrementCurrentIteration();
             final ResourceDemandingBehaviour behaviour = loop.getBodyBehaviour_Loop();
             return new TraverseComponentBehaviourInstruction(executor, behaviour, state.getComponent(), loop);
         } else {
@@ -60,46 +70,20 @@ public class LoopActionTraversalStrategy implements ITraversalStrategy<AbstractA
         }
     }
 
-    private LoopActionTraversalState initialiseState(final Request request, final LoopAction loop,
+    private ITraversalStrategyState initialiseState(final Request request, final LoopAction loop,
             final RequestState state) {
+        ITraversalStrategyState internalState = new InternalState(); // TODO move to core
+
         // evaluate the iteration count
         final PCMRandomVariable loopCountRandVar = loop.getIterationCount_LoopAction();
         final Integer overallIterations = state.getStoExContext().evaluate(loopCountRandVar.getSpecification(),
                 Integer.class);
 
         // create and set state
-        final LoopActionTraversalState internalState = new LoopActionTraversalState(overallIterations);
-        state.addInternalState(loop, internalState);
+        internalState.setProperty(ITERATION_OVERALL_PROPERTY, overallIterations);
+        internalState.setProperty(ITERATION_CURRENT_PROPERTY, 1);
 
         return internalState;
-    }
-
-    private boolean doneAllIterations(final LoopActionTraversalState state) {
-        return state.getCurrentIteration() > state.getOverallIterations();
-    }
-
-    private static final class LoopActionTraversalState implements ITraversalStrategyState {
-
-        private int currentIteration;
-        private final int overallIterations;
-
-        public LoopActionTraversalState(final int overallIterations) {
-            this.overallIterations = overallIterations;
-            this.currentIteration = 1;
-        }
-
-        public int getCurrentIteration() {
-            return this.currentIteration;
-        }
-
-        public void incrementCurrentIteration() {
-            this.currentIteration++;
-        }
-
-        public int getOverallIterations() {
-            return this.overallIterations;
-        }
-
     }
 
 }

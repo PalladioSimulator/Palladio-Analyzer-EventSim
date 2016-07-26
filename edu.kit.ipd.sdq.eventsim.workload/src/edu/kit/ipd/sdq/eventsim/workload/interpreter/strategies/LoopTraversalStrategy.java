@@ -14,6 +14,7 @@ import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalInstruction;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.interpreter.instructions.TraverseNextAction;
 import edu.kit.ipd.sdq.eventsim.interpreter.state.ITraversalStrategyState;
+import edu.kit.ipd.sdq.eventsim.interpreter.state.InternalState;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
 import edu.kit.ipd.sdq.eventsim.workload.interpreter.instructions.TraverseUsageBehaviourInstruction;
 import edu.kit.ipd.sdq.eventsim.workload.interpreter.state.UserState;
@@ -28,83 +29,68 @@ public class LoopTraversalStrategy implements ITraversalStrategy<AbstractUserAct
 
     private static Logger logger = Logger.getLogger(LoopTraversalStrategy.class);
 
+    private static final String ITERATION_CURRENT_PROPERTY = "iterationCurrent";
+
+    private static final String ITERATION_OVERALL_PROPERTY = "iterationOverall";
+
     @Inject
     private PCMModelCommandExecutor executor;
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public ITraversalInstruction<AbstractUserAction, UserState> traverse(final Loop loop, final User user, final UserState state) {
+    public ITraversalInstruction<AbstractUserAction, UserState> traverse(final Loop loop, final User user,
+            final UserState state) {
         // restore or create state
-        LoopTraversalState internalState = (LoopTraversalState) state.getInternalState(loop);
+        ITraversalStrategyState internalState = state.getInternalState(loop);
         if (internalState == null) {
             internalState = this.initialiseState(user, loop, state);
+            state.addInternalState(loop, internalState);
         }
+        int iterationCurrent = state.getInternalState(loop).getProperty(ITERATION_CURRENT_PROPERTY, 0);
+        int iterationOverall = state.getInternalState(loop).getProperty(ITERATION_OVERALL_PROPERTY, 0);
 
-        if (!this.doneAllIterations(internalState)) {
+        if (iterationCurrent <= iterationOverall) { // TODO check in debugger
             if (logger.isDebugEnabled()) {
-                logger.debug("Traversing iteration " + internalState.getCurrentIteration() + " of "
-                        + internalState.getOverallIterations());
+                logger.debug("Traversing iteration " + iterationCurrent + " of " + iterationOverall);
             }
 
-			// traverse the body behaviour
-			internalState.incrementCurrentIteration();
-			final ScenarioBehaviour behaviour = loop.getBodyBehaviour_Loop();
-			if (behaviour == null) {
-			    // TODO
-//				WorkloadModelDiagnostics diagnostics = user.getEventSimModel().getUsageInterpreter().getDiagnostics();
-//				diagnostics.reportMissingLoopingBehaviour(loop);
-				return new TraverseNextAction<>(loop.getSuccessor());
-			}
-			return new TraverseUsageBehaviourInstruction(executor, behaviour, loop);
+            // increment iteration counter
+            internalState.setProperty(ITERATION_CURRENT_PROPERTY, ++iterationCurrent);
+
+            // traverse the body behaviour
+            final ScenarioBehaviour behaviour = loop.getBodyBehaviour_Loop();
+            if (behaviour == null) {
+                // TODO
+                // WorkloadModelDiagnostics diagnostics =
+                // user.getEventSimModel().getUsageInterpreter().getDiagnostics();
+                // diagnostics.reportMissingLoopingBehaviour(loop);
+                return new TraverseNextAction<>(loop.getSuccessor());
+            }
+            return new TraverseUsageBehaviourInstruction(executor, behaviour, loop);
         } else {
             if (logger.isDebugEnabled()) {
                 logger.debug("Completed loop traversal");
             }
+            state.removeInternalState(loop);
             return new TraverseNextAction<>(loop.getSuccessor());
         }
     }
 
-    private LoopTraversalState initialiseState(final User user, final Loop loop, final UserState state) {
+    private ITraversalStrategyState initialiseState(final User user, final Loop loop, final UserState state) {
+        ITraversalStrategyState internalState = new InternalState(); // TODO move to core
+
         // evaluate the iteration count
         final PCMRandomVariable loopCountRandVar = loop.getLoopIteration_Loop();
         final Integer overallIterations = StackContext.evaluateStatic(loopCountRandVar.getSpecification(),
                 Integer.class);
 
         // create and set state
-        final LoopTraversalState internalState = new LoopTraversalState(overallIterations);
-        state.addInternalState(loop, internalState);
+        internalState.setProperty(ITERATION_OVERALL_PROPERTY, overallIterations);
+        internalState.setProperty(ITERATION_CURRENT_PROPERTY, 1);
 
         return internalState;
-    }
-
-    private boolean doneAllIterations(final LoopTraversalState state) {
-        return state.getCurrentIteration() > state.getOverallIterations();
-    }
-
-    private static final class LoopTraversalState implements ITraversalStrategyState {
-
-        private int currentIteration;
-        private final int overallIterations;
-
-        public LoopTraversalState(final int overallIterations) {
-            this.overallIterations = overallIterations;
-            this.currentIteration = 1;
-        }
-
-        public int getCurrentIteration() {
-            return this.currentIteration;
-        }
-
-        public void incrementCurrentIteration() {
-            this.currentIteration++;
-        }
-
-        public int getOverallIterations() {
-            return this.overallIterations;
-        }
-
     }
 
 }

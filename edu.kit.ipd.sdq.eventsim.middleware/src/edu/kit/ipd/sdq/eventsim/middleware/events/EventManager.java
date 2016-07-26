@@ -16,6 +16,8 @@ import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 
+import com.google.inject.Singleton;
+
 import edu.kit.ipd.sdq.eventsim.api.events.IEventHandler;
 import edu.kit.ipd.sdq.eventsim.api.events.SimulationEvent;
 import edu.kit.ipd.sdq.eventsim.middleware.Activator;
@@ -29,6 +31,7 @@ import edu.kit.ipd.sdq.eventsim.middleware.Activator;
  * @author Philipp Merkle
  *
  */
+@Singleton
 public class EventManager {
 
 	private static final Logger log = Logger.getLogger(EventManager.class);

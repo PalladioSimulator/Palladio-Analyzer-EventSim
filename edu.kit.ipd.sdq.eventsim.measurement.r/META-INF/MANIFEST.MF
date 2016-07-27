@@ -16,3 +16,4 @@ Require-Bundle: org.apache.log4j;bundle-version="1.2.15",
  org.eclipse.core.runtime,
  org.eclipse.e4.ui.di
 Bundle-ActivationPolicy: lazy
+Bundle-Activator: edu.kit.ipd.sdq.eventsim.measurement.r.Activator

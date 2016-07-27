@@ -1,12 +1,7 @@
 package edu.kit.ipd.sdq.eventsim.measurement.r.connection.ui;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-
 import javax.annotation.PostConstruct;
 
-import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.events.PaintEvent;
@@ -24,15 +19,14 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
+import edu.kit.ipd.sdq.eventsim.measurement.r.Activator;
 import edu.kit.ipd.sdq.eventsim.measurement.r.connection.RserveConnection;
 
 public class ConnectionView {
 
-    private static final String ICONS_FOLDER_LOCATION = "platform:/plugin/edu.kit.ipd.sdq.eventsim.measurement.r/icons/";
-
-    private static final String DISCONNECTED_ICON_LOCATION = ICONS_FOLDER_LOCATION + "bullet_black.png";
-    private static final String CONNECTED_ICON_LOCATION = ICONS_FOLDER_LOCATION + "bullet_green.png";
-    private static final String CONNECTING_ICON_LOCATION = ICONS_FOLDER_LOCATION + "bullet_orange.png";
+    private static final String DISCONNECTED_ICON_FILE = "bullet_black.png";
+    private static final String CONNECTED_ICON_FILE = "bullet_green.png";
+    private static final String CONNECTING_ICON_FILE = "bullet_orange.png";
 
     private ConnectionViewListener viewListener;
 
@@ -49,14 +43,8 @@ public class ConnectionView {
     private Button btnDisconnect;
     private Label lblConnecting;
 
-    private String resolveLocation(String imageLocation) {
-        try {
-            return FileLocator.resolve(new URL(imageLocation)).getPath();
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    private static Image getImage(String file) {
+        return Activator.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "icons/" + file).createImage();
     }
 
     public ConnectionView() {
@@ -91,7 +79,7 @@ public class ConnectionView {
 
         canvasConnectedIcon.addPaintListener(new PaintListener() {
             public void paintControl(PaintEvent e) {
-                Image image = new Image(canvasConnectedIcon.getDisplay(), resolveLocation(CONNECTED_ICON_LOCATION));
+                Image image = getImage(CONNECTED_ICON_FILE);
                 e.gc.drawImage(image, 0, 0);
                 image.dispose();
             }
@@ -114,7 +102,7 @@ public class ConnectionView {
 
         canvasConnectingIcon.addPaintListener(new PaintListener() {
             public void paintControl(PaintEvent e) {
-                Image image = new Image(canvasConnectingIcon.getDisplay(), resolveLocation(CONNECTING_ICON_LOCATION));
+                Image image = getImage(CONNECTING_ICON_FILE);
                 e.gc.drawImage(image, 0, 0);
                 image.dispose();
             }
@@ -157,8 +145,7 @@ public class ConnectionView {
 
         canvasDisconnectedIcon.addPaintListener(new PaintListener() {
             public void paintControl(PaintEvent e) {
-                Image image = new Image(canvasDisconnectedIcon.getDisplay(),
-                        resolveLocation(DISCONNECTED_ICON_LOCATION));
+                Image image = getImage(DISCONNECTED_ICON_FILE);
                 e.gc.drawImage(image, 0, 0);
                 image.dispose();
             }
@@ -264,8 +251,8 @@ public class ConnectionView {
         return txtServer.getText();
     }
 
-//    @Focus
-//    public void setFocus() {
-//    }
+    // @Focus
+    // public void setFocus() {
+    // }
 
 }

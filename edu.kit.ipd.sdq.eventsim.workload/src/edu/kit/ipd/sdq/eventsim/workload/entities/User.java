@@ -64,6 +64,7 @@ public class User extends EventSimEntity implements IUser {
      * 
      * @return the usage scenario
      */
+	@Override
     public UsageScenario getUsageScenario() {
         return this.scenario;
     }

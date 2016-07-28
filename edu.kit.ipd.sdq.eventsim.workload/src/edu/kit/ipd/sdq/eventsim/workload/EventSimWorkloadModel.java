@@ -31,6 +31,7 @@ import edu.kit.ipd.sdq.eventsim.interpreter.TraversalListenerRegistry;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementFacade;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 import edu.kit.ipd.sdq.eventsim.measurement.osgi.BundleProbeLocator;
+import edu.kit.ipd.sdq.eventsim.measurement.probe.IProbe;
 import edu.kit.ipd.sdq.eventsim.workload.debug.DebugUsageTraversalListener;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
 import edu.kit.ipd.sdq.eventsim.workload.events.ResumeUsageTraversalEvent;
@@ -43,9 +44,10 @@ import edu.kit.ipd.sdq.eventsim.workload.interpreter.state.UserState;
 /**
  * The EventSim workload simulation model. This is the central class of the workload simulation.
  * 
- * run. Before the simulation starts, it initialises the simulation in the {@code init()} method. During the simulation,
- * it provides information about the PCM model that is to be simulated, the simulation configuration and the simulation
- * status. Finally, it cleans up after a simulation run in the {finalise()} method.
+ * run. Before the simulation starts, it initialises the simulation in the {@code init()} method.
+ * During the simulation, it provides information about the PCM model that is to be simulated, the
+ * simulation configuration and the simulation status. Finally, it cleans up after a simulation run
+ * in the {finalise()} method.
  * 
  * @author Philipp Merkle
  * @author Christoph Föhrdes
@@ -54,139 +56,150 @@ import edu.kit.ipd.sdq.eventsim.workload.interpreter.state.UserState;
 @Singleton
 public class EventSimWorkloadModel implements IWorkload {
 
-	private static final Logger logger = Logger.getLogger(EventSimWorkloadModel.class);
+    private static final Logger logger = Logger.getLogger(EventSimWorkloadModel.class);
 
-	@Inject
-	private UsageBehaviourInterpreter usageInterpreter;
-	
-	@Inject
-	private ISystem system;
-	
-	@Inject
-	private ISimulationMiddleware middleware;
-    
-	@Inject
-	private MeasurementStorage measurementStorage;
-	
-	@Inject
-	private PCMModelCommandExecutor executor;
-	
-	@Inject
-	private ISimulationModel model;
-	
-	@Inject
+    @Inject
+    private UsageBehaviourInterpreter usageInterpreter;
+
+    @Inject
+    private ISystem system;
+
+    @Inject
+    private ISimulationMiddleware middleware;
+
+    @Inject
+    private MeasurementStorage measurementStorage;
+
+    @Inject
+    private PCMModelCommandExecutor executor;
+
+    @Inject
+    private ISimulationModel model;
+
+    @Inject
     private TraversalListenerRegistry<AbstractUserAction, User, UserState> traversalListeners;
-    
-	@Inject
+
+    @Inject
     private WorkloadGeneratorFactory workloadGeneratorFactory;
-    
-	@Inject
+
+    @Inject
     private Provider<UsageBehaviourInterpreter> interpreterFactory;
 
-	@Inject
-    private PCMModel pcm; 
-    
-	@Inject
+    @Inject
+    private PCMModel pcm;
+
+    @Inject
     private InstrumentationDescription instrumentation;
 
     private MeasurementFacade<WorkloadMeasurementConfiguration> measurementFacade;
-    
+
     @Inject
     public EventSimWorkloadModel(ISimulationMiddleware middleware) {
         // initialize in simulation preparation phase
         middleware.registerEventHandler(SimulationPrepareEvent.class, e -> init());
     }
-	
-	/**
-	 * This method prepares the EventSim workload simulator and creates the initial events to start the workload
-	 * generation.
-	 */
-	private void init() {		
-		// initialise behaviour interpreters
-		usageInterpreter = interpreterFactory.get();
-	
-		// initialise probfunction factory and random generator
-		IProbabilityFunctionFactory probFunctionFactory = ProbabilityFunctionFactoryImpl.getInstance();
-		probFunctionFactory.setRandomGenerator(middleware.getRandomGenerator());
-		StoExCache.initialiseStoExCache(probFunctionFactory);
-	
-		// install debug traversal listeners, if debugging is enabled
-		if (logger.isDebugEnabled()) {
-			traversalListeners.addTraversalListener(new DebugUsageTraversalListener());
-		}
-	
-		setupMeasurements();
-	
-		registerEventHandler();
-		
-		generate();
-	}
 
-	@Override
-	public void generate() {
-		// start the simulation by generating the workload
-		final List<IWorkloadGenerator> workloadGenerators = executor.execute(new BuildWorkloadGenerator(workloadGeneratorFactory));
-		for (final IWorkloadGenerator d : workloadGenerators) {
-			d.processWorkload();
-		}
-	}
-	
-	/**
-	 * Register event handler to react on specific simulation events.
-	 */
-	private void registerEventHandler() {
-		middleware.registerEventHandler(WorkloadUserFinishedEvent.class,
-				e -> middleware.increaseMeasurementCount());
-		
-		// TODO perhaps move to EntryLevelSystemCallTraversalStrategy
-		// setup system processed request event listener
-		middleware.registerEventHandler(SystemRequestFinishedEvent.class, event -> {
-			IRequest request = event.getRequest();
-			User user = (User) request.getUser();
-			new ResumeUsageTraversalEvent(model, user.getUserState(), usageInterpreter).schedule(user, 0);
-		});
-	}
+    /**
+     * This method prepares the EventSim workload simulator and creates the initial events to start
+     * the workload generation.
+     */
+    private void init() {
+        // initialise behaviour interpreters
+        usageInterpreter = interpreterFactory.get();
 
-	private void setupMeasurements() {	    
-		// create instrumentor for instrumentation description
-		// TODO get rid of cast (and middleware/simulation dependencies)
-		Instrumentor<?, ?> instrumentor = InstrumentorBuilder
-				.buildFor(pcm)
-				.inBundle(Activator.getContext().getBundle())
-				.withDescription(instrumentation)
-				.withStorage(measurementStorage)
-				.forModelType(UserActionRepresentative.class)
-				.withoutMapping()
-				.createFor(getMeasurementFacade()); 
-		instrumentor.instrumentAll();
+        // initialise probfunction factory and random generator
+        IProbabilityFunctionFactory probFunctionFactory = ProbabilityFunctionFactoryImpl.getInstance();
+        probFunctionFactory.setRandomGenerator(middleware.getRandomGenerator());
+        StoExCache.initialiseStoExCache(probFunctionFactory);
 
-		measurementStorage.addIdExtractor(User.class, c -> Long.toString(((User)c).getEntityId()));
-		measurementStorage.addNameExtractor(User.class, c -> ((User)c).getName());
-		measurementStorage.addIdExtractor(AbstractUserAction.class, c -> ((AbstractUserAction)c).getId());
-		measurementStorage.addNameExtractor(AbstractUserAction.class, c -> ((AbstractUserAction)c).getEntityName());
-	}
+        // install debug traversal listeners, if debugging is enabled
+        if (logger.isDebugEnabled()) {
+            traversalListeners.addTraversalListener(new DebugUsageTraversalListener());
+        }
 
-	/**
-	 * Gives access to the usage behavior interpreter
-	 * 
-	 * @return A usage behavior interpreter
-	 */
-	public UsageBehaviourInterpreter getUsageInterpreter() {
-		return usageInterpreter;
-	}
-	
-	public ISystem getSystem() {
-		return system;
-	}
-	
+        setupMeasurements();
+
+        registerEventHandler();
+
+        generate();
+    }
+
+    @Override
+    public void generate() {
+        // start the simulation by generating the workload
+        final List<IWorkloadGenerator> workloadGenerators = executor
+                .execute(new BuildWorkloadGenerator(workloadGeneratorFactory));
+        for (final IWorkloadGenerator d : workloadGenerators) {
+            d.processWorkload();
+        }
+    }
+
+    /**
+     * Register event handler to react on specific simulation events.
+     */
+    private void registerEventHandler() {
+        middleware.registerEventHandler(WorkloadUserFinishedEvent.class, e -> middleware.increaseMeasurementCount());
+
+        // TODO perhaps move to EntryLevelSystemCallTraversalStrategy
+        // setup system processed request event listener
+        middleware.registerEventHandler(SystemRequestFinishedEvent.class, event -> {
+            IRequest request = event.getRequest();
+            User user = (User) request.getUser();
+            new ResumeUsageTraversalEvent(model, user.getUserState(), usageInterpreter).schedule(user, 0);
+        });
+    }
+
+    private void setupMeasurements() {
+        // create instrumentor for instrumentation description
+        // TODO get rid of cast (and middleware/simulation dependencies)
+        Instrumentor<?, ?> instrumentor = InstrumentorBuilder.buildFor(pcm).inBundle(Activator.getContext().getBundle())
+                .withDescription(instrumentation).withStorage(measurementStorage)
+                .forModelType(UserActionRepresentative.class).withoutMapping().createFor(getMeasurementFacade());
+        instrumentor.instrumentAll();
+
+        // setup inter-arrival/-departure time probe for each UsageScenario in the usage model
+        // TODO allow to switch off via launch configuration
+        pcm.getUsageModel().getUsageScenario_UsageModel().forEach(scenario -> {
+            // setup inter-arrival time probe
+            IProbe<?> pia = getMeasurementFacade().createProbe(scenario, "inter_arrival_time");
+            pia.forEachMeasurement(m -> measurementStorage.put(m));
+
+            // setup inter-departure time probe
+            IProbe<?> pid = getMeasurementFacade().createProbe(scenario, "inter_departure_time");
+            pid.forEachMeasurement(m -> measurementStorage.put(m));
+        });
+
+        measurementStorage.addIdExtractor(User.class, c -> Long.toString(((User) c).getEntityId()));
+        measurementStorage.addNameExtractor(User.class, c -> ((User) c).getName());
+        measurementStorage.addIdExtractor(AbstractUserAction.class, c -> ((AbstractUserAction) c).getId());
+        measurementStorage.addNameExtractor(AbstractUserAction.class, c -> ((AbstractUserAction) c).getEntityName());
+    }
+
+    /**
+     * Gives access to the usage behavior interpreter
+     * 
+     * @return A usage behavior interpreter
+     */
+    public UsageBehaviourInterpreter getUsageInterpreter() {
+        return usageInterpreter;
+    }
+
+    public ISystem getSystem() {
+        return system;
+    }
+
     public MeasurementFacade<WorkloadMeasurementConfiguration> getMeasurementFacade() {
         if (measurementFacade == null) {
             // setup measurement facade
             Bundle bundle = Activator.getContext().getBundle();
-            measurementFacade = new MeasurementFacade<>(new WorkloadMeasurementConfiguration(traversalListeners),
+            measurementFacade = new MeasurementFacade<>(new WorkloadMeasurementConfiguration(this, middleware, model),
                     new BundleProbeLocator<>(bundle));
         }
         return measurementFacade;
+    }
+
+    public TraversalListenerRegistry<AbstractUserAction, User, UserState> getTraversalListeners() {
+        return traversalListeners;
     }
 
 }

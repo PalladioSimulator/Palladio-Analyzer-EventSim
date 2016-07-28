@@ -1,23 +1,33 @@
 package edu.kit.ipd.sdq.eventsim.workload;
 
-import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
-
-import edu.kit.ipd.sdq.eventsim.interpreter.TraversalListenerRegistry;
+import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
+import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
 import edu.kit.ipd.sdq.eventsim.measurement.ProbeConfiguration;
-import edu.kit.ipd.sdq.eventsim.workload.entities.User;
-import edu.kit.ipd.sdq.eventsim.workload.interpreter.state.UserState;
 
 public class WorkloadMeasurementConfiguration implements ProbeConfiguration {
 
-    private TraversalListenerRegistry<AbstractUserAction, User, UserState> traversalListeners;
+    private ISimulationModel simulationModel;
+    
+    private EventSimWorkloadModel workloadModel;
+    
+    private ISimulationMiddleware middleware;
 
-    public WorkloadMeasurementConfiguration(
-            TraversalListenerRegistry<AbstractUserAction, User, UserState> traversalListeners) {
-        this.traversalListeners = traversalListeners;
+    public WorkloadMeasurementConfiguration(EventSimWorkloadModel workloadModel, ISimulationMiddleware middleware, ISimulationModel simulationModel) {
+        this.workloadModel = workloadModel;
+        this.middleware = middleware;
+        this.simulationModel = simulationModel;
     }
-
-    public TraversalListenerRegistry<AbstractUserAction, User, UserState> getInterpreterConfiguration() {
-        return traversalListeners;
+    
+    public EventSimWorkloadModel getWorkloadModel() {
+        return workloadModel;
+    }
+    
+    public ISimulationMiddleware getMiddleware() {
+        return middleware;
+    }
+    
+    public ISimulationModel getSimulationModel() {
+        return simulationModel;
     }
 
 }

@@ -18,7 +18,7 @@ public class UsageActionEntryTimeProbe<E extends AbstractUserAction>
 	public UsageActionEntryTimeProbe(MeasuringPoint<E> p, WorkloadMeasurementConfiguration cfg) {
 		super(p, cfg);
 
-		configuration.getInterpreterConfiguration().addTraversalListener(getMeasuringPoint().getElement(),
+		configuration.getWorkloadModel().getTraversalListeners().addTraversalListener(getMeasuringPoint().getElement(),
 				new IUsageTraversalListener() {
 
 					@Override

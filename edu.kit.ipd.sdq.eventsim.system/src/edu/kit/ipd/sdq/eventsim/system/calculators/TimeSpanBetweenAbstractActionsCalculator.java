@@ -55,7 +55,7 @@ public class TimeSpanBetweenAbstractActionsCalculator extends AbstractBinaryCalc
 		double timeDifference = to.getValue() - from.getValue();
 		
 		MeasuringPoint<Pair<AbstractAction, AbstractAction>> mp = new MeasuringPointPair<>(from.getWhere(), to.getWhere(), "timespan", to.getWhere().getContexts());
-		return new Measurement<>("TIME_SPAN", mp, to.getWho(), timeDifference, when);
+		return new Measurement<>("TIME_SPAN_BETWEEN_ACTIONS_SYSTEM", mp, to.getWho(), timeDifference, when);
 	}
 
 }

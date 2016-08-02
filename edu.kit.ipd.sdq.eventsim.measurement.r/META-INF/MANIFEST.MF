@@ -8,7 +8,8 @@ Export-Package: edu.kit.ipd.sdq.eventsim.measurement.r,
  edu.kit.ipd.sdq.eventsim.measurement.r.connection,
  edu.kit.ipd.sdq.eventsim.measurement.r.connection.ui,
  edu.kit.ipd.sdq.eventsim.measurement.r.jobs,
- edu.kit.ipd.sdq.eventsim.measurement.r.utils
+ edu.kit.ipd.sdq.eventsim.measurement.r.utils,
+ edu.kit.ipd.sdq.eventsim.measurement.r.window
 Require-Bundle: org.apache.log4j;bundle-version="1.2.15",
  org.rosuda.rJavaAndRserve;bundle-version="1.0.0",
  edu.kit.ipd.sdq.eventsim.measurement;bundle-version="2.0.0",

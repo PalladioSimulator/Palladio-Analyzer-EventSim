@@ -60,6 +60,17 @@
          </simulation_strategy>
       </simulation_module>
    </extension>
+   <extension
+         point="edu.kit.ipd.sdq.eventsim.rvisualization.metriclabels">
+      <metric
+            label="[System] Response Time"
+            name="RESPONSE_TIME_OF_EXTERNAL_CALLS">
+      </metric>
+      <metric
+            label="[System] Execution Time"
+            name="TIME_SPAN_BETWEEN_ACTIONS_SYSTEM">
+      </metric>
+   </extension>
 
 
 </plugin>

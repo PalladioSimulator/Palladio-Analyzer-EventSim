@@ -35,7 +35,7 @@ public class ResponseTimeOfExternalCallsCalculator
 		double responseTime = to.getValue() - from.getValue();
 
 		MeasuringPoint<Pair<ExternalCallAction, ExternalCallAction>> mp = new MeasuringPointPair<>(from.getWhere(), to.getWhere(), "responsetime", to.getWhere().getContexts());
-		return new Measurement<>("TIME_SPAN", mp, to.getWho(), responseTime, when);
+		return new Measurement<>("RESPONSE_TIME_OF_EXTERNAL_CALLS", mp, to.getWho(), responseTime, when);
 	}
 
 }

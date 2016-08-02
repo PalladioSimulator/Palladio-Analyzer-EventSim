@@ -8,8 +8,8 @@ import edu.kit.ipd.sdq.eventsim.measurement.r.RContext;
 import edu.kit.ipd.sdq.eventsim.measurement.r.RJob;
 import edu.kit.ipd.sdq.eventsim.measurement.r.jobs.EvaluationException;
 import edu.kit.ipd.sdq.eventsim.measurement.r.utils.RHelper;
+import edu.kit.ipd.sdq.eventsim.measurement.r.window.TransformToEquidistantObservations;
 import edu.kit.ipd.sdq.eventsim.resources.rjobs.window.MeanQueueLengthCalculator;
-import edu.kit.ipd.sdq.eventsim.resources.rjobs.window.TransformToEquidistantObservations;
 
 /**
  * Calculates the mean queue length of resources, based on raw {@code QUEUE_LENGTH} measurements

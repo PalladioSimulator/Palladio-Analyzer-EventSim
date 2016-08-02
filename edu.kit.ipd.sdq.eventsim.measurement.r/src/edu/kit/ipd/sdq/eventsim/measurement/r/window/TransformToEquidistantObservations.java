@@ -1,4 +1,4 @@
-package edu.kit.ipd.sdq.eventsim.resources.rjobs.window;
+package edu.kit.ipd.sdq.eventsim.measurement.r.window;
 
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPDouble;

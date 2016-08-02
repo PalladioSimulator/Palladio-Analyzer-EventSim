@@ -1,6 +1,5 @@
 package edu.kit.ipd.sdq.eventsim.workload.calculators;
 
-import org.palladiosimulator.pcm.seff.AbstractAction;
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 
 import edu.kit.ipd.sdq.eventsim.measurement.Measurement;
@@ -21,7 +20,7 @@ public class TimeSpanBetweenUserActionsCalculator
 	private String metric;
 
 	public TimeSpanBetweenUserActionsCalculator() {
-		this("TIME_SPAN");
+		this("TIME_SPAN_BETWEEN_ACTIONS_WORKLOAD");
 	}
 	
 	public TimeSpanBetweenUserActionsCalculator(String metric) {
@@ -52,7 +51,7 @@ public class TimeSpanBetweenUserActionsCalculator
 		double timeDifference = to.getValue() - from.getValue();
 
 		MeasuringPoint<Pair<AbstractUserAction, AbstractUserAction>> mp = new MeasuringPointPair<>(from.getWhere(), to.getWhere(), "timespan", to.getWhere().getContexts());
-		String metric = this.metric == null ? "TIME_SPAN" : this.metric;
+		String metric = this.metric == null ? "TIME_SPAN_BETWEEN_ACTIONS_WORKLOAD" : this.metric;
 		return new Measurement<>(metric, mp, to.getWho(), timeDifference, when);
 	}
 

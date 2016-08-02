@@ -1,4 +1,4 @@
-package edu.kit.ipd.sdq.eventsim.resources.rjobs.window;
+package edu.kit.ipd.sdq.eventsim.measurement.r.window;
 
 public interface WindowCalculator {
 

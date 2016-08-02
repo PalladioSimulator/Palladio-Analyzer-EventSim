@@ -161,12 +161,16 @@ public class EventSimWorkloadModel implements IWorkload {
         // TODO allow to switch off via launch configuration
         pcm.getUsageModel().getUsageScenario_UsageModel().forEach(scenario -> {
             // setup inter-arrival time probe
-            IProbe<?> pia = getMeasurementFacade().createProbe(scenario, "inter_arrival_time");
-            pia.forEachMeasurement(m -> measurementStorage.put(m));
+            IProbe<?> interArrivalProbe = getMeasurementFacade().createProbe(scenario, "inter_arrival_time");
+            interArrivalProbe.forEachMeasurement(m -> measurementStorage.put(m));
 
             // setup inter-departure time probe
-            IProbe<?> pid = getMeasurementFacade().createProbe(scenario, "inter_departure_time");
-            pid.forEachMeasurement(m -> measurementStorage.put(m));
+            IProbe<?> interDepartureProbe = getMeasurementFacade().createProbe(scenario, "inter_departure_time");
+            interDepartureProbe.forEachMeasurement(m -> measurementStorage.put(m));
+
+            // setup active users probe
+            IProbe<?> activeUsersProbe = getMeasurementFacade().createProbe(scenario, "active_users");
+            activeUsersProbe.forEachMeasurement(m -> measurementStorage.put(m));
         });
 
         measurementStorage.addIdExtractor(User.class, c -> Long.toString(((User) c).getEntityId()));

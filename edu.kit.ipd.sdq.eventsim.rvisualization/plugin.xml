@@ -135,29 +135,6 @@
       </handler>
    </extension>
    <extension
-         point="edu.kit.ipd.sdq.eventsim.rvisualization.metriclabels">
-      <metric
-            label="Passive Resource Hold Time"
-            name="HOLD_TIME">
-      </metric>
-      <metric
-            label="Resource Queue Length"
-            name="QUEUE_LENGTH">
-      </metric>
-      <metric
-            label="Resource Demand"
-            name="RESOURCE_DEMAND">
-      </metric>
-      <metric
-            label="Response Time (Time Span)"
-            name="TIME_SPAN">
-      </metric>
-      <metric
-            label="Passive Resource Waiting Time"
-            name="WAITING_TIME">
-      </metric>
-   </extension>
-   <extension
          point="org.eclipse.ui.commands">
       <command
             id="edu.kit.ipd.sdq.eventsim.rvisualization.diagramview.save"

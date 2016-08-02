@@ -1,5 +1,7 @@
 package edu.kit.ipd.sdq.eventsim.resources.rjobs.window;
 
+import edu.kit.ipd.sdq.eventsim.measurement.r.window.WindowCalculator;
+
 public class UtilizationCalculator implements WindowCalculator {
 
     private double windowSize;

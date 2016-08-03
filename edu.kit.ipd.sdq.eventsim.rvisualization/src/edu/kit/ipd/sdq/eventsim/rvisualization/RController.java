@@ -11,6 +11,7 @@ import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPMismatchException;
 import org.rosuda.REngine.RList;
 
+import edu.kit.ipd.sdq.eventsim.measurement.Metadata;
 import edu.kit.ipd.sdq.eventsim.measurement.r.connection.ConnectionRegistry;
 import edu.kit.ipd.sdq.eventsim.measurement.r.connection.RserveConnection;
 import edu.kit.ipd.sdq.eventsim.measurement.r.jobs.EvaluationException;
@@ -47,6 +48,12 @@ public final class RController {
     public static final String CONTENT_VARIABLE = "mm";
 
     public static final String LOOKUP_TABLE_VARIABLE = "lookup";
+
+    /**
+     * by convention, any metadata column is expected to carry the specified prefix in order to
+     * recognize metadata columns automatically
+     */
+    public static final String METADATA_COLUMN_NAME_PREFIX = "m.";
 
     private static final String[] REQUIRED_LIBRARIES = new String[] { "data.table", "ggplot2", "XML", "svglite" };
 
@@ -366,6 +373,62 @@ public final class RController {
         return assemblyContexts;
     }
 
+    public List<String> getMetadataNames() {
+        if (!isConnected()) {
+            return Collections.emptyList();
+        }
+
+        String[] columnNames = null;
+        try {
+            String rCmd = "colnames(" + CONTENT_VARIABLE + ")";
+            columnNames = evalRCommand(rCmd).asStrings();
+        } catch (REXPMismatchException e) {
+            LOG.error("Could not read metadata column names from R", e);
+        } catch (EvaluationException e) {
+            LOG.error("Could not read metadata column names from R", e);
+        }
+
+        List<String> metadataColumnNames = new ArrayList<>();
+        for (String name : columnNames) {
+            if (name.startsWith(METADATA_COLUMN_NAME_PREFIX)) {
+                metadataColumnNames.add(name);
+            }
+        }
+
+        return metadataColumnNames;
+    }
+
+    public List<Metadata> getMetadata(String name) {
+        if (!isConnected()) {
+            return Collections.emptyList();
+        }
+
+        if (selectionModel.getMetric() == null) {
+            return Collections.emptyList();
+        }
+
+        String selection = new ConditionBuilder(model, selectionModel).metric().build();
+        String rCmd = CONTENT_VARIABLE + "[" + selection + ", .(.N), by=.(" + name + ")]";
+        try {
+            RList columnList = evalRCommand(rCmd).asList();
+            String[] values = columnList.at(name).asStrings();
+            if (values.length == 1 && values[0] == null) {
+                return Collections.emptyList();
+            } else {
+                List<Metadata> metadata = new ArrayList<>();
+                for(String value : values) {
+                    metadata.add(new Metadata(name, value));
+                }
+                return metadata;
+            }
+        } catch (REXPMismatchException e) {
+            LOG.error("Could not read metadata column names from R", e);
+        } catch (EvaluationException e) {
+            LOG.error("Could not read metadata column names from R", e);
+        }
+        return null;
+    }
+
     /**
      * Get the number of values which are used for the diagram plot.
      * 
@@ -379,7 +442,7 @@ public final class RController {
         int numberOfDiagramValues = 0;
         try {
             ConditionBuilder conditions = new ConditionBuilder(model, selectionModel).metric().lowerTime().upperTime()
-                    .triggerType().triggerInstance().assembly().from().to();
+                    .triggerType().triggerInstance().assembly().from().to().metadata();
             String selection = conditions.build();
             String projection = "";
             String rCmd = "nrow(" + CONTENT_VARIABLE + "[" + selection + ", " + projection + "])";
@@ -530,7 +593,7 @@ public final class RController {
 
     public String getFilterExpression() {
         ConditionBuilder conditions = new ConditionBuilder(model, selectionModel).metric().lowerTime().upperTime()
-                .triggerType().triggerInstance().assembly().from().to();
+                .triggerType().triggerInstance().assembly().from().to().metadata();
         String selection = conditions.build();
         String projection = "";
         return CONTENT_VARIABLE + "[" + selection + ", " + projection + "]";

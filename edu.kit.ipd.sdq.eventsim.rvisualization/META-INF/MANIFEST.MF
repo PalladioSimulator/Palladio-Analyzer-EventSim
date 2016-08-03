@@ -12,7 +12,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.databinding,
  org.eclipse.core.databinding.beans,
  org.eclipse.jface.databinding,
- org.eclipse.core.databinding.property
+ org.eclipse.core.databinding.property,
+ edu.kit.ipd.sdq.eventsim.measurement
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,

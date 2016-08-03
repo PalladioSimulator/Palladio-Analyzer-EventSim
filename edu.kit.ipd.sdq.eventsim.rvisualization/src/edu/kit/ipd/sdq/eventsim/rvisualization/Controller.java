@@ -22,6 +22,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 
+import edu.kit.ipd.sdq.eventsim.measurement.Metadata;
 import edu.kit.ipd.sdq.eventsim.measurement.r.connection.AbstractConnectionStatusListener;
 import edu.kit.ipd.sdq.eventsim.measurement.r.connection.ConnectionListener;
 import edu.kit.ipd.sdq.eventsim.measurement.r.connection.ConnectionRegistry;
@@ -579,6 +580,7 @@ public class Controller {
             reloadAssemblyContexts();
             reloadMeasuringPointsFrom();
             reloadMeasuringPointsTo();
+            reloadMetadata();
         }
 
         public void measuringPointFromSelected() {
@@ -690,6 +692,48 @@ public class Controller {
             model.setAssemblyContexts(assemblyContexts);
         }
 
+        private void reloadMetadata() {
+            view.clearMetadataExpandItems();
+
+            // add one expand item per metadata type (identified by its name)
+            for (String name : rCtrl.getMetadataNames()) {
+                List<Metadata> metadataLevels = rCtrl.getMetadata(name);
+                if (!metadataLevels.isEmpty()) {
+                    view.createMetadataExpandItem(name, metadataLevels);
+                }
+            }
+        }
+
+    }
+
+    public void metadataSelectionChanged(Metadata metadata) {
+        if (selectionModel.getMetadata() == null) {
+            selectionModel.setMetadata(new Metadata[] { metadata });
+            return;
+        }
+
+        boolean update = false;
+        int updateOrInsertIndex = 0;
+        for (Metadata m : selectionModel.getMetadata()) {
+            if (m.getName().equals(metadata.getName())) {
+                update = true;
+                break;
+            }
+            updateOrInsertIndex++;
+        }
+
+        int size = selectionModel.getMetadata().length;
+        if (!update) {
+            size++;
+        }
+        Metadata[] updatedMetadata = new Metadata[size];
+        System.arraycopy(selectionModel.getMetadata(), 0, updatedMetadata, 0, selectionModel.getMetadata().length);
+        updatedMetadata[updateOrInsertIndex] = metadata;
+        selectionModel.setMetadata(updatedMetadata);
+    }
+
+    public void metadataSelectionCleared() {
+        selectionModel.setMetadata(null);
     }
 
 }

@@ -3,6 +3,8 @@ package edu.kit.ipd.sdq.eventsim.rvisualization.model;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
+import edu.kit.ipd.sdq.eventsim.measurement.Metadata;
+
 public class FilterSelectionModel {
 
     public static final String METRIC_PROPERTY = "metric";
@@ -25,6 +27,8 @@ public class FilterSelectionModel {
 
     public static final String DIAGRAM_TYPE_PROPERTY = "diagramType";
 
+    public static final String METADATA_PROPERTY = "metadata";
+
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
     private TranslatableEntity metric;
@@ -46,6 +50,8 @@ public class FilterSelectionModel {
     private int simulationTimeUpper;
 
     private TranslatableEntity diagramType;
+
+    private Metadata[] metadata;
 
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         pcs.addPropertyChangeListener(listener);
@@ -155,6 +161,16 @@ public class FilterSelectionModel {
         pcs.firePropertyChange(DIAGRAM_TYPE_PROPERTY, oldValue, diagramType);
     }
 
+    public Metadata[] getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(Metadata[] metadata) {
+        Metadata[] oldValue = this.metadata;
+        this.metadata = metadata;
+        pcs.firePropertyChange(METADATA_PROPERTY, oldValue, metadata);
+    }
+
     public void clear() {
         setMetric(null);
         setTriggerType(null);
@@ -166,6 +182,7 @@ public class FilterSelectionModel {
         setSimulationTimeLower(0);
         setSimulationTimeUpper(0);
         setDiagramType(null);
+        setMetadata(null);
     }
 
 }

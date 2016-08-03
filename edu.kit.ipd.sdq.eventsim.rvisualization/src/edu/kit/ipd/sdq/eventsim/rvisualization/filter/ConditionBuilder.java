@@ -3,6 +3,7 @@ package edu.kit.ipd.sdq.eventsim.rvisualization.filter;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.kit.ipd.sdq.eventsim.measurement.Metadata;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.Entity;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.FilterModel;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.FilterSelectionModel;
@@ -84,6 +85,16 @@ public class ConditionBuilder {
         Entity instance = selectionModel.getTriggerInstance();
         if (instance != null) {
             conditions.add("who.id == " + inQuotes(instance.getId()));
+        }
+        return this;
+    }
+
+    public ConditionBuilder metadata() {
+        Metadata[] metadata = selectionModel.getMetadata();
+        if (metadata != null) {
+            for (Metadata m : metadata) {
+                conditions.add(m.getName() + " == " + inQuotes(m.getValue().toString()));
+            }
         }
         return this;
     }

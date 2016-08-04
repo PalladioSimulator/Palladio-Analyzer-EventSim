@@ -22,6 +22,7 @@ import edu.kit.ipd.sdq.eventsim.rvisualization.ggplot.Aesthetic;
 import edu.kit.ipd.sdq.eventsim.rvisualization.ggplot.Geom;
 import edu.kit.ipd.sdq.eventsim.rvisualization.ggplot.Ggplot;
 import edu.kit.ipd.sdq.eventsim.rvisualization.ggplot.Theme;
+import edu.kit.ipd.sdq.eventsim.rvisualization.model.DiagramModel;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.DiagramType;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.Entity;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.FilterModel;
@@ -48,6 +49,8 @@ public final class RController {
     public static final String CONTENT_VARIABLE = "mm";
 
     public static final String LOOKUP_TABLE_VARIABLE = "lookup";
+    
+    private static final String IMAGE_VARIABLE = "image";
 
     /**
      * by convention, any metadata column is expected to carry the specified prefix in order to
@@ -416,7 +419,7 @@ public final class RController {
                 return Collections.emptyList();
             } else {
                 List<Metadata> metadata = new ArrayList<>();
-                for(String value : values) {
+                for (String value : values) {
                     metadata.add(new Metadata(name, value));
                 }
                 return metadata;
@@ -591,7 +594,7 @@ public final class RController {
         return null;
     }
 
-    public String getFilterExpression() {
+    public String getFilterExpression(FilterSelectionModel selectionModel) {
         ConditionBuilder conditions = new ConditionBuilder(model, selectionModel).metric().lowerTime().upperTime()
                 .triggerType().triggerInstance().assembly().from().to().metadata();
         String selection = conditions.build();
@@ -613,23 +616,12 @@ public final class RController {
      * @throws Exception
      *             If invalid diagram type was used.
      */
-    public String plotDiagramToFile(final DiagramType type, final String diagramImagePath, final String diagramTitle,
-            final String diagramSubTitle, String diagramSubSubTitle, String filterExpression) {
-
-        // ConditionBuilder conditions = new ConditionBuilder(model,
-        // selectionModel).metric().lowerTime().upperTime()
-        // .triggerType().triggerInstance().assembly().from().to();
-        // String selection = conditions.build();
-        // String projection = "";
-
-        // String rPlotDataVar = fCONTENT_VARIABLE + "[" + selection + ", " + projection + "]";
-        String rImageVar = "image";
-
-        String plotCommand = getDiagramSpecificPlotCommand(type, filterExpression, rImageVar, diagramTitle,
-                diagramSubTitle, "");
+    public String plotDiagramToFile(DiagramModel diagramModel, final String diagramImagePath, String filterExpression) {
+        String plotCommand = getDiagramSpecificPlotCommand(diagramModel.getDiagramType(), filterExpression, IMAGE_VARIABLE,
+                diagramModel.getTitle(), diagramModel.getSubTitel(), diagramModel.getSubSubTitle());
 
         // Save plot to SVG file.
-        String rCmd = plotCommand + "ggsave(file='" + diagramImagePath + "', plot=" + rImageVar
+        String rCmd = plotCommand + "ggsave(file='" + diagramImagePath + "', plot=" + IMAGE_VARIABLE
                 + ", width=10, height=10);";
 
         // Important for responsive diagram images: Reopen the saved SVG file

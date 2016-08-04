@@ -201,7 +201,7 @@ public class Controller {
      * diagram will be opened in a new {@link DiagramView}.
      */
     public final void plotDiagram() {
-        DiagramController diagramCtrl = new DiagramController(selectionModel, rCtrl);
+        DiagramController diagramCtrl = new DiagramController(model, selectionModel, rCtrl);
         withBusyCursor(() -> diagramCtrl.plotDiagram());
     }
 

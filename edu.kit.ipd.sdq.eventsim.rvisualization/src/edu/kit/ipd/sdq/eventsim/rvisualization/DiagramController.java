@@ -17,20 +17,31 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 
 import edu.kit.ipd.sdq.eventsim.rvisualization.handlers.ShowStatisticsHandler;
+import edu.kit.ipd.sdq.eventsim.rvisualization.model.DiagramModel;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.DiagramType;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.Entity;
+import edu.kit.ipd.sdq.eventsim.rvisualization.model.FilterModel;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.FilterSelectionModel;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.StatisticsModel;
-import edu.kit.ipd.sdq.eventsim.rvisualization.model.TranslatableEntity;
 import edu.kit.ipd.sdq.eventsim.rvisualization.util.Procedure;
 import edu.kit.ipd.sdq.eventsim.rvisualization.views.DiagramView;
 import edu.kit.ipd.sdq.eventsim.rvisualization.views.ViewUtils;
 
+/**
+ * 
+ * @author Benjamin Rupp
+ * @author Philipp Merkle
+ *
+ */
 public class DiagramController {
 
     private static final Logger LOG = LogManager.getLogger(DiagramController.class);
 
+    private FilterModel filterModel;
+
     private FilterSelectionModel selectionModel;
+
+    private DiagramModel diagramModel;
 
     private DiagramView view;
 
@@ -47,15 +58,23 @@ public class DiagramController {
 
     private static final String DIAGRAM_FILE_EXTENSION = ".svg";
 
-    public DiagramController(FilterSelectionModel selectionModel, RController rCtrl) {
+    public DiagramController(FilterModel filterModel, FilterSelectionModel selectionModel, RController rCtrl) {
+        this.filterModel = filterModel;
         this.selectionModel = selectionModel;
         this.rCtrl = rCtrl;
+        this.diagramModel = createDiagramModel();
+    }
+
+    private DiagramModel createDiagramModel() {
+        DiagramModel diagramModel = new DiagramModel();
+        diagramModel.setDiagramType(DiagramType.valueOf(selectionModel.getDiagramType().getName()));
+        diagramModel.setTitle(createDiagramTitle()); // TODO?
+        diagramModel.setSubTitel(createDiagramSubTitle());
+        diagramModel.setSubSubTitle(createDiagramSubSubTitle());
+        return diagramModel;
     }
 
     public void plotDiagram() {
-        TranslatableEntity selectedDiagramType = selectionModel.getDiagramType();
-        DiagramType diagramType = DiagramType.valueOf(selectedDiagramType.getName());
-
         // ensure that lower simulation time <= upper simulation time
         throwExceptionOnIncorrectSimulationTimeBounds();
 
@@ -63,7 +82,7 @@ public class DiagramController {
         int diagramSize = rCtrl.getNumberOfDiagramValues();
         LOG.trace("DIAGRAM SIZE: " + diagramSize);
 
-        if (!diagramType.isAggregating() && diagramSize > DIAGRAM_SIZE_LIMIT) {
+        if (!diagramModel.getDiagramType().isAggregating() && diagramSize > DIAGRAM_SIZE_LIMIT) {
 
             MessageDialog dialog = new MessageDialog(Display.getCurrent().getActiveShell(), "Huge diagram output", null,
                     "The diagram plot will contain more than " + DIAGRAM_SIZE_LIMIT + " values (" + diagramSize
@@ -85,11 +104,8 @@ public class DiagramController {
         LOG.trace("DIAGRAM PATH: " + diagramPath);
 
         // plot diagram to temporary file
-        String title = createShortDiagramTitle();
-        String subTitle = createDiagramSubTitle();
-        String subsubTitle = createDiagramSubSubTitle();
-        String filter = rCtrl.getFilterExpression();
-        String plotCommand = rCtrl.plotDiagramToFile(diagramType, diagramPath, title, subTitle, subsubTitle, filter);
+        String filter = rCtrl.getFilterExpression(selectionModel);
+        String plotCommand = rCtrl.plotDiagramToFile(diagramModel, diagramPath, filter);
 
         // Open new view to display the diagram.
         String viewTitle = createDiagramTitle();
@@ -209,7 +225,7 @@ public class DiagramController {
         diagramSubSubTitle += selectionModel.getSimulationTimeUpper();
         return diagramSubSubTitle;
     }
-    
+
     private void withBusyCursor(Procedure p) {
         ViewUtils.withBusyCursor(p);
     }

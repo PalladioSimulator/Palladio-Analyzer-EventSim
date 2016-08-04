@@ -73,6 +73,10 @@ public class DiagramController {
         diagramModel.setSubSubTitle(createDiagramSubSubTitle());
         return diagramModel;
     }
+    
+    public DiagramModel getDiagramModel() {
+        return diagramModel;
+    }
 
     public void plotDiagram() {
         // ensure that lower simulation time <= upper simulation time

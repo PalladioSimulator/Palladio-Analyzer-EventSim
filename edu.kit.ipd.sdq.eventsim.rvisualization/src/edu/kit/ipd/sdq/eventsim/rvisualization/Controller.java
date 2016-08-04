@@ -269,7 +269,7 @@ public class Controller {
                 enable = model.getSimulationTimeMax() > model.getSimulationTimeMin();
                 view.enableSimulationTimeComposite(enable);
                 break;
-            case FilterModel.DIAGRAM_TYPE_PROPERTY:
+            case FilterModel.DIAGRAM_TYPES_PROPERTY:
                 view.enableDiagramTypeCombo(enable);
                 break;
             }

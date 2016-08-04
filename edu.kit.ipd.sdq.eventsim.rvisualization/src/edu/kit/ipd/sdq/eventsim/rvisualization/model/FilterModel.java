@@ -22,7 +22,7 @@ public class FilterModel {
 
     public static final String METRICS_PROPERTY = "metrics";
     
-    public static final String DIAGRAM_TYPE_PROPERTY = "diagramTypes";
+    public static final String DIAGRAM_TYPES_PROPERTY = "diagramTypes";
 
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
@@ -157,7 +157,7 @@ public class FilterModel {
     public void setDiagramTypes(List<TranslatableEntity> diagramType) {
         List<TranslatableEntity> oldValue = this.diagramTypes;
         this.diagramTypes = diagramType;
-        pcs.firePropertyChange(DIAGRAM_TYPE_PROPERTY, oldValue, diagramType);
+        pcs.firePropertyChange(DIAGRAM_TYPES_PROPERTY, oldValue, diagramType);
     }
 
     public void clear() {

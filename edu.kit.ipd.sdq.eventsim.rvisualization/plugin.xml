@@ -94,6 +94,17 @@
       </menuContribution>
       <menuContribution
             allPopups="false"
+            locationURI="toolbar:edu.kit.ipd.sdq.eventsim.rvisualization.diagramview">
+         <command
+               commandId="edu.kit.ipd.sdq.eventsim.rvisualization.diagramview.diagramsettings"
+               icon="icons/chart_bar_edit.png"
+               label="Diagram Settings"
+               style="push"
+               tooltip="Diagram Settings">
+         </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
             locationURI="menu:edu.kit.ipd.sdq.eventsim.rvisualization.diagramview.save.menu">
          <command
                commandId="edu.kit.ipd.sdq.eventsim.rvisualization.diagramview.save"
@@ -132,6 +143,10 @@
       <handler
             class="edu.kit.ipd.sdq.eventsim.rvisualization.handlers.ShowStatisticsHandler"
             commandId="edu.kit.ipd.sdq.eventsim.rvisualization.diagramview.statistics">
+      </handler>
+      <handler
+            class="edu.kit.ipd.sdq.eventsim.rvisualization.handlers.DiagramSettingsHandler"
+            commandId="edu.kit.ipd.sdq.eventsim.rvisualization.diagramview.diagramsettings">
       </handler>
    </extension>
    <extension

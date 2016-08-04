@@ -139,6 +139,10 @@ public class DiagramView extends ViewPart {
     public void setController(DiagramController ctrl) {
         this.ctrl = ctrl;
     }
+    
+    public DiagramController getController() {
+        return ctrl;
+    }
 
     /**
      * Set views diagram image.

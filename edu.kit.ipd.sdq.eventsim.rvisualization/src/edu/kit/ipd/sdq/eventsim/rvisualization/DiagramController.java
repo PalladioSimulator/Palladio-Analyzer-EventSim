@@ -69,7 +69,7 @@ public class DiagramController {
         DiagramModel diagramModel = new DiagramModel();
         diagramModel.setDiagramType(DiagramType.valueOf(selectionModel.getDiagramType().getName()));
         diagramModel.setTitle(createDiagramTitle()); // TODO?
-        diagramModel.setSubTitel(createDiagramSubTitle());
+        diagramModel.setSubTitle(createDiagramSubTitle());
         diagramModel.setSubSubTitle(createDiagramSubSubTitle());
         return diagramModel;
     }

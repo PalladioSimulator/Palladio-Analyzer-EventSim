@@ -6,7 +6,7 @@ public class DiagramModel {
 
     private String title;
 
-    private String subTitel;
+    private String subTitle;
 
     private String subSubTitle;
 
@@ -26,12 +26,12 @@ public class DiagramModel {
         this.title = title;
     }
 
-    public String getSubTitel() {
-        return subTitel;
+    public String getSubTitle() {
+        return subTitle;
     }
 
-    public void setSubTitel(String subTitel) {
-        this.subTitel = subTitel;
+    public void setSubTitle(String subTitel) {
+        this.subTitle = subTitel;
     }
 
     public String getSubSubTitle() {

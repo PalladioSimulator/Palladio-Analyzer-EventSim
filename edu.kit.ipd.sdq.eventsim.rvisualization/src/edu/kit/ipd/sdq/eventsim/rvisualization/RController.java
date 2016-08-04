@@ -618,7 +618,7 @@ public final class RController {
      */
     public String plotDiagramToFile(DiagramModel diagramModel, final String diagramImagePath, String filterExpression) {
         String plotCommand = getDiagramSpecificPlotCommand(diagramModel.getDiagramType(), filterExpression, IMAGE_VARIABLE,
-                diagramModel.getTitle(), diagramModel.getSubTitel(), diagramModel.getSubSubTitle());
+                diagramModel.getTitle(), diagramModel.getSubTitle(), diagramModel.getSubSubTitle());
 
         // Save plot to SVG file.
         String rCmd = plotCommand + "ggsave(file='" + diagramImagePath + "', plot=" + IMAGE_VARIABLE

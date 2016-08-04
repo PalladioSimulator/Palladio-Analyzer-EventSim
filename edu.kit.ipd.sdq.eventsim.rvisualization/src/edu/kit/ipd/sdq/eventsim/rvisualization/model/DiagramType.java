@@ -1,5 +1,7 @@
 package edu.kit.ipd.sdq.eventsim.rvisualization.model;
 
+import edu.kit.ipd.sdq.eventsim.rvisualization.ggplot.Aesthetic;
+
 /**
  * Diagram types for plotting.
  * 
@@ -9,20 +11,22 @@ package edu.kit.ipd.sdq.eventsim.rvisualization.model;
  */
 public enum DiagramType {
 
-    /** */
-    HISTOGRAM("Histogram", "Histogram", true),
+    // TODO available aesthetics need to be refined
 
     /** */
-    POINT_GRAPH("Point Chart", "Point", false),
+    HISTOGRAM("Histogram", "Histogram", true, Aesthetic.FILL),
 
     /** */
-    CDF("CDF (Cumulative Distribution Function)", "CDF", true),
+    POINT_GRAPH("Point Chart", "Point", false, Aesthetic.COLOR, Aesthetic.LINETYPE, Aesthetic.ALPHA, Aesthetic.FILL, Aesthetic.SHAPE),
 
     /** */
-    BAR("Bar Chart", "Bar", false),
-    
+    CDF("CDF (Cumulative Distribution Function)", "CDF", true, Aesthetic.COLOR),
+
     /** */
-    LINE("Line Chart", "Line", false);
+    BAR("Bar Chart", "Bar", false, Aesthetic.COLOR),
+
+    /** */
+    LINE("Line Chart", "Line", false, Aesthetic.COLOR, Aesthetic.LINETYPE);
 
     private String name;
 
@@ -30,10 +34,13 @@ public enum DiagramType {
 
     private boolean aggregating;
 
-    private DiagramType(String name, String shortName, boolean aggregating) {
+    private Aesthetic[] aesthetics;
+
+    private DiagramType(String name, String shortName, boolean aggregating, Aesthetic... aesthetics) {
         this.name = name;
         this.shortName = shortName;
         this.aggregating = aggregating;
+        this.aesthetics = aesthetics;
     }
 
     public String getName() {
@@ -50,6 +57,10 @@ public enum DiagramType {
      */
     public boolean isAggregating() {
         return aggregating;
+    }
+
+    public Aesthetic[] getAesthetics() {
+        return aesthetics;
     }
 
 }

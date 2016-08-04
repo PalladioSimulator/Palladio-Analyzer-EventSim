@@ -1,4 +1,4 @@
-package edu.kit.ipd.sdq.eventsim.rvisualization.views;
+package edu.kit.ipd.sdq.eventsim.rvisualization.model.provider;
 
 import org.eclipse.core.databinding.observable.map.IObservableMap;
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;

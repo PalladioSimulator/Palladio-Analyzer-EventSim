@@ -2,8 +2,11 @@ package edu.kit.ipd.sdq.eventsim.rvisualization.model;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-
-import edu.kit.ipd.sdq.eventsim.measurement.Metadata;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class FilterSelectionModel {
 
@@ -51,7 +54,7 @@ public class FilterSelectionModel {
 
     private TranslatableEntity diagramType;
 
-    private Metadata[] metadata;
+    private Map<TranslatableEntity, String> metadata;
 
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         pcs.addPropertyChangeListener(listener);
@@ -161,12 +164,12 @@ public class FilterSelectionModel {
         pcs.firePropertyChange(DIAGRAM_TYPE_PROPERTY, oldValue, diagramType);
     }
 
-    public Metadata[] getMetadata() {
+    public Map<TranslatableEntity, String> getMetadata() {
         return metadata;
     }
 
-    public void setMetadata(Metadata[] metadata) {
-        Metadata[] oldValue = this.metadata;
+    public void setMetadata(Map<TranslatableEntity, String> metadata) {
+        Map<TranslatableEntity, String> oldValue = this.metadata;
         this.metadata = metadata;
         pcs.firePropertyChange(METADATA_PROPERTY, oldValue, metadata);
     }
@@ -183,6 +186,41 @@ public class FilterSelectionModel {
         setSimulationTimeUpper(0);
         setDiagramType(null);
         setMetadata(null);
+    }
+
+    public List<TranslatableEntity> getUnboundVariables(FilterModel model) {
+        List<TranslatableEntity> unbound = new ArrayList<>();
+        if (metric == null) {
+            unbound.add(new TranslatableEntity("what", "Metric"));
+        }
+        if (triggerType == null) {
+            unbound.add(new TranslatableEntity("who.type", "Trigger (Type)"));
+        }
+        if (assemblyContext == null) {
+            unbound.add(new TranslatableEntity("assemblycontext.id", "Assembly Context (Identifier)"));
+            unbound.add(new TranslatableEntity("assemblycontext.name", "Assembly Context (Name)"));
+            unbound.add(new TranslatableEntity("assemblycontext.type", "Assembly Context (Type)"));
+        }
+        if (measuringPointFrom == null) {
+            unbound.add(new TranslatableEntity("where.first.id", "First Measuring Point (Identifier)"));
+            unbound.add(new TranslatableEntity("where.first.name", "First Measuring Point (Name)"));
+            unbound.add(new TranslatableEntity("where.first.type", "First Measuring Point (Type)"));
+        }
+        if (measuringPointTo == null) {
+            unbound.add(new TranslatableEntity("where.second.id", "Second Measuring Point (Identifier)"));
+            unbound.add(new TranslatableEntity("where.second.name", "Second Measuring Point (Name)"));
+            unbound.add(new TranslatableEntity("where.second.type", "Second Measuring Point (Type)"));
+        }
+
+        // add all unbound metadata types
+        Set<TranslatableEntity> unboundMetadataTypes = new HashSet<>();
+        unboundMetadataTypes.addAll(model.getMetadataTypes());
+        if (metadata != null) {
+            unboundMetadataTypes.removeAll(metadata.keySet());
+        }
+        unbound.addAll(unboundMetadataTypes);
+
+        return unbound;
     }
 
 }

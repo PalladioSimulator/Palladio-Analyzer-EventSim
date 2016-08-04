@@ -2,6 +2,7 @@ package edu.kit.ipd.sdq.eventsim.rvisualization.model;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.List;
 
 public class DiagramModel {
 
@@ -13,6 +14,10 @@ public class DiagramModel {
 
     public static final String SUB_SUB_TITLE_PROPERTY = "subSubTitle";
 
+    public static final String UNBOUND_VARIABLES_PROPERTY = "unboundVariables";
+
+    public static final String VARIABLE_BINDINGS_PROPERTY = "variableBindings";
+
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
     private DiagramType diagramType;
@@ -22,6 +27,10 @@ public class DiagramModel {
     private String subTitle;
 
     private String subSubTitle;
+
+    private List<TranslatableEntity> unboundVariables;
+
+    private List<VariableBinding> variableBindings;
 
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         pcs.addPropertyChangeListener(listener);
@@ -69,6 +78,26 @@ public class DiagramModel {
         String oldValue = this.subSubTitle;
         this.subSubTitle = subSubTitle;
         pcs.firePropertyChange(SUB_SUB_TITLE_PROPERTY, oldValue, subSubTitle);
+    }
+
+    public List<TranslatableEntity> getUnboundVariables() {
+        return unboundVariables;
+    }
+
+    public void setUnboundVariables(List<TranslatableEntity> unboundVariables) {
+        List<TranslatableEntity> oldValue = this.unboundVariables;
+        this.unboundVariables = unboundVariables;
+        pcs.firePropertyChange(SUB_SUB_TITLE_PROPERTY, oldValue, unboundVariables);
+    }
+
+    public List<VariableBinding> getVariableBindings() {
+        return variableBindings;
+    }
+
+    public void setVariableBindings(List<VariableBinding> variableBindings) {
+        List<VariableBinding> oldValue = this.variableBindings;
+        this.variableBindings = variableBindings;
+        pcs.firePropertyChange(VARIABLE_BINDINGS_PROPERTY, oldValue, variableBindings);
     }
 
 }

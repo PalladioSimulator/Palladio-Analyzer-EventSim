@@ -71,6 +71,7 @@ public class DiagramController {
         diagramModel.setTitle(createDiagramTitle()); // TODO?
         diagramModel.setSubTitle(createDiagramSubTitle());
         diagramModel.setSubSubTitle(createDiagramSubSubTitle());
+        diagramModel.setUnboundVariables(selectionModel.getUnboundVariables(filterModel));
         return diagramModel;
     }
     

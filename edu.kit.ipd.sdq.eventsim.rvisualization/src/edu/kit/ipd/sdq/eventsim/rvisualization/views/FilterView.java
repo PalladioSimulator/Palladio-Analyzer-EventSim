@@ -49,6 +49,8 @@ import edu.kit.ipd.sdq.eventsim.rvisualization.model.Entity;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.FilterModel;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.FilterSelectionModel;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.TranslatableEntity;
+import edu.kit.ipd.sdq.eventsim.rvisualization.model.provider.EntityLabelProvider;
+import edu.kit.ipd.sdq.eventsim.rvisualization.model.provider.TranslatableEntityLabelProvider;
 import edu.kit.ipd.sdq.eventsim.rvisualization.util.Helper;
 import swing2swt.layout.BorderLayout;
 
@@ -122,7 +124,7 @@ public class FilterView extends ViewPart {
 
     private ExpandBar expandBar;
 
-    private Map<String, ExpandItem> xpiMetadataMap = new HashMap<>();
+    private Map<TranslatableEntity, ExpandItem> xpiMetadataMap = new HashMap<>();
 
     public FilterView() {
         this.selectionModel = new FilterSelectionModel();
@@ -488,7 +490,7 @@ public class FilterView extends ViewPart {
         keepSameHeight(cmpMetric, xpiMetric);
     }
 
-    public void createMetadataExpandItem(String name, List<Metadata> metadataLevels) {
+    public void createMetadataExpandItem(TranslatableEntity metadataType, List<Metadata> metadataLevels) {
         Composite cmpMetadata = new Composite(expandBar, SWT.NONE);
         GridLayout gl_cmpMetadata = new GridLayout(1, false);
         gl_cmpMetadata.marginBottom = 10;
@@ -497,7 +499,7 @@ public class FilterView extends ViewPart {
 
         ExpandItem xpiMetadata = new ExpandItem(expandBar, SWT.NONE);
         xpiMetadata.setExpanded(true);
-        xpiMetadata.setText("Metadata: " + name);
+        xpiMetadata.setText("Metadata: " + metadataType.getTranslation());
         xpiMetadata.setControl(cmpMetadata);
         xpiMetadata.setHeight(50); // TODO needed until keepSameHeight works (see below)
 
@@ -519,15 +521,15 @@ public class FilterView extends ViewPart {
         keepSameHeight(cmpMetadata, xpiMetadata);
 
         // keep map if expand items to be able to dispose them
-        xpiMetadataMap.putIfAbsent(name, xpiMetadata);
+        xpiMetadataMap.putIfAbsent(metadataType, xpiMetadata);
 
         // notify controller once selected item changes
         cmbMetadata.addSelectionChangedListener(new ISelectionChangedListener() {
             @Override
             public void selectionChanged(SelectionChangedEvent event) {
                 StructuredSelection selection = (StructuredSelection) event.getSelection();
-                Metadata m = (Metadata) selection.getFirstElement();
-                ctrl.metadataSelectionChanged(m);
+                Metadata selectedMetadataLevel = (Metadata) selection.getFirstElement();
+                ctrl.metadataSelectionChanged(metadataType, selectedMetadataLevel);
             }
         });
     }

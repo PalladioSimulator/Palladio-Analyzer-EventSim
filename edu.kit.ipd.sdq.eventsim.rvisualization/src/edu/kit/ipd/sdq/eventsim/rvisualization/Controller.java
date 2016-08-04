@@ -3,7 +3,9 @@ package edu.kit.ipd.sdq.eventsim.rvisualization;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -431,42 +433,27 @@ public class Controller {
 
         private void reloadMetadata() {
             view.clearMetadataExpandItems();
+            model.setMetadataTypes(rCtrl.getMetadataNames());
 
             // add one expand item per metadata type (identified by its name)
-            for (String name : rCtrl.getMetadataNames()) {
-                List<Metadata> metadataLevels = rCtrl.getMetadata(name);
+            for (TranslatableEntity metadataType : model.getMetadataTypes()) {
+                List<Metadata> metadataLevels = rCtrl.getMetadata(metadataType.getName());
                 if (!metadataLevels.isEmpty()) {
-                    view.createMetadataExpandItem(name, metadataLevels);
+                    view.createMetadataExpandItem(metadataType, metadataLevels);
                 }
             }
         }
 
     }
 
-    public void metadataSelectionChanged(Metadata metadata) {
-        if (selectionModel.getMetadata() == null) {
-            selectionModel.setMetadata(new Metadata[] { metadata });
-            return;
+    public void metadataSelectionChanged(TranslatableEntity metadataType, Metadata metadataLevel) {
+        Map<TranslatableEntity, String> metadataMap = new HashMap<>();
+        if (selectionModel.getMetadata() != null) {
+            metadataMap.putAll(selectionModel.getMetadata());
         }
-
-        boolean update = false;
-        int updateOrInsertIndex = 0;
-        for (Metadata m : selectionModel.getMetadata()) {
-            if (m.getName().equals(metadata.getName())) {
-                update = true;
-                break;
-            }
-            updateOrInsertIndex++;
-        }
-
-        int size = selectionModel.getMetadata().length;
-        if (!update) {
-            size++;
-        }
-        Metadata[] updatedMetadata = new Metadata[size];
-        System.arraycopy(selectionModel.getMetadata(), 0, updatedMetadata, 0, selectionModel.getMetadata().length);
-        updatedMetadata[updateOrInsertIndex] = metadata;
-        selectionModel.setMetadata(updatedMetadata);
+        
+        metadataMap.put(metadataType, metadataLevel.getValue().toString());
+        selectionModel.setMetadata(metadataMap);
     }
 
     public void metadataSelectionCleared() {

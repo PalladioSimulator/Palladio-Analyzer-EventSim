@@ -21,8 +21,10 @@ public class FilterModel {
     public static final String MEASURING_POINTS_FROM_PROPERTY = "measuringPointsFrom";
 
     public static final String METRICS_PROPERTY = "metrics";
-    
+
     public static final String DIAGRAM_TYPES_PROPERTY = "diagramTypes";
+
+    public static final String METADATA_TYPES_PROPERTY = "metadataTypes";
 
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
@@ -41,8 +43,10 @@ public class FilterModel {
     private int simulationTimeMin;
 
     private int simulationTimeMax;
-    
+
     private List<TranslatableEntity> diagramTypes;
+
+    private List<TranslatableEntity> metadataTypes;
 
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         pcs.addPropertyChangeListener(listener);
@@ -149,7 +153,7 @@ public class FilterModel {
         this.simulationTimeMax = simulationTimeMax;
         pcs.firePropertyChange(SIMULATION_TIME_MAX_PROPERTY, oldValue, simulationTimeMax);
     }
-    
+
     public List<TranslatableEntity> getDiagramTypes() {
         return diagramTypes;
     }
@@ -158,6 +162,16 @@ public class FilterModel {
         List<TranslatableEntity> oldValue = this.diagramTypes;
         this.diagramTypes = diagramType;
         pcs.firePropertyChange(DIAGRAM_TYPES_PROPERTY, oldValue, diagramType);
+    }
+
+    public List<TranslatableEntity> getMetadataTypes() {
+        return metadataTypes;
+    }
+
+    public void setMetadataTypes(List<TranslatableEntity> metadataTypes) {
+        List<TranslatableEntity> oldValue = this.metadataTypes;
+        this.metadataTypes = metadataTypes;
+        pcs.firePropertyChange(METADATA_TYPES_PROPERTY, oldValue, metadataTypes);
     }
 
     public void clear() {

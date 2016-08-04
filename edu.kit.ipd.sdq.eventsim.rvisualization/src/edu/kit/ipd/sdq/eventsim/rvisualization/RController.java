@@ -28,6 +28,7 @@ import edu.kit.ipd.sdq.eventsim.rvisualization.model.Entity;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.FilterModel;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.FilterSelectionModel;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.TranslatableEntity;
+import edu.kit.ipd.sdq.eventsim.rvisualization.model.VariableBinding;
 import edu.kit.ipd.sdq.eventsim.rvisualization.util.Helper;
 
 /**
@@ -49,7 +50,7 @@ public final class RController {
     public static final String CONTENT_VARIABLE = "mm";
 
     public static final String LOOKUP_TABLE_VARIABLE = "lookup";
-    
+
     private static final String IMAGE_VARIABLE = "image";
 
     /**
@@ -376,29 +377,30 @@ public final class RController {
         return assemblyContexts;
     }
 
-    public List<String> getMetadataNames() {
+    public List<TranslatableEntity> getMetadataNames() {
         if (!isConnected()) {
             return Collections.emptyList();
         }
 
-        String[] columnNames = null;
+        String[] typeNames = null;
         try {
             String rCmd = "colnames(" + CONTENT_VARIABLE + ")";
-            columnNames = evalRCommand(rCmd).asStrings();
+            typeNames = evalRCommand(rCmd).asStrings();
         } catch (REXPMismatchException e) {
             LOG.error("Could not read metadata column names from R", e);
         } catch (EvaluationException e) {
             LOG.error("Could not read metadata column names from R", e);
         }
 
-        List<String> metadataColumnNames = new ArrayList<>();
-        for (String name : columnNames) {
-            if (name.startsWith(METADATA_COLUMN_NAME_PREFIX)) {
-                metadataColumnNames.add(name);
+        List<TranslatableEntity> metadataTypes = new ArrayList<>();
+        for (String type : typeNames) {
+            if (type.startsWith(METADATA_COLUMN_NAME_PREFIX)) {
+                // TODO consider translation (via extension point?)
+                metadataTypes.add(new TranslatableEntity(type, type));
             }
         }
 
-        return metadataColumnNames;
+        return metadataTypes;
     }
 
     public List<Metadata> getMetadata(String name) {
@@ -617,8 +619,7 @@ public final class RController {
      *             If invalid diagram type was used.
      */
     public String plotDiagramToFile(DiagramModel diagramModel, final String diagramImagePath, String filterExpression) {
-        String plotCommand = getDiagramSpecificPlotCommand(diagramModel.getDiagramType(), filterExpression, IMAGE_VARIABLE,
-                diagramModel.getTitle(), diagramModel.getSubTitle(), diagramModel.getSubSubTitle());
+        String plotCommand = getDiagramSpecificPlotCommand(diagramModel, filterExpression, IMAGE_VARIABLE);
 
         // Save plot to SVG file.
         String rCmd = plotCommand + "ggsave(file='" + diagramImagePath + "', plot=" + IMAGE_VARIABLE
@@ -659,39 +660,46 @@ public final class RController {
      * @throws Exception
      *             If an invalid diagram type was used.
      */
-    private String getDiagramSpecificPlotCommand(final DiagramType type, final String rPlotDataVar,
-            final String rImageVar, final String diagramTitle, final String diagramSubTitle, String subsubtitle) {
+    private String getDiagramSpecificPlotCommand(DiagramModel diagramModel, final String rPlotDataVar,
+            final String rImageVar) {
         Ggplot plot = new Ggplot().data(rPlotDataVar);
 
-        switch (type) {
+        switch (diagramModel.getDiagramType()) {
         case HISTOGRAM:
             plot.map(Aesthetic.X, "value");
-            plot.add(Geom.HISTOGRAM.asLayer().param("fill", PLOT_MAIN_COLOR).param("color", "white"));
+            plot.add(Geom.HISTOGRAM.asLayer()); // .param("fill", PLOT_MAIN_COLOR).param("color",
+                                                // "white")
             break;
         case POINT_GRAPH:
             plot.map(Aesthetic.X, "when").map(Aesthetic.Y, "value");
-            plot.add(Geom.POINT.asLayer().param("color", PLOT_MAIN_COLOR));
+            plot.add(Geom.POINT.asLayer()); // .param("color", PLOT_MAIN_COLOR)
             break;
         case CDF:
             plot.map(Aesthetic.X, "value");
-            plot.add(Geom.ECDF.asLayer().param("color", PLOT_MAIN_COLOR));
+            plot.add(Geom.ECDF.asLayer()); // .param("color", PLOT_MAIN_COLOR)
             break;
         case BAR:
             plot = new Ggplot().data(addDurationColumn(rPlotDataVar));
             plot.map(Aesthetic.X, "when").map(Aesthetic.Y, "value");
-            plot.add(Geom.BAR.asLayer().param("stat", "identity").map(Aesthetic.WIDTH, "duration").param("fill",
-                    PLOT_MAIN_COLOR)); // .param("color", PLOT_MAIN_COLOR));
+            plot.add(Geom.BAR.asLayer().param("stat", "identity").map(Aesthetic.WIDTH, "duration")); // .param("fill",PLOT_MAIN_COLOR)
             break;
         case LINE:
             plot.map(Aesthetic.X, "when").map(Aesthetic.Y, "value");
-            plot.add(Geom.LINE.asLayer().param("color", PLOT_MAIN_COLOR));
+            plot.add(Geom.LINE.asLayer()); // .param("color", PLOT_MAIN_COLOR)
             break;
         default:
-            throw new RuntimeException("Unsupported diagram type: " + type);
+            throw new RuntimeException("Unsupported diagram type: " + diagramModel.getDiagramType());
+        }
+
+        if (diagramModel.getVariableBindings() != null) {
+            for (VariableBinding binding : diagramModel.getVariableBindings()) {
+                Aesthetic aes = Aesthetic.valueOf(binding.getBindingType());
+                plot.map(aes, binding.getVariable());
+            }
         }
 
         plot.add(new Theme("theme_bw")); // TODO
-        String title = createTitle(diagramTitle, diagramSubTitle, subsubtitle);
+        String title = createTitle(diagramModel.getTitle(), diagramModel.getSubTitle(), diagramModel.getSubSubTitle());
         return rImageVar + "=" + plot.toPlot() + " + " + title + "; ";
     }
 

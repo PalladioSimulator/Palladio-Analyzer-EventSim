@@ -2,8 +2,9 @@ package edu.kit.ipd.sdq.eventsim.rvisualization.filter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
-import edu.kit.ipd.sdq.eventsim.measurement.Metadata;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.Entity;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.FilterModel;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.FilterSelectionModel;
@@ -90,10 +91,10 @@ public class ConditionBuilder {
     }
 
     public ConditionBuilder metadata() {
-        Metadata[] metadata = selectionModel.getMetadata();
+        Map<TranslatableEntity, String> metadata = selectionModel.getMetadata();
         if (metadata != null) {
-            for (Metadata m : metadata) {
-                conditions.add(m.getName() + " == " + inQuotes(m.getValue().toString()));
+            for (Entry<TranslatableEntity, String> e : metadata.entrySet()) {
+                conditions.add(e.getKey().getName() + " == " + inQuotes(e.getValue()));
             }
         }
         return this;

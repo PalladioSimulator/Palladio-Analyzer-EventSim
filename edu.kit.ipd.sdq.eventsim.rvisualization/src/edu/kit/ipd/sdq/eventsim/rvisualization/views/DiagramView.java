@@ -10,14 +10,14 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.part.ViewPart;
 
-import edu.kit.ipd.sdq.eventsim.rvisualization.Controller;
+import edu.kit.ipd.sdq.eventsim.rvisualization.DiagramController;
 import edu.kit.ipd.sdq.eventsim.rvisualization.util.Procedure;
-
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.GridData;
 
 /**
  * View used to display a generated diagram.
@@ -31,9 +31,12 @@ public class DiagramView extends ViewPart {
     public static final String ID = "edu.kit.ipd.sdq.eventsim.rvisualization.diagramview";
 
     private static final Logger LOG = LogManager.getLogger(DiagramView.class);
+    
+    private DiagramController ctrl;
+    
+    private Composite viewParent;
 
-    private Controller ctrl;
-
+    /** dispose listeners are notified right before this view is disposed */
     private List<Procedure> disposeListener;
 
     /**
@@ -93,6 +96,7 @@ public class DiagramView extends ViewPart {
 
     @Override
     public final void createPartControl(final Composite parent) {
+        viewParent = parent;
         parent.setLayout(new FillLayout());
 
         sashForm = new SashForm(parent, SWT.NONE);
@@ -129,9 +133,10 @@ public class DiagramView extends ViewPart {
     public final void dispose() {
         removeDiagramImage(this.pathToDiagramImage);
         disposeListener.forEach(listener -> listener.execute());
+        super.dispose();
     }
 
-    public void setController(Controller ctrl) {
+    public void setController(DiagramController ctrl) {
         this.ctrl = ctrl;
     }
 
@@ -190,4 +195,9 @@ public class DiagramView extends ViewPart {
         }
 
     }
+    
+    public Display getDisplay() {
+        return viewParent != null ? viewParent.getDisplay() : Display.getDefault();
+    }
+    
 }

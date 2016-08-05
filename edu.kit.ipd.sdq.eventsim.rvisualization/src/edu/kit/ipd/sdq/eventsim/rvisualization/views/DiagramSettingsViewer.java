@@ -1,7 +1,5 @@
 package edu.kit.ipd.sdq.eventsim.rvisualization.views;
 
-import java.util.ArrayList;
-
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.beans.BeanProperties;
@@ -11,10 +9,10 @@ import org.eclipse.core.databinding.observable.map.IObservableMap;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
+import org.eclipse.jface.databinding.viewers.ViewerProperties;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.ListViewer;
-import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -29,12 +27,12 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ListDialog;
 
-import edu.kit.ipd.sdq.eventsim.rvisualization.ggplot.Aesthetic;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.DiagramModel;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.TranslatableEntity;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.VariableBinding;
+import edu.kit.ipd.sdq.eventsim.rvisualization.model.VariableBindingModel;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.provider.TranslatableEntityLabelProvider;
-import edu.kit.ipd.sdq.eventsim.rvisualization.model.provider.VariableBindingValueProvider;
+import edu.kit.ipd.sdq.eventsim.rvisualization.model.provider.VariableBindingLabelProvider;
 
 public class DiagramSettingsViewer extends Composite {
 
@@ -43,26 +41,104 @@ public class DiagramSettingsViewer extends Composite {
     private Text txtTitle;
 
     private DiagramModel diagramModel;
+
+    private VariableBindingModel bindingModel;
+
+    private VariableBindingModel bindingModelOriginal;
+
     private Text txtSubTitle;
     private Text txtSubSubTitle;
     private Group grpVariableBindings;
-    private List list;
-    private ListViewer listViewer;
-    private List list_1;
-    private ListViewer listViewer_1;
+    private List listUnboundVariables;
+    private ListViewer listViewerUnboundVariables;
+    private List listBoundVariables;
+    private ListViewer listViewerBoundVariables;
     private Label lblUnboundVariables;
     private Label lblVariableBindings;
     private Button btnBind;
     private Button btnRemove;
 
-    public DiagramSettingsViewer(Composite parent, int style, DiagramModel diagramModel) {
+    public DiagramSettingsViewer(Composite parent, int style, DiagramModel diagramModel,
+            VariableBindingModel bindingModel) {
         super(parent, style);
         this.diagramModel = diagramModel;
+
+        // only when the users presses OK, the copied binding model is applied to the original
+        // binding model
+        this.bindingModelOriginal = bindingModel;
+        this.bindingModel = new VariableBindingModel(bindingModelOriginal);
+
         setLayout(new GridLayout(2, false));
 
         createTitle();
         createSubTitle();
         createSubSubTitle();
+        createVariableBindingsGroup(diagramModel);
+
+        // m_bindingContext = initDataBindings();
+    }
+
+    private void createVariableBindingsGroup(DiagramModel diagramModel) {
+        grpVariableBindings = new Group(this, SWT.NONE);
+        grpVariableBindings.setText("Variable Bindings");
+        grpVariableBindings.setLayout(new GridLayout(2, false));
+        grpVariableBindings.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
+
+        lblUnboundVariables = new Label(grpVariableBindings, SWT.NONE);
+        lblUnboundVariables.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+        lblUnboundVariables.setText("Unbound Variables:");
+
+        lblVariableBindings = new Label(grpVariableBindings, SWT.NONE);
+        lblVariableBindings.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+        lblVariableBindings.setText("Bindings:");
+
+        listViewerUnboundVariables = new ListViewer(grpVariableBindings, SWT.BORDER | SWT.V_SCROLL);
+        listUnboundVariables = listViewerUnboundVariables.getList();
+        listUnboundVariables.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+
+        listViewerBoundVariables = new ListViewer(grpVariableBindings, SWT.BORDER | SWT.V_SCROLL);
+        listBoundVariables = listViewerBoundVariables.getList();
+        listBoundVariables.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+
+        btnBind = new Button(grpVariableBindings, SWT.NONE);
+        btnBind.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                if (bindingModel.getSelectedUnboundVariable() == null) {
+                    return;
+                }
+
+                // TODO move to controller?
+                TranslatableEntity selectedBindingType = openBindingTypeSelectionDialog();
+                if (selectedBindingType != null) {
+                    TranslatableEntity selectedVariable = bindingModel.getSelectedUnboundVariable();
+                    VariableBinding selectedBinding = new VariableBinding(selectedVariable, selectedBindingType);
+                    bindingModel.addVariableBinding(selectedBinding);
+                    bindingModel.removeAvailableBindingType(selectedBinding.getBindingType());
+                    bindingModel.removeUnboundVariable(selectedBinding.getVariable());
+                }
+            }
+        });
+        btnBind.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+        btnBind.setText("Bind...");
+
+        btnRemove = new Button(grpVariableBindings, SWT.NONE);
+        btnRemove.addSelectionListener(new SelectionAdapter() {
+            // TODO move to controller?
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                if (bindingModel.getSelectedVariableBinding() == null) {
+                    return;
+                }
+
+                VariableBinding selectedBinding = bindingModel.getSelectedVariableBinding();
+                bindingModel.removeVariableBinding(selectedBinding);
+                bindingModel.addAvailableBindingType(selectedBinding.getBindingType());
+                bindingModel.addUnboundVariable(selectedBinding.getVariable());
+            }
+        });
+        btnRemove.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+        btnRemove.setText("Remove");
 
         m_bindingContext = initDataBindings();
     }
@@ -70,12 +146,12 @@ public class DiagramSettingsViewer extends Composite {
     private TranslatableEntity openBindingTypeSelectionDialog() {
         ListDialog dialog = new ListDialog(getParent().getShell());
         dialog.setHelpAvailable(false);
-        dialog.setInput(diagramModel.getDiagramType().getAesthetics()); // TODO translatableentity
+        dialog.setInput(bindingModel.getAvailableBindingTypes());
         dialog.setContentProvider(ArrayContentProvider.getInstance());
         dialog.setLabelProvider(new LabelProvider() {
             @Override
             public String getText(Object element) {
-                return ((Aesthetic) element).name(); // TODO human-readable representation?
+                return ((TranslatableEntity) element).getTranslation();
             }
         });
         dialog.setBlockOnOpen(true);
@@ -84,8 +160,8 @@ public class DiagramSettingsViewer extends Composite {
 
         if (result == Window.OK) {
             if (dialog.getResult().length == 1) { // multi selection not allowed
-                String selected = ((Aesthetic) dialog.getResult()[0]).name();
-                return new TranslatableEntity(selected, selected); // TODO
+                TranslatableEntity selected = (TranslatableEntity) dialog.getResult()[0];
+                return selected;
             }
             return null;
         } else {
@@ -100,55 +176,6 @@ public class DiagramSettingsViewer extends Composite {
 
         txtSubSubTitle = new Text(this, SWT.BORDER);
         txtSubSubTitle.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-
-        grpVariableBindings = new Group(this, SWT.NONE);
-        grpVariableBindings.setText("Variable Bindings");
-        grpVariableBindings.setLayout(new GridLayout(2, false));
-        grpVariableBindings.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
-
-        lblUnboundVariables = new Label(grpVariableBindings, SWT.NONE);
-        lblUnboundVariables.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
-        lblUnboundVariables.setText("Unbound Variables:");
-
-        lblVariableBindings = new Label(grpVariableBindings, SWT.NONE);
-        lblVariableBindings.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
-        lblVariableBindings.setText("Bindings:");
-
-        listViewer = new ListViewer(grpVariableBindings, SWT.BORDER | SWT.V_SCROLL);
-        list = listViewer.getList();
-        list.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-
-        listViewer_1 = new ListViewer(grpVariableBindings, SWT.BORDER | SWT.V_SCROLL);
-        list_1 = listViewer_1.getList();
-        list_1.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-
-        btnBind = new Button(grpVariableBindings, SWT.NONE);
-        btnBind.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                TranslatableEntity selected = openBindingTypeSelectionDialog();
-                if (selected != null) {
-                    StructuredSelection variableSelection = (StructuredSelection) listViewer.getSelection();
-                    TranslatableEntity selectedVariable = (TranslatableEntity) variableSelection.getFirstElement();
-
-                    VariableBinding binding = new VariableBinding(selectedVariable.getName(), selected.getName());
-
-                    java.util.List<VariableBinding> bindings = new ArrayList<>();
-                    if (diagramModel.getVariableBindings() != null) {
-                        bindings = new ArrayList<>(diagramModel.getVariableBindings());
-                    }
-                    bindings.add(binding);
-                    diagramModel.setVariableBindings(bindings);
-                }
-            }
-        });
-        btnBind.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-        btnBind.setText("Bind...");
-
-        btnRemove = new Button(grpVariableBindings, SWT.NONE);
-        btnRemove.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-        btnRemove.setText("Remove");
-        m_bindingContext = initDataBindings();
     }
 
     private void createSubTitle() {
@@ -179,6 +206,10 @@ public class DiagramSettingsViewer extends Composite {
 
     public void applyChanges() {
         m_bindingContext.updateModels();
+
+        bindingModelOriginal.setAvailableBindingTypes(bindingModel.getAvailableBindingTypes());
+        bindingModelOriginal.setUnboundVariables(bindingModel.getUnboundVariables());
+        bindingModelOriginal.setVariableBindings(bindingModel.getVariableBindings());
     }
 
     protected DataBindingContext initDataBindings() {
@@ -204,22 +235,36 @@ public class DiagramSettingsViewer extends Composite {
         ObservableListContentProvider listContentProvider = new ObservableListContentProvider();
         IObservableMap observeMap = PojoObservables.observeMap(listContentProvider.getKnownElements(),
                 TranslatableEntity.class, "translation");
-        listViewer.setLabelProvider(new TranslatableEntityLabelProvider(observeMap));
-        listViewer.setContentProvider(listContentProvider);
+        listViewerUnboundVariables.setLabelProvider(new TranslatableEntityLabelProvider(observeMap));
+        listViewerUnboundVariables.setContentProvider(listContentProvider);
         //
-        IObservableList unboundVariablesDiagramModelObserveList = BeanProperties.list("unboundVariables")
-                .observe(diagramModel);
-        listViewer.setInput(unboundVariablesDiagramModelObserveList);
+        IObservableList unboundVariablesBindingModelObserveList = BeanProperties.list("unboundVariables")
+                .observe(bindingModel);
+        listViewerUnboundVariables.setInput(unboundVariablesBindingModelObserveList);
         //
         ObservableListContentProvider listContentProvider_1 = new ObservableListContentProvider();
         IObservableMap[] observeMaps = PojoObservables.observeMaps(listContentProvider_1.getKnownElements(),
                 VariableBinding.class, new String[] { "variable", "bindingType" });
-        listViewer_1.setLabelProvider(new VariableBindingValueProvider(observeMaps));
-        listViewer_1.setContentProvider(listContentProvider_1);
+        listViewerBoundVariables.setLabelProvider(new VariableBindingLabelProvider(observeMaps));
+        listViewerBoundVariables.setContentProvider(listContentProvider_1);
         //
-        IObservableList variableBindingsDiagramModelObserveList = BeanProperties.list("variableBindings")
-                .observe(diagramModel);
-        listViewer_1.setInput(variableBindingsDiagramModelObserveList);
+        IObservableList variableBindingsBindingModelObserveList = BeanProperties.list("variableBindings")
+                .observe(bindingModel);
+        listViewerBoundVariables.setInput(variableBindingsBindingModelObserveList);
+        //
+        IObservableValue observeSingleSelectionListViewerUnboundVariables = ViewerProperties.singleSelection()
+                .observe(listViewerUnboundVariables);
+        IObservableValue selectedUnboundVariableBindingModelObserveValue = BeanProperties
+                .value("selectedUnboundVariable").observe(bindingModel);
+        bindingContext.bindValue(observeSingleSelectionListViewerUnboundVariables,
+                selectedUnboundVariableBindingModelObserveValue, null, null);
+        //
+        IObservableValue observeSingleSelectionListViewerBoundVariables = ViewerProperties.singleSelection()
+                .observe(listViewerBoundVariables);
+        IObservableValue selectedVariableBindingBindingModelObserveValue = BeanProperties
+                .value("selectedVariableBinding").observe(bindingModel);
+        bindingContext.bindValue(observeSingleSelectionListViewerBoundVariables,
+                selectedVariableBindingBindingModelObserveValue, null, null);
         //
         return bindingContext;
     }

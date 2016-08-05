@@ -7,6 +7,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.DiagramModel;
+import edu.kit.ipd.sdq.eventsim.rvisualization.model.VariableBindingModel;
 
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
@@ -14,13 +15,17 @@ import org.eclipse.swt.layout.GridData;
 public class DiagramSettingsDialog extends TitleAreaDialog {
 
     private DiagramModel diagramModel;
+    
+    private VariableBindingModel bindingModel;
 
     private DiagramSettingsViewer viewer;
 
-    public DiagramSettingsDialog(Shell parentShell, DiagramModel diagramModel) {
+    public DiagramSettingsDialog(Shell parentShell, DiagramModel diagramModel, VariableBindingModel bindingModel) {
         super(parentShell);
-        setShellStyle(getShellStyle() | SWT.RESIZE | SWT.MAX);
         this.diagramModel = diagramModel;
+        this.bindingModel = bindingModel;
+        
+        setShellStyle(getShellStyle() | SWT.RESIZE | SWT.MAX);
     }
 
     @Override
@@ -33,7 +38,7 @@ public class DiagramSettingsDialog extends TitleAreaDialog {
         setHelpAvailable(false);
         setTitle("Diagram Settings");
 
-        viewer = new DiagramSettingsViewer(contents, SWT.NONE, diagramModel);
+        viewer = new DiagramSettingsViewer(contents, SWT.NONE, diagramModel, bindingModel);
 
         return area;
     }

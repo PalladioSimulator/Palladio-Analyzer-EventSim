@@ -5,20 +5,20 @@ import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
 
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.VariableBinding;
 
-public class VariableBindingValueProvider extends ObservableMapLabelProvider {
+public class VariableBindingLabelProvider extends ObservableMapLabelProvider {
 
-    public VariableBindingValueProvider(IObservableMap attributeMap) {
+    public VariableBindingLabelProvider(IObservableMap attributeMap) {
         super(attributeMap);
     }
 
-    public VariableBindingValueProvider(IObservableMap[] attributeMaps) {
+    public VariableBindingLabelProvider(IObservableMap[] attributeMaps) {
         super(attributeMaps);
     }
 
     @Override
     public String getText(Object element) {
         VariableBinding binding = (VariableBinding) element;
-        return binding.getBindingType() + " -> " + binding.getVariable();
+        return binding.getBindingType().getTranslation() + " -> " + binding.getVariable().getTranslation();
     }
 
 }

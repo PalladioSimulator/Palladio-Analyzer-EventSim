@@ -2,20 +2,20 @@ package edu.kit.ipd.sdq.eventsim.rvisualization.model;
 
 public class VariableBinding {
 
-    private String variable;
+    private TranslatableEntity variable;
     
-    private String bindingType;
+    private TranslatableEntity bindingType;
 
-    public VariableBinding(String variable, String bindingType) {
+    public VariableBinding(TranslatableEntity variable, TranslatableEntity bindingType) {
         this.variable = variable;
         this.bindingType = bindingType;
     }
     
-    public String getVariable() {
+    public TranslatableEntity getVariable() {
         return variable;
     }
     
-    public String getBindingType() {
+    public TranslatableEntity getBindingType() {
         return bindingType;
     }
     

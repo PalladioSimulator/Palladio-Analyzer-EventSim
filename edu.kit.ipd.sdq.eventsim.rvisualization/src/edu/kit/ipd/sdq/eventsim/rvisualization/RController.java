@@ -29,6 +29,7 @@ import edu.kit.ipd.sdq.eventsim.rvisualization.model.FilterModel;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.FilterSelectionModel;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.TranslatableEntity;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.VariableBinding;
+import edu.kit.ipd.sdq.eventsim.rvisualization.model.VariableBindingModel;
 import edu.kit.ipd.sdq.eventsim.rvisualization.util.Helper;
 
 /**
@@ -618,8 +619,10 @@ public final class RController {
      * @throws Exception
      *             If invalid diagram type was used.
      */
-    public String plotDiagramToFile(DiagramModel diagramModel, final String diagramImagePath, String filterExpression) {
-        String plotCommand = getDiagramSpecificPlotCommand(diagramModel, filterExpression, IMAGE_VARIABLE);
+    public String plotDiagramToFile(DiagramModel diagramModel, VariableBindingModel bindingModel,
+            final String diagramImagePath, String filterExpression) {
+        String plotCommand = getDiagramSpecificPlotCommand(diagramModel, bindingModel, filterExpression,
+                IMAGE_VARIABLE);
 
         // Save plot to SVG file.
         String rCmd = plotCommand + "ggsave(file='" + diagramImagePath + "', plot=" + IMAGE_VARIABLE
@@ -660,8 +663,8 @@ public final class RController {
      * @throws Exception
      *             If an invalid diagram type was used.
      */
-    private String getDiagramSpecificPlotCommand(DiagramModel diagramModel, final String rPlotDataVar,
-            final String rImageVar) {
+    private String getDiagramSpecificPlotCommand(DiagramModel diagramModel, VariableBindingModel bindingModel,
+            final String rPlotDataVar, final String rImageVar) {
         Ggplot plot = new Ggplot().data(rPlotDataVar);
 
         switch (diagramModel.getDiagramType()) {
@@ -691,12 +694,14 @@ public final class RController {
             throw new RuntimeException("Unsupported diagram type: " + diagramModel.getDiagramType());
         }
 
-        if (diagramModel.getVariableBindings() != null) {
-            for (VariableBinding binding : diagramModel.getVariableBindings()) {
-                Aesthetic aes = Aesthetic.valueOf(binding.getBindingType());
-                plot.map(aes, binding.getVariable());
+        if (bindingModel.getVariableBindings() != null) {
+            for (VariableBinding binding : bindingModel.getVariableBindings()) {
+                Aesthetic aes = Aesthetic.valueOf(binding.getBindingType().getName());
+                plot.map(aes, binding.getVariable().getName());
             }
         }
+
+        // TODO facet_wrap / grid
 
         plot.add(new Theme("theme_bw")); // TODO
         String title = createTitle(diagramModel.getTitle(), diagramModel.getSubTitle(), diagramModel.getSubSubTitle());

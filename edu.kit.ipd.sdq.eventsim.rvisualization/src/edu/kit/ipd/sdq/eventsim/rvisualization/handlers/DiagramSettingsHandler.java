@@ -9,6 +9,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 import edu.kit.ipd.sdq.eventsim.rvisualization.DiagramController;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.DiagramModel;
+import edu.kit.ipd.sdq.eventsim.rvisualization.model.VariableBindingModel;
 import edu.kit.ipd.sdq.eventsim.rvisualization.views.DiagramSettingsDialog;
 import edu.kit.ipd.sdq.eventsim.rvisualization.views.DiagramView;
 import edu.kit.ipd.sdq.eventsim.rvisualization.views.FilterView;
@@ -26,9 +27,10 @@ public class DiagramSettingsHandler extends AbstractHandler {
         DiagramView view = (DiagramView) HandlerUtil.getActiveWorkbenchWindow(event).getActivePage().getActivePart();
         DiagramController diagramController = view.getController();
         DiagramModel diagramModel = diagramController.getDiagramModel();
+        VariableBindingModel bindingModel = diagramController.getBindingModel();
 
         Shell shell = HandlerUtil.getActiveShell(event);
-        DiagramSettingsDialog dialog = new DiagramSettingsDialog(shell, diagramModel);
+        DiagramSettingsDialog dialog = new DiagramSettingsDialog(shell, diagramModel, bindingModel);
 
         int result = dialog.open();
         if (result == Window.OK) {

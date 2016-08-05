@@ -2,6 +2,8 @@ package edu.kit.ipd.sdq.eventsim.rvisualization;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 
 import org.apache.log4j.LogManager;
@@ -16,6 +18,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 
+import edu.kit.ipd.sdq.eventsim.rvisualization.ggplot.Aesthetic;
 import edu.kit.ipd.sdq.eventsim.rvisualization.handlers.ShowStatisticsHandler;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.DiagramModel;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.DiagramType;
@@ -23,6 +26,8 @@ import edu.kit.ipd.sdq.eventsim.rvisualization.model.Entity;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.FilterModel;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.FilterSelectionModel;
 import edu.kit.ipd.sdq.eventsim.rvisualization.model.StatisticsModel;
+import edu.kit.ipd.sdq.eventsim.rvisualization.model.TranslatableEntity;
+import edu.kit.ipd.sdq.eventsim.rvisualization.model.VariableBindingModel;
 import edu.kit.ipd.sdq.eventsim.rvisualization.util.Procedure;
 import edu.kit.ipd.sdq.eventsim.rvisualization.views.DiagramView;
 import edu.kit.ipd.sdq.eventsim.rvisualization.views.ViewUtils;
@@ -42,6 +47,8 @@ public class DiagramController {
     private FilterSelectionModel selectionModel;
 
     private DiagramModel diagramModel;
+
+    private VariableBindingModel bindingModel;
 
     private DiagramView view;
 
@@ -63,6 +70,7 @@ public class DiagramController {
         this.selectionModel = selectionModel;
         this.rCtrl = rCtrl;
         this.diagramModel = createDiagramModel();
+        this.bindingModel = createVariableBindingModel(diagramModel);
     }
 
     private DiagramModel createDiagramModel() {
@@ -71,12 +79,33 @@ public class DiagramController {
         diagramModel.setTitle(createDiagramTitle()); // TODO?
         diagramModel.setSubTitle(createDiagramSubTitle());
         diagramModel.setSubSubTitle(createDiagramSubSubTitle());
-        diagramModel.setUnboundVariables(selectionModel.getUnboundVariables(filterModel));
         return diagramModel;
     }
-    
+
+    private VariableBindingModel createVariableBindingModel(DiagramModel diagramModel) {
+        VariableBindingModel bindingModel = new VariableBindingModel();
+        // bindingModel.setUnboundVariables(selectionModel.getUnboundVariables(filterModel));
+        bindingModel.getUnboundVariables().addAll(selectionModel.getUnboundVariables(filterModel));
+        bindingModel.setAvailableBindingTypes(obtainAvailableBindingTypes(diagramModel.getDiagramType()));
+        return bindingModel;
+    }
+
+    private List<TranslatableEntity> obtainAvailableBindingTypes(DiagramType type) {
+        List<TranslatableEntity> types = new ArrayList<>();
+        for (Aesthetic aes : type.getAesthetics()) {
+            // TODO use/add human-readable presentation rather than toPlot()
+            types.add(new TranslatableEntity(aes.name(), aes.toPlot()));
+        }
+        types.add(new TranslatableEntity("facet_wrap", "FACET_WRAP")); // TODO refine
+        return types;
+    }
+
     public DiagramModel getDiagramModel() {
         return diagramModel;
+    }
+
+    public VariableBindingModel getBindingModel() {
+        return bindingModel;
     }
 
     public void plotDiagram() {
@@ -110,7 +139,7 @@ public class DiagramController {
 
         // plot diagram to temporary file
         String filter = rCtrl.getFilterExpression(selectionModel);
-        String plotCommand = rCtrl.plotDiagramToFile(diagramModel, diagramPath, filter);
+        String plotCommand = rCtrl.plotDiagramToFile(diagramModel, bindingModel, diagramPath, filter);
 
         // Open new view to display the diagram.
         String viewTitle = createDiagramTitle();

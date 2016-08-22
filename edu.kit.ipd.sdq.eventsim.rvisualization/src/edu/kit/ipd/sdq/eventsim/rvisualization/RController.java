@@ -78,6 +78,24 @@ public final class RController {
     }
 
     /**
+     * @param path
+     *            the path to the RDS file to be loaded. All occurrences of
+     *            "\" will be converted to "/" for compliance with R.
+     */
+    public void loadRDS(String path) {
+        String rCmd = CONTENT_VARIABLE + "<-readRDS('" + convertToRCompliantPath(path) + "')";
+        try {
+            evalRCommand(rCmd);
+        } catch (EvaluationException e) {
+            LOG.error("Could not load measurements from RDS file.", e);
+        }
+    }
+
+    private String convertToRCompliantPath(String path) {
+        return path.replace("\\", "/");
+    }
+
+    /**
      * Load all necessary R libraries.
      */
     private void loadLibraries() {

@@ -90,31 +90,42 @@ public class Controller {
 
     public final void viewInitialized() {
         // initial population
-        withBusyCursor(() -> reload());
+        reload();
 
         // setup handler that triggers reload on connect/disconnect events
         reloadOnConnectOrDisconnect();
     }
 
     public final void reload() {
-        model.clear();
-        selectionModel.clear();
+        withBusyCursor(() -> {
+            model.clear();
+            selectionModel.clear();
 
-        if (rCtrl.isConnected()) {
-            rCtrl.initialize();
+            if (rCtrl.isConnected()) {
+                rCtrl.initialize();
 
-            reloadMeasurementsCount();
-            reloadMemoryConsumption();
-            reloadDiagramTypes();
-            selectionHandler.reloadMetrics();
-            reloadSimulationTimeBounds();
+                reloadMeasurementsCount();
+                reloadMemoryConsumption();
+                reloadDiagramTypes();
+                selectionHandler.reloadMetrics();
+                reloadSimulationTimeBounds();
 
-            selectFirstMetric();
-            selectFirstDiagramType();
-        } else {
-            view.setMeasurementsCount(0);
-            view.setMemoryConsmption(0);
-        }
+                selectFirstMetric();
+                selectFirstDiagramType();
+            } else {
+                view.setMeasurementsCount(0);
+                view.setMemoryConsmption(0);
+            }
+        });
+    }
+
+    /**
+     * @param path
+     *            the path to the RDS file to be loaded. All occurrences of
+     *            "\" will be converted to "/" for compliance with R.
+     */
+    public void loadRDS(String path) {
+        withBusyCursor(() -> rCtrl.loadRDS(path));
     }
 
     private void reloadMeasurementsCount() {
@@ -451,7 +462,7 @@ public class Controller {
         if (selectionModel.getMetadata() != null) {
             metadataMap.putAll(selectionModel.getMetadata());
         }
-        
+
         metadataMap.put(metadataType, metadataLevel.getValue().toString());
         selectionModel.setMetadata(metadataMap);
     }

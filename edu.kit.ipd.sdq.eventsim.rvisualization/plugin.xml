@@ -61,6 +61,17 @@
       </menuContribution>
       <menuContribution
             allPopups="false"
+            locationURI="toolbar:edu.kit.ipd.sdq.eventsim.rvisualization.filterview">
+         <command
+               commandId="edu.kit.ipd.sdq.eventsim.rvisualization.filterview.loadrds"
+               icon="icons/folder_database.png"
+               label="Load measurements from RDS file"
+               style="push"
+               tooltip="Load measurements from RDS file">
+         </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
             locationURI="toolbar:edu.kit.ipd.sdq.eventsim.rvisualization.diagramview">
          <command
                commandId="edu.kit.ipd.sdq.eventsim.rvisualization.diagramview.statistics"
@@ -123,6 +134,18 @@
       <handler
             class="edu.kit.ipd.sdq.eventsim.rvisualization.handlers.ReloadHandler"
             commandId="edu.kit.ipd.sdq.eventsim.rvisualization.filterview.refresh">
+         <enabledWhen>
+            <with
+                  variable="edu.kit.ipd.sdq.eventsim.measurement.r.connection.status">
+               <equals
+                     value="true">
+               </equals>
+            </with>
+         </enabledWhen>
+      </handler>
+      <handler
+            class="edu.kit.ipd.sdq.eventsim.rvisualization.handlers.LoadRDSHandler"
+            commandId="edu.kit.ipd.sdq.eventsim.rvisualization.filterview.loadrds">
          <enabledWhen>
             <with
                   variable="edu.kit.ipd.sdq.eventsim.measurement.r.connection.status">

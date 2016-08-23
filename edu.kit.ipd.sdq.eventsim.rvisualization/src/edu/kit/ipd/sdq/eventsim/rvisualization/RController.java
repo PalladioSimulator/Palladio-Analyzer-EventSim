@@ -58,7 +58,7 @@ public final class RController {
      * by convention, any metadata column is expected to carry the specified prefix in order to
      * recognize metadata columns automatically
      */
-    public static final String METADATA_COLUMN_NAME_PREFIX = "m.";
+    public static final String METADATA_COLUMN_NAME_PREFIX = Metadata.NAME_PREFIX;
 
     private static final String[] REQUIRED_LIBRARIES = new String[] { "data.table", "ggplot2", "XML", "svglite" };
 

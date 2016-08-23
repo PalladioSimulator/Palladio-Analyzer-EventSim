@@ -1,6 +1,7 @@
 package edu.kit.ipd.sdq.eventsim.measurement.r;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
@@ -12,6 +13,10 @@ public class JobExtensionHelper {
     private static final String RJOBS_EXTENSION_POINT_ID = "edu.kit.ipd.sdq.eventsim.measurement.r.rjobs";
 
     public static List<RJob> createExtensionJobs() {
+        if (!Platform.isRunning()) {
+            return Collections.emptyList();
+        }
+
         IConfigurationElement[] config = Platform.getExtensionRegistry()
                 .getConfigurationElementsFor(RJOBS_EXTENSION_POINT_ID);
 

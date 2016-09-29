@@ -42,7 +42,7 @@ public class BundleProbeLocator<C extends ProbeConfiguration> implements ProbeLo
 				try {
 					log.debug("Try loading class " + className);
 					clazz = bundle.loadClass(className);
-				} catch (ClassNotFoundException e) {
+				} catch (Throwable t) {
 					log.error("Local bundle classloader could not find class " + className);
 					continue;
 				}

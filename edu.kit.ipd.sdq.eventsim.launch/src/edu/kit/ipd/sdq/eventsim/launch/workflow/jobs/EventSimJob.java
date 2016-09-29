@@ -3,10 +3,8 @@ package edu.kit.ipd.sdq.eventsim.launch.workflow.jobs;
 import org.eclipse.core.runtime.CoreException;
 
 import de.uka.ipd.sdq.codegen.simucontroller.debug.IDebugListener;
-import de.uka.ipd.sdq.codegen.simucontroller.workflow.jobs.AbstractSimuComExtensionJob;
 import de.uka.ipd.sdq.codegen.simucontroller.workflow.jobs.AbstractSimulationJob;
 import de.uka.ipd.sdq.codegen.simucontroller.workflow.jobs.WorkflowHooks;
-import de.uka.ipd.sdq.workflow.jobs.IJob;
 import edu.kit.ipd.sdq.eventsim.launch.runconfig.EventSimWorkflowConfiguration;
 
 /**
@@ -45,6 +43,11 @@ public class EventSimJob extends AbstractSimulationJob<EventSimWorkflowConfigura
         // All Workflow extension jobs with the extension hook id
         // WORKFLOW_ID_AFTER_SIMULATION
         handleJobExtensions(WorkflowHooks.WORKFLOW_ID_AFTER_SIMULATION, configuration);
+    }
+
+    @Override
+    public String getName() {
+        return "Running EventSim simulation";
     }
 
 }

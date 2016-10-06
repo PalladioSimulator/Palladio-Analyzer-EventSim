@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.ui.PlatformUI;
 
 import com.google.inject.Module;
 
@@ -78,7 +79,7 @@ public class SimulationModule implements Comparable<SimulationModule> {
 
         String name = config.getAttribute("name");
         String id = config.getAttribute("id");
-        
+
         // guice module
         Object guiceModule = null;
         try {
@@ -88,7 +89,7 @@ public class SimulationModule implements Comparable<SimulationModule> {
         } catch (CoreException e) {
             throw new RuntimeException(e);
         }
-        
+
         // entry point
         String entryPointClassName = null;
         Class<?> entryPoint = null;
@@ -104,10 +105,12 @@ public class SimulationModule implements Comparable<SimulationModule> {
         String priority = config.getAttribute("priority");
         Object launchContribution = null;
         try {
-            if (config.getAttribute("launch_contribution") != null) {
-                launchContribution = config.createExecutableExtension("launch_contribution");
-            } else {
-                launchContribution = new DefaultLaunchContribution();
+            if (PlatformUI.isWorkbenchRunning()) {
+                if (config.getAttribute("launch_contribution") != null) {
+                    launchContribution = config.createExecutableExtension("launch_contribution");
+                } else {
+                    launchContribution = new DefaultLaunchContribution();
+                }
             }
         } catch (CoreException e) {
             throw new RuntimeException(e);

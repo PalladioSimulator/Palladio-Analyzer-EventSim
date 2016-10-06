@@ -1,10 +1,13 @@
 package edu.kit.ipd.sdq.eventsim.launch.workflow.jobs;
 
 import org.eclipse.core.runtime.CoreException;
+import org.palladiosimulator.analyzer.workflow.blackboard.PCMResourceSetPartition;
+import org.palladiosimulator.analyzer.workflow.jobs.LoadPCMModelsIntoBlackboardJob;
 
 import de.uka.ipd.sdq.codegen.simucontroller.debug.IDebugListener;
 import de.uka.ipd.sdq.codegen.simucontroller.workflow.jobs.AbstractSimulationJob;
 import de.uka.ipd.sdq.codegen.simucontroller.workflow.jobs.WorkflowHooks;
+import edu.kit.ipd.sdq.eventsim.api.PCMModel;
 import edu.kit.ipd.sdq.eventsim.launch.runconfig.EventSimWorkflowConfiguration;
 
 /**

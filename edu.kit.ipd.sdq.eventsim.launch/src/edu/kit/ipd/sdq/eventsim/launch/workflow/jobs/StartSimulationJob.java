@@ -39,7 +39,7 @@ import edu.kit.ipd.sdq.eventsim.modules.SimulationModuleRegistry;
  *
  */
 public class StartSimulationJob extends AbstractExtendableJob<MDSDBlackboard> {
-
+    
     private final EventSimWorkflowConfiguration workflowConfiguration;
 
     public StartSimulationJob(EventSimWorkflowConfiguration workflowConfiguration) {
@@ -52,23 +52,11 @@ public class StartSimulationJob extends AbstractExtendableJob<MDSDBlackboard> {
 
         // obtain PCM model from MDSD blackboard
         // TODO multiple repositories are not supported by the following
-        PCMResourceSetPartition p = (PCMResourceSetPartition) getBlackboard()
-                .getPartition(LoadPCMModelsIntoBlackboardJob.PCM_MODELS_PARTITION_ID);
-        PCMModel model = new PCMModel(p.getAllocation(), p.getRepositories().get(0), p.getResourceEnvironment(),
-                p.getSystem(), p.getUsageModel(), p.getResourceTypeRepository());
+        PCMModel model = loadModelFromBlackboard();
         config.setModel(model);
 
         // read instrumentation description from specified file
-        InstrumentationDescription instrumentationDescription = null;
-        try {
-            // TODO should be read from configuration rather than reading from raw attributes map
-            String instrumentatinFileLocation = (String) workflowConfiguration.getAttributes()
-                    .get(EventSimConfigurationConstants.INSTRUMENTATION_FILE);
-            URL url = new URL(instrumentatinFileLocation);
-            instrumentationDescription = new DescriptionToXmlParser().readFromInputStream(url.openStream());
-        } catch (JAXBException | IOException e) {
-            throw new EventSimException("Could not read default instrumentation description", e);
-        }
+        InstrumentationDescription instrumentationDescription = loadInstrumentationDesciptionFromXML();
         config.setInstrumentationDescription(instrumentationDescription);
 
         // assemble simulation components...
@@ -90,6 +78,28 @@ public class StartSimulationJob extends AbstractExtendableJob<MDSDBlackboard> {
         dock.stop();
 
         super.execute(monitor); // TODO needed?
+    }
+
+    private InstrumentationDescription loadInstrumentationDesciptionFromXML() {
+        InstrumentationDescription instrumentationDescription = null;
+        try {
+            // TODO should be read from configuration rather than reading from raw attributes map
+            String instrumentatinFileLocation = (String) workflowConfiguration.getAttributes()
+                    .get(EventSimConfigurationConstants.INSTRUMENTATION_FILE);
+            URL url = new URL(instrumentatinFileLocation);
+            instrumentationDescription = new DescriptionToXmlParser().readFromInputStream(url.openStream());
+        } catch (JAXBException | IOException e) {
+            throw new EventSimException("Could not read default instrumentation description", e);
+        }
+        return instrumentationDescription;
+    }
+
+    private PCMModel loadModelFromBlackboard() {
+        PCMResourceSetPartition p = (PCMResourceSetPartition) getBlackboard()
+                .getPartition(LoadPCMModelsIntoBlackboardJob.PCM_MODELS_PARTITION_ID);
+        PCMModel model = new PCMModel(p.getAllocation(), p.getRepositories().get(0), p.getResourceEnvironment(),
+                p.getSystem(), p.getUsageModel(), p.getResourceTypeRepository());
+        return model;
     }
 
 }

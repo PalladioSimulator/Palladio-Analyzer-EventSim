@@ -1,5 +1,8 @@
 package edu.kit.ipd.sdq.eventsim.api;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URL;
 
 import org.eclipse.core.runtime.FileLocator;
@@ -49,10 +52,12 @@ public class PCMModel {
     private final ResourceRepository resourceRepository;
 
     private static enum PCMPartialModel {
-        USAGE(UsagemodelPackage.eINSTANCE.getUsageModel()), ALLOCATION(AllocationPackage.eINSTANCE.getAllocation()), SYSTEM(
-                SystemPackage.eINSTANCE.getSystem()), RESOURCEENVIRONMENT(ResourceenvironmentPackage.eINSTANCE
-                .getResourceEnvironment()), REPOSITORY(RepositoryPackage.eINSTANCE.getRepository()), RESOURCEREPOSITORY(
-                ResourcetypePackage.eINSTANCE.getResourceRepository());
+        USAGE(UsagemodelPackage.eINSTANCE.getUsageModel()), ALLOCATION(
+                AllocationPackage.eINSTANCE.getAllocation()), SYSTEM(
+                        SystemPackage.eINSTANCE.getSystem()), RESOURCEENVIRONMENT(
+                                ResourceenvironmentPackage.eINSTANCE.getResourceEnvironment()), REPOSITORY(
+                                        RepositoryPackage.eINSTANCE.getRepository()), RESOURCEREPOSITORY(
+                                                ResourcetypePackage.eINSTANCE.getResourceRepository());
 
         private final EClass eClass;
 
@@ -146,7 +151,8 @@ public class PCMModel {
      *            the location of the allocation model file
      * @return
      */
-    public static PCMModel loadFromBundle(final Bundle bundle, final IPath usageModelLocation, final IPath allocationModelLocation) {
+    public static PCMModel loadFromBundle(final Bundle bundle, final IPath usageModelLocation,
+            final IPath allocationModelLocation) {
         final URI usageUri = relativePathToBundleURI(bundle, usageModelLocation);
         final URI allocationUri = relativePathToBundleURI(bundle, allocationModelLocation);
 
@@ -192,7 +198,8 @@ public class PCMModel {
             }
         }
 
-        return new PCMModel(allocationModel, repositoryModel, resourceModel, systemModel, usageModel, resourceRepository);
+        return new PCMModel(allocationModel, repositoryModel, resourceModel, systemModel, usageModel,
+                resourceRepository);
     }
 
     /**
@@ -212,6 +219,29 @@ public class PCMModel {
         }
         final URI bundleUri = URI.createURI(bundleUrl.toExternalForm());
         return bundleUri;
+    }
+
+    public void saveToFolder(URI folder) throws IOException {
+        // check argument
+        if (!folder.isFile()) {
+            throw new IllegalArgumentException("Folder URI must be a file URI.");
+        }
+
+        // save each resource separately
+        ResourceSet resourceSet = allocationModel.eResource().getResourceSet();
+        for (Resource resource : resourceSet.getResources()) {
+            saveResourceToFolder(resource, folder);
+        }
+    }
+
+    private void saveResourceToFolder(Resource resource, URI folder) throws IOException {
+        // build path
+        String fileName = resource.getURI().lastSegment();
+        URI pathURI = folder.appendSegment(fileName);
+
+        // write model to file
+        OutputStream fos = new FileOutputStream(pathURI.toFileString());
+        resource.save(fos, null);
     }
 
 }

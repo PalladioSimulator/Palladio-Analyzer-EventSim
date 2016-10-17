@@ -27,6 +27,8 @@ import edu.kit.ipd.sdq.eventsim.launch.SimulationDockWrapper;
 import edu.kit.ipd.sdq.eventsim.launch.SimulationManager;
 import edu.kit.ipd.sdq.eventsim.launch.runconfig.EventSimConfigurationConstants;
 import edu.kit.ipd.sdq.eventsim.launch.runconfig.EventSimWorkflowConfiguration;
+import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
+import edu.kit.ipd.sdq.eventsim.measurement.Metadata;
 import edu.kit.ipd.sdq.eventsim.modules.SimulationModule;
 import edu.kit.ipd.sdq.eventsim.modules.SimulationModuleRegistry;
 
@@ -39,11 +41,18 @@ import edu.kit.ipd.sdq.eventsim.modules.SimulationModuleRegistry;
  *
  */
 public class StartSimulationJob extends AbstractExtendableJob<MDSDBlackboard> {
-    
+
     private final EventSimWorkflowConfiguration workflowConfiguration;
 
+    private Metadata[] metadata;
+
     public StartSimulationJob(EventSimWorkflowConfiguration workflowConfiguration) {
+        this(workflowConfiguration, new Metadata[0]);
+    }
+
+    public StartSimulationJob(EventSimWorkflowConfiguration workflowConfiguration, Metadata[] metadata) {
         this.workflowConfiguration = workflowConfiguration;
+        this.metadata = metadata;
     }
 
     public void execute(IProgressMonitor monitor) throws JobFailedException, UserCanceledException {
@@ -68,6 +77,12 @@ public class StartSimulationJob extends AbstractExtendableJob<MDSDBlackboard> {
             if (m.isEnabled() && m.getEntryPoint() != null) {
                 injector.getInstance(m.getEntryPoint());
             }
+        }
+
+        // set global metadata, if present
+        if (metadata != null) {
+            MeasurementStorage measurementStorage = injector.getInstance(MeasurementStorage.class);
+            measurementStorage.addMetadata(metadata);
         }
 
         // ...and start simulation, displaying simulation progress in a simulation dock (progress

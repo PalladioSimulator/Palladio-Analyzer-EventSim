@@ -1,5 +1,6 @@
 package edu.kit.ipd.sdq.eventsim.measurement.r;
 
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -8,6 +9,7 @@ import org.apache.log4j.Logger;
 import edu.kit.ipd.sdq.eventsim.measurement.Measurement;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorageStartException;
+import edu.kit.ipd.sdq.eventsim.measurement.Metadata;
 import edu.kit.ipd.sdq.eventsim.measurement.PropertyExtractor;
 import edu.kit.ipd.sdq.eventsim.measurement.r.connection.RserveConnection;
 import edu.kit.ipd.sdq.eventsim.measurement.r.jobs.FinalizeRProcessingJob;
@@ -48,6 +50,8 @@ public class RMeasurementStore implements MeasurementStorage {
 
     private boolean storeRds;
     private String rdsFilePath;
+
+    private Metadata[] globalMetadata;
 
     /**
      * Use this constructor when no RDS file is to be created upon finish.
@@ -128,11 +132,26 @@ public class RMeasurementStore implements MeasurementStorage {
 
     @Override
     public synchronized void put(Measurement<?> m) {
+        // add global metadata to measurement, if present
+        if (globalMetadata != null) {
+            m.addMetadata(globalMetadata);
+        }
+
         buffer.put(m);
         if (buffer.isFull()) {
             rJobProcessor.enqueue(new PushBufferToRJob(buffer, bufferNumber++));
             buffer = new Buffer(BUFFER_CAPACITY, idExtractor, nameExtractor, typeExtractor);
         }
+    }
+
+    @Override
+    public void addMetadata(Metadata... metadata) {
+        globalMetadata = metadata;
+    }
+
+    @Override
+    public void addMetadata(List<Metadata> metadata) {
+        globalMetadata = metadata.toArray(new Metadata[metadata.size()]);
     }
 
     @Override

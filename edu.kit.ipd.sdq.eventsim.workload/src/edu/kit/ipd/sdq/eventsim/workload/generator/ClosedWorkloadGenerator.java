@@ -93,7 +93,8 @@ public class ClosedWorkloadGenerator implements IWorkloadGenerator {
 			}
 
 		});
-		final double waitingTime = StackContext.evaluateStatic(this.thinkTime.getSpecification(), Double.class);
+		double waitingTime = StackContext.evaluateStatic(this.thinkTime.getSpecification(), Double.class);
+		waitingTime = Math.max(0, waitingTime); // ensure non-negative
 		new BeginUsageTraversalEvent(model, scenario, middleware, interpreterProvider.get()).schedule(user, waitingTime);
 	}
 

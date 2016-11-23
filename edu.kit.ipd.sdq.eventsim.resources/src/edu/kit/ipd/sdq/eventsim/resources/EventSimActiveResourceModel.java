@@ -2,11 +2,9 @@ package edu.kit.ipd.sdq.eventsim.resources;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.osgi.framework.Bundle;
 import org.palladiosimulator.pcm.resourceenvironment.ProcessingResourceSpecification;
@@ -26,6 +24,7 @@ import edu.kit.ipd.sdq.eventsim.api.events.SimulationPrepareEvent;
 import edu.kit.ipd.sdq.eventsim.api.events.SimulationStopEvent;
 import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
 import edu.kit.ipd.sdq.eventsim.entities.IEntityListener;
+import edu.kit.ipd.sdq.eventsim.exceptions.unchecked.UnexpectedModelStructureException;
 import edu.kit.ipd.sdq.eventsim.instrumentation.description.core.InstrumentationDescription;
 import edu.kit.ipd.sdq.eventsim.instrumentation.description.resource.ActiveResourceRep;
 import edu.kit.ipd.sdq.eventsim.instrumentation.injection.Instrumentor;
@@ -40,230 +39,207 @@ import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
 @Singleton
 public class EventSimActiveResourceModel implements IActiveResource {
 
-	private static final Logger logger = Logger.getLogger(EventSimActiveResourceModel.class);
+    private static final Logger logger = Logger.getLogger(EventSimActiveResourceModel.class);
 
-	// maps (ResourceContainer ID, ResourceType ID) -> SimActiveResource
-	private Map<String, SimActiveResource> containerToResourceMap;
-	
-	// TODO extract class
-	private Map<IRequest, SimulatedProcess> requestToSimulatedProcessMap;
+    // maps (ResourceContainer ID, ResourceType ID) -> SimActiveResource
+    private Map<String, SimActiveResource> containerToResourceMap;
 
-	private Instrumentor<SimActiveResource, ?> instrumentor;
-	
-	@Inject
-	private ISimulationModel model;
+    // TODO extract class
+    private Map<IRequest, SimulatedProcess> requestToSimulatedProcessMap;
 
-	@Inject
-	private MeasurementStorage measurementStorage;
-	
-	@Inject
-	private ISimulationMiddleware middleware;
-	
-	@Inject
-    private PCMModel pcm; 
-    
+    private Instrumentor<SimActiveResource, ?> instrumentor;
+
+    @Inject
+    private ISimulationModel model;
+
+    @Inject
+    private MeasurementStorage measurementStorage;
+
+    @Inject
+    private ISimulationMiddleware middleware;
+
+    @Inject
+    private PCMModel pcm;
+
     private MeasurementFacade<ResourceProbeConfiguration> measurementFacade;
-    
+
     @Inject
     private InstrumentationDescription instrumentation;
-    
+
     @Inject
     private ResourceFactory resourceFactory;
-    
-	@Inject
+
+    @Inject
     public EventSimActiveResourceModel(ISimulationMiddleware middleware) {
         // initialize in simulation preparation phase
         middleware.registerEventHandler(SimulationPrepareEvent.class, e -> init());
-        
-		containerToResourceMap = new HashMap<String, SimActiveResource>();
-		requestToSimulatedProcessMap = new WeakHashMap<IRequest, SimulatedProcess>();
-	}
 
-	public void init() {	
-		// setup measurement facade
-		Bundle bundle = Activator.getContext().getBundle();
-		measurementFacade = new MeasurementFacade<>(new ResourceProbeConfiguration(), new BundleProbeLocator<>(bundle));
-		
-		// create instrumentor for instrumentation description
-		instrumentor = InstrumentorBuilder.buildFor(pcm)
-				.inBundle(Activator.getContext().getBundle())
-				.withDescription(instrumentation)
-				.withStorage(measurementStorage)
-				.forModelType(ActiveResourceRep.class)
-				.withMapping((SimActiveResource r) -> new ActiveResourceRep(r.getSpecification()))
-				.createFor(measurementFacade);
-		
-		measurementStorage.addIdExtractor(SimActiveResource.class, c -> ((SimActiveResource)c).getSpecification().getId());
-		measurementStorage.addNameExtractor(SimActiveResource.class, c -> ((SimActiveResource)c).getName());
-		measurementStorage.addIdExtractor(SimulatedProcess.class, c -> Long.toString(((SimulatedProcess)c).getEntityId()));
-		measurementStorage.addNameExtractor(SimulatedProcess.class, c -> ((SimulatedProcess)c).getName());
-		
-		registerEventHandler();
-	}
-	
-	private void registerEventHandler() {
-		middleware.registerEventHandler(SimulationStopEvent.class, e -> finalise());
-	}
+        containerToResourceMap = new HashMap<String, SimActiveResource>();
+        requestToSimulatedProcessMap = new WeakHashMap<IRequest, SimulatedProcess>();
+    }
 
-	@Override
-	public void consume(IRequest request, ResourceContainer resourceContainer, ResourceType resourceType, double absoluteDemand) {
+    public void init() {
+        // setup measurement facade
+        Bundle bundle = Activator.getContext().getBundle();
+        measurementFacade = new MeasurementFacade<>(new ResourceProbeConfiguration(), new BundleProbeLocator<>(bundle));
 
-		final SimActiveResource resource = findOrCreateResource(resourceContainer, resourceType);
-		if (resource == null) {
-			throw new RuntimeException("Could not find a resource of type " + resourceType.getEntityName());
-		}
+        // create instrumentor for instrumentation description
+        instrumentor = InstrumentorBuilder.buildFor(pcm).inBundle(Activator.getContext().getBundle())
+                .withDescription(instrumentation).withStorage(measurementStorage).forModelType(ActiveResourceRep.class)
+                .withMapping((SimActiveResource r) -> new ActiveResourceRep(r.getSpecification()))
+                .createFor(measurementFacade);
 
-		resource.consumeResource(getOrCreateSimulatedProcess(request), absoluteDemand);
-	}
+        measurementStorage.addIdExtractor(SimActiveResource.class,
+                c -> ((SimActiveResource) c).getSpecification().getId());
+        measurementStorage.addNameExtractor(SimActiveResource.class, c -> ((SimActiveResource) c).getName());
+        measurementStorage.addIdExtractor(SimulatedProcess.class,
+                c -> Long.toString(((SimulatedProcess) c).getEntityId()));
+        measurementStorage.addNameExtractor(SimulatedProcess.class, c -> ((SimulatedProcess) c).getName());
 
-	public void finalise() {
-		// clean up created resources
-		for(Iterator<Map.Entry<String, SimActiveResource>> it = containerToResourceMap.entrySet().iterator(); it.hasNext();) {
-		      Map.Entry<String, SimActiveResource> entry = it.next();
-		      entry.getValue().deactivateResource();
-		      it.remove();
-		}
-		
-		AbstractActiveResource.cleanProcesses();
-	}
+        registerEventHandler();
+    }
 
-	/**
-	 * Registers a resource for the specified resource type. Only one resource
-	 * can be registered for each resource type. Thus, providing a resource for
-	 * an already registered resource type overwrites the existing resource.
-	 * 
-	 * @param resource
-	 *            the resource that is to be registered
-	 * @param type
-	 *            the type of the resource
-	 */
-	private void registerResource(ResourceContainer specification, SimActiveResource resource, ResourceType type) {
-		if (logger.isDebugEnabled()) {
-			logger.debug("Registering a " + type.getEntityName() + " resource at " + PCMEntityHelper.toString(specification));
-		}
-		if (this.containerToResourceMap.containsKey(type)) {
-			if (logger.isEnabledFor(Level.WARN))
-				logger.warn("Registered a resource of type " + type.getEntityName() + ", but there was already a resource of this type. The existing resource has been overwritten.");
-		}
+    private void registerEventHandler() {
+        middleware.registerEventHandler(SimulationStopEvent.class, e -> finalise());
+    }
+
+    @Override
+    public void consume(IRequest request, ResourceContainer resourceContainer, ResourceType resourceType,
+            double absoluteDemand) {
+        final SimActiveResource resource = findOrCreateResource(resourceContainer, resourceType);
+        if (resource == null) {
+            throw new RuntimeException("Could not find a resource of type " + resourceType.getEntityName());
+        }
+
+        resource.consumeResource(getOrCreateSimulatedProcess(request), absoluteDemand);
+    }
+
+    public void finalise() {
+        // clean up created resources
+        for (SimActiveResource resource : containerToResourceMap.values()) {
+            resource.deactivateResource();
+        }
+
+        // clean up scheduler
+        AbstractActiveResource.cleanProcesses();
+    }
+
+    /**
+     * Registers a resource for the specified resource type. Only one resource can be registered for
+     * each resource type. Thus, providing a resource for an already registered resource type
+     * overwrites the existing resource.
+     * 
+     * @param type
+     *            the type of the resource
+     * @param resource
+     *            the resource that is to be registered
+     */
+    private void registerResource(ResourceContainer resourceContainer, ResourceType type, SimActiveResource resource) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Registering a " + type.getEntityName() + " resource at "
+                    + PCMEntityHelper.toString(resourceContainer));
+        }
+        if (this.containerToResourceMap.containsKey(type)) {
+            logger.warn("Registered a resource of type " + type.getEntityName()
+                    + ", but there was already a resource of this type. The existing resource has been overwritten.");
+        }
 
         // register the created active resource
-		this.containerToResourceMap.put(compoundKey(specification, type), resource);
-		
+        this.containerToResourceMap.put(compoundKey(resourceContainer, type), resource);
+
         // create probes and calculators (if requested by instrumentation description)
-		instrumentor.instrument(resource);
-	}
+        instrumentor.instrument(resource);
+    }
 
-	/**
-	 * Finds the resource that has been registered for the specified type. If no
-	 * resource of the specified type can be found, the search continues with
-	 * the parent resource container.
-	 * 
-	 * @param type
-	 *            the resource type
-	 * @return the resource of the specified type, if there is one; null else
-	 */
-	public SimActiveResource findOrCreateResource(ResourceContainer specification, ResourceType resourceType) {
-		if (!containerToResourceMap.containsKey(compoundKey(specification, resourceType))) {
-			// if (parent != null) {
-			// return parent.findResource(type);
-			// } else {
-			// return null;
-			// }
-			// TODO create resource
-			// create resource
-			// ResourceType resourceType =
-			// s.getActiveResourceType_ActiveResourceSpecification();
+    /**
+     * Finds the resource registered for the specified type and resource container, or creates the
+     * resource if none is registered. Created resources are added to the registry.
+     * 
+     * @param resourceContainer
+     *            the resource container
+     * @param type
+     *            the resource type
+     * @return the resource of the specified type
+     * @throws UnexpectedModelStructureException
+     *             if the modeled resource container does not contain a resource specification of
+     *             the requested type
+     */
+    public SimActiveResource findOrCreateResource(ResourceContainer resourceContainer, ResourceType resourceType) {
+        if (!containerToResourceMap.containsKey(compoundKey(resourceContainer, resourceType))) {
+            ProcessingResourceSpecification foundResourceSpecification = null;
+            for (ProcessingResourceSpecification spec : resourceContainer
+                    .getActiveResourceSpecifications_ResourceContainer()) {
+                if (spec.getActiveResourceType_ActiveResourceSpecification().equals(resourceType)) {
+                    foundResourceSpecification = spec;
+                    break;
+                }
+            }
+            if (foundResourceSpecification == null) {
+                // TODO perhaps support nested resource containers: continue lookup with parent
+                String message = String.format("Missing resource type %s for resource container %s.",
+                        PCMEntityHelper.toString(resourceType), PCMEntityHelper.toString(resourceContainer));
+                throw new UnexpectedModelStructureException(message);
+            }
 
-			ProcessingResourceSpecification s = null;
-			for (ProcessingResourceSpecification spec : specification.getActiveResourceSpecifications_ResourceContainer()) {
-				// TODO does this work!??
-				if (spec.getActiveResourceType_ActiveResourceSpecification().equals(resourceType)) {
-					s = spec;
-					break;
-				}
-			}
-			if (s == null) {
-				// remove
-				// TODO (simcomp) is also thrown if HDD is missing!
-				throw new RuntimeException("refactoring went wrong :(");
-			}
+            // create and register the resource
+            SimActiveResource resource = resourceFactory.createActiveResource(foundResourceSpecification);
+            registerResource(resourceContainer, resourceType, resource);
+        }
+        return containerToResourceMap.get(compoundKey(resourceContainer, resourceType));
+    }
 
-			SimActiveResource resource = resourceFactory.createActiveResource(s);
+    private String compoundKey(ResourceContainer specification, ResourceType resourceType) {
+        return specification.getId() + resourceType.getId();
+    }
 
-			// register the created resource
-			registerResource(specification, resource, resourceType);
-		}
-		return containerToResourceMap.get(compoundKey(specification, resourceType));
-	}
+    /**
+     * This handler reacts when the Request has been finished and informs the simulated process
+     * about that.
+     * 
+     * @author Philipp Merkle
+     */
+    private class RequestFinishedHandler implements IEntityListener {
 
-	private String compoundKey(ResourceContainer specification, ResourceType resourceType) {
-		// TODO better use resource name "CPU", HDD, ... as second component!?
-		return specification.getId() + resourceType.getId();
-	}
+        private WeakReference<SimulatedProcess> process;
 
-	/**
-	 * This handler reacts when the Request has been finished and informs the
-	 * simulated process about that.
-	 * 
-	 * @author Philipp Merkle
-	 */
-	private class RequestFinishedHandler implements IEntityListener {
+        public RequestFinishedHandler(SimulatedProcess process) {
+            this.process = new WeakReference<SimulatedProcess>(process);
+        }
 
-		private WeakReference<SimulatedProcess> process;
+        @Override
+        public void enteredSystem() {
+            // nothing to do
+        }
 
-		public RequestFinishedHandler(SimulatedProcess process) {
-			this.process = new WeakReference<SimulatedProcess>(process);
-		}
+        @Override
+        public void leftSystem() {
+            process.get().terminate();
+            requestToSimulatedProcessMap.remove(process.get().getRequest());
+        }
 
-		@Override
-		public void enteredSystem() {
-			// nothing to do
-		}
+    }
 
-		@Override
-		public void leftSystem() {
-			process.get().terminate();
-			requestToSimulatedProcessMap.remove(process.get().getRequest());
-		}
+    /**
+     * Returns the simulated process that is used to schedule resource requests issued by this
+     * Request on an active or passive resource.
+     * 
+     * @return the simulated process
+     */
+    public SimulatedProcess getOrCreateSimulatedProcess(IRequest request) {
+        if (!requestToSimulatedProcessMap.containsKey(request)) {
+            SimulatedProcess parent = null;
+            if (request.getParent() != null) {
+                parent = getOrCreateSimulatedProcess(request.getParent());
+            }
+            SimulatedProcess process = new SimulatedProcess(model, parent, request);
 
-	}
+            // add listener for request finish
+            EventSimEntity requestEntity = (EventSimEntity) request;
+            requestEntity.addEntityListener(new RequestFinishedHandler(process));
 
-	/**
-	 * Returns the simulated process that is used to schedule resource requests
-	 * issued by this Request on an active or passive resource.
-	 * 
-	 * @return the simulated process
-	 */
-	public SimulatedProcess getOrCreateSimulatedProcess(IRequest request) {
-		if (!requestToSimulatedProcessMap.containsKey(request)) {
-			SimulatedProcess parent = null;
-			if(request.getParent() != null) {
-				parent = getOrCreateSimulatedProcess(request.getParent());
-			}
-			SimulatedProcess process = new SimulatedProcess(model, parent, request);
-
-			// add listener for request finish
-			EventSimEntity requestEntity = (EventSimEntity) request;
-			requestEntity.addEntityListener(new RequestFinishedHandler(process));
-
-			requestToSimulatedProcessMap.put(request, process);
-		}
-		return requestToSimulatedProcessMap.get(request);
-	}
-	
-	
-//	public SimulatedProcess getOrCreateSimulatedProcess(IRequest request) {
-//		if (!requestToSimulatedProcessMap.containsKey(request)) {
-//			SimulatedProcess process = new SimulatedProcess(this, request, Long.toString(request.getId()));
-//
-//			// add listener for request finish
-//			EventSimEntity requestEntity = (EventSimEntity) request;
-//			requestEntity.addEntityListener(new RequestFinishedHandler(process));
-//
-//			requestToSimulatedProcessMap.put(request, process);
-//		}
-//		return requestToSimulatedProcessMap.get(request);
-//	}
-	
+            requestToSimulatedProcessMap.put(request, process);
+        }
+        return requestToSimulatedProcessMap.get(request);
+    }
 
 }

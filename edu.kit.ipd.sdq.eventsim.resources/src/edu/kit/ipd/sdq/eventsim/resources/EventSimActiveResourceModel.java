@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 import org.apache.log4j.Logger;
+import org.apache.log4j.spi.LoggerRepository;
 import org.osgi.framework.Bundle;
 import org.palladiosimulator.pcm.resourceenvironment.ProcessingResourceSpecification;
 import org.palladiosimulator.pcm.resourceenvironment.ResourceContainer;
@@ -184,6 +185,9 @@ public class EventSimActiveResourceModel implements IActiveResource {
             // create and register the resource
             SimActiveResource resource = resourceFactory.createActiveResource(foundResourceSpecification);
             registerResource(resourceContainer, resourceType, resource);
+
+            logger.info(String.format("Created %s resource with %s scheduling at %s", resourceType.getEntityName(),
+                    resource.getSchedulingStrategy().getEntityName(), PCMEntityHelper.toString(resourceContainer)));
         }
         return containerToResourceMap.get(compoundKey(resourceContainer, resourceType));
     }

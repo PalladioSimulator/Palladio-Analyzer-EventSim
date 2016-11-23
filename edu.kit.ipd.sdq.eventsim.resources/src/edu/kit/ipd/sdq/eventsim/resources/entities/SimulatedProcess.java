@@ -13,7 +13,7 @@ import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
 /**
  * A simulated process is a process that can be scheduled on an active or passive resource. Whenever
  * the scheduler activates or passivates the process, the {@link IProcessListener}, which has been
- * passed to the constructor, gets notified. 
+ * passed to the constructor, gets notified.
  * 
  * TODO (SimComp) fix me
  * 
@@ -28,7 +28,7 @@ public class SimulatedProcess extends EventSimEntity implements ISchedulableProc
     private boolean terminated;
     private int priority;
     private SimulatedProcess parent;
-    
+
     /**
      * Creates a simulated process with the specified id and registers the passed listener.
      * 
@@ -41,8 +41,8 @@ public class SimulatedProcess extends EventSimEntity implements ISchedulableProc
      *            or passivated
      */
     public SimulatedProcess(ISimulationModel model, SimulatedProcess parent, final IRequest request) {
-    	super(model, "SimulatedProcess");
-    	this.parent = parent;
+        super(model, "SimulatedProcess");
+        this.parent = parent;
         this.request = request;
         this.terminatedObservers = new ArrayList<IActiveResource>();
     }
@@ -60,7 +60,7 @@ public class SimulatedProcess extends EventSimEntity implements ISchedulableProc
      */
     @Override
     public void passivate() {
-    	// nothing to do
+        // nothing to do
     }
 
     /**
@@ -68,7 +68,7 @@ public class SimulatedProcess extends EventSimEntity implements ISchedulableProc
      */
     @Override
     public String getId() {
-    	// TODO correct?
+        // TODO correct?
         return "SimulatedProcess" + getEntityId();
     }
 
@@ -77,8 +77,8 @@ public class SimulatedProcess extends EventSimEntity implements ISchedulableProc
      */
     @Override
     public ISchedulableProcess getRootProcess() {
-        // TODO is this correct!?
-        return this;
+        // TODO: what is expected here? (copied this method body from SimuCom)
+        return null;
     }
 
     /**
@@ -87,10 +87,10 @@ public class SimulatedProcess extends EventSimEntity implements ISchedulableProc
     public IRequest getRequest() {
         return request;
     }
-    
+
     public SimulatedProcess getParent() {
-		return parent;
-	}
+        return parent;
+    }
 
     /**
      * {@inheritDoc}
@@ -100,20 +100,20 @@ public class SimulatedProcess extends EventSimEntity implements ISchedulableProc
         return terminated;
     }
 
-	/**
-	 * Terminates this simulated process. Notifies all observers that has been registered by the
-	 * {@code addTerminatedObserver} method.
-	 * <p>
-	 * If this simulated process terminated already, calling this method has no effect.
-	 */
+    /**
+     * Terminates this simulated process. Notifies all observers that has been registered by the
+     * {@code addTerminatedObserver} method.
+     * <p>
+     * If this simulated process terminated already, calling this method has no effect.
+     */
     public void terminate() {
         if (!terminated) {
-        	terminated = true;
+            terminated = true;
             notifyLeftSystem();
             fireTerminated();
         }
     }
-    
+
     public int getPriority() {
         return priority;
     }
@@ -121,7 +121,7 @@ public class SimulatedProcess extends EventSimEntity implements ISchedulableProc
     public void setPriority(int priority) {
         this.priority = priority;
     }
-    
+
     /**
      * Adds an observer which gets notifies when the process has ended its execution.
      */
@@ -157,17 +157,42 @@ public class SimulatedProcess extends EventSimEntity implements ISchedulableProc
         throw new RuntimeException("Encountered a timeout but simulation of failures is not supported.");
     }
 
-	@Override
-	public String getName() {
-		if (parent != null) {
-			return super.getName() + ", parent of " + parent.getName();
-		} else {
-			return super.getName();
-		}
-	}
-	
-	public AbstractAction getCurrentPosition() {
-		return request.getCurrentPosition();
-	}
+    @Override
+    public String getName() {
+        if (parent != null) {
+            return super.getName() + ", parent of " + parent.getName();
+        } else {
+            return super.getName();
+        }
+    }
+
+    public AbstractAction getCurrentPosition() {
+        return request.getCurrentPosition();
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        SimulatedProcess other = (SimulatedProcess) obj;
+        if (getId() == null) {
+            if (other.getId() != null)
+                return false;
+        } else if (!getId().equals(other.getId()))
+            return false;
+        return true;
+    }
 
 }

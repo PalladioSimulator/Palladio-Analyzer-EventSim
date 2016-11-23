@@ -29,6 +29,12 @@ import edu.kit.ipd.sdq.eventsim.resources.entities.SimResourceFactory;
 @Singleton
 public class ResourceFactory {
 
+    private static final String FCFS = "FCFS";
+
+    private static final String PROCESSOR_SHARING = "ProcessorSharing";
+
+    private static final String DELAY = "Delay";
+
     private static AtomicLong idGenerator = new AtomicLong(0);
 
     private ISchedulingFactory schedulingFactory;
@@ -56,12 +62,11 @@ public class ResourceFactory {
         // double mttr = specification.getMTTR();
         final int numberOfReplicas = specification.getNumberOfReplicas();
         final PCMRandomVariable processingRate = specification.getProcessingRate_ProcessingResourceSpecification();
-        final SchedulingPolicy schedulingPolicy = SchedulingPolicy
-                .getPolicyForId(specification.getSchedulingPolicy().getId());
+        final String schedulingPolicyId = specification.getSchedulingPolicy().getId();
 
         IActiveResource resource = null;
         String resourceName;
-        switch (schedulingPolicy) {
+        switch (schedulingPolicyId) {
         case FCFS:
             resourceName = SchedulingStrategy.FCFS.toString();
             resource = schedulingFactory.createSimFCFSResource(resourceName, getNextResourceId());
@@ -76,11 +81,19 @@ public class ResourceFactory {
                     numberOfReplicas);
             break;
         default:
-            throw new EventSimException("Unknown scheduling policy: " + schedulingPolicy.toString());
+            // try instantiating resource from extension point, used e.g. by exact schedulers
+            resource = schedulingFactory.createResourceFromExtension(specification.getSchedulingPolicy().getId(),
+                    getNextResourceId(), numberOfReplicas);
+            resourceName = specification.getSchedulingPolicy().getEntityName();
+            // TODO do we need to initialize the resource by calling a method as SimuCom does?
+
+            if (resource == null) {
+                throw new EventSimException("Unknown scheduling policy: " + schedulingPolicyId.toString());
+            }
         }
 
         SimActiveResource r = resourceFactory.createActiveResource(resource, processingRate.getSpecification(),
-                numberOfReplicas, schedulingPolicy, specification);
+                numberOfReplicas, specification.getSchedulingPolicy(), specification);
 
         return r;
     }

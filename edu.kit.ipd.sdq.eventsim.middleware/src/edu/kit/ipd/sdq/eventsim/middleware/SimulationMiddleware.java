@@ -55,9 +55,6 @@ public class SimulationMiddleware implements ISimulationMiddleware {
     @Inject
     private IRandomGenerator randomNumberGenerator;
 
-    @Inject(optional = true)
-    private RserveConnection rConnection;
-
     private EventManager eventManager;
 
     private int measurementCount;

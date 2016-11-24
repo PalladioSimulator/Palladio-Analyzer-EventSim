@@ -6,6 +6,7 @@ import org.palladiosimulator.pcm.core.PCMRandomVariable;
 import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 import org.palladiosimulator.pcm.repository.PassiveResource;
 import org.palladiosimulator.pcm.resourceenvironment.CommunicationLinkResourceSpecification;
+import org.palladiosimulator.pcm.resourceenvironment.HDDProcessingResourceSpecification;
 import org.palladiosimulator.pcm.resourceenvironment.ProcessingResourceSpecification;
 
 import com.google.inject.Inject;
@@ -92,8 +93,17 @@ public class ResourceFactory {
             }
         }
 
-        SimActiveResource r = resourceFactory.createActiveResource(resource, processingRate.getSpecification(),
-                numberOfReplicas, specification.getSchedulingPolicy(), specification);
+        SimActiveResource r = null;
+        // special case for HDD resources
+        if (specification instanceof HDDProcessingResourceSpecification) {
+            HDDProcessingResourceSpecification hdd = (HDDProcessingResourceSpecification) specification;
+            r = this.resourceFactory.createActiveHDDResource(resource, processingRate.getSpecification(),
+                    numberOfReplicas, specification.getSchedulingPolicy(), specification,
+                    hdd.getWriteProcessingRate().getSpecification(), hdd.getReadProcessingRate().getSpecification());
+        } else { // normal case (no HDD resource)
+            r = this.resourceFactory.createActiveResource(resource, processingRate.getSpecification(), numberOfReplicas,
+                    specification.getSchedulingPolicy(), specification);
+        }
 
         return r;
     }

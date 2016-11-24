@@ -105,8 +105,11 @@ public class SimActiveResource extends EventSimEntity {
      *            the process that has requested the demand
      * @param abstractDemand
      *            the demand
+     * @param resourceServiceID
+     *            the resource service ID
      */
-    public void consumeResource(ISchedulableProcess process, double abstractDemand) {
+    public void consumeResource(final ISchedulableProcess process, final double abstractDemand,
+            final int resourceServiceID) {
         if (logger.isDebugEnabled()) {
             logger.debug("Requested resource " + schedulerResource + " with an abstract demand of " + abstractDemand);
         }
@@ -118,8 +121,7 @@ public class SimActiveResource extends EventSimEntity {
             registeredProcesses.add(process);
         }
 
-        // TODO What resource service ID has to be passed here?
-        schedulerResource.process(process, 1, Collections.emptyMap(), concreteDemand);
+        schedulerResource.process(process, resourceServiceID, Collections.emptyMap(), concreteDemand);
 
         // notify demands listeners
         fireDemand(process, concreteDemand);

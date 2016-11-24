@@ -7,8 +7,11 @@ import java.util.WeakHashMap;
 
 import org.apache.log4j.Logger;
 import org.osgi.framework.Bundle;
+import org.palladiosimulator.pcm.core.entity.ResourceProvidedRole;
 import org.palladiosimulator.pcm.resourceenvironment.ProcessingResourceSpecification;
 import org.palladiosimulator.pcm.resourceenvironment.ResourceContainer;
+import org.palladiosimulator.pcm.resourcetype.ResourceInterface;
+import org.palladiosimulator.pcm.resourcetype.ResourceRepository;
 import org.palladiosimulator.pcm.resourcetype.ResourceType;
 
 import com.google.inject.Inject;
@@ -47,6 +50,8 @@ public class EventSimActiveResourceModel implements IActiveResource {
     // TODO extract class
     private Map<IRequest, SimulatedProcess> requestToSimulatedProcessMap;
 
+    private Map<ResourceInterface, ResourceType> resourceInterfaceToTypeMap;
+
     private Instrumentor<SimActiveResource, ?> instrumentor;
 
     @Inject
@@ -74,8 +79,9 @@ public class EventSimActiveResourceModel implements IActiveResource {
         // initialize in simulation preparation phase
         middleware.registerEventHandler(SimulationPrepareEvent.class, e -> init());
 
-        containerToResourceMap = new HashMap<String, SimActiveResource>();
-        requestToSimulatedProcessMap = new WeakHashMap<IRequest, SimulatedProcess>();
+        containerToResourceMap = new HashMap<>();
+        requestToSimulatedProcessMap = new WeakHashMap<>();
+        resourceInterfaceToTypeMap = new HashMap<>();
     }
 
     public void init() {
@@ -104,14 +110,14 @@ public class EventSimActiveResourceModel implements IActiveResource {
     }
 
     @Override
-    public void consume(IRequest request, ResourceContainer resourceContainer, ResourceType resourceType,
-            double absoluteDemand) {
+    public void consume(final IRequest request, final ResourceContainer resourceContainer,
+            final ResourceType resourceType, final double absoluteDemand, final int resourceServiceID) {
         final SimActiveResource resource = findOrCreateResource(resourceContainer, resourceType);
         if (resource == null) {
             throw new RuntimeException("Could not find a resource of type " + resourceType.getEntityName());
         }
 
-        resource.consumeResource(getOrCreateSimulatedProcess(request), absoluteDemand);
+        resource.consumeResource(getOrCreateSimulatedProcess(request), absoluteDemand, resourceServiceID);
     }
 
     public void finalise() {
@@ -243,6 +249,29 @@ public class EventSimActiveResourceModel implements IActiveResource {
             requestToSimulatedProcessMap.put(request, process);
         }
         return requestToSimulatedProcessMap.get(request);
+    }
+
+    @Override
+    public ResourceType findResourceType(ResourceInterface resourceInterface) {
+        if (!resourceInterfaceToTypeMap.containsKey(resourceInterface)) {
+            ResourceRepository resourceRepository = resourceInterface.getResourceRepository__ResourceInterface();
+            ResourceType foundType = null;
+            for (ResourceType resourceType : resourceRepository.getAvailableResourceTypes_ResourceRepository()) {
+                for (ResourceProvidedRole resourceProvidedRole : resourceType
+                        .getResourceProvidedRoles__ResourceInterfaceProvidingEntity()) {
+                    if (resourceProvidedRole.getProvidedResourceInterface__ResourceProvidedRole().getId()
+                            .equals(resourceInterface.getId())) {
+                        if (foundType != null) {
+                            logger.warn("Found at least two resource types providing the same resource interface. "
+                                    + "This case is so far not supported in the simulation. Results may be wrong.");
+                        }
+                        foundType = resourceType;
+                    }
+                }
+            }
+            resourceInterfaceToTypeMap.put(resourceInterface, foundType);
+        }
+        return resourceInterfaceToTypeMap.get(resourceInterface);
     }
 
 }

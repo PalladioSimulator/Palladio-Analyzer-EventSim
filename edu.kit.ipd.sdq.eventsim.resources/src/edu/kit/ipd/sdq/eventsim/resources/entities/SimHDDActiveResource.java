@@ -1,0 +1,52 @@
+package edu.kit.ipd.sdq.eventsim.resources.entities;
+
+import org.palladiosimulator.pcm.resourceenvironment.ProcessingResourceSpecification;
+import org.palladiosimulator.pcm.resourcetype.SchedulingPolicy;
+
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+
+import de.uka.ipd.sdq.scheduler.IActiveResource;
+import de.uka.ipd.sdq.scheduler.ISchedulableProcess;
+import de.uka.ipd.sdq.simucomframework.Context;
+import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
+
+/**
+ * An active resource which can process HDD read and write requests.
+ * 
+ * @author tzwickl
+ */
+public class SimHDDActiveResource extends SimActiveResource {
+
+    private final String writeProcessingRate;
+    private final String readProcessingRate;
+
+    private final int READ_SERVICE_ID = 1;
+    private final int WRITE_SERVICE_ID = 2;
+
+    @Inject
+    public SimHDDActiveResource(final ISimulationModel model, @Assisted final IActiveResource resource,
+            @Assisted final String processingRate, @Assisted final int numberOfInstances,
+            @Assisted final SchedulingPolicy schedulingStrategy,
+            @Assisted final ProcessingResourceSpecification specification,
+            @Assisted("writeProcessingRate") final String writeProcessingRate,
+            @Assisted("readProcessingRate") final String readProcessingRate) {
+        super(model, resource, processingRate, numberOfInstances, schedulingStrategy, specification);
+        this.writeProcessingRate = writeProcessingRate;
+        this.readProcessingRate = readProcessingRate;
+    }
+
+    @Override
+    public void consumeResource(final ISchedulableProcess process, final double abstractDemand,
+            final int resourceServiceID) {
+        double currentDemand = -1;
+        if (resourceServiceID == this.READ_SERVICE_ID) {
+            currentDemand = abstractDemand / Context.evaluateStatic(this.readProcessingRate, Double.class);
+        } else if (resourceServiceID == this.WRITE_SERVICE_ID) {
+            currentDemand = abstractDemand / Context.evaluateStatic(this.writeProcessingRate, Double.class);
+        } else {
+            throw new IllegalStateException("HDD Resource called without explicit read/write call");
+        }
+        super.consumeResource(process, currentDemand, resourceServiceID);
+    }
+}

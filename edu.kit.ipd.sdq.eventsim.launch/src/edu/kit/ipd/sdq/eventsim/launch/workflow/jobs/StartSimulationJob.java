@@ -2,6 +2,8 @@ package edu.kit.ipd.sdq.eventsim.launch.workflow.jobs;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Collections;
+import java.util.List;
 
 import javax.xml.bind.JAXBException;
 
@@ -44,13 +46,13 @@ public class StartSimulationJob extends AbstractExtendableJob<MDSDBlackboard> {
 
     private final EventSimWorkflowConfiguration workflowConfiguration;
 
-    private Metadata[] metadata;
+    private List<Metadata> metadata;
 
     public StartSimulationJob(EventSimWorkflowConfiguration workflowConfiguration) {
-        this(workflowConfiguration, new Metadata[0]);
+        this(workflowConfiguration, Collections.emptyList());
     }
 
-    public StartSimulationJob(EventSimWorkflowConfiguration workflowConfiguration, Metadata[] metadata) {
+    public StartSimulationJob(EventSimWorkflowConfiguration workflowConfiguration, List<Metadata> metadata) {
         this.workflowConfiguration = workflowConfiguration;
         this.metadata = metadata;
     }

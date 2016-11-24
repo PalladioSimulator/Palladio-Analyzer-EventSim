@@ -9,8 +9,8 @@ import org.palladiosimulator.pcm.seff.ResourceDemandingBehaviour;
 import com.google.inject.Inject;
 
 import edu.kit.ipd.sdq.eventsim.command.PCMModelCommandExecutor;
+import edu.kit.ipd.sdq.eventsim.interpreter.DecoratingTraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalInstruction;
-import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.interpreter.instructions.TraverseNextAction;
 import edu.kit.ipd.sdq.eventsim.interpreter.state.ITraversalStrategyState;
 import edu.kit.ipd.sdq.eventsim.interpreter.state.InternalState;
@@ -25,7 +25,7 @@ import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
  * 
  */
 public class LoopActionTraversalStrategy
-        implements ITraversalStrategy<AbstractAction, LoopAction, Request, RequestState> {
+        extends DecoratingTraversalStrategy<AbstractAction, LoopAction, Request, RequestState> {
 
     private static Logger logger = Logger.getLogger(LoopActionTraversalStrategy.class);
 
@@ -42,6 +42,8 @@ public class LoopActionTraversalStrategy
     @Override
     public ITraversalInstruction<AbstractAction, RequestState> traverse(final LoopAction loop, final Request request,
             final RequestState state) {
+        traverseDecorated(loop, request, state);
+
         // restore or create state
         ITraversalStrategyState internalState = state.getInternalState(loop);
         if (internalState == null) {

@@ -40,4 +40,12 @@ public interface ITraversalStrategy<A extends Entity, T extends A, E extends Eve
      */
     public ITraversalInstruction<A, S> traverse(T action, E entity, S state);
 
+    /**
+     * Decorates the specified traversal strategy.
+     * 
+     * @param decorated
+     *            the decorated traversal strategy
+     */
+    public void decorate(ITraversalStrategy<A, T, E, S> decorated);
+
 }

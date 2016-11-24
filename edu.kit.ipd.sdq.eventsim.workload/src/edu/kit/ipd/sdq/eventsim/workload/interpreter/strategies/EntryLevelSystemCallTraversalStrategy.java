@@ -6,37 +6,41 @@ import org.palladiosimulator.pcm.usagemodel.EntryLevelSystemCall;
 import com.google.inject.Inject;
 
 import edu.kit.ipd.sdq.eventsim.api.ISystem;
+import edu.kit.ipd.sdq.eventsim.interpreter.DecoratingTraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalInstruction;
-import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.interpreter.instructions.InterruptTraversal;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
 import edu.kit.ipd.sdq.eventsim.workload.interpreter.state.UserState;
 
 /**
- * This traversal strategy is responsible to create service calls on a system
- * simulation component based on {@link EntryLevelSystemCall} actions.
+ * This traversal strategy is responsible to create service calls on a system simulation component
+ * based on {@link EntryLevelSystemCall} actions.
  * 
  * @author Philipp Merkle
  * @author Christoph Föhrdes
  */
-public class EntryLevelSystemCallTraversalStrategy implements ITraversalStrategy<AbstractUserAction, EntryLevelSystemCall, User, UserState> {
+public class EntryLevelSystemCallTraversalStrategy
+        extends DecoratingTraversalStrategy<AbstractUserAction, EntryLevelSystemCall, User, UserState> {
 
     @Inject
     private ISystem systemComponent;
-    
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public ITraversalInstruction<AbstractUserAction, UserState> traverse(final EntryLevelSystemCall call, final User user, final UserState state) {
-		// store EventSim specific state to the user
-		user.setUserState(state); // TODO redundant!?
 
-		// invoke system service
-		systemComponent.callService(user, call);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ITraversalInstruction<AbstractUserAction, UserState> traverse(final EntryLevelSystemCall call,
+            final User user, final UserState state) {
+        traverseDecorated(call, user, state);
 
-		// interrupt the usage traversal until service call simulation finished
-		return new InterruptTraversal<>(call.getSuccessor());
-	}
+        // store EventSim specific state to the user
+        user.setUserState(state); // TODO redundant!?
+
+        // invoke system service
+        systemComponent.callService(user, call);
+
+        // interrupt the usage traversal until service call simulation finished
+        return new InterruptTraversal<>(call.getSuccessor());
+    }
 
 }

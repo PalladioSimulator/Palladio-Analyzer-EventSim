@@ -29,7 +29,7 @@ public class TraversalStrategyRegistry<A extends Entity> {
 
     private static final Logger logger = Logger.getLogger(TraversalStrategyRegistry.class);
 
-    private final Map<Class<? extends A>, ITraversalStrategy<A, ? extends A, ?, AbstractInterpreterState<A>>> handlerMap = new HashMap<>();
+    private final Map<Class<? extends A>, ITraversalStrategy> handlerMap = new HashMap<>();
 
     @Inject
     public TraversalStrategyRegistry(Injector injector, SimulationModuleRegistry moduleRegistry) {
@@ -41,8 +41,7 @@ public class TraversalStrategyRegistry<A extends Entity> {
             for (SimulationStrategy s : m.getSimulationStrategies()) {
                 try {
                     Class<? extends A> actionType = (Class<? extends A>) Class.forName(s.getActionType());
-                    ITraversalStrategy<A, ? extends A, ?, AbstractInterpreterState<A>> strategy = (ITraversalStrategy<A, ? extends A, ?, AbstractInterpreterState<A>>) s
-                            .getStrategy();
+                    ITraversalStrategy strategy = (ITraversalStrategy) s.getStrategy();
                     registerActionHandler(actionType, strategy);
                     injector.injectMembers(strategy);
                 } catch (ClassNotFoundException e) {
@@ -55,16 +54,15 @@ public class TraversalStrategyRegistry<A extends Entity> {
     }
 
     /**
-     * Adds a handler for the specified action class, which must be a subtype of
-     * {@link AbstractAction}.
+     * Adds a handler for the specified action class. If a handler for the specified action class
+     * already exists, the existing handler will be decorated by the specified handler.
      * 
      * @param actionClass
      *            the action class
      * @param handler
      *            the handler that is to be registered
      */
-    public void registerActionHandler(final Class<? extends A> actionClass,
-            final ITraversalStrategy<A, ? extends A, ?, AbstractInterpreterState<A>> handler) {
+    public void registerActionHandler(final Class<? extends A> actionClass, final ITraversalStrategy handler) {
         // TODO
         // assert (UsagemodelPackage.eINSTANCE.getAbstractUserAction().isSuperTypeOf(
         // actionClass)) : "The parameter \"action\" has to be a subtype of AbstractUserAction, but
@@ -76,6 +74,9 @@ public class TraversalStrategyRegistry<A extends Entity> {
         // + ", for which a handler was already registered. The former handler has been
         // overwritten.");
         // }
+        if (handlerMap.containsKey(actionClass)) {
+            handler.decorate(handlerMap.get(actionClass));
+        }
         handlerMap.put(actionClass, handler);
     }
 

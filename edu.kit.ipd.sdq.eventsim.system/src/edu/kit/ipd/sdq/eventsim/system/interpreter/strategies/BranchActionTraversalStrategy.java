@@ -14,8 +14,8 @@ import com.google.inject.Inject;
 import de.uka.ipd.sdq.probfunction.math.IRandomGenerator;
 import edu.kit.ipd.sdq.eventsim.command.PCMModelCommandExecutor;
 import edu.kit.ipd.sdq.eventsim.exceptions.unchecked.UnexpectedModelStructureException;
+import edu.kit.ipd.sdq.eventsim.interpreter.DecoratingTraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalInstruction;
-import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
 import edu.kit.ipd.sdq.eventsim.system.interpreter.instructions.TraverseComponentBehaviourInstruction;
 import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
@@ -27,25 +27,29 @@ import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
  * @author Philipp Merkle
  * 
  */
-public class BranchActionTraversalStrategy implements ITraversalStrategy<AbstractAction, BranchAction, Request, RequestState> {
+public class BranchActionTraversalStrategy
+        extends DecoratingTraversalStrategy<AbstractAction, BranchAction, Request, RequestState> {
 
     @Inject
     private IRandomGenerator randomGenerator;
-    
+
     @Inject
     private PCMModelCommandExecutor executor;
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public ITraversalInstruction<AbstractAction, RequestState> traverse(final BranchAction action, final Request request, final RequestState state) {
+    public ITraversalInstruction<AbstractAction, RequestState> traverse(final BranchAction action,
+            final Request request, final RequestState state) {
+        traverseDecorated(action, request, state);
+        
         ResourceDemandingBehaviour behaviour = null;
 
         final List<AbstractBranchTransition> branches = action.getBranches_Branch();
         if (branches.isEmpty()) {
-            throw new UnexpectedModelStructureException("No branch transitions could be found for branch "
-                    + PCMEntityHelper.toString(action));
+            throw new UnexpectedModelStructureException(
+                    "No branch transitions could be found for branch " + PCMEntityHelper.toString(action));
         }
 
         final AbstractBranchTransition firstTransition = branches.get(0);
@@ -83,7 +87,8 @@ public class BranchActionTraversalStrategy implements ITraversalStrategy<Abstrac
         }
         assert (enteredTransition) : "No branch transition has been entered.";
 
-        return new TraverseComponentBehaviourInstruction(executor, behaviour, state.getComponent(), action.getSuccessor_AbstractAction());
+        return new TraverseComponentBehaviourInstruction(executor, behaviour, state.getComponent(),
+                action.getSuccessor_AbstractAction());
     }
 
 }

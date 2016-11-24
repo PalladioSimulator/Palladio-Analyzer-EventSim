@@ -20,6 +20,11 @@ public class SimulationModuleRegistry {
         this.modules.add(module);
     }
 
+    /**
+     * Returns a list of simulation modules sorted by priority in ascending order.
+     * 
+     * @return the sorted list of simulation modules, starting with low-value priorities
+     */
     public List<SimulationModule> getModules() {
         // sort according to priority, starting with lowest priority
         modules.sort(new Comparator<SimulationModule>() {

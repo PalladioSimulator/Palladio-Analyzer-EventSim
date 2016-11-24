@@ -9,12 +9,13 @@ import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationConfiguration;
 import edu.kit.ipd.sdq.eventsim.extensionexample.entites.ExtendedRequest;
 import edu.kit.ipd.sdq.eventsim.extensionexample.launch.ConfigurationConstants;
+import edu.kit.ipd.sdq.eventsim.interpreter.DecoratingTraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalInstruction;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
 import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
-import edu.kit.ipd.sdq.eventsim.system.interpreter.strategies.StartActionTraversalStrategy;
 
-public class ExtendedStartActionTraversalStrategy extends StartActionTraversalStrategy {
+public class ExtendedStartActionTraversalStrategy
+        extends DecoratingTraversalStrategy<AbstractAction, StartAction, Request, RequestState> {
 
     @Inject
     private ISimulationModel model;
@@ -38,8 +39,8 @@ public class ExtendedStartActionTraversalStrategy extends StartActionTraversalSt
         System.out.println(prefix + "ExtendedRequest #" + counter + " is about to traverse " + action + " @ "
                 + model.getSimulationControl().getCurrentSimulationTime());
 
-        // delegate actual traverse to super class
-        ITraversalInstruction<AbstractAction, RequestState> instruction = super.traverse(action, request, state);
+        // delegate actual traverse to decorated class
+        ITraversalInstruction<AbstractAction, RequestState> instruction = traverseDecorated(action, request, state);
 
         // after traverse
         System.out.println(prefix + "ExtendedRequest #" + counter + " finished traversal of " + action);

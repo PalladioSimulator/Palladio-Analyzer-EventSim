@@ -10,8 +10,8 @@ import com.google.inject.Inject;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 import edu.kit.ipd.sdq.eventsim.api.IPassiveResource;
 import edu.kit.ipd.sdq.eventsim.exceptions.unchecked.EventSimException;
+import edu.kit.ipd.sdq.eventsim.interpreter.DecoratingTraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalInstruction;
-import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.interpreter.instructions.InterruptTraversal;
 import edu.kit.ipd.sdq.eventsim.interpreter.instructions.TraverseNextAction;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
@@ -27,7 +27,7 @@ import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
  * 
  */
 public class AcquireActionTraversalStrategy
-        implements ITraversalStrategy<AbstractAction, AcquireAction, Request, RequestState> {
+        extends DecoratingTraversalStrategy<AbstractAction, AcquireAction, Request, RequestState> {
 
     @Inject
     private IPassiveResource passiveResourceComponent;
@@ -44,6 +44,8 @@ public class AcquireActionTraversalStrategy
     @Override
     public ITraversalInstruction<AbstractAction, RequestState> traverse(final AcquireAction action,
             final Request request, final RequestState state) {
+        traverseDecorated(action, request, state);
+
         if (!action.getResourceDemand_Action().isEmpty()) {
             throw new EventSimException("Parametric resource demands are not yet supported for AcquireActions.");
         }

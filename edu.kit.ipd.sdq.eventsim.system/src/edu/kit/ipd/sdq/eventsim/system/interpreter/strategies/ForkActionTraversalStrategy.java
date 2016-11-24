@@ -10,8 +10,8 @@ import com.google.inject.Inject;
 
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 import edu.kit.ipd.sdq.eventsim.exceptions.unchecked.EventSimException;
+import edu.kit.ipd.sdq.eventsim.interpreter.DecoratingTraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalInstruction;
-import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.interpreter.instructions.InterruptTraversal;
 import edu.kit.ipd.sdq.eventsim.system.entities.ForkedRequest;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
@@ -21,35 +21,40 @@ import edu.kit.ipd.sdq.eventsim.system.events.ResumeSeffTraversalEvent;
 import edu.kit.ipd.sdq.eventsim.system.interpreter.SeffBehaviourInterpreter;
 import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
 
-public class ForkActionTraversalStrategy implements ITraversalStrategy<AbstractAction, ForkAction, Request, RequestState> {
+public class ForkActionTraversalStrategy
+        extends DecoratingTraversalStrategy<AbstractAction, ForkAction, Request, RequestState> {
 
     @Inject
     private ISimulationModel model;
-    
+
     @Inject
     private SeffBehaviourInterpreter interpreter;
-    
+
     @Inject
     private RequestFactory requestFactory;
-    
+
     @Override
-    public ITraversalInstruction<AbstractAction, RequestState> traverse(ForkAction fork, Request request, RequestState state) {
+    public ITraversalInstruction<AbstractAction, RequestState> traverse(ForkAction fork, Request request,
+            RequestState state) {
+        traverseDecorated(fork, request, state);
+
         new ResumeSeffTraversalEvent(model, state, interpreter).schedule(request, 0);
 
         List<ForkedBehaviour> asynchronousBehaviours = fork.getAsynchronousForkedBehaviours_ForkAction();
         for (ForkedBehaviour b : asynchronousBehaviours) {
             ForkedRequest forkedRequest = requestFactory.createForkedRequest(b, true, request);
-            
-            // clone state because the state could be modified if the ResumeSeffTraversalEvent scheduled above is executed before the BeginForkedBehaviourTraversalEvent.  
+
+            // clone state because the state could be modified if the ResumeSeffTraversalEvent
+            // scheduled above is executed before the BeginForkedBehaviourTraversalEvent.
             RequestState clonedState = null;
             try {
-            	clonedState = state.clone();
+                clonedState = state.clone();
             } catch (CloneNotSupportedException e) {
-            	// this can not happen as long as there is a clone()-method
-				throw new RuntimeException(e);
-			}
-            
-			new BeginForkedBehaviourTraversalEvent(model, b, clonedState).schedule(forkedRequest, 0);
+                // this can not happen as long as there is a clone()-method
+                throw new RuntimeException(e);
+            }
+
+            new BeginForkedBehaviourTraversalEvent(model, b, clonedState).schedule(forkedRequest, 0);
         }
 
         if (fork.getSynchronisingBehaviours_ForkAction() != null) {

@@ -10,8 +10,8 @@ import com.google.inject.Inject;
 
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
 import edu.kit.ipd.sdq.eventsim.command.PCMModelCommandExecutor;
+import edu.kit.ipd.sdq.eventsim.interpreter.DecoratingTraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalInstruction;
-import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalStrategy;
 import edu.kit.ipd.sdq.eventsim.interpreter.instructions.TraverseNextAction;
 import edu.kit.ipd.sdq.eventsim.interpreter.state.ITraversalStrategyState;
 import edu.kit.ipd.sdq.eventsim.interpreter.state.InternalState;
@@ -25,7 +25,7 @@ import edu.kit.ipd.sdq.eventsim.workload.interpreter.state.UserState;
  * @author Philipp Merkle
  * 
  */
-public class LoopTraversalStrategy implements ITraversalStrategy<AbstractUserAction, Loop, User, UserState> {
+public class LoopTraversalStrategy extends DecoratingTraversalStrategy<AbstractUserAction, Loop, User, UserState> {
 
     private static Logger logger = Logger.getLogger(LoopTraversalStrategy.class);
 
@@ -42,6 +42,8 @@ public class LoopTraversalStrategy implements ITraversalStrategy<AbstractUserAct
     @Override
     public ITraversalInstruction<AbstractUserAction, UserState> traverse(final Loop loop, final User user,
             final UserState state) {
+        traverseDecorated(loop, user, state);
+
         // restore or create state
         ITraversalStrategyState internalState = state.getInternalState(loop);
         if (internalState == null) {

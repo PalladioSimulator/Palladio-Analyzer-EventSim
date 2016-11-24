@@ -39,7 +39,7 @@ public class SimHDDActiveResource extends SimActiveResource {
     @Override
     public void consumeResource(final ISchedulableProcess process, final double abstractDemand,
             final int resourceServiceID) {
-        double currentDemand = -1;
+        double currentDemand;
         if (resourceServiceID == this.READ_SERVICE_ID) {
             currentDemand = abstractDemand / Context.evaluateStatic(this.readProcessingRate, Double.class);
         } else if (resourceServiceID == this.WRITE_SERVICE_ID) {

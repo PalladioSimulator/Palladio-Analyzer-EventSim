@@ -14,13 +14,15 @@ import de.uka.ipd.sdq.scheduler.ISchedulableProcess;
 public interface IDemandListener {
 
     /**
-	 * Called when a resource demand has been issued.
-	 * 
-	 * @param process
-	 *            the process requesting the specified demand
-	 * @param demand
-	 *            the resource demand that has been requested
-	 */
-    public void demand(ISchedulableProcess process, double demand);
+     * Called when a resource demand has been issued.
+     * 
+     * @param process
+     *            the process requesting the specified demand
+     * @param demand
+     *            the resource demand that has been requested
+     * @param resourceServiceID
+     *            the resource service id
+     */
+    public void demand(ISchedulableProcess process, double demand, int resourceServiceID);
 
 }

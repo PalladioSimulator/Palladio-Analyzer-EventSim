@@ -5,18 +5,14 @@ import org.palladiosimulator.pcm.usagemodel.OpenWorkload;
 import org.palladiosimulator.pcm.usagemodel.UsageScenario;
 
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
 
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
-import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
 import edu.kit.ipd.sdq.eventsim.api.events.WorkloadUserFinishedEvent;
 import edu.kit.ipd.sdq.eventsim.entities.IEntityListener;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
 import edu.kit.ipd.sdq.eventsim.workload.entities.UserFactory;
-import edu.kit.ipd.sdq.eventsim.workload.events.BeginUsageTraversalEvent;
-import edu.kit.ipd.sdq.eventsim.workload.interpreter.UsageBehaviourInterpreter;
 
 /**
  * An open workload generates a new {@link User} as soon as a specified time duration has passed
@@ -30,30 +26,24 @@ public class OpenWorkloadGenerator implements IWorkloadGenerator {
 
     private final OpenWorkload workload;
     private final PCMRandomVariable interarrivalTime;
-
-    private ISimulationModel model;
     private ISimulationMiddleware middleware;
-    private UserFactory userFactory; 
-    private Provider<UsageBehaviourInterpreter> interpreterProvider; 
-    
+    private UserFactory userFactory;
+
     /**
      * Constructs an open workload in accordance with the specified workload description.
      * 
-     * @param model
-     *            the model
+     * @param middleware
+     * @param userFactory
      * @param workload
      *            the workload description
      */
     @Inject
-    public OpenWorkloadGenerator(ISimulationModel model, ISimulationMiddleware middleware,
-            Provider<UsageBehaviourInterpreter> interpreterProvider, UserFactory userFactory,
+    public OpenWorkloadGenerator(ISimulationMiddleware middleware, UserFactory userFactory,
             @Assisted final OpenWorkload workload) {
-        this.model = model;
         this.middleware = middleware;
-        this.interpreterProvider = interpreterProvider;
         this.userFactory = userFactory;
         this.workload = workload;
-        
+
         this.interarrivalTime = workload.getInterArrivalTime_OpenWorkload();
     }
 
@@ -80,19 +70,25 @@ public class OpenWorkloadGenerator implements IWorkloadGenerator {
 
             @Override
             public void enteredSystem() {
-                final double waitingTime = StackContext.evaluateStatic(OpenWorkloadGenerator.this.interarrivalTime.getSpecification(), Double.class);
+                final double waitingTime = StackContext
+                        .evaluateStatic(OpenWorkloadGenerator.this.interarrivalTime.getSpecification(), Double.class);
                 OpenWorkloadGenerator.this.spawnUser(waitingTime);
             }
 
             @Override
             public void leftSystem() {
-            	// trigger event that the user finished his work
-            	middleware.triggerEvent(new WorkloadUserFinishedEvent(user));
+                // trigger event that the user finished his work
+                middleware.triggerEvent(new WorkloadUserFinishedEvent(user));
             }
 
         });
-        
-        new BeginUsageTraversalEvent(model, scenario, middleware, interpreterProvider.get()).schedule(user, waitingTime);
+
+        // 1) wait
+        user.delay(waitingTime, () -> {
+            // 2) then simulate the user's behaviour
+            user.simulateBehaviour(scenario.getScenarioBehaviour_UsageScenario(), () -> {
+            });
+        });
     }
 
 }

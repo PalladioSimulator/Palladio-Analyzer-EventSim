@@ -4,7 +4,6 @@ import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 
 import edu.kit.ipd.sdq.eventsim.interpreter.listener.ITraversalListener;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
-import edu.kit.ipd.sdq.eventsim.workload.interpreter.state.UserState;
 
 /**
  * A usage traversal listener observes a {@link UsageTraversal} for its traversal progress.
@@ -13,7 +12,7 @@ import edu.kit.ipd.sdq.eventsim.workload.interpreter.state.UserState;
  * 
  * @see ITraversalListener
  */
-public interface IUsageTraversalListener extends ITraversalListener<AbstractUserAction, User, UserState> {
+public interface IUsageTraversalListener extends ITraversalListener<AbstractUserAction, User> {
 
     // The sole purpose of this interface is to define the type parameters
     // of this listener. Thus, no additional signatures are declared.

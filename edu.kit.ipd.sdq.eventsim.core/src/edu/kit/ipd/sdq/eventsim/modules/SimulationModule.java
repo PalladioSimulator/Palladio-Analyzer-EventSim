@@ -28,13 +28,13 @@ public class SimulationModule implements Comparable<SimulationModule> {
 
     private ILaunchContribution launchContribution;
 
-    private List<SimulationStrategy> simulationStrategies;
+    private List<SimulationStrategyEntry> simulationStrategies;
 
     private SimulationModule() {
         simulationStrategies = new ArrayList<>();
     }
 
-    private void addSimulationStrategy(SimulationStrategy strategy) {
+    private void addSimulationStrategy(SimulationStrategyEntry strategy) {
         this.simulationStrategies.add(strategy);
     }
 
@@ -70,7 +70,7 @@ public class SimulationModule implements Comparable<SimulationModule> {
         return launchContribution;
     }
 
-    public List<SimulationStrategy> getSimulationStrategies() {
+    public List<SimulationStrategyEntry> getSimulationStrategies() {
         return Collections.unmodifiableList(simulationStrategies);
     }
 
@@ -124,7 +124,7 @@ public class SimulationModule implements Comparable<SimulationModule> {
         module.launchContribution = launchContribution != null ? (ILaunchContribution) launchContribution : null;
 
         for (IConfigurationElement e : config.getChildren("simulation_strategy")) {
-            SimulationStrategy s = SimulationStrategy.createFrom(e);
+            SimulationStrategyEntry s = SimulationStrategyEntry.createFrom(e, module.priority);
             module.addSimulationStrategy(s);
         }
 

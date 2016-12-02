@@ -15,34 +15,32 @@ import edu.kit.ipd.sdq.eventsim.command.PCMModelCommandExecutor;
 import edu.kit.ipd.sdq.eventsim.system.EventSimSystemModel;
 import edu.kit.ipd.sdq.eventsim.system.command.FindAssemblyContextForSystemCall;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
-import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
 import edu.kit.ipd.sdq.eventsim.system.staticstructure.ComponentInstance;
 import edu.kit.ipd.sdq.eventsim.util.ParameterHelper;
 
 public class BeforeSystemCallParameterHandler implements IEventHandler<SystemRequestSpawnEvent> {
 
     private static final Logger logger = Logger.getLogger(BeforeSystemCallParameterHandler.class);
-    
-	private EventSimSystemModel model;
-	
-	private PCMModelCommandExecutor executor;
 
-	public BeforeSystemCallParameterHandler(EventSimSystemModel model, PCMModelCommandExecutor executor) {
-		this.model = model;
-		this.executor = executor;
-	}
+    private EventSimSystemModel model;
 
-	@Override
-	public void handle(SystemRequestSpawnEvent simulationEvent) {
-		if (logger.isDebugEnabled()) {
+    private PCMModelCommandExecutor executor;
+
+    public BeforeSystemCallParameterHandler(EventSimSystemModel model, PCMModelCommandExecutor executor) {
+        this.model = model;
+        this.executor = executor;
+    }
+
+    @Override
+    public Registration handle(SystemRequestSpawnEvent simulationEvent) {
+        if (logger.isDebugEnabled()) {
             logger.debug("Begin handling system call input parameters");
         }
 
-		Request request = (Request) simulationEvent.getRequest();
-		RequestState state = request.getRequestState();
+        Request request = (Request) simulationEvent.getRequest();
 
         final EntryLevelSystemCall call = request.getSystemCall();
-        final StackContext ctx = state.getStoExContext();
+        final StackContext ctx = request.getRequestState().getStoExContext();
 
         // get a reference on the current stack frame which is being covered soon
         final SimulatedStackframe<Object> outerFrame = ctx.getStack().currentStackFrame();
@@ -62,6 +60,8 @@ public class BeforeSystemCallParameterHandler implements IEventHandler<SystemReq
         if (logger.isDebugEnabled()) {
             logger.debug("Finished handling system call input parameters");
         }
-	}
+
+        return Registration.KEEP_REGISTERED;
+    }
 
 }

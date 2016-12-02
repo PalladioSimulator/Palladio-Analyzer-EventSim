@@ -16,15 +16,21 @@ import org.palladiosimulator.pcm.resourcetype.ResourceType;
 public interface IActiveResource {
 
     /**
-     * Consumes a specific demand of this active resource.
+     * Simulates a resource demand by the specified request.
      * 
      * @param request
+     *            the demanding request
      * @param resourceContainer
+     *            the resource container of the requested resource
      * @param resourceType
+     *            the type of the requested resource
      * @param absoluteDemand
+     *            the resource demand
+     * @param onServedCallback
+     *            the callback to be invoked once the requested demand has been served
      */
     void consume(IRequest request, ResourceContainer resourceContainer, ResourceType resourceType,
-            double absoluteDemand, final int resourceServiceID);
+            double absoluteDemand, final int resourceServiceID, Procedure onServedCallback);
 
     /**
      * Finds and returns the resource type providing the specified resource interface. If multiple

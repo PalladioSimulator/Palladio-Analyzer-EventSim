@@ -19,10 +19,12 @@ import com.google.inject.Singleton;
 
 import de.uka.ipd.sdq.scheduler.resources.active.AbstractActiveResource;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
+import edu.kit.ipd.sdq.eventsim.api.Procedure;
 import edu.kit.ipd.sdq.eventsim.api.IActiveResource;
 import edu.kit.ipd.sdq.eventsim.api.IRequest;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
 import edu.kit.ipd.sdq.eventsim.api.PCMModel;
+import edu.kit.ipd.sdq.eventsim.api.events.IEventHandler.Registration;
 import edu.kit.ipd.sdq.eventsim.api.events.SimulationPrepareEvent;
 import edu.kit.ipd.sdq.eventsim.api.events.SimulationStopEvent;
 import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
@@ -77,7 +79,10 @@ public class EventSimActiveResourceModel implements IActiveResource {
     @Inject
     public EventSimActiveResourceModel(ISimulationMiddleware middleware) {
         // initialize in simulation preparation phase
-        middleware.registerEventHandler(SimulationPrepareEvent.class, e -> init());
+        middleware.registerEventHandler(SimulationPrepareEvent.class, e -> {
+            init();
+            return Registration.UNREGISTER;
+        });
 
         containerToResourceMap = new HashMap<>();
         requestToSimulatedProcessMap = new WeakHashMap<>();
@@ -106,18 +111,23 @@ public class EventSimActiveResourceModel implements IActiveResource {
     }
 
     private void registerEventHandler() {
-        middleware.registerEventHandler(SimulationStopEvent.class, e -> finalise());
+        middleware.registerEventHandler(SimulationStopEvent.class, e -> {
+            finalise();
+            return Registration.UNREGISTER;
+        });
     }
 
     @Override
     public void consume(final IRequest request, final ResourceContainer resourceContainer,
-            final ResourceType resourceType, final double absoluteDemand, final int resourceServiceID) {
+            final ResourceType resourceType, final double absoluteDemand, final int resourceServiceID,
+            Procedure onServedCallback) {
         final SimActiveResource resource = findOrCreateResource(resourceContainer, resourceType);
         if (resource == null) {
             throw new RuntimeException("Could not find a resource of type " + resourceType.getEntityName());
         }
 
-        resource.consumeResource(getOrCreateSimulatedProcess(request), absoluteDemand, resourceServiceID);
+        resource.consumeResource(getOrCreateSimulatedProcess(request), absoluteDemand, resourceServiceID,
+                onServedCallback);
     }
 
     public void finalise() {

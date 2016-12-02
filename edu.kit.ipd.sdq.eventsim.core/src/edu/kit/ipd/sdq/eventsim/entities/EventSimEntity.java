@@ -25,38 +25,38 @@ import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
  * 
  */
 public abstract class EventSimEntity extends AbstractSimEntityDelegator {
-    
+
     /**
-     * The state of an entity. A newly created entity has the state {@value CREATED}. Once the
-     * entity enters the simulate system, the state changes to {@value #ENTERED_SYSTEM}. Finally,
-     * after the entity has left the system, the associated state is {@value #LEFT_SYSTEM}.
+     * The lifecycle phase of an entity. A newly created entity in the phase {@value CREATED}. Once
+     * the entity enters the simulate system, the phase changes to {@value #ENTERED_SYSTEM}.
+     * Finally, after the entity has left the system, the associated phase is {@value #LEFT_SYSTEM}.
      */
-    public static enum EntityState {
+    public static enum EntityLifecyclePhase {
         /**
-         * The intial state of a newly created entity.
+         * The phase of a newly created entity.
          */
         CREATED,
 
         /**
-         * The state after the entity has entered the simulated system, i.e. after calling the
+         * The phase after the entity has entered the simulated system, i.e. after calling the
          * method {@link EventSimEntity#notifyEnteredSystem()}.
          */
         ENTERED_SYSTEM,
 
         /**
-         * The state after the entity has left the simulated system, i.e. after calling the method
+         * The phase after the entity has left the simulated system, i.e. after calling the method
          * {@link EventSimEntity#notifyLeftSystem()}.
          */
         LEFT_SYSTEM
     }
-    
+
     // maps entity class -> ID generator
     private static final Map<Class<? extends EventSimEntity>, AtomicLong> idGenerators;
 
     private final List<IEntityListener> listeners;
     private final long id;
     private final String namePrefix;
-    private EntityState state;
+    private EntityLifecyclePhase lifecyclePhase;
 
     static {
         idGenerators = new HashMap<Class<? extends EventSimEntity>, AtomicLong>();
@@ -76,7 +76,7 @@ public abstract class EventSimEntity extends AbstractSimEntityDelegator {
         this.listeners = new ArrayList<IEntityListener>();
         this.namePrefix = namePrefix;
         this.id = generateNextId();
-        this.state = EntityState.CREATED;
+        this.lifecyclePhase = EntityLifecyclePhase.CREATED;
     }
 
     /**
@@ -98,8 +98,7 @@ public abstract class EventSimEntity extends AbstractSimEntityDelegator {
      * about to enter the system.
      */
     public void notifyEnteredSystem() {
-        this.state = EntityState.ENTERED_SYSTEM;
-//        model.registerEntity(this);
+        this.lifecyclePhase = EntityLifecyclePhase.ENTERED_SYSTEM;
         for (final IEntityListener l : this.listeners) {
             l.enteredSystem();
         }
@@ -110,8 +109,7 @@ public abstract class EventSimEntity extends AbstractSimEntityDelegator {
      * left the system.
      */
     public void notifyLeftSystem() {
-        this.state = EntityState.LEFT_SYSTEM;
-//        model.unregisterEntity(this);
+        this.lifecyclePhase = EntityLifecyclePhase.LEFT_SYSTEM;
         for (final IEntityListener l : this.listeners) {
             l.leftSystem();
         }
@@ -163,40 +161,40 @@ public abstract class EventSimEntity extends AbstractSimEntityDelegator {
     /**
      * {@inheritDoc}
      */
-	@Override
-	public String toString() {
-		return getName();
-	}
-
-    /**
-     * Returns the current state of this entity.
-     * 
-     * @see EntityState
-     */
-    public EntityState getState() {
-        return state;
+    @Override
+    public String toString() {
+        return getName();
     }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + (int) (id ^ (id >>> 32));
-		return result;
-	}
+    /**
+     * Returns the current lifecycle phase of this entity.
+     * 
+     * @see EntityLifecyclePhase
+     */
+    public EntityLifecyclePhase getLifecyclePhase() {
+        return lifecyclePhase;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		EventSimEntity other = (EventSimEntity) obj;
-		if (id != other.id)
-			return false;
-		return true;
-	}
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + (int) (id ^ (id >>> 32));
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        EventSimEntity other = (EventSimEntity) obj;
+        if (id != other.id)
+            return false;
+        return true;
+    }
 
 }

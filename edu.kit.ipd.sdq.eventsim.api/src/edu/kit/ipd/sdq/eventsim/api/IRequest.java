@@ -2,29 +2,26 @@ package edu.kit.ipd.sdq.eventsim.api;
 
 import org.palladiosimulator.pcm.seff.AbstractAction;
 
-import de.uka.ipd.sdq.simulation.abstractsimengine.AbstractSimEventDelegator;
-
 /**
- * Represents a request processed in a system simulation component.
+ * A system request represents a system call by a {@link IUser}.
  * 
  * @author Christoph Föhrdes
+ * @author Philipp Merkle
  */
 public interface IRequest {
 
-	public long getId();
+    /**
+     * @return the unique identifier of this user
+     */
+    long getId();
 
-	/**
-	 * @return the user who initiated the request.
-	 */
-	public IUser getUser();
+    /**
+     * @return the user who initiated this request.
+     */
+    IUser getUser();
 
-	public void activate();
+    IRequest getParent();
 
-	// TODO remove dependency upon abstract sim engine
-	public void passivate(AbstractSimEventDelegator<?> activationEvent);
-	
-	public IRequest getParent();
-	
-	public AbstractAction getCurrentPosition();
+    AbstractAction getCurrentPosition();
 
 }

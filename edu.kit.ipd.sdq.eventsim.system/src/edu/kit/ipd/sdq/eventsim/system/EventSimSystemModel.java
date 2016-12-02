@@ -10,18 +10,20 @@ import org.palladiosimulator.pcm.repository.Interface;
 import org.palladiosimulator.pcm.repository.OperationSignature;
 import org.palladiosimulator.pcm.seff.AbstractAction;
 import org.palladiosimulator.pcm.seff.ExternalCallAction;
+import org.palladiosimulator.pcm.seff.ResourceDemandingBehaviour;
 import org.palladiosimulator.pcm.usagemodel.EntryLevelSystemCall;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
+import edu.kit.ipd.sdq.eventsim.api.Procedure;
 import edu.kit.ipd.sdq.eventsim.api.IActiveResource;
 import edu.kit.ipd.sdq.eventsim.api.IPassiveResource;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
 import edu.kit.ipd.sdq.eventsim.api.ISystem;
 import edu.kit.ipd.sdq.eventsim.api.IUser;
 import edu.kit.ipd.sdq.eventsim.api.PCMModel;
+import edu.kit.ipd.sdq.eventsim.api.events.IEventHandler.Registration;
 import edu.kit.ipd.sdq.eventsim.api.events.SimulationPrepareEvent;
 import edu.kit.ipd.sdq.eventsim.api.events.SimulationStopEvent;
 import edu.kit.ipd.sdq.eventsim.api.events.SystemRequestFinishedEvent;
@@ -42,11 +44,8 @@ import edu.kit.ipd.sdq.eventsim.system.debug.DebugSeffTraversalListener;
 import edu.kit.ipd.sdq.eventsim.system.entities.ForkedRequest;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
 import edu.kit.ipd.sdq.eventsim.system.entities.RequestFactory;
-import edu.kit.ipd.sdq.eventsim.system.events.BeginSeffTraversalEvent;
 import edu.kit.ipd.sdq.eventsim.system.handler.AfterSystemCallParameterHandler;
 import edu.kit.ipd.sdq.eventsim.system.handler.BeforeSystemCallParameterHandler;
-import edu.kit.ipd.sdq.eventsim.system.interpreter.SeffBehaviourInterpreter;
-import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
 import edu.kit.ipd.sdq.eventsim.system.staticstructure.AllocationRegistry;
 import edu.kit.ipd.sdq.eventsim.system.staticstructure.ComponentInstance;
 import edu.kit.ipd.sdq.eventsim.system.staticstructure.SimulatedResourceContainer;
@@ -82,19 +81,13 @@ public class EventSimSystemModel implements ISystem {
     private PCMModelCommandExecutor executor;
 
     @Inject
-    private ISimulationModel model;
-
-    @Inject
     private MeasurementStorage measurementStorage;
 
     @Inject
     private ISimulationMiddleware middleware;
 
     @Inject
-    private SeffBehaviourInterpreter interpreter;
-
-    @Inject
-    private TraversalListenerRegistry<AbstractAction, Request, RequestState> traversalListeners;
+    private TraversalListenerRegistry<AbstractAction, Request> traversalListeners;
 
     @Inject
     private PCMModel pcm;
@@ -114,7 +107,10 @@ public class EventSimSystemModel implements ISystem {
     @Inject
     public EventSimSystemModel(ISimulationMiddleware middleware) {
         // initialize in simulation preparation phase
-        middleware.registerEventHandler(SimulationPrepareEvent.class, e -> init());
+        middleware.registerEventHandler(SimulationPrepareEvent.class, e -> {
+            init();
+            return Registration.UNREGISTER;
+        });
     }
 
     private void init() {
@@ -148,17 +144,18 @@ public class EventSimSystemModel implements ISystem {
      *            The called service in form of a PCM entry level system call action
      */
     @Override
-    public void callService(IUser user, EntryLevelSystemCall call) {
+    public void callService(IUser user, EntryLevelSystemCall call, Procedure callback) {
         // find the component which provides the call
         final AssemblyContext assemblyCtx = executor.execute(new FindAssemblyContextForSystemCall(call));
         final ComponentInstance component = this.getComponent(assemblyCtx);
         final OperationSignature signature = call.getOperationSignature__EntryLevelSystemCall();
+        final ResourceDemandingBehaviour behaviour = component.getServiceEffectSpecification(signature);
 
         // spawn a new EventSim request
         final Request request = requestFactory.createRequest(call, user);
 
-        new BeginSeffTraversalEvent(model, component, signature, user.getStochasticExpressionContext(), interpreter)
-                .schedule(request, 0);
+        // simulate request
+        request.simulateBehaviour(behaviour, component, callback);
     }
 
     private void finalise() {
@@ -178,7 +175,10 @@ public class EventSimSystemModel implements ISystem {
      * Register event handler to react on specific simulation events.
      */
     private void registerEventHandler() {
-        middleware.registerEventHandler(SimulationStopEvent.class, e -> finalise());
+        middleware.registerEventHandler(SimulationStopEvent.class, e -> {
+            finalise();
+            return Registration.UNREGISTER;
+        });
 
         // setup system call parameter handling
         middleware.registerEventHandler(SystemRequestSpawnEvent.class,

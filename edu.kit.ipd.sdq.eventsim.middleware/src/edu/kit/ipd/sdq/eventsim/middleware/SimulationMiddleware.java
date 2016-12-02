@@ -20,6 +20,7 @@ import edu.kit.ipd.sdq.eventsim.SimulationConfiguration;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationConfiguration;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
 import edu.kit.ipd.sdq.eventsim.api.events.IEventHandler;
+import edu.kit.ipd.sdq.eventsim.api.events.IEventHandler.Registration;
 import edu.kit.ipd.sdq.eventsim.api.events.SimulationEvent;
 import edu.kit.ipd.sdq.eventsim.api.events.SimulationPrepareEvent;
 import edu.kit.ipd.sdq.eventsim.api.events.SimulationStartEvent;
@@ -126,11 +127,20 @@ public class SimulationMiddleware implements ISimulationMiddleware {
 
     private void registerEventHandler() {
         // on simulation start
-        registerEventHandler(SimulationStartEvent.class, e -> notifyStartListeners());
+        registerEventHandler(SimulationStartEvent.class, e -> {
+            notifyStartListeners();
+            return Registration.UNREGISTER;
+        });
 
         // on simulation stop
-        registerEventHandler(SimulationStopEvent.class, e -> notifyStopListeners());
-        registerEventHandler(SimulationStopEvent.class, e -> finalise());
+        registerEventHandler(SimulationStopEvent.class, e -> {
+            notifyStopListeners();
+            return Registration.UNREGISTER;
+        });
+        registerEventHandler(SimulationStopEvent.class, e -> {
+            finalise();
+            return Registration.UNREGISTER;
+        });
     }
 
     /**

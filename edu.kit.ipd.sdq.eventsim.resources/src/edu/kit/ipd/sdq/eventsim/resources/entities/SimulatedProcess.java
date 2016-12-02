@@ -1,12 +1,15 @@
 package edu.kit.ipd.sdq.eventsim.resources.entities;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
+import org.apache.log4j.Logger;
 import org.palladiosimulator.pcm.seff.AbstractAction;
 
 import de.uka.ipd.sdq.scheduler.IActiveResource;
 import de.uka.ipd.sdq.scheduler.ISchedulableProcess;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
+import edu.kit.ipd.sdq.eventsim.api.Procedure;
 import edu.kit.ipd.sdq.eventsim.api.IRequest;
 import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
 
@@ -15,31 +18,21 @@ import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
  * the scheduler activates or passivates the process, the {@link IProcessListener}, which has been
  * passed to the constructor, gets notified.
  * 
- * TODO (SimComp) fix me
- * 
  * @author Philipp Merkle
  * 
  * @see ISchedulableProcess
  */
 public class SimulatedProcess extends EventSimEntity implements ISchedulableProcess {
 
+    private static final Logger logger = Logger.getLogger(SimulatedProcess.class);
+
     private final ArrayList<IActiveResource> terminatedObservers;
     private final IRequest request;
     private boolean terminated;
     private int priority;
     private SimulatedProcess parent;
+    private Procedure onActivationCallback;
 
-    /**
-     * Creates a simulated process with the specified id and registers the passed listener.
-     * 
-     * @param request
-     *            the request that created this simulated process.
-     * @param id
-     *            a unique identifier for this simulated process
-     * @param listener
-     *            the listener that is to be notified when this simulated process is being activated
-     *            or passivated
-     */
     public SimulatedProcess(ISimulationModel model, SimulatedProcess parent, final IRequest request) {
         super(model, "SimulatedProcess");
         this.parent = parent;
@@ -47,12 +40,26 @@ public class SimulatedProcess extends EventSimEntity implements ISchedulableProc
         this.terminatedObservers = new ArrayList<IActiveResource>();
     }
 
+    public void setOnActivationCallback(Procedure callback) {
+        if (onActivationCallback != null) {
+            logger.warn(String.format("Overriding existing activation callback for %s", this));
+        }
+        this.onActivationCallback = Objects.requireNonNull(callback);
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
     public void activate() {
-        request.activate();
+        if (onActivationCallback != null) {
+            // first reset this object's callback, then call it
+            Procedure callback = onActivationCallback;
+            onActivationCallback = null;
+            callback.execute();
+        } else {
+            logger.warn(String.format("Activating %s, but there is no activation callback registered", this));
+        }
     }
 
     /**
@@ -60,7 +67,9 @@ public class SimulatedProcess extends EventSimEntity implements ISchedulableProc
      */
     @Override
     public void passivate() {
-        // nothing to do
+        if (onActivationCallback == null) {
+            logger.warn(String.format("Passivating %s, but there is no activation callback registered", this));
+        }
     }
 
     /**

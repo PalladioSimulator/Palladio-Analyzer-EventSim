@@ -89,7 +89,11 @@ public class EventManager {
 				event -> {
 					@SuppressWarnings("unchecked")
 					T encapsulatedEvent = (T) event.getProperty(SimulationEvent.ENCAPSULATED_EVENT);
-					handler.handle(encapsulatedEvent);
+					handler.handle(encapsulatedEvent); // TODO unregister!
+//					if(unregister) {
+//					    handlerRegistration.unregister();
+					    
+//					}
 				} , properties);
 
 		// store service registration for later cleanup

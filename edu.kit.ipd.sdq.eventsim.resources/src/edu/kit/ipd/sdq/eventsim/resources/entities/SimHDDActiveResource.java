@@ -7,14 +7,14 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
 import de.uka.ipd.sdq.scheduler.IActiveResource;
-import de.uka.ipd.sdq.scheduler.ISchedulableProcess;
 import de.uka.ipd.sdq.simucomframework.Context;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
+import edu.kit.ipd.sdq.eventsim.api.Procedure;
 
 /**
  * An active resource which can process HDD read and write requests.
  * 
- * @author tzwickl
+ * @author Thomas Zwickl
  */
 public class SimHDDActiveResource extends SimActiveResource {
 
@@ -37,8 +37,8 @@ public class SimHDDActiveResource extends SimActiveResource {
     }
 
     @Override
-    public void consumeResource(final ISchedulableProcess process, final double abstractDemand,
-            final int resourceServiceID) {
+    public void consumeResource(final SimulatedProcess process, final double abstractDemand,
+            final int resourceServiceID, Procedure onServedCallback) {
         double currentDemand;
         if (resourceServiceID == this.READ_SERVICE_ID) {
             currentDemand = abstractDemand / Context.evaluateStatic(this.readProcessingRate, Double.class);
@@ -47,6 +47,6 @@ public class SimHDDActiveResource extends SimActiveResource {
         } else {
             throw new IllegalStateException("HDD Resource called without explicit read/write call");
         }
-        super.consumeResource(process, currentDemand, resourceServiceID);
+        super.consumeResource(process, currentDemand, resourceServiceID, onServedCallback);
     }
 }

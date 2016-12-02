@@ -21,6 +21,7 @@ import de.uka.ipd.sdq.scheduler.ISchedulableProcess;
 import de.uka.ipd.sdq.scheduler.sensors.IActiveResourceStateSensor;
 import de.uka.ipd.sdq.simucomframework.Context;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
+import edu.kit.ipd.sdq.eventsim.api.Procedure;
 import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
 import edu.kit.ipd.sdq.eventsim.resources.listener.IDemandListener;
 import edu.kit.ipd.sdq.eventsim.resources.listener.IStateListener;
@@ -107,9 +108,11 @@ public class SimActiveResource extends EventSimEntity {
      *            the demand
      * @param resourceServiceID
      *            the resource service ID
+     * @param onServedCallback
+     *            called when the requested demand has been served
      */
-    public void consumeResource(final ISchedulableProcess process, final double abstractDemand,
-            final int resourceServiceID) {
+    public void consumeResource(final SimulatedProcess process, final double abstractDemand,
+            final int resourceServiceID, Procedure onServedCallback) {
         if (logger.isDebugEnabled()) {
             logger.debug("Requested resource " + schedulerResource + " with an abstract demand of " + abstractDemand);
         }
@@ -121,6 +124,7 @@ public class SimActiveResource extends EventSimEntity {
             registeredProcesses.add(process);
         }
 
+        process.setOnActivationCallback(onServedCallback);
         schedulerResource.process(process, resourceServiceID, Collections.emptyMap(), concreteDemand);
 
         // notify demands listeners

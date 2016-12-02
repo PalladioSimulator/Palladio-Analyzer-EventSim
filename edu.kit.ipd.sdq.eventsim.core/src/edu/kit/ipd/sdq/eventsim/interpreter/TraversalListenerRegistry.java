@@ -11,16 +11,15 @@ import org.palladiosimulator.pcm.seff.AbstractAction;
 
 import com.google.inject.Singleton;
 
-import de.uka.ipd.sdq.simulation.abstractsimengine.AbstractSimEntityDelegator;
+import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
 import edu.kit.ipd.sdq.eventsim.interpreter.listener.ITraversalListener;
-import edu.kit.ipd.sdq.eventsim.interpreter.state.AbstractInterpreterState;
 
 @Singleton
-public class TraversalListenerRegistry<A extends Entity, E extends AbstractSimEntityDelegator, S extends AbstractInterpreterState<A>> {
+public class TraversalListenerRegistry<A extends Entity, E extends EventSimEntity> {
 
-    private final Map<A, List<ITraversalListener<A, E, S>>> traversalListenerMap = new HashMap<>();
-    private final List<ITraversalListener<A, E, S>> traversalListenerList = new ArrayList<>();
-    
+    private final Map<A, List<ITraversalListener<A, E>>> traversalListenerMap = new HashMap<>();
+    private final List<ITraversalListener<A, E>> traversalListenerList = new ArrayList<>();
+
     /**
      * Adds a traversal listener that is notified whenever the specified action is about to be
      * traversed or has been traversed completely.
@@ -30,7 +29,7 @@ public class TraversalListenerRegistry<A extends Entity, E extends AbstractSimEn
      * @param listener
      *            the listener that is to be registered
      */
-    public void addTraversalListener(final A action, final ITraversalListener<A, E, S> listener) {
+    public void addTraversalListener(final A action, final ITraversalListener<A, E> listener) {
         if (!traversalListenerMap.containsKey(action)) {
             traversalListenerMap.put(action, new ArrayList<>());
         }
@@ -44,7 +43,7 @@ public class TraversalListenerRegistry<A extends Entity, E extends AbstractSimEn
      * @param listener
      *            the listener that is to be registered
      */
-    public void addTraversalListener(final ITraversalListener<A, E, S> listener) {
+    public void addTraversalListener(final ITraversalListener<A, E> listener) {
         traversalListenerList.add(listener);
     }
 
@@ -57,18 +56,18 @@ public class TraversalListenerRegistry<A extends Entity, E extends AbstractSimEn
      * @param listener
      *            the listener that is to be unregistered
      */
-    public void removeTraversalListener(final AbstractAction action, final ITraversalListener<A, E, S> listener) {
+    public void removeTraversalListener(final AbstractAction action, final ITraversalListener<A, E> listener) {
         traversalListenerMap.get(action).remove(listener);
     }
 
-    public List<ITraversalListener<A, E, S>> getTraversalListenerList() {
+    public List<ITraversalListener<A, E>> getTraversalListenerList() {
         return Collections.unmodifiableList(traversalListenerList);
     }
 
-    public Map<A, List<ITraversalListener<A, E, S>>> getTraversalListenerMap() {
+    public Map<A, List<ITraversalListener<A, E>>> getTraversalListenerMap() {
         return Collections.unmodifiableMap(traversalListenerMap);
     }
-    
+
     /**
      * Removes all {@link ITraversalListener}s.
      */
@@ -76,29 +75,29 @@ public class TraversalListenerRegistry<A extends Entity, E extends AbstractSimEn
         traversalListenerList.clear();
         traversalListenerMap.clear();
     }
-    
-    public void notifyAfterListener(final A action, final E request, S state) {
-        for (final ITraversalListener<A, E, S> l : getTraversalListenerList()) {
-            l.after(action, request, state);
+
+    public void notifyAfterListener(final A action, final E request) {
+        for (final ITraversalListener<A, E> l : getTraversalListenerList()) {
+            l.after(action, request);
         }
-        final List<ITraversalListener<A, E, S>> listeners = getTraversalListenerMap().get(action);
+        final List<ITraversalListener<A, E>> listeners = getTraversalListenerMap().get(action);
         if (listeners != null) {
-            for (final ITraversalListener<A, E, S> l : listeners) {
-                l.after(action, request, state);
+            for (final ITraversalListener<A, E> l : listeners) {
+                l.after(action, request);
             }
         }
     }
 
-    public void notifyBeforeListener(final A action, final E request, S state) {
-        for (final ITraversalListener<A, E, S> l : getTraversalListenerList()) {
-            l.before(action, request, state);
+    public void notifyBeforeListener(final A action, final E request) {
+        for (final ITraversalListener<A, E> l : getTraversalListenerList()) {
+            l.before(action, request);
         }
-        final List<ITraversalListener<A, E, S>> listeners = getTraversalListenerMap().get(action);
+        final List<ITraversalListener<A, E>> listeners = getTraversalListenerMap().get(action);
         if (listeners != null) {
-            for (final ITraversalListener<A, E, S> l : listeners) {
-                l.before(action, request, state);
+            for (final ITraversalListener<A, E> l : listeners) {
+                l.before(action, request);
             }
         }
     }
-    
+
 }

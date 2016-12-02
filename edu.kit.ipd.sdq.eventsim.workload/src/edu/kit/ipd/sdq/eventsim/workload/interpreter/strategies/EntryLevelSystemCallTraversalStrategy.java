@@ -1,16 +1,16 @@
 package edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies;
 
+import java.util.function.Consumer;
+
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 import org.palladiosimulator.pcm.usagemodel.EntryLevelSystemCall;
 
 import com.google.inject.Inject;
 
 import edu.kit.ipd.sdq.eventsim.api.ISystem;
-import edu.kit.ipd.sdq.eventsim.interpreter.DecoratingTraversalStrategy;
-import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalInstruction;
-import edu.kit.ipd.sdq.eventsim.interpreter.instructions.InterruptTraversal;
+import edu.kit.ipd.sdq.eventsim.api.Procedure;
+import edu.kit.ipd.sdq.eventsim.interpreter.SimulationStrategy;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
-import edu.kit.ipd.sdq.eventsim.workload.interpreter.state.UserState;
 
 /**
  * This traversal strategy is responsible to create service calls on a system simulation component
@@ -19,28 +19,26 @@ import edu.kit.ipd.sdq.eventsim.workload.interpreter.state.UserState;
  * @author Philipp Merkle
  * @author Christoph Föhrdes
  */
-public class EntryLevelSystemCallTraversalStrategy
-        extends DecoratingTraversalStrategy<AbstractUserAction, EntryLevelSystemCall, User, UserState> {
+public class EntryLevelSystemCallTraversalStrategy implements SimulationStrategy<AbstractUserAction, User> {
 
     @Inject
-    private ISystem systemComponent;
+    private ISystem system;
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public ITraversalInstruction<AbstractUserAction, UserState> traverse(final EntryLevelSystemCall call,
-            final User user, final UserState state) {
-        traverseDecorated(call, user, state);
+    public void simulate(AbstractUserAction action, User user, Consumer<Procedure> onFinishCallback) {
+        EntryLevelSystemCall call = (EntryLevelSystemCall) action;
 
-        // store EventSim specific state to the user
-        user.setUserState(state); // TODO redundant!?
-
-        // invoke system service
-        systemComponent.callService(user, call);
-
-        // interrupt the usage traversal until service call simulation finished
-        return new InterruptTraversal<>(call.getSuccessor());
+        // 1) invoke system-provided service
+        system.callService(user, call, () -> {
+            // 2) when the service call finishes, return traversal instruction
+            onFinishCallback.accept(() -> {
+                // 3) once called, continue simulation with successor
+                user.simulateAction(call.getSuccessor());
+            });
+        });
     }
 
 }

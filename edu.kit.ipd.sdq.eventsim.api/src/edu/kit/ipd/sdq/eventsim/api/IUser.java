@@ -5,24 +5,23 @@ import org.palladiosimulator.pcm.usagemodel.UsageScenario;
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
 
 /**
- * Represents a system user which is spawned by an {@link IWorkload} to perform calls to an
- * {@link ISystem}
+ * A user simulates a {@link UsageScenario}. A user is spawned by a workload generator:
+ * {@link IWorkload}.
  * 
  * @author Christoph Föhrdes
+ * @author Philipp Merkle
  */
 public interface IUser {
 
     /**
-     * A unique identifier for the user instance.
-     * 
-     * @return A unique identifier
+     * @return the unique identifier of this user
      */
     String getId();
 
     StackContext getStochasticExpressionContext();
 
     /**
-     * @return the usage scenario to be simulated by this User
+     * @return the usage scenario representing this user's behaviour
      */
     UsageScenario getUsageScenario();
 

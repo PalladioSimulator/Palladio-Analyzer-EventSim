@@ -4,35 +4,47 @@ import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 import org.palladiosimulator.pcm.repository.PassiveResource;
 
 /**
- * Represents a passive resource simulation component which can be aquired in a
- * specific amount.
- * 
- * TODO (SimComp) Introduce passive resource simulation events
+ * The passive resource simulation module allows to acquire and release passive resources.
  * 
  * @author Christoph Föhrdes
+ * @author Philipp Merkle
  * 
  */
 public interface IPassiveResource {
 
-	/**
-	 * Aquires a specific amount of this passive resource
-	 * 
-	 * @param request
-	 * @param ctx
-	 * @param passiveResouce
-	 * @param num
-	 * @return
-	 */
-	public boolean acquire(IRequest request, AssemblyContext ctx, PassiveResource passiveResouce, int num);
+    /**
+     * Acquires the specified number of instance of a passive resource.
+     * 
+     * @param request
+     *            the request acquiring the passive resource
+     * @param ctx
+     *            the passive resource's assembly context is required to uniquely identify the
+     *            passive resource
+     * @param passiveResouce
+     *            the passive resource to be acquired
+     * @param num
+     *            the number of instances
+     * @param onGrantedCallback
+     *            the callback to be invoked once the demanded number of instances have been granted
+     *            to the request
+     * @return
+     */
+    void acquire(IRequest request, AssemblyContext ctx, PassiveResource passiveResouce, int num,
+            Procedure onGrantedCallback);
 
-	/**
-	 * Releases a specific amount of this passive resource
-	 * 
-	 * @param request
-	 * @param ctx
-	 * @param passiveResouce
-	 * @param num
-	 */
-	public void release(IRequest request, AssemblyContext ctx, PassiveResource passiveResouce, int num);
+    /**
+     * Releases a specific amount of a passive resource.
+     * 
+     * @param request
+     *            the request releasing the passive resource
+     * @param ctx
+     *            the passive resource's assembly context is required to uniquely identify the
+     *            passive resource
+     * @param passiveResouce
+     *            the passive resource to be released
+     * @param num
+     *            the number of instances
+     */
+    void release(IRequest request, AssemblyContext ctx, PassiveResource passiveResouce, int num);
 
 }

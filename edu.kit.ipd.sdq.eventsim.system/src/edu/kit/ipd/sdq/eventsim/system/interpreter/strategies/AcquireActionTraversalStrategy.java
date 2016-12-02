@@ -1,5 +1,7 @@
 package edu.kit.ipd.sdq.eventsim.system.interpreter.strategies;
 
+import java.util.function.Consumer;
+
 import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 import org.palladiosimulator.pcm.repository.PassiveResource;
 import org.palladiosimulator.pcm.seff.AbstractAction;
@@ -7,17 +9,11 @@ import org.palladiosimulator.pcm.seff.AcquireAction;
 
 import com.google.inject.Inject;
 
-import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 import edu.kit.ipd.sdq.eventsim.api.IPassiveResource;
+import edu.kit.ipd.sdq.eventsim.api.Procedure;
 import edu.kit.ipd.sdq.eventsim.exceptions.unchecked.EventSimException;
-import edu.kit.ipd.sdq.eventsim.interpreter.DecoratingTraversalStrategy;
-import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalInstruction;
-import edu.kit.ipd.sdq.eventsim.interpreter.instructions.InterruptTraversal;
-import edu.kit.ipd.sdq.eventsim.interpreter.instructions.TraverseNextAction;
+import edu.kit.ipd.sdq.eventsim.interpreter.SimulationStrategy;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
-import edu.kit.ipd.sdq.eventsim.system.events.ResumeSeffTraversalEvent;
-import edu.kit.ipd.sdq.eventsim.system.interpreter.SeffBehaviourInterpreter;
-import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
 
 /**
  * This traversal strategy is responsible for {@link AcquireAction}s.
@@ -26,50 +22,36 @@ import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
  * @author Christoph Föhrdes
  * 
  */
-public class AcquireActionTraversalStrategy
-        extends DecoratingTraversalStrategy<AbstractAction, AcquireAction, Request, RequestState> {
+public class AcquireActionTraversalStrategy implements SimulationStrategy<AbstractAction, Request> {
 
     @Inject
-    private IPassiveResource passiveResourceComponent;
-
-    @Inject
-    private ISimulationModel model;
-
-    @Inject
-    private SeffBehaviourInterpreter interpreter;
+    private IPassiveResource passiveResourceModule;
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public ITraversalInstruction<AbstractAction, RequestState> traverse(final AcquireAction action,
-            final Request request, final RequestState state) {
-        traverseDecorated(action, request, state);
-
-        if (!action.getResourceDemand_Action().isEmpty()) {
-            throw new EventSimException("Parametric resource demands are not yet supported for AcquireActions.");
-        }
-
-        // store EventSim specific state to the request
-        request.setRequestState(state); // TODO why setting this here?
-
-        final PassiveResource passiveResouce = action.getPassiveresource_AcquireAction();
-        AssemblyContext ctx = state.getComponent().getAssemblyCtx();
-        boolean acquired = passiveResourceComponent.acquire(request, ctx, passiveResouce, 1);
+    public void simulate(AbstractAction action, Request request, Consumer<Procedure> onFinishCallback) {
+        AcquireAction acquireAction = (AcquireAction) action;
 
         // TODO warning if timeout is set to true in model
 
-        if (acquired) {
-            return new TraverseNextAction<>(action.getSuccessor_AbstractAction());
-        } else {
-            request.passivate(new ResumeSeffTraversalEvent(model, state, interpreter));
-
-            // here, it is assumed that the passive resource grants access to waiting processes as
-            // soon as the requested capacity becomes available. Thus, we do not need to acquire the
-            // passive resource again as this will be done within the release method. Accordingly
-            // the traversal resumes with the successor of this action.
-            return new InterruptTraversal<>(action.getSuccessor_AbstractAction());
+        // check for unsupported feature
+        if (!acquireAction.getResourceDemand_Action().isEmpty()) {
+            throw new EventSimException("Parametric resource demands are not yet supported for AcquireActions.");
         }
+
+        final PassiveResource passiveResouce = acquireAction.getPassiveresource_AcquireAction();
+        AssemblyContext ctx = request.getCurrentComponent().getAssemblyCtx();
+
+        // 1) acquire passive resource
+        passiveResourceModule.acquire(request, ctx, passiveResouce, 1, () -> {
+            // 2) when granted, return traversal instruction
+            onFinishCallback.accept(() -> {
+                // 3) once called, continue simulation with successor
+                request.simulateAction(acquireAction.getSuccessor_AbstractAction());
+            });
+        });
     }
 
 }

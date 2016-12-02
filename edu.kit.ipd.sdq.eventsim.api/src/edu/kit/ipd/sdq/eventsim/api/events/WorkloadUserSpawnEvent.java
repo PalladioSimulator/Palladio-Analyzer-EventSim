@@ -9,11 +9,11 @@ import edu.kit.ipd.sdq.eventsim.api.IUser;
  * @author Philipp Merkle
  * 
  */
-public class WorkloadUserSpawn extends AbstractSimulationEvent {
+public class WorkloadUserSpawnEvent extends AbstractSimulationEvent {
 
 	private IUser user;
 
-	public WorkloadUserSpawn(IUser user) {
+	public WorkloadUserSpawnEvent(IUser user) {
 		this.user = user;
 	}
 

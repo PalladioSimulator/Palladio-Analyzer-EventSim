@@ -1,17 +1,14 @@
 package edu.kit.ipd.sdq.eventsim.system.interpreter.strategies;
 
+import java.util.function.Consumer;
+
 import org.palladiosimulator.pcm.seff.AbstractAction;
 import org.palladiosimulator.pcm.seff.ExternalCallAction;
-import org.palladiosimulator.pcm.seff.ResourceDemandingSEFF;
+import org.palladiosimulator.pcm.seff.ResourceDemandingBehaviour;
 
-import com.google.inject.Inject;
-
-import edu.kit.ipd.sdq.eventsim.command.PCMModelCommandExecutor;
-import edu.kit.ipd.sdq.eventsim.interpreter.DecoratingTraversalStrategy;
-import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalInstruction;
+import edu.kit.ipd.sdq.eventsim.api.Procedure;
+import edu.kit.ipd.sdq.eventsim.interpreter.SimulationStrategy;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
-import edu.kit.ipd.sdq.eventsim.system.interpreter.instructions.TraverseComponentBehaviourInstruction;
-import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
 import edu.kit.ipd.sdq.eventsim.system.staticstructure.ComponentInstance;
 
 /**
@@ -20,29 +17,29 @@ import edu.kit.ipd.sdq.eventsim.system.staticstructure.ComponentInstance;
  * @author Philipp Merkle
  * 
  */
-public class ExternalCallActionStrategy
-        extends DecoratingTraversalStrategy<AbstractAction, ExternalCallAction, Request, RequestState> {
-
-    @Inject
-    private PCMModelCommandExecutor executor;
+public class ExternalCallActionStrategy implements SimulationStrategy<AbstractAction, Request> {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public ITraversalInstruction<AbstractAction, RequestState> traverse(final ExternalCallAction action,
-            final Request request, final RequestState state) {
-        traverseDecorated(action, request, state);
+    public void simulate(AbstractAction action, Request request, Consumer<Procedure> onFinishCallback) {
+        ExternalCallAction callAction = (ExternalCallAction) action;
 
-        // find the component which provides the required call
-        final ComponentInstance currentComponent = state.getComponent();
+        // find the component that provides the required service
+        final ComponentInstance currentComponent = request.getCurrentComponent();
         final ComponentInstance providingComponent = currentComponent
-                .getProvidingComponent(action.getCalledService_ExternalService());
-        final ResourceDemandingSEFF seff = providingComponent
-                .getServiceEffectSpecification(action.getCalledService_ExternalService());
+                .getProvidingComponent(callAction.getCalledService_ExternalService());
+        final ResourceDemandingBehaviour behaviour = providingComponent
+                .getServiceEffectSpecification(callAction.getCalledService_ExternalService());
 
-        return new TraverseComponentBehaviourInstruction(executor, seff, providingComponent,
-                action.getSuccessor_AbstractAction());
+        // TODO simulate network, if the component is deployed on another server
+
+        request.simulateBehaviour(behaviour, providingComponent, () -> {
+            onFinishCallback.accept(() -> {
+                request.simulateAction(action.getSuccessor_AbstractAction());
+            });
+        });
     }
 
 }

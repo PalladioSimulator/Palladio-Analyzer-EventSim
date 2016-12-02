@@ -10,9 +10,9 @@
             name="Example Simulation Module"
             priority="10">
          <simulation_strategy
-               action="org.palladiosimulator.pcm.seff.StartAction"
-               name="StartAction Decorator"
-               strategy="edu.kit.ipd.sdq.eventsim.extensionexample.strategies.ExtendedStartActionTraversalStrategy">
+               action="org.palladiosimulator.pcm.seff.InternalAction"
+               name="InternalAction Decorator"
+               strategy="edu.kit.ipd.sdq.eventsim.extensionexample.strategies.ExtendedAbstractActionTraversalStrategy">
          </simulation_strategy>
       </simulation_module>
    </extension>

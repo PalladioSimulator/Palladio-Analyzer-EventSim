@@ -2,9 +2,7 @@ package edu.kit.ipd.sdq.eventsim.interpreter.listener;
 
 import org.palladiosimulator.pcm.core.entity.Entity;
 
-import de.uka.ipd.sdq.simulation.abstractsimengine.AbstractSimEntityDelegator;
-import edu.kit.ipd.sdq.eventsim.interpreter.BehaviourInterpreter;
-import edu.kit.ipd.sdq.eventsim.interpreter.state.AbstractInterpreterState;
+import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
 
 /**
  * A traversal listener observes subclasses of {@link BehaviourInterpreter} for their traversal
@@ -19,7 +17,7 @@ import edu.kit.ipd.sdq.eventsim.interpreter.state.AbstractInterpreterState;
  * @param <E>
  *            the type of the entity whose behaviour is simulated by the traversal
  */
-public interface ITraversalListener<A extends Entity, E extends AbstractSimEntityDelegator, F extends AbstractInterpreterState<A>> {
+public interface ITraversalListener<A extends Entity, E extends EventSimEntity> {
 
     /**
      * Called by the {@link BehaviourInterpreter} when the specified action is about to be traversed
@@ -29,10 +27,8 @@ public interface ITraversalListener<A extends Entity, E extends AbstractSimEntit
      *            the action that is traversed soon
      * @param entity
      *            the entity that traverses the action
-     * @param state
-     *            the traversal state before traversing the specified action
      */
-    public void before(A action, E entity, F state);
+    public void before(A action, E entity);
 
     /**
      * Called by the {@link BehaviourInterpreter} when the specified action has been traversed
@@ -42,10 +38,7 @@ public interface ITraversalListener<A extends Entity, E extends AbstractSimEntit
      *            the action that has been traversed
      * @param entity
      *            the entity that has traversed the action
-     * @param state
-     *            the traversal state right after the specified action has been traversed and before
-     *            the next action is about to be traversed
      */
-    public void after(A action, E entity, F state);
+    public void after(A action, E entity);
 
 }

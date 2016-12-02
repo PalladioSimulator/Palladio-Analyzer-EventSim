@@ -1,6 +1,7 @@
 package edu.kit.ipd.sdq.eventsim.system.interpreter.strategies;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.palladiosimulator.pcm.seff.AbstractAction;
 import org.palladiosimulator.pcm.seff.ForkAction;
@@ -8,63 +9,40 @@ import org.palladiosimulator.pcm.seff.ForkedBehaviour;
 
 import com.google.inject.Inject;
 
-import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
+import edu.kit.ipd.sdq.eventsim.api.Procedure;
 import edu.kit.ipd.sdq.eventsim.exceptions.unchecked.EventSimException;
-import edu.kit.ipd.sdq.eventsim.interpreter.DecoratingTraversalStrategy;
-import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalInstruction;
-import edu.kit.ipd.sdq.eventsim.interpreter.instructions.InterruptTraversal;
+import edu.kit.ipd.sdq.eventsim.interpreter.SimulationStrategy;
 import edu.kit.ipd.sdq.eventsim.system.entities.ForkedRequest;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
 import edu.kit.ipd.sdq.eventsim.system.entities.RequestFactory;
-import edu.kit.ipd.sdq.eventsim.system.events.BeginForkedBehaviourTraversalEvent;
-import edu.kit.ipd.sdq.eventsim.system.events.ResumeSeffTraversalEvent;
-import edu.kit.ipd.sdq.eventsim.system.interpreter.SeffBehaviourInterpreter;
-import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
 
-public class ForkActionTraversalStrategy
-        extends DecoratingTraversalStrategy<AbstractAction, ForkAction, Request, RequestState> {
-
-    @Inject
-    private ISimulationModel model;
-
-    @Inject
-    private SeffBehaviourInterpreter interpreter;
+public class ForkActionTraversalStrategy implements SimulationStrategy<AbstractAction, Request> {
 
     @Inject
     private RequestFactory requestFactory;
 
     @Override
-    public ITraversalInstruction<AbstractAction, RequestState> traverse(ForkAction fork, Request request,
-            RequestState state) {
-        traverseDecorated(fork, request, state);
+    public void simulate(AbstractAction action, Request request, Consumer<Procedure> onFinishCallback) {
+        ForkAction fork = (ForkAction) action;
 
-        new ResumeSeffTraversalEvent(model, state, interpreter).schedule(request, 0);
-
-        List<ForkedBehaviour> asynchronousBehaviours = fork.getAsynchronousForkedBehaviours_ForkAction();
-        for (ForkedBehaviour b : asynchronousBehaviours) {
-            ForkedRequest forkedRequest = requestFactory.createForkedRequest(b, true, request);
-
-            // clone state because the state could be modified if the ResumeSeffTraversalEvent
-            // scheduled above is executed before the BeginForkedBehaviourTraversalEvent.
-            RequestState clonedState = null;
-            try {
-                clonedState = state.clone();
-            } catch (CloneNotSupportedException e) {
-                // this can not happen as long as there is a clone()-method
-                throw new RuntimeException(e);
-            }
-
-            new BeginForkedBehaviourTraversalEvent(model, b, clonedState).schedule(forkedRequest, 0);
-        }
-
+        // TODO support synchronous forks
         if (fork.getSynchronisingBehaviours_ForkAction() != null) {
             throw new EventSimException("Synchronous forked behaviours are not yet supported.");
         }
 
-        // TODO nur zul�ssig, falls keine synchronen Behaviours vorhanden. Ansonsten m�sste hier
-        // gewartet werden, bis alle forked behaviours abgearbeitet sind.
-        return new InterruptTraversal<>(fork.getSuccessor_AbstractAction());
-        // return new TraverseNextAction<AbstractAction>(fork.getSuccessor_AbstractAction());
+        List<ForkedBehaviour> asynchronousBehaviours = fork.getAsynchronousForkedBehaviours_ForkAction();
+        for (ForkedBehaviour b : asynchronousBehaviours) {
+            ForkedRequest forkedRequest = requestFactory.createForkedRequest(b, true, request);
+            forkedRequest.simulateBehaviour(b, request.getCurrentComponent(), () -> {
+                // nothing to do on completion of asynchronous forked behaviour
+            });
+        }
+
+        // 1) dont't wait for forked behaviours to finish, return traversal instruction right away
+        onFinishCallback.accept(() -> {
+            // 2) once called, continue simulation with successor
+            request.simulateAction(fork.getSuccessor_AbstractAction());
+        });
     }
 
 }

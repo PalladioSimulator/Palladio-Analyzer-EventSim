@@ -29,18 +29,5 @@ Export-Package: edu.kit.ipd.sdq.eventsim.system;
    org.palladiosimulator.pcm.usagemodel,
    edu.kit.ipd.sdq.eventsim.measurement",
  edu.kit.ipd.sdq.eventsim.system.entities,
- edu.kit.ipd.sdq.eventsim.system.events,
- edu.kit.ipd.sdq.eventsim.system.interpreter;
-  uses:="org.eclipse.emf.ecore,
-   org.palladiosimulator.pcm.repository,
-   edu.kit.ipd.sdq.eventsim,
-   edu.kit.ipd.sdq.eventsim.system.interpreter.state,
-   edu.kit.ipd.sdq.eventsim.core.palladio.state,
-   org.palladiosimulator.pcm.seff,
-   edu.kit.ipd.sdq.eventsim.system.entities,
-   edu.kit.ipd.sdq.eventsim.system.staticstructure,
-   edu.kit.ipd.sdq.eventsim.interpreter,
-   edu.kit.ipd.sdq.eventsim.system.interpreter.listener",
- edu.kit.ipd.sdq.eventsim.system.interpreter.state,
  edu.kit.ipd.sdq.eventsim.system.interpreter.strategies
 Bundle-ActivationPolicy: lazy

@@ -1,22 +1,17 @@
 package edu.kit.ipd.sdq.eventsim.system.interpreter.strategies;
 
-import org.apache.log4j.Logger;
+import java.util.function.Consumer;
+
 import org.palladiosimulator.pcm.core.PCMRandomVariable;
 import org.palladiosimulator.pcm.seff.AbstractAction;
 import org.palladiosimulator.pcm.seff.LoopAction;
 import org.palladiosimulator.pcm.seff.ResourceDemandingBehaviour;
 
-import com.google.inject.Inject;
-
-import edu.kit.ipd.sdq.eventsim.command.PCMModelCommandExecutor;
-import edu.kit.ipd.sdq.eventsim.interpreter.DecoratingTraversalStrategy;
-import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalInstruction;
-import edu.kit.ipd.sdq.eventsim.interpreter.instructions.TraverseNextAction;
-import edu.kit.ipd.sdq.eventsim.interpreter.state.ITraversalStrategyState;
-import edu.kit.ipd.sdq.eventsim.interpreter.state.InternalState;
+import de.uka.ipd.sdq.simucomframework.variables.StackContext;
+import edu.kit.ipd.sdq.eventsim.api.Procedure;
+import edu.kit.ipd.sdq.eventsim.interpreter.LoopIterationHandler;
+import edu.kit.ipd.sdq.eventsim.interpreter.SimulationStrategy;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
-import edu.kit.ipd.sdq.eventsim.system.interpreter.instructions.TraverseComponentBehaviourInstruction;
-import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
 
 /**
  * This traversal strategy is responsible for {@link LoopAction}s.
@@ -24,68 +19,40 @@ import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
  * @author Philipp Merkle
  * 
  */
-public class LoopActionTraversalStrategy
-        extends DecoratingTraversalStrategy<AbstractAction, LoopAction, Request, RequestState> {
-
-    private static Logger logger = Logger.getLogger(LoopActionTraversalStrategy.class);
-
-    private static final String ITERATION_CURRENT_PROPERTY = "iterationCurrent";
-
-    private static final String ITERATION_OVERALL_PROPERTY = "iterationOverall";
-
-    @Inject
-    private PCMModelCommandExecutor executor;
+public class LoopActionTraversalStrategy implements SimulationStrategy<AbstractAction, Request> {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public ITraversalInstruction<AbstractAction, RequestState> traverse(final LoopAction loop, final Request request,
-            final RequestState state) {
-        traverseDecorated(loop, request, state);
+    public void simulate(AbstractAction action, Request request, Consumer<Procedure> onFinishCallback) {
+        LoopAction loop = (LoopAction) action;
 
-        // restore or create state
-        ITraversalStrategyState internalState = state.getInternalState(loop);
-        if (internalState == null) {
-            internalState = this.initialiseState(request, loop, state);
-            state.addInternalState(loop, internalState);
+        // report model issues, if any
+        final ResourceDemandingBehaviour behaviour = loop.getBodyBehaviour_Loop();
+        if (behaviour == null) {
+            // TODO
+            // diagnostics.reportMissingLoopingBehaviour(loop);
         }
-        int iterationCurrent = state.getInternalState(loop).getProperty(ITERATION_CURRENT_PROPERTY, 0);
-        int iterationOverall = state.getInternalState(loop).getProperty(ITERATION_OVERALL_PROPERTY, 0);
 
-        if (iterationCurrent <= iterationOverall) { // TODO check in debugger
-            if (logger.isDebugEnabled()) {
-                logger.debug("Traversing iteration " + iterationCurrent + " of " + iterationOverall);
-            }
-
-            // increment iteration counter
-            internalState.setProperty(ITERATION_CURRENT_PROPERTY, ++iterationCurrent);
-
-            // traverse the body behaviour
-            final ResourceDemandingBehaviour behaviour = loop.getBodyBehaviour_Loop();
-            return new TraverseComponentBehaviourInstruction(executor, behaviour, state.getComponent(), loop);
-        } else {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Completed loop traversal");
-            }
-            return new TraverseNextAction<>(loop.getSuccessor_AbstractAction());
-        }
-    }
-
-    private ITraversalStrategyState initialiseState(final Request request, final LoopAction loop,
-            final RequestState state) {
-        ITraversalStrategyState internalState = new InternalState(); // TODO move to core
-
-        // evaluate the iteration count
+        // evaluate iteration count
         final PCMRandomVariable loopCountRandVar = loop.getIterationCount_LoopAction();
-        final Integer overallIterations = state.getStoExContext().evaluate(loopCountRandVar.getSpecification(),
-                Integer.class);
+        final int requestedIterations = StackContext.evaluateStatic(loopCountRandVar.getSpecification(), Integer.class);
 
-        // create and set state
-        internalState.setProperty(ITERATION_OVERALL_PROPERTY, overallIterations);
-        internalState.setProperty(ITERATION_CURRENT_PROPERTY, 1);
-
-        return internalState;
+        // 1) simulate loop iterations
+        new LoopIterationHandler(requestedIterations, self -> {
+            // 2) for each iteration (except the last iteration)
+            request.simulateBehaviour(behaviour, request.getCurrentComponent(), self);
+        }, self -> {
+            // 3) only for the last iteration
+            request.simulateBehaviour(behaviour, request.getCurrentComponent(), () -> {
+                // when last iteration completes...
+                onFinishCallback.accept(() -> {
+                    // 4) continue with loop successor
+                    request.simulateAction(loop.getSuccessor_AbstractAction());
+                });
+            });
+        }).execute(); // bootstrap first iteration
     }
 
 }

@@ -3,7 +3,8 @@ package edu.kit.ipd.sdq.eventsim.workload.probes;
 import org.palladiosimulator.pcm.usagemodel.UsageScenario;
 
 import edu.kit.ipd.sdq.eventsim.api.IUser;
-import edu.kit.ipd.sdq.eventsim.api.events.WorkloadUserSpawn;
+import edu.kit.ipd.sdq.eventsim.api.events.WorkloadUserSpawnEvent;
+import edu.kit.ipd.sdq.eventsim.api.events.IEventHandler.Registration;
 import edu.kit.ipd.sdq.eventsim.measurement.Measurement;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasuringPoint;
 import edu.kit.ipd.sdq.eventsim.measurement.annotation.Probe;
@@ -18,7 +19,7 @@ public class InterArrivalTimeProbe<E extends UsageScenario> extends AbstractProb
     public InterArrivalTimeProbe(MeasuringPoint<E> p, WorkloadMeasurementConfiguration cfg) {
         super(p, cfg);
 
-        configuration.getMiddleware().registerEventHandler(WorkloadUserSpawn.class, event -> {
+        configuration.getMiddleware().registerEventHandler(WorkloadUserSpawnEvent.class, event -> {
             IUser user = event.getUser();
 
             // check if this probe is responsible for the present user's usage scenario
@@ -43,6 +44,7 @@ public class InterArrivalTimeProbe<E extends UsageScenario> extends AbstractProb
                 simTimeLast = simTime;
             }
 
+            return Registration.UNREGISTER;
         });
 
     }

@@ -1,18 +1,13 @@
 package edu.kit.ipd.sdq.eventsim.system.interpreter.strategies;
 
+import java.util.function.Consumer;
+
 import org.palladiosimulator.pcm.seff.AbstractAction;
 import org.palladiosimulator.pcm.seff.StopAction;
 
-import com.google.inject.Inject;
-
-import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
-import edu.kit.ipd.sdq.eventsim.api.events.SystemRequestFinishedEvent;
-import edu.kit.ipd.sdq.eventsim.interpreter.DecoratingTraversalStrategy;
-import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalInstruction;
-import edu.kit.ipd.sdq.eventsim.interpreter.instructions.EndTraversal;
-import edu.kit.ipd.sdq.eventsim.interpreter.instructions.TraverseAfterLeavingScope;
+import edu.kit.ipd.sdq.eventsim.api.Procedure;
+import edu.kit.ipd.sdq.eventsim.interpreter.SimulationStrategy;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
-import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
 
 /**
  * This traversal strategy is responsible for {@link StopAction}s.
@@ -20,33 +15,18 @@ import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
  * @author Philipp Merkle
  * 
  */
-public class StopActionTraversalStrategy
-        extends DecoratingTraversalStrategy<AbstractAction, StopAction, Request, RequestState> {
-
-    @Inject
-    private ISimulationMiddleware middleware;
+public class StopActionTraversalStrategy implements SimulationStrategy<AbstractAction, Request> {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public ITraversalInstruction<AbstractAction, RequestState> traverse(final StopAction stop, final Request request,
-            final RequestState state) {
-        traverseDecorated(stop, request, state);
-        if (state.hasOpenScope()) {
-            return new TraverseAfterLeavingScope<>();
-        } else {
-            if (state.isForkedRequestState()) {
-                return new EndTraversal<>();
-            } else {
-
-                // fire seff traversal completed event
-                middleware.triggerEvent(new SystemRequestFinishedEvent(request));
-
-                return new EndTraversal<>();
-            }
-
-        }
+    public void simulate(AbstractAction action, Request request, Consumer<Procedure> onFinishCallback) {
+        // 1) return traversal instruction
+        onFinishCallback.accept(() -> {
+            // 2) once called, leave the scenario behaviour, which will trigger another callback
+            request.leaveBehaviour();
+        });
     }
 
 }

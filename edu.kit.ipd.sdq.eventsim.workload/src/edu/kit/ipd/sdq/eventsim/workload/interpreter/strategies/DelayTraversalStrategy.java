@@ -1,21 +1,16 @@
 package edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies;
 
+import java.util.function.Consumer;
+
 import org.palladiosimulator.pcm.core.PCMRandomVariable;
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 import org.palladiosimulator.pcm.usagemodel.Delay;
 
-import com.google.inject.Inject;
-
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
 import de.uka.ipd.sdq.simucomframework.variables.converter.NumberConverter;
-import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
-import edu.kit.ipd.sdq.eventsim.interpreter.DecoratingTraversalStrategy;
-import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalInstruction;
-import edu.kit.ipd.sdq.eventsim.interpreter.instructions.InterruptTraversal;
+import edu.kit.ipd.sdq.eventsim.api.Procedure;
+import edu.kit.ipd.sdq.eventsim.interpreter.SimulationStrategy;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
-import edu.kit.ipd.sdq.eventsim.workload.events.ResumeUsageTraversalEvent;
-import edu.kit.ipd.sdq.eventsim.workload.interpreter.UsageBehaviourInterpreter;
-import edu.kit.ipd.sdq.eventsim.workload.interpreter.state.UserState;
 
 /**
  * This traversal strategy is responsible for {@link Delay} actions.
@@ -23,31 +18,28 @@ import edu.kit.ipd.sdq.eventsim.workload.interpreter.state.UserState;
  * @author Philipp Merkle
  * 
  */
-public class DelayTraversalStrategy extends DecoratingTraversalStrategy<AbstractUserAction, Delay, User, UserState> {
-
-    @Inject
-    private ISimulationModel model;
-
-    @Inject // TODO
-    private UsageBehaviourInterpreter interpreter;
+public class DelayTraversalStrategy implements SimulationStrategy<AbstractUserAction, User> {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public ITraversalInstruction<AbstractUserAction, UserState> traverse(final Delay delay, final User user,
-            final UserState state) {
-        traverseDecorated(delay, user, state);
+    public void simulate(AbstractUserAction action, User user, Consumer<Procedure> onFinishCallback) {
+        Delay delay = (Delay) action;
 
         // evaluate StoEx
         final PCMRandomVariable delayTimeSpecification = delay.getTimeSpecification_Delay();
         final double delayTime = NumberConverter
                 .toDouble(StackContext.evaluateStatic(delayTimeSpecification.getSpecification()));
 
-        // schedule the traversal to continue after the desired delay
-        new ResumeUsageTraversalEvent(model, state, interpreter).schedule(user, delayTime);
-
-        return new InterruptTraversal<>(delay.getSuccessor());
+        // 1) wait desired time
+        user.delay(delayTime, () -> {
+            // 2) when waiting time elapsed, return traversal instruction   
+            onFinishCallback.accept(() -> {
+                // 3) once called, continue simulation with successor
+                user.simulateAction(delay.getSuccessor());
+            });
+        });
     }
 
 }

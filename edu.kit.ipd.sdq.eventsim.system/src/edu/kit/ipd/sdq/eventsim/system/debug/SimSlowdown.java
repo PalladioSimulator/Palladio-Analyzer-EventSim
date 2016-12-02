@@ -2,11 +2,10 @@ package edu.kit.ipd.sdq.eventsim.system.debug;
 
 import org.palladiosimulator.pcm.seff.AbstractAction;
 
+import edu.kit.ipd.sdq.eventsim.interpreter.listener.ITraversalListener;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
-import edu.kit.ipd.sdq.eventsim.system.interpreter.listener.ISeffTraversalListener;
-import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
 
-public class SimSlowdown implements ISeffTraversalListener {
+public class SimSlowdown implements ITraversalListener<AbstractAction, Request> {
 
     private static final int SLEEP_TIME = 5000;
 
@@ -18,7 +17,7 @@ public class SimSlowdown implements ISeffTraversalListener {
     }
 
     @Override
-    public void before(AbstractAction action, Request entity, RequestState state) {
+    public void before(AbstractAction action, Request entity) {
         if (!active) {
             if (action.getId().equals(id)) {
                 active = true;
@@ -33,7 +32,7 @@ public class SimSlowdown implements ISeffTraversalListener {
     }
 
     @Override
-    public void after(AbstractAction action, Request entity, RequestState state) {
+    public void after(AbstractAction action, Request entity) {
         if (active) {
             try {
                 Thread.sleep(SLEEP_TIME);

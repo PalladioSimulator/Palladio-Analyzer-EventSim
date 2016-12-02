@@ -13,6 +13,7 @@ import de.uka.ipd.sdq.scheduler.IPassiveResource;
 import de.uka.ipd.sdq.scheduler.ISchedulableProcess;
 import de.uka.ipd.sdq.scheduler.sensors.IPassiveResourceSensor;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
+import edu.kit.ipd.sdq.eventsim.api.Procedure;
 import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
 import edu.kit.ipd.sdq.eventsim.resources.listener.IPassiveResourceListener;
 
@@ -36,19 +37,19 @@ public class SimPassiveResource extends EventSimEntity {
     private final IPassiveResource schedulerResource;
 
     private final List<IPassiveResourceListener> listeners;
-    
+
     private final PassiveResource specification;
 
     /**
-	 * Construct a passive resource that wraps the specified resource.
-	 * 
-	 * @param model
-	 *            the simulation model
-	 * @param resource
-	 *            the wrapped scheduler resource
-	 * @param specification
-	 *            the specification of this resource
-	 */
+     * Construct a passive resource that wraps the specified resource.
+     * 
+     * @param model
+     *            the simulation model
+     * @param resource
+     *            the wrapped scheduler resource
+     * @param specification
+     *            the specification of this resource
+     */
     @Inject
     public SimPassiveResource(ISimulationModel model, @Assisted IPassiveResource resource,
             @Assisted PassiveResource specification) {
@@ -56,7 +57,7 @@ public class SimPassiveResource extends EventSimEntity {
         this.schedulerResource = resource;
         this.listeners = new ArrayList<IPassiveResourceListener>();
         this.specification = specification;
-        
+
         this.setupListenerAdapter(this.schedulerResource);
     }
 
@@ -66,8 +67,14 @@ public class SimPassiveResource extends EventSimEntity {
      * 
      * @see IPassiveResource#acquire(de.uka.ipd.sdq.scheduler.ISchedulableProcess, int)
      */
-    public boolean acquire(SimulatedProcess process, int num, boolean timeout, double timeoutValue) {
-        return schedulerResource.acquire(process, num, timeout, timeoutValue);
+    public void acquire(SimulatedProcess process, int num, boolean timeout, double timeoutValue,
+            Procedure onGrantedCallback) {
+        boolean granted = schedulerResource.acquire(process, num, timeout, timeoutValue);
+        if (granted) {
+            onGrantedCallback.execute();
+        } else {
+            process.setOnActivationCallback(onGrantedCallback);
+        }
     }
 
     /**
@@ -108,21 +115,21 @@ public class SimPassiveResource extends EventSimEntity {
      * @return the resource's name
      */
     public String getName() {
-    	return specification.getEntityName();
+        return specification.getEntityName();
     }
-    
+
     public AssemblyContext getAssemblyContext() {
-    	return schedulerResource.getAssemblyContext();
+        return schedulerResource.getAssemblyContext();
     }
-    
+
     public PassiveResource getSpecification() {
-    	return schedulerResource.getResource();
+        return schedulerResource.getResource();
     }
 
     public void addListener(final IPassiveResourceListener l) {
         this.listeners.add(l);
     }
-    
+
     public void removeListener(final IPassiveResourceListener l) {
         this.listeners.remove(l);
     }

@@ -1,6 +1,7 @@
 package edu.kit.ipd.sdq.eventsim.system.interpreter.strategies;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.palladiosimulator.pcm.seff.AbstractAction;
 import org.palladiosimulator.pcm.seff.AbstractBranchTransition;
@@ -12,13 +13,11 @@ import org.palladiosimulator.pcm.seff.ResourceDemandingBehaviour;
 import com.google.inject.Inject;
 
 import de.uka.ipd.sdq.probfunction.math.IRandomGenerator;
-import edu.kit.ipd.sdq.eventsim.command.PCMModelCommandExecutor;
+import de.uka.ipd.sdq.simucomframework.variables.StackContext;
+import edu.kit.ipd.sdq.eventsim.api.Procedure;
 import edu.kit.ipd.sdq.eventsim.exceptions.unchecked.UnexpectedModelStructureException;
-import edu.kit.ipd.sdq.eventsim.interpreter.DecoratingTraversalStrategy;
-import edu.kit.ipd.sdq.eventsim.interpreter.ITraversalInstruction;
+import edu.kit.ipd.sdq.eventsim.interpreter.SimulationStrategy;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
-import edu.kit.ipd.sdq.eventsim.system.interpreter.instructions.TraverseComponentBehaviourInstruction;
-import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
 import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
 
 /**
@@ -27,68 +26,97 @@ import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
  * @author Philipp Merkle
  * 
  */
-public class BranchActionTraversalStrategy
-        extends DecoratingTraversalStrategy<AbstractAction, BranchAction, Request, RequestState> {
+public class BranchActionTraversalStrategy implements SimulationStrategy<AbstractAction, Request> {
 
     @Inject
     private IRandomGenerator randomGenerator;
-
-    @Inject
-    private PCMModelCommandExecutor executor;
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public ITraversalInstruction<AbstractAction, RequestState> traverse(final BranchAction action,
-            final Request request, final RequestState state) {
-        traverseDecorated(action, request, state);
-        
-        ResourceDemandingBehaviour behaviour = null;
+    public void simulate(AbstractAction action, Request request, Consumer<Procedure> onFinishCallback) {
+        BranchAction branchAction = (BranchAction) action;
 
-        final List<AbstractBranchTransition> branches = action.getBranches_Branch();
-        if (branches.isEmpty()) {
+        // check model
+        final List<AbstractBranchTransition> transitions = branchAction.getBranches_Branch();
+        if (transitions.isEmpty()) {
             throw new UnexpectedModelStructureException(
-                    "No branch transitions could be found for branch " + PCMEntityHelper.toString(action));
+                    "No branch transitions could be found for branch " + PCMEntityHelper.toString(branchAction));
         }
 
-        final AbstractBranchTransition firstTransition = branches.get(0);
-        boolean enteredTransition = false;
-        if (firstTransition instanceof ProbabilisticBranchTransition) {
-            // handle probabilistic branch transition
-            double sum = 0;
-            final double rand = randomGenerator.random();
+        // select branch transition
+        ResourceDemandingBehaviour behaviour = selectBranchTransition(branchAction,
+                request.getRequestState().getStoExContext(), randomGenerator);
 
-            for (final AbstractBranchTransition t : action.getBranches_Branch()) {
-                final ProbabilisticBranchTransition transition = (ProbabilisticBranchTransition) t;
-                assert (sum >= 0 && sum <= 1) : "Expected sum to be in the interval [0, 1], but was " + sum;
-                final double p = transition.getBranchProbability();
-                if (rand >= sum && rand < sum + p) {
-                    enteredTransition = true;
-                    behaviour = transition.getBranchBehaviour_BranchTransition();
-                }
-                sum += p;
-            }
+        // simulate branch transition
+        request.simulateBehaviour(behaviour, request.getCurrentComponent(), () -> {
+            // continue with next action
+            onFinishCallback.accept(() -> {
+                request.simulateAction(branchAction.getSuccessor_AbstractAction());
+            });
+        });
+    }
+
+    private static ResourceDemandingBehaviour selectBranchTransition(BranchAction branch, StackContext stackContext,
+            IRandomGenerator randomGenerator) {
+        final AbstractBranchTransition firstTransition = branch.getBranches_Branch().get(0);
+        if (firstTransition instanceof ProbabilisticBranchTransition) {
+            return selectProbabilisticBranchTransition(branch, randomGenerator);
         } else if (firstTransition instanceof GuardedBranchTransition) {
-            // handle guarded branch transition
-            for (final AbstractBranchTransition t : action.getBranches_Branch()) {
-                final GuardedBranchTransition transition = (GuardedBranchTransition) t;
-                String conditionSpec = transition.getBranchCondition_GuardedBranchTransition().getSpecification();
-                Boolean condition = state.getStoExContext().evaluate(conditionSpec, Boolean.class);
-                if (condition.booleanValue() == true) {
-                    enteredTransition = true;
-                    behaviour = transition.getBranchBehaviour_BranchTransition();
-                }
-            }
+            return selectGuardedBranchTransition(branch, stackContext);
         } else {
             throw new UnexpectedModelStructureException(
                     "The branch transition is expected to be either a ProbabilisticBranchTransition or a GuardedBranchTransition, but found a "
                             + firstTransition.eClass().getName());
         }
+
+    }
+
+    private static ResourceDemandingBehaviour selectProbabilisticBranchTransition(BranchAction branch,
+            IRandomGenerator randomGenerator) {
+        ResourceDemandingBehaviour selectedBehaviour = null;
+
+        double sum = 0;
+        final double rand = randomGenerator.random();
+
+        boolean enteredTransition = false;
+        for (final AbstractBranchTransition t : branch.getBranches_Branch()) {
+            final ProbabilisticBranchTransition transition = (ProbabilisticBranchTransition) t;
+            assert (sum >= 0 && sum <= 1) : "Expected sum to be in the interval [0, 1], but was " + sum;
+            final double p = transition.getBranchProbability();
+            if (rand >= sum && rand < sum + p) {
+                enteredTransition = true;
+                selectedBehaviour = transition.getBranchBehaviour_BranchTransition();
+            }
+            sum += p;
+        }
+
+        // TODO better use exception, or diagnostics message
         assert (enteredTransition) : "No branch transition has been entered.";
 
-        return new TraverseComponentBehaviourInstruction(executor, behaviour, state.getComponent(),
-                action.getSuccessor_AbstractAction());
+        return selectedBehaviour;
+    }
+
+    private static ResourceDemandingBehaviour selectGuardedBranchTransition(BranchAction branch,
+            StackContext stackContext) {
+        ResourceDemandingBehaviour selectedBehaviour = null;
+
+        boolean enteredTransition = false;
+        for (final AbstractBranchTransition t : branch.getBranches_Branch()) {
+            final GuardedBranchTransition transition = (GuardedBranchTransition) t;
+            String conditionSpec = transition.getBranchCondition_GuardedBranchTransition().getSpecification();
+            Boolean condition = stackContext.evaluate(conditionSpec, Boolean.class);
+            if (condition.booleanValue() == true) {
+                enteredTransition = true;
+                selectedBehaviour = transition.getBranchBehaviour_BranchTransition();
+            }
+        }
+
+        // TODO better use exception, or diagnostics message
+        assert (enteredTransition) : "No branch transition has been entered.";
+
+        return selectedBehaviour;
     }
 
 }

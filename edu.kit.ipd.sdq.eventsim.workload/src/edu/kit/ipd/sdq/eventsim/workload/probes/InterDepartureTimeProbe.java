@@ -4,6 +4,7 @@ import org.palladiosimulator.pcm.usagemodel.UsageScenario;
 
 import edu.kit.ipd.sdq.eventsim.api.IUser;
 import edu.kit.ipd.sdq.eventsim.api.events.WorkloadUserFinishedEvent;
+import edu.kit.ipd.sdq.eventsim.api.events.IEventHandler.Registration;
 import edu.kit.ipd.sdq.eventsim.measurement.Measurement;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasuringPoint;
 import edu.kit.ipd.sdq.eventsim.measurement.annotation.Probe;
@@ -44,6 +45,7 @@ public class InterDepartureTimeProbe<E extends UsageScenario>
                 simTimeLast = simTime;
             }
 
+            return Registration.UNREGISTER;
         });
 
     }

@@ -7,20 +7,17 @@ import org.osgi.framework.Bundle;
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 import com.google.inject.Singleton;
 
 import de.uka.ipd.sdq.probfunction.math.IProbabilityFunctionFactory;
 import de.uka.ipd.sdq.probfunction.math.impl.ProbabilityFunctionFactoryImpl;
 import de.uka.ipd.sdq.simucomframework.variables.cache.StoExCache;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
-import edu.kit.ipd.sdq.eventsim.api.IRequest;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
-import edu.kit.ipd.sdq.eventsim.api.ISystem;
 import edu.kit.ipd.sdq.eventsim.api.IWorkload;
 import edu.kit.ipd.sdq.eventsim.api.PCMModel;
+import edu.kit.ipd.sdq.eventsim.api.events.IEventHandler.Registration;
 import edu.kit.ipd.sdq.eventsim.api.events.SimulationPrepareEvent;
-import edu.kit.ipd.sdq.eventsim.api.events.SystemRequestFinishedEvent;
 import edu.kit.ipd.sdq.eventsim.api.events.WorkloadUserFinishedEvent;
 import edu.kit.ipd.sdq.eventsim.command.PCMModelCommandExecutor;
 import edu.kit.ipd.sdq.eventsim.instrumentation.description.core.InstrumentationDescription;
@@ -34,12 +31,9 @@ import edu.kit.ipd.sdq.eventsim.measurement.osgi.BundleProbeLocator;
 import edu.kit.ipd.sdq.eventsim.measurement.probe.IProbe;
 import edu.kit.ipd.sdq.eventsim.workload.debug.DebugUsageTraversalListener;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
-import edu.kit.ipd.sdq.eventsim.workload.events.ResumeUsageTraversalEvent;
 import edu.kit.ipd.sdq.eventsim.workload.generator.BuildWorkloadGenerator;
 import edu.kit.ipd.sdq.eventsim.workload.generator.IWorkloadGenerator;
 import edu.kit.ipd.sdq.eventsim.workload.generator.WorkloadGeneratorFactory;
-import edu.kit.ipd.sdq.eventsim.workload.interpreter.UsageBehaviourInterpreter;
-import edu.kit.ipd.sdq.eventsim.workload.interpreter.state.UserState;
 
 /**
  * The EventSim workload simulation model. This is the central class of the workload simulation.
@@ -59,12 +53,6 @@ public class EventSimWorkloadModel implements IWorkload {
     private static final Logger logger = Logger.getLogger(EventSimWorkloadModel.class);
 
     @Inject
-    private UsageBehaviourInterpreter usageInterpreter;
-
-    @Inject
-    private ISystem system;
-
-    @Inject
     private ISimulationMiddleware middleware;
 
     @Inject
@@ -77,13 +65,10 @@ public class EventSimWorkloadModel implements IWorkload {
     private ISimulationModel model;
 
     @Inject
-    private TraversalListenerRegistry<AbstractUserAction, User, UserState> traversalListeners;
+    private TraversalListenerRegistry<AbstractUserAction, User> traversalListeners;
 
     @Inject
     private WorkloadGeneratorFactory workloadGeneratorFactory;
-
-    @Inject
-    private Provider<UsageBehaviourInterpreter> interpreterFactory;
 
     @Inject
     private PCMModel pcm;
@@ -96,7 +81,10 @@ public class EventSimWorkloadModel implements IWorkload {
     @Inject
     public EventSimWorkloadModel(ISimulationMiddleware middleware) {
         // initialize in simulation preparation phase
-        middleware.registerEventHandler(SimulationPrepareEvent.class, e -> init());
+        middleware.registerEventHandler(SimulationPrepareEvent.class, e -> {
+            init();
+            return Registration.UNREGISTER;
+        });
     }
 
     /**
@@ -104,9 +92,6 @@ public class EventSimWorkloadModel implements IWorkload {
      * the workload generation.
      */
     private void init() {
-        // initialise behaviour interpreters
-        usageInterpreter = interpreterFactory.get();
-
         // initialise probfunction factory and random generator
         IProbabilityFunctionFactory probFunctionFactory = ProbabilityFunctionFactoryImpl.getInstance();
         probFunctionFactory.setRandomGenerator(middleware.getRandomGenerator());
@@ -138,14 +123,9 @@ public class EventSimWorkloadModel implements IWorkload {
      * Register event handler to react on specific simulation events.
      */
     private void registerEventHandler() {
-        middleware.registerEventHandler(WorkloadUserFinishedEvent.class, e -> middleware.increaseMeasurementCount());
-
-        // TODO perhaps move to EntryLevelSystemCallTraversalStrategy
-        // setup system processed request event listener
-        middleware.registerEventHandler(SystemRequestFinishedEvent.class, event -> {
-            IRequest request = event.getRequest();
-            User user = (User) request.getUser();
-            new ResumeUsageTraversalEvent(model, user.getUserState(), usageInterpreter).schedule(user, 0);
+        middleware.registerEventHandler(WorkloadUserFinishedEvent.class, e -> {
+            middleware.increaseMeasurementCount();
+            return Registration.KEEP_REGISTERED;
         });
     }
 
@@ -179,19 +159,6 @@ public class EventSimWorkloadModel implements IWorkload {
         measurementStorage.addNameExtractor(AbstractUserAction.class, c -> ((AbstractUserAction) c).getEntityName());
     }
 
-    /**
-     * Gives access to the usage behavior interpreter
-     * 
-     * @return A usage behavior interpreter
-     */
-    public UsageBehaviourInterpreter getUsageInterpreter() {
-        return usageInterpreter;
-    }
-
-    public ISystem getSystem() {
-        return system;
-    }
-
     public MeasurementFacade<WorkloadMeasurementConfiguration> getMeasurementFacade() {
         if (measurementFacade == null) {
             // setup measurement facade
@@ -202,7 +169,7 @@ public class EventSimWorkloadModel implements IWorkload {
         return measurementFacade;
     }
 
-    public TraversalListenerRegistry<AbstractUserAction, User, UserState> getTraversalListeners() {
+    public TraversalListenerRegistry<AbstractUserAction, User> getTraversalListeners() {
         return traversalListeners;
     }
 

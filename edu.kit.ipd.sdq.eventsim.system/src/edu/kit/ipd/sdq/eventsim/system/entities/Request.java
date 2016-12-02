@@ -2,18 +2,31 @@ package edu.kit.ipd.sdq.eventsim.system.entities;
 
 import org.apache.log4j.Logger;
 import org.palladiosimulator.pcm.seff.AbstractAction;
+import org.palladiosimulator.pcm.seff.ResourceDemandingBehaviour;
+import org.palladiosimulator.pcm.seff.StartAction;
 import org.palladiosimulator.pcm.usagemodel.EntryLevelSystemCall;
+import org.palladiosimulator.pcm.usagemodel.ScenarioBehaviour;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
 
 import de.uka.ipd.sdq.simulation.abstractsimengine.AbstractSimEventDelegator;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 import edu.kit.ipd.sdq.eventsim.api.IRequest;
 import edu.kit.ipd.sdq.eventsim.api.IUser;
+import edu.kit.ipd.sdq.eventsim.api.Procedure;
+import edu.kit.ipd.sdq.eventsim.command.PCMModelCommandExecutor;
+import edu.kit.ipd.sdq.eventsim.command.action.FindActionInBehaviour;
 import edu.kit.ipd.sdq.eventsim.debug.DebugEntityListener;
 import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
-import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
+import edu.kit.ipd.sdq.eventsim.exceptions.unchecked.TraversalException;
+import edu.kit.ipd.sdq.eventsim.interpreter.SimulationStrategy;
+import edu.kit.ipd.sdq.eventsim.interpreter.SimulationStrategyRegistry;
+import edu.kit.ipd.sdq.eventsim.interpreter.TraversalListenerRegistry;
+import edu.kit.ipd.sdq.eventsim.interpreter.state.EntityState;
+import edu.kit.ipd.sdq.eventsim.system.staticstructure.ComponentInstance;
+import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
 
 /**
  * This entity represents the execution of a system call, which has been issued by a {@link User}.
@@ -24,6 +37,8 @@ import edu.kit.ipd.sdq.eventsim.system.interpreter.state.RequestState;
  */
 public class Request extends EventSimEntity implements IRequest {
 
+    public static final String COMPONENT_PROPERTY = "componentInstance";
+
     private static final Logger logger = Logger.getLogger(Request.class);
 
     /** the user that has issued the request */
@@ -31,14 +46,17 @@ public class Request extends EventSimEntity implements IRequest {
 
     /** the system call that is to be simulated by this request */
     private final EntryLevelSystemCall call;
-    
-    private RequestState state;
 
-    /**
-     * the activation event encapsulates the bahaviour that is to be performed when this Request is
-     * activated after it has been passivated before (see also: activate and passivate methods).
-     */
-    private AbstractSimEventDelegator<Request> activationEvent;
+    private EntityState<AbstractAction> state;
+
+    @Inject
+    private PCMModelCommandExecutor executor;
+
+    @Inject
+    private TraversalListenerRegistry<AbstractAction, Request> listenerRegistry;
+
+    @Inject
+    private Provider<SimulationStrategyRegistry<AbstractAction, Request>> strategyRegistry;
 
     /**
      * Constructs a new Request representing the execution of the specified system call, which has
@@ -58,10 +76,17 @@ public class Request extends EventSimEntity implements IRequest {
         this.call = call;
         this.user = user;
 
+        initState();
+
         // install debug listener, if debugging is enabled
         if (logger.isDebugEnabled()) {
             this.addEntityListener(new DebugEntityListener(this));
         }
+    }
+
+    private void initState() {
+        // initialise traversal state and StoEx context
+        state = new EntityState<>(user.getStochasticExpressionContext());
     }
 
     /**
@@ -91,11 +116,11 @@ public class Request extends EventSimEntity implements IRequest {
     }
 
     @Override
-	public Request getParent() {
-		return null;
-	}
+    public Request getParent() {
+        return null;
+    }
 
-	/**
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -103,59 +128,128 @@ public class Request extends EventSimEntity implements IRequest {
         return this.getName();
     }
 
-    /**
-     * Call this method when the simulated process (see: {@code getSimulatedProcess()} method) has
-     * been scheduled on a resource and waits for being serviced. The specified activationEvent will
-     * be scheduled as soon as the simulated process has been activated.
-     * 
-     * @param activationEvent
-     *            the event that is to be scheduled when the simulated process has been activated
-     */
-    @SuppressWarnings("unchecked")
-	public void passivate(AbstractSimEventDelegator<?> activationEvent) {
-        assert (activationEvent != null) : "The argument activationEvent may not be null";
-        this.activationEvent = (AbstractSimEventDelegator<Request>) activationEvent;
+    public EntityState<AbstractAction> getRequestState() {
+        return state;
+    }
+
+    public void setRequestState(EntityState<AbstractAction> state) {
+        this.state = state;
+    }
+
+    @Override
+    public long getId() {
+        return getEntityId();
+    }
+
+    @Override
+    public AbstractAction getCurrentPosition() {
+        return state.getCurrentPosition();
+    }
+
+    public ComponentInstance getCurrentComponent() {
+        return state.getProperty(COMPONENT_PROPERTY, ComponentInstance.class);
+    }
+
+    public void enterBehaviour(ResourceDemandingBehaviour behaviour, Procedure onFinishCallback) {
+        state.pushStackFrame();
+        state.setOnFinishCallback(onFinishCallback);
+    }
+
+    public void leaveBehaviour() {
+        // TODO make sure there is an open state left
+
+        AbstractAction finishedAction = state.getCurrentPosition();
+        notifyAfterAction(finishedAction, this);
+
+        if (state.size() == 1) {
+            notifyLeftSystem();
+        }
+
+        Procedure callback = state.getOnFinishCallback();
+        state.popStackFrame();
+        callback.execute();
+    }
+
+    // TODO pull up
+    public void delay(double waitingTime, Procedure onResumeCallback) {
+        new AbstractSimEventDelegator<Request>(getModel(), "waitEvent") {
+            @Override
+            public void eventRoutine(Request who) {
+                onResumeCallback.execute();
+            }
+        }.schedule(this, waitingTime);
     }
 
     /**
-     * Activates this Request by scheduling the activationEvent passed to the {@code passivate}
-     * method. The Request must have been passivated before.
+     * Simulates the given {@code behaviour} by simulating the nested chain of actions. If these
+     * actions contain further {@link ScenarioBehaviour}s, these are simulated as well (and so on,
+     * recursively).
+     * <p>
+     * Once the entire behaviour has been simulated, the given {@code callback} will be invoked.
+     * <p>
+     * When this method returns, there is no guarantee whether the behaviour has been simulated or
+     * not.
      * 
-     * @see #passivate(AbstractSimEventDelegator)
+     * @param behaviour
+     *            the behaviour to be simulated
+     * @param onCompletionCallback
+     *            will be invoked once the behaviour has been simulated completely
      */
-    public void activate() {
-		if (activationEvent == null) {
-			logger.warn("Tried to activate request " + getName() + ", but there is no activation event.");
-			return;
-		}
-		if (!getModel().getSimulationControl().isRunning()) {
-			logger.warn("Simulation has stopped already!");
-			// TODO exeute the event behaviour directly, without scheduling!?
-		}
+    public void simulateBehaviour(ResourceDemandingBehaviour behaviour, ComponentInstance component,
+            Procedure onCompletionCallback) {
+        if (state.size() == 0) {
+            notifyEnteredSystem();
+        }
 
-        // schedule the activation event...
-        this.activationEvent.schedule(this, 0);
+        // find start action
+        final StartAction start = executor
+                .execute(new FindActionInBehaviour<StartAction>(behaviour, StartAction.class));
 
-        // ...and clear the event thereafter
-        this.activationEvent = null;
+        enterBehaviour(behaviour, onCompletionCallback);
+        state.addProperty(COMPONENT_PROPERTY, component);
+        simulateAction(start);
     }
 
-	public RequestState getRequestState() {
-		return state;
-	}
+    // public void simulateBehaviour(ResourceDemandingBehaviour behaviour, Procedure
+    // onCompletionCallback) {
+    // ComponentInstance component = state.getProperty(COMPONENT_PROPERTY, ComponentInstance.class);
+    // simulateBehaviour(behaviour, component, onCompletionCallback);
+    // }
 
-	public void setRequestState(RequestState state) {
-		this.state = state;
-	}
+    // TODO pull up
+    public void simulateAction(AbstractAction action) {
+        if (state.getCurrentPosition() != null) {
+            AbstractAction finishedAction = state.getCurrentPosition();
+            notifyAfterAction(finishedAction, this);
+        }
 
-	@Override
-	public long getId() {
-		return getEntityId();
-	}
+        state.setCurrentPosition(action);
 
-	@Override
-	public AbstractAction getCurrentPosition() {
-		return getRequestState().getCurrentPosition();
-	}
+        final SimulationStrategy<AbstractAction, Request> simulationStrategy = strategyRegistry.get()
+                .lookup((Class<? extends AbstractAction>) action.eClass().getInstanceClass());
+        if (simulationStrategy == null) {
+            throw new TraversalException(
+                    "No traversal strategy could be found for " + PCMEntityHelper.toString(action));
+        }
+
+        notifyBeforeAction(action, this);
+
+        logger.debug(String.format("%s simulating %s @ %s", this.toString(), PCMEntityHelper.toString(action),
+                getModel().getSimulationControl().getCurrentSimulationTime()));
+
+        // 1) tell simulation strategy to simulate the action's effects on this request
+        simulationStrategy.simulate(action, this, instruction -> {
+            // 2) then, execute traversal instruction returned by simulation strategy
+            instruction.execute();
+        });
+    }
+
+    private void notifyAfterAction(final AbstractAction action, final Request request) {
+        listenerRegistry.notifyAfterListener(action, request);
+    }
+
+    private void notifyBeforeAction(final AbstractAction action, final Request request) {
+        listenerRegistry.notifyBeforeListener(action, request);
+    }
 
 }

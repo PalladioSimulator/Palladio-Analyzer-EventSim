@@ -37,7 +37,8 @@ public class LoopActionTraversalStrategy implements SimulationStrategy<AbstractA
 
         // evaluate iteration count
         final PCMRandomVariable loopCountRandVar = loop.getIterationCount_LoopAction();
-        final int requestedIterations = StackContext.evaluateStatic(loopCountRandVar.getSpecification(), Integer.class);
+        final int requestedIterations = request.getRequestState().getStoExContext()
+                .evaluate(loopCountRandVar.getSpecification(), Integer.class);
 
         // 1) simulate loop iterations
         new LoopIterationHandler(requestedIterations, self -> {

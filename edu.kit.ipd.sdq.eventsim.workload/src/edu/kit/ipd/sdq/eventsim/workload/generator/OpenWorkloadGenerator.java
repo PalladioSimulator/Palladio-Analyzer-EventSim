@@ -9,7 +9,6 @@ import com.google.inject.assistedinject.Assisted;
 
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
-import edu.kit.ipd.sdq.eventsim.api.events.WorkloadUserFinishedEvent;
 import edu.kit.ipd.sdq.eventsim.entities.IEntityListener;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
 import edu.kit.ipd.sdq.eventsim.workload.entities.UserFactory;
@@ -77,8 +76,7 @@ public class OpenWorkloadGenerator implements IWorkloadGenerator {
 
             @Override
             public void leftSystem() {
-                // trigger event that the user finished his work
-                middleware.triggerEvent(new WorkloadUserFinishedEvent(user));
+                // nothing to do
             }
 
         });

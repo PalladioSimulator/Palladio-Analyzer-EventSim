@@ -13,8 +13,11 @@ import com.google.inject.assistedinject.Assisted;
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
 import de.uka.ipd.sdq.simulation.abstractsimengine.AbstractSimEventDelegator;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
+import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
 import edu.kit.ipd.sdq.eventsim.api.IUser;
 import edu.kit.ipd.sdq.eventsim.api.Procedure;
+import edu.kit.ipd.sdq.eventsim.api.events.WorkloadUserFinishedEvent;
+import edu.kit.ipd.sdq.eventsim.api.events.WorkloadUserSpawnEvent;
 import edu.kit.ipd.sdq.eventsim.command.PCMModelCommandExecutor;
 import edu.kit.ipd.sdq.eventsim.command.useraction.FindActionInUsageBehaviour;
 import edu.kit.ipd.sdq.eventsim.debug.DebugEntityListener;
@@ -54,6 +57,9 @@ public class User extends EventSimEntity implements IUser {
 
     @Inject
     private Provider<SimulationStrategyRegistry<AbstractUserAction, User>> strategyRegistry;
+
+    @Inject
+    private ISimulationMiddleware middleware;
 
     /**
      * Constructs a new User that is supposed to traverse the specified usage scenario.
@@ -124,7 +130,7 @@ public class User extends EventSimEntity implements IUser {
         if (state.size() == 1) {
             notifyLeftSystem();
         }
-        
+
         Procedure callback = state.getOnFinishCallback();
         state.popStackFrame();
         callback.execute();
@@ -182,12 +188,12 @@ public class User extends EventSimEntity implements IUser {
      *            will be invoked once the behaviour has been simulated completely
      */
     public void simulateBehaviour(ScenarioBehaviour behaviour, Procedure onCompletionCallback) {
+        enterScenarioBehaviour(behaviour, onCompletionCallback);
+
         // outermost behaviour?
         if (PCMEntityHelper.equals(behaviour, scenario.getScenarioBehaviour_UsageScenario())) {
             notifyEnteredSystem();
         }
-
-        enterScenarioBehaviour(behaviour, onCompletionCallback);
 
         // begin simulation
         Start startAction = executor.execute(new FindActionInUsageBehaviour<Start>(behaviour, Start.class));
@@ -206,6 +212,18 @@ public class User extends EventSimEntity implements IUser {
         if (listenerRegistry.getTraversalListenerMap().containsKey(action)) {
             listenerRegistry.getTraversalListenerMap().get(action).forEach(l -> l.before(action, user));
         }
+    }
+
+    @Override
+    public void notifyEnteredSystem() {
+        super.notifyEnteredSystem();
+        middleware.triggerEvent(new WorkloadUserSpawnEvent(this));
+    }
+
+    @Override
+    public void notifyLeftSystem() {
+        super.notifyLeftSystem();
+        middleware.triggerEvent(new WorkloadUserFinishedEvent(this));
     }
 
 }

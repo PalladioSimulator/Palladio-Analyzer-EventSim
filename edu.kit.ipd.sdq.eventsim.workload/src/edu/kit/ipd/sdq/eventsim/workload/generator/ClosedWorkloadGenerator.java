@@ -10,8 +10,6 @@ import com.google.inject.assistedinject.Assisted;
 
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
-import edu.kit.ipd.sdq.eventsim.api.events.WorkloadUserFinishedEvent;
-import edu.kit.ipd.sdq.eventsim.api.events.WorkloadUserSpawnEvent;
 import edu.kit.ipd.sdq.eventsim.entities.IEntityListener;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
 import edu.kit.ipd.sdq.eventsim.workload.entities.UserFactory;
@@ -75,13 +73,11 @@ public class ClosedWorkloadGenerator implements IWorkloadGenerator {
 
             @Override
             public void enteredSystem() {
-                middleware.triggerEvent(new WorkloadUserSpawnEvent(user));
+                // nothing to do
             }
 
             @Override
             public void leftSystem() {
-                middleware.triggerEvent(new WorkloadUserFinishedEvent(user));
-
                 ClosedWorkloadGenerator.this.spawnUser();
             }
 

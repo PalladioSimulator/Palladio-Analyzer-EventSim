@@ -14,8 +14,11 @@ import com.google.inject.assistedinject.Assisted;
 import de.uka.ipd.sdq.simulation.abstractsimengine.AbstractSimEventDelegator;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 import edu.kit.ipd.sdq.eventsim.api.IRequest;
+import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
 import edu.kit.ipd.sdq.eventsim.api.IUser;
 import edu.kit.ipd.sdq.eventsim.api.Procedure;
+import edu.kit.ipd.sdq.eventsim.api.events.SystemRequestFinishedEvent;
+import edu.kit.ipd.sdq.eventsim.api.events.SystemRequestSpawnEvent;
 import edu.kit.ipd.sdq.eventsim.command.PCMModelCommandExecutor;
 import edu.kit.ipd.sdq.eventsim.command.action.FindActionInBehaviour;
 import edu.kit.ipd.sdq.eventsim.debug.DebugEntityListener;
@@ -57,6 +60,9 @@ public class Request extends EventSimEntity implements IRequest {
 
     @Inject
     private Provider<SimulationStrategyRegistry<AbstractAction, Request>> strategyRegistry;
+
+    @Inject
+    private ISimulationMiddleware middleware;
 
     /**
      * Constructs a new Request representing the execution of the specified system call, which has
@@ -197,16 +203,17 @@ public class Request extends EventSimEntity implements IRequest {
      */
     public void simulateBehaviour(ResourceDemandingBehaviour behaviour, ComponentInstance component,
             Procedure onCompletionCallback) {
-        if (state.size() == 0) {
-            notifyEnteredSystem();
-        }
-
         // find start action
         final StartAction start = executor
                 .execute(new FindActionInBehaviour<StartAction>(behaviour, StartAction.class));
 
         enterBehaviour(behaviour, onCompletionCallback);
         state.addProperty(COMPONENT_PROPERTY, component);
+
+        if (state.size() == 1) {
+            notifyEnteredSystem();
+        }
+
         simulateAction(start);
     }
 
@@ -250,6 +257,18 @@ public class Request extends EventSimEntity implements IRequest {
 
     private void notifyBeforeAction(final AbstractAction action, final Request request) {
         listenerRegistry.notifyBeforeListener(action, request);
+    }
+
+    @Override
+    public void notifyEnteredSystem() {
+        super.notifyEnteredSystem();
+        middleware.triggerEvent(new SystemRequestSpawnEvent(this));
+    }
+
+    @Override
+    public void notifyLeftSystem() {
+        super.notifyLeftSystem();
+        middleware.triggerEvent(new SystemRequestFinishedEvent(this));
     }
 
 }

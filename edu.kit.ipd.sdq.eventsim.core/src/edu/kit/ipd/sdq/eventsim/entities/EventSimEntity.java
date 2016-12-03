@@ -58,6 +58,8 @@ public abstract class EventSimEntity extends AbstractSimEntityDelegator {
     private final String namePrefix;
     private EntityLifecyclePhase lifecyclePhase;
 
+    private int hashCode;
+
     static {
         idGenerators = new HashMap<Class<? extends EventSimEntity>, AtomicLong>();
     }
@@ -177,10 +179,12 @@ public abstract class EventSimEntity extends AbstractSimEntityDelegator {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + (int) (id ^ (id >>> 32));
-        return result;
+        if (hashCode == 0) {
+            final int prime = 31;
+            int result = 1;
+            hashCode = prime * result + (int) (id ^ (id >>> 32));
+        }
+        return hashCode;
     }
 
     @Override

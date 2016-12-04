@@ -47,7 +47,7 @@ public class SimActiveResource extends AbstractActiveResource {
     }
 
     @Override
-    protected double calculateConcreteDemand(double abstractDemand) {
+    protected double calculateConcreteDemand(double abstractDemand, int resourceServiceId) {
         return abstractDemand / Context.evaluateStatic(processingRate, Double.class);
     }
 

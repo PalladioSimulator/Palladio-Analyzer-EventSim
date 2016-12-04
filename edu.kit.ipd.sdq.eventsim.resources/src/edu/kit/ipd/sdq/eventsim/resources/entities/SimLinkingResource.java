@@ -15,14 +15,15 @@ public class SimLinkingResource extends SimActiveResource {
     public SimLinkingResource(ISimulationModel model, @Assisted IActiveResource resource,
             @Assisted("latency") String latencySpecification, @Assisted("throughput") String throughputSpecification) {
         // TODO SimLinkingResource resource should not inherit SimActiveResource. Use composition!
-        super(model, resource, throughputSpecification, 1, null, null); // TODO pass FCFS resource specification!
+        super(model, resource, throughputSpecification, 1, null, null); // TODO pass FCFS resource
+                                                                        // specification!
         this.latencySpecification = latencySpecification;
     }
 
     @Override
-    protected double calculateConcreteDemand(double abstractDemand) {
+    protected double calculateConcreteDemand(double abstractDemand, int resourceServiceId) {
         // use calculation routine from super-class, but add latency
-        return super.calculateConcreteDemand(abstractDemand)
+        return super.calculateConcreteDemand(abstractDemand, resourceServiceId)
                 + Context.evaluateStatic(latencySpecification, Double.class);
     }
 

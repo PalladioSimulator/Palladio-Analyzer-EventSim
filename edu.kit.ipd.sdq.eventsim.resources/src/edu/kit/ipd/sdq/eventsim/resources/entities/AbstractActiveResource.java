@@ -92,7 +92,7 @@ public abstract class AbstractActiveResource extends EventSimEntity {
         if (logger.isDebugEnabled()) {
             logger.debug("Requested resource " + schedulerResource + " with an abstract demand of " + abstractDemand);
         }
-        double concreteDemand = calculateConcreteDemand(abstractDemand);
+        double concreteDemand = calculateConcreteDemand(abstractDemand, resourceServiceID);
 
         // register process the first time it hits this resource
         if (!registeredProcesses.contains(process)) {
@@ -107,7 +107,7 @@ public abstract class AbstractActiveResource extends EventSimEntity {
         fireDemand(process, concreteDemand, resourceServiceID);
     }
 
-    protected abstract double calculateConcreteDemand(double abstractDemand);
+    protected abstract double calculateConcreteDemand(double abstractDemand, int resourceServiceId);
 
     /**
      * @return the number of instances (e.g., cores in case of a processor) that constitute this

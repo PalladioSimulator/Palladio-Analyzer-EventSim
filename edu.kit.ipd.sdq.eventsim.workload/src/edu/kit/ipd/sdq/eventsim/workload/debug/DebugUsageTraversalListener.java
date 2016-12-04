@@ -3,9 +3,9 @@ package edu.kit.ipd.sdq.eventsim.workload.debug;
 import org.apache.log4j.Logger;
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 
+import edu.kit.ipd.sdq.eventsim.interpreter.listener.ITraversalListener;
 import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
-import edu.kit.ipd.sdq.eventsim.workload.interpreter.listener.IUsageTraversalListener;
 
 /**
  * This listener prints a debug message whenever an {@link AbstractUserAction} is about to be
@@ -17,7 +17,7 @@ import edu.kit.ipd.sdq.eventsim.workload.interpreter.listener.IUsageTraversalLis
  * @author Philipp Merkle
  * 
  */
-public class DebugUsageTraversalListener implements IUsageTraversalListener {
+public class DebugUsageTraversalListener implements ITraversalListener<AbstractUserAction, User> {
 
     private static final Logger logger = Logger.getLogger(DebugUsageTraversalListener.class);
 

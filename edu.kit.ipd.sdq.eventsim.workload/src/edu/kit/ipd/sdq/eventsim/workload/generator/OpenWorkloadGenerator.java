@@ -8,7 +8,6 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
-import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
 import edu.kit.ipd.sdq.eventsim.entities.IEntityListener;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
 import edu.kit.ipd.sdq.eventsim.workload.entities.UserFactory;
@@ -25,7 +24,6 @@ public class OpenWorkloadGenerator implements IWorkloadGenerator {
 
     private final OpenWorkload workload;
     private final PCMRandomVariable interarrivalTime;
-    private ISimulationMiddleware middleware;
     private UserFactory userFactory;
 
     /**
@@ -37,9 +35,7 @@ public class OpenWorkloadGenerator implements IWorkloadGenerator {
      *            the workload description
      */
     @Inject
-    public OpenWorkloadGenerator(ISimulationMiddleware middleware, UserFactory userFactory,
-            @Assisted final OpenWorkload workload) {
-        this.middleware = middleware;
+    public OpenWorkloadGenerator(UserFactory userFactory, @Assisted final OpenWorkload workload) {
         this.userFactory = userFactory;
         this.workload = workload;
 

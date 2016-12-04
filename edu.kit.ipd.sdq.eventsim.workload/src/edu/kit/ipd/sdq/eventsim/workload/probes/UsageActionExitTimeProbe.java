@@ -2,13 +2,13 @@ package edu.kit.ipd.sdq.eventsim.workload.probes;
 
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 
+import edu.kit.ipd.sdq.eventsim.interpreter.listener.ITraversalListener;
 import edu.kit.ipd.sdq.eventsim.measurement.Measurement;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasuringPoint;
 import edu.kit.ipd.sdq.eventsim.measurement.annotation.Probe;
 import edu.kit.ipd.sdq.eventsim.measurement.probe.AbstractProbe;
 import edu.kit.ipd.sdq.eventsim.workload.WorkloadMeasurementConfiguration;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
-import edu.kit.ipd.sdq.eventsim.workload.interpreter.listener.IUsageTraversalListener;
 
 @Probe(type = AbstractUserAction.class, property = "after")
 public class UsageActionExitTimeProbe<E extends AbstractUserAction>
@@ -18,7 +18,7 @@ public class UsageActionExitTimeProbe<E extends AbstractUserAction>
         super(p, cfg);
 
         configuration.getWorkloadModel().getTraversalListeners().addTraversalListener(getMeasuringPoint().getElement(),
-                new IUsageTraversalListener() {
+                new ITraversalListener<AbstractUserAction, User>() {
 
                     @Override
                     public void before(AbstractUserAction action, User user) {

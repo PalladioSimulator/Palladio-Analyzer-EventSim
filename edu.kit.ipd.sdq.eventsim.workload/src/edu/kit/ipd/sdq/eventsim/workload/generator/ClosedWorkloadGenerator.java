@@ -9,7 +9,6 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
-import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
 import edu.kit.ipd.sdq.eventsim.entities.IEntityListener;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
 import edu.kit.ipd.sdq.eventsim.workload.entities.UserFactory;
@@ -29,7 +28,6 @@ public class ClosedWorkloadGenerator implements IWorkloadGenerator {
     private final int population;
     private final PCMRandomVariable thinkTime;
     private UserFactory userFactory;
-    private ISimulationMiddleware middleware;
 
     /**
      * Constructs a closed workload in accordance with the specified workload description.
@@ -40,9 +38,7 @@ public class ClosedWorkloadGenerator implements IWorkloadGenerator {
      *            the workload description
      */
     @Inject
-    public ClosedWorkloadGenerator(ISimulationMiddleware middleware, UserFactory userFactory,
-            @Assisted ClosedWorkload workload) {
-        this.middleware = middleware;
+    public ClosedWorkloadGenerator(UserFactory userFactory, @Assisted ClosedWorkload workload) {
         this.userFactory = userFactory;
         this.workload = workload;
         this.population = workload.getPopulation();

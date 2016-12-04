@@ -19,11 +19,11 @@ import com.google.inject.Singleton;
 
 import de.uka.ipd.sdq.scheduler.resources.active.AbstractActiveResource;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
-import edu.kit.ipd.sdq.eventsim.api.Procedure;
 import edu.kit.ipd.sdq.eventsim.api.IActiveResource;
 import edu.kit.ipd.sdq.eventsim.api.IRequest;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
 import edu.kit.ipd.sdq.eventsim.api.PCMModel;
+import edu.kit.ipd.sdq.eventsim.api.Procedure;
 import edu.kit.ipd.sdq.eventsim.api.events.IEventHandler.Registration;
 import edu.kit.ipd.sdq.eventsim.api.events.SimulationPrepareEvent;
 import edu.kit.ipd.sdq.eventsim.api.events.SimulationStopEvent;
@@ -97,11 +97,11 @@ public class EventSimActiveResourceModel implements IActiveResource {
         // create instrumentor for instrumentation description
         instrumentor = InstrumentorBuilder.buildFor(pcm).inBundle(Activator.getContext().getBundle())
                 .withDescription(instrumentation).withStorage(measurementStorage).forModelType(ActiveResourceRep.class)
-                .withMapping((SimActiveResource r) -> new ActiveResourceRep(r.getSpecification()))
+                .withMapping(
+                        (SimActiveResource r) -> new ActiveResourceRep(r.getResourceContainer(), r.getResourceType()))
                 .createFor(measurementFacade);
 
-        measurementStorage.addIdExtractor(SimActiveResource.class,
-                c -> ((SimActiveResource) c).getSpecification().getId());
+        measurementStorage.addIdExtractor(SimActiveResource.class, c -> ((SimActiveResource) c).getId());
         measurementStorage.addNameExtractor(SimActiveResource.class, c -> ((SimActiveResource) c).getName());
         measurementStorage.addIdExtractor(SimulatedProcess.class,
                 c -> Long.toString(((SimulatedProcess) c).getEntityId()));
@@ -132,7 +132,8 @@ public class EventSimActiveResourceModel implements IActiveResource {
 
     public void finalise() {
         // clean up created resources
-        for (SimActiveResource resource : containerToResourceMap.values()) {
+        for (edu.kit.ipd.sdq.eventsim.resources.entities.AbstractActiveResource resource : containerToResourceMap
+                .values()) {
             resource.deactivateResource();
         }
 

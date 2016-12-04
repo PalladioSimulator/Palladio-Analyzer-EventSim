@@ -98,7 +98,7 @@ public class ResourceFactory {
         if (specification instanceof HDDProcessingResourceSpecification) {
             HDDProcessingResourceSpecification hdd = (HDDProcessingResourceSpecification) specification;
             r = this.resourceFactory.createActiveHDDResource(resource, processingRate.getSpecification(),
-                    numberOfReplicas, specification.getSchedulingPolicy(), specification,
+                    numberOfReplicas, specification.getSchedulingPolicy(), hdd,
                     hdd.getWriteProcessingRate().getSpecification(), hdd.getReadProcessingRate().getSpecification());
         } else { // normal case (no HDD resource)
             r = this.resourceFactory.createActiveResource(resource, processingRate.getSpecification(), numberOfReplicas,
@@ -127,7 +127,7 @@ public class ResourceFactory {
         IActiveResource resource = schedulingFactory.createSimFCFSResource(resourceName, getNextResourceId());
 
         SimLinkingResource r = resourceFactory.createLinkingResource(resource, latency.getSpecification(),
-                throughput.getSpecification());
+                throughput.getSpecification(), specification);
 
         return r;
     }

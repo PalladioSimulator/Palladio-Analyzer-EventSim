@@ -10,6 +10,7 @@ import edu.kit.ipd.sdq.eventsim.api.Procedure;
 import edu.kit.ipd.sdq.eventsim.interpreter.SimulationStrategy;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
 import edu.kit.ipd.sdq.eventsim.system.staticstructure.ComponentInstance;
+import edu.kit.ipd.sdq.eventsim.system.staticstructure.SimulatedResourceContainer;
 
 /**
  * This traversal strategy is responsible for {@link ExternalCallAction}s.
@@ -26,12 +27,21 @@ public class ExternalCallActionStrategy implements SimulationStrategy<AbstractAc
     public void simulate(AbstractAction action, Request request, Consumer<Procedure> onFinishCallback) {
         ExternalCallAction callAction = (ExternalCallAction) action;
 
-        // find the component that provides the required service
         final ComponentInstance currentComponent = request.getCurrentComponent();
+
+        // find the component that provides the required service
         final ComponentInstance providingComponent = currentComponent
                 .getProvidingComponent(callAction.getCalledService_ExternalService());
         final ResourceDemandingBehaviour behaviour = providingComponent
                 .getServiceEffectSpecification(callAction.getCalledService_ExternalService());
+
+        // is network call?
+        SimulatedResourceContainer fromContainer = currentComponent.getResourceContainer();
+        SimulatedResourceContainer toContainer = providingComponent.getResourceContainer();
+        boolean isNetworkCall = false;
+        if (fromContainer.equals(toContainer)) {
+            isNetworkCall = true;
+        }
 
         // TODO simulate network, if the component is deployed on another server
 

@@ -77,6 +77,13 @@ public class EventSimActiveResourceModel implements IActiveResource {
         Bundle bundle = Activator.getContext().getBundle();
         measurementFacade = new MeasurementFacade<>(new ResourceProbeConfiguration(), new BundleProbeLocator<>(bundle));
 
+        // add hints for extracting IDs and names
+        measurementStorage.addIdExtractor(SimActiveResource.class, c -> ((SimActiveResource) c).getId());
+        measurementStorage.addNameExtractor(SimActiveResource.class, c -> ((SimActiveResource) c).getName());
+        measurementStorage.addIdExtractor(SimulatedProcess.class,
+                c -> Long.toString(((SimulatedProcess) c).getEntityId()));
+        measurementStorage.addNameExtractor(SimulatedProcess.class, c -> ((SimulatedProcess) c).getName());
+
         // create instrumentor for instrumentation description
         instrumentor = InstrumentorBuilder.buildFor(pcm).inBundle(Activator.getContext().getBundle())
                 .withDescription(instrumentation).withStorage(measurementStorage).forModelType(ActiveResourceRep.class)
@@ -84,12 +91,7 @@ public class EventSimActiveResourceModel implements IActiveResource {
                         (SimActiveResource r) -> new ActiveResourceRep(r.getResourceContainer(), r.getResourceType()))
                 .createFor(measurementFacade);
 
-        measurementStorage.addIdExtractor(SimActiveResource.class, c -> ((SimActiveResource) c).getId());
-        measurementStorage.addNameExtractor(SimActiveResource.class, c -> ((SimActiveResource) c).getName());
-        measurementStorage.addIdExtractor(SimulatedProcess.class,
-                c -> Long.toString(((SimulatedProcess) c).getEntityId()));
-        measurementStorage.addNameExtractor(SimulatedProcess.class, c -> ((SimulatedProcess) c).getName());
-
+        // instrument newly created resources
         resourceRegistry.addResourceRegistrationListener(resource -> {
             // create probes and calculators (if requested by instrumentation description)
             instrumentor.instrument(resource);

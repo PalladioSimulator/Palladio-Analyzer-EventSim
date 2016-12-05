@@ -13,6 +13,13 @@ import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
 import edu.kit.ipd.sdq.eventsim.entities.IEntityListener;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimulatedProcess;
 
+/**
+ * A registry that maps {@link IRequest}s to {@link SimulatedProcess}es. Assumes a one-to-one
+ * relation between requests and simulated processes.
+ * 
+ * @author Philipp Merkle
+ *
+ */
 @Singleton
 public class ProcessRegistry {
 

@@ -60,7 +60,7 @@ public class EventSimActiveResourceModel implements IActiveResource {
     private ProcessRegistry processRegistry;
 
     @Inject
-    private ResourceRegistry resourceRegistry;
+    private ActiveResourceRegistry resourceRegistry;
 
     @Inject
     public EventSimActiveResourceModel(ISimulationMiddleware middleware) {

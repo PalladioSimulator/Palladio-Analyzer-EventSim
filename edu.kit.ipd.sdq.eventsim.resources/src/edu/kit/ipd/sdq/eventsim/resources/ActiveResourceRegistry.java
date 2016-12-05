@@ -19,7 +19,7 @@ import edu.kit.ipd.sdq.eventsim.resources.entities.SimActiveResource;
 import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
 
 @Singleton
-public class ResourceRegistry {
+public class ActiveResourceRegistry {
 
     private static final Logger logger = Logger.getLogger(EventSimActiveResourceModel.class);
     
@@ -31,7 +31,7 @@ public class ResourceRegistry {
     @Inject
     private ResourceFactory resourceFactory;
     
-    public ResourceRegistry() {
+    public ActiveResourceRegistry() {
         containerToResourceMap = new HashMap<>();
         registrationListeners = new LinkedList<>();
     }

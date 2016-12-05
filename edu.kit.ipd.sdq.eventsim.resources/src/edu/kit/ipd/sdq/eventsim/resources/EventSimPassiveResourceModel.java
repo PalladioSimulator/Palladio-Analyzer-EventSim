@@ -1,8 +1,5 @@
 package edu.kit.ipd.sdq.eventsim.resources;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.osgi.framework.Bundle;
 import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 import org.palladiosimulator.pcm.repository.PassiveResource;
@@ -10,7 +7,6 @@ import org.palladiosimulator.pcm.repository.PassiveResource;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 import edu.kit.ipd.sdq.eventsim.api.IPassiveResource;
 import edu.kit.ipd.sdq.eventsim.api.IRequest;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
@@ -33,13 +29,7 @@ import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
 @Singleton
 public class EventSimPassiveResourceModel implements IPassiveResource {
 
-    // maps (AssemblyContext ID, PassiveResource ID) -> SimPassiveResource
-    private Map<String, SimPassiveResource> contextToResourceMap;
-
     private Instrumentor<SimPassiveResource, ?> instrumentor;
-
-    @Inject
-    private ISimulationModel model;
 
     @Inject
     private MeasurementStorage measurementStorage;
@@ -53,13 +43,13 @@ public class EventSimPassiveResourceModel implements IPassiveResource {
     @Inject
     private InstrumentationDescription instrumentation;
 
-    @Inject
-    private ResourceFactory resourceFactory;
-
     private MeasurementFacade<ResourceProbeConfiguration> measurementFacade;
 
     @Inject
     private ProcessRegistry processRegistry;
+
+    @Inject
+    private PassiveResourceRegistry resourceRegistry;
 
     @Inject
     public EventSimPassiveResourceModel(ISimulationMiddleware middleware) {
@@ -68,8 +58,6 @@ public class EventSimPassiveResourceModel implements IPassiveResource {
             init();
             return Registration.UNREGISTER;
         });
-
-        contextToResourceMap = new HashMap<String, SimPassiveResource>();
     }
 
     public void init() {
@@ -87,6 +75,12 @@ public class EventSimPassiveResourceModel implements IPassiveResource {
         measurementStorage.addIdExtractor(SimPassiveResource.class,
                 c -> ((SimPassiveResource) c).getSpecification().getId());
         measurementStorage.addNameExtractor(SimPassiveResource.class, c -> ((SimPassiveResource) c).getName());
+
+        // instrument newly created resources
+        resourceRegistry.addResourceRegistrationListener(resource -> {
+            // create probes and calculators (if requested by instrumentation description)
+            instrumentor.instrument(resource);
+        });
 
         registerEventHandler();
     }
@@ -106,7 +100,7 @@ public class EventSimPassiveResourceModel implements IPassiveResource {
     }
 
     public void finalise() {
-        contextToResourceMap.clear();
+        // nothing to do
     }
 
     public void release(IRequest request, AssemblyContext assCtx, PassiveResource specification, int i) {
@@ -120,39 +114,12 @@ public class EventSimPassiveResourceModel implements IPassiveResource {
      * @return the resource instance for the given resource specification
      */
     public SimPassiveResource getPassiveResource(final PassiveResource specification, AssemblyContext assCtx) {
-        final SimPassiveResource simResource = findOrCreateResource(specification, assCtx);
+        final SimPassiveResource simResource = resourceRegistry.findOrCreateResource(specification, assCtx);
         if (simResource == null) {
             throw new RuntimeException("Passive resource " + PCMEntityHelper.toString(specification)
                     + " for assembly context " + PCMEntityHelper.toString(assCtx) + " could not be found.");
         }
         return simResource;
-    }
-
-    /**
-     * Finds the resource that has been registered for the specified type. If no resource of the
-     * specified type can be found, the search continues with the parent resource container.
-     * 
-     * @param type
-     *            the resource type
-     * @return the resource of the specified type, if there is one; null else
-     */
-    public SimPassiveResource findOrCreateResource(PassiveResource specification, AssemblyContext assCtx) {
-        if (!contextToResourceMap.containsKey(compoundKey(assCtx, specification))) {
-            // create passive resource
-            SimPassiveResource resource = resourceFactory.createPassiveResource(model, specification, assCtx);
-
-            // register the created passive resource
-            contextToResourceMap.put(compoundKey(assCtx, specification), resource);
-
-            // create probes and calculators (if requested by instrumentation description)
-            instrumentor.instrument(resource);
-        }
-        return contextToResourceMap.get(compoundKey(assCtx, specification));
-    }
-
-    private String compoundKey(AssemblyContext specification, PassiveResource resource) {
-        // TODO better use resource name "CPU", HDD, ... as second component!?
-        return specification.getId() + resource.getId();
     }
 
 }

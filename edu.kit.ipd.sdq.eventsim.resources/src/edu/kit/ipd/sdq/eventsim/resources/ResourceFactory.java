@@ -43,8 +43,11 @@ public class ResourceFactory {
     @Inject
     private SimResourceFactory resourceFactory;
 
+    private SchedulerModel model;
+
     @Inject
     public ResourceFactory(SchedulerModel model) {
+        this.model = model;
         schedulingFactory = new SchedulingFactory(model);
     }
 
@@ -145,7 +148,7 @@ public class ResourceFactory {
      *            the assembly context in which the passive resource is created
      * @return the created resource
      */
-    public SimPassiveResource createPassiveResource(final ISimulationModel model, final PassiveResource specification,
+    public SimPassiveResource createPassiveResource(final PassiveResource specification,
             final AssemblyContext assemblyCtx) {
         // obtain capacity by evaluating the associated StoEx
         final PCMRandomVariable capacitySpecification = specification.getCapacity_PassiveResource();

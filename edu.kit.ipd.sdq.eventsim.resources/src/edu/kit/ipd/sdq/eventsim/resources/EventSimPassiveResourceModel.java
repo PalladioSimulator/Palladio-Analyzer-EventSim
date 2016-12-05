@@ -65,16 +65,17 @@ public class EventSimPassiveResourceModel implements IPassiveResource {
         Bundle bundle = Activator.getContext().getBundle();
         measurementFacade = new MeasurementFacade<>(new ResourceProbeConfiguration(), new BundleProbeLocator<>(bundle));
 
+        // add hints for extracting IDs and names
+        measurementStorage.addIdExtractor(SimPassiveResource.class,
+                c -> ((SimPassiveResource) c).getSpecification().getId());
+        measurementStorage.addNameExtractor(SimPassiveResource.class, c -> ((SimPassiveResource) c).getName());
+
         // create instrumentor for instrumentation description
         instrumentor = InstrumentorBuilder.buildFor(pcm).inBundle(Activator.getContext().getBundle())
                 .withDescription(instrumentation).withStorage(measurementStorage).forModelType(PassiveResourceRep.class)
                 .withMapping(
                         (SimPassiveResource r) -> new PassiveResourceRep(r.getSpecification(), r.getAssemblyContext()))
                 .createFor(measurementFacade);
-
-        measurementStorage.addIdExtractor(SimPassiveResource.class,
-                c -> ((SimPassiveResource) c).getSpecification().getId());
-        measurementStorage.addNameExtractor(SimPassiveResource.class, c -> ((SimPassiveResource) c).getName());
 
         // instrument newly created resources
         resourceRegistry.addResourceRegistrationListener(resource -> {

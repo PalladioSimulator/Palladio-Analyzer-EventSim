@@ -1,9 +1,7 @@
 package edu.kit.ipd.sdq.eventsim.resources;
 
-import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.WeakHashMap;
 
 import org.apache.log4j.Logger;
 import org.osgi.framework.Bundle;
@@ -18,7 +16,6 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import de.uka.ipd.sdq.scheduler.resources.active.AbstractActiveResource;
-import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 import edu.kit.ipd.sdq.eventsim.api.IActiveResource;
 import edu.kit.ipd.sdq.eventsim.api.IRequest;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
@@ -27,8 +24,6 @@ import edu.kit.ipd.sdq.eventsim.api.Procedure;
 import edu.kit.ipd.sdq.eventsim.api.events.IEventHandler.Registration;
 import edu.kit.ipd.sdq.eventsim.api.events.SimulationPrepareEvent;
 import edu.kit.ipd.sdq.eventsim.api.events.SimulationStopEvent;
-import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
-import edu.kit.ipd.sdq.eventsim.entities.IEntityListener;
 import edu.kit.ipd.sdq.eventsim.exceptions.unchecked.UnexpectedModelStructureException;
 import edu.kit.ipd.sdq.eventsim.instrumentation.description.core.InstrumentationDescription;
 import edu.kit.ipd.sdq.eventsim.instrumentation.description.resource.ActiveResourceRep;
@@ -49,15 +44,9 @@ public class EventSimActiveResourceModel implements IActiveResource {
     // maps (ResourceContainer ID, ResourceType ID) -> SimActiveResource
     private Map<String, SimActiveResource> containerToResourceMap;
 
-    // TODO extract class
-    private Map<IRequest, SimulatedProcess> requestToSimulatedProcessMap;
-
     private Map<ResourceInterface, ResourceType> resourceInterfaceToTypeMap;
 
     private Instrumentor<SimActiveResource, ?> instrumentor;
-
-    @Inject
-    private ISimulationModel model;
 
     @Inject
     private MeasurementStorage measurementStorage;
@@ -75,6 +64,9 @@ public class EventSimActiveResourceModel implements IActiveResource {
 
     @Inject
     private ResourceFactory resourceFactory;
+    
+    @Inject
+    private ProcessRegistry processRegistry;
 
     @Inject
     public EventSimActiveResourceModel(ISimulationMiddleware middleware) {
@@ -85,7 +77,6 @@ public class EventSimActiveResourceModel implements IActiveResource {
         });
 
         containerToResourceMap = new HashMap<>();
-        requestToSimulatedProcessMap = new WeakHashMap<>();
         resourceInterfaceToTypeMap = new HashMap<>();
     }
 
@@ -126,7 +117,7 @@ public class EventSimActiveResourceModel implements IActiveResource {
             throw new RuntimeException("Could not find a resource of type " + resourceType.getEntityName());
         }
 
-        resource.consumeResource(getOrCreateSimulatedProcess(request), absoluteDemand, resourceServiceID,
+        resource.consumeResource(processRegistry.getOrCreateSimulatedProcess(request), absoluteDemand, resourceServiceID,
                 onServedCallback);
     }
 
@@ -210,56 +201,6 @@ public class EventSimActiveResourceModel implements IActiveResource {
 
     private String compoundKey(ResourceContainer specification, ResourceType resourceType) {
         return specification.getId() + resourceType.getId();
-    }
-
-    /**
-     * This handler reacts when the Request has been finished and informs the simulated process
-     * about that.
-     * 
-     * @author Philipp Merkle
-     */
-    private class RequestFinishedHandler implements IEntityListener {
-
-        private WeakReference<SimulatedProcess> process;
-
-        public RequestFinishedHandler(SimulatedProcess process) {
-            this.process = new WeakReference<SimulatedProcess>(process);
-        }
-
-        @Override
-        public void enteredSystem() {
-            // nothing to do
-        }
-
-        @Override
-        public void leftSystem() {
-            process.get().terminate();
-            requestToSimulatedProcessMap.remove(process.get().getRequest());
-        }
-
-    }
-
-    /**
-     * Returns the simulated process that is used to schedule resource requests issued by this
-     * Request on an active or passive resource.
-     * 
-     * @return the simulated process
-     */
-    public SimulatedProcess getOrCreateSimulatedProcess(IRequest request) {
-        if (!requestToSimulatedProcessMap.containsKey(request)) {
-            SimulatedProcess parent = null;
-            if (request.getParent() != null) {
-                parent = getOrCreateSimulatedProcess(request.getParent());
-            }
-            SimulatedProcess process = new SimulatedProcess(model, parent, request);
-
-            // add listener for request finish
-            EventSimEntity requestEntity = (EventSimEntity) request;
-            requestEntity.addEntityListener(new RequestFinishedHandler(process));
-
-            requestToSimulatedProcessMap.put(request, process);
-        }
-        return requestToSimulatedProcessMap.get(request);
     }
 
     @Override

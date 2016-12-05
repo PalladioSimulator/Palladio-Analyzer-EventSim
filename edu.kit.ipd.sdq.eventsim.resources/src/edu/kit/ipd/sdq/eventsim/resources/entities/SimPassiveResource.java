@@ -72,7 +72,7 @@ public class SimPassiveResource extends EventSimEntity {
         process.setOnActivationCallback(onGrantedCallback);
         boolean granted = schedulerResource.acquire(process, num, timeout, timeoutValue);
         if (granted) {
-            onGrantedCallback.execute();
+            process.activate();
         }
     }
 

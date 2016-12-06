@@ -73,6 +73,23 @@
                 <resource-type>edu.kit.ipd.sdq.eventsim.instrumentation.description.resource.PassiveResourceRep</resource-type>
             </resource-set>
         </resource-rule>
+        <resource-rule name="LinkingResourceRep">
+            <calculators/>
+            <probes>
+                <probe>
+                    <property>queue_length</property>
+                    <probed-type>edu.kit.ipd.sdq.eventsim.instrumentation.description.resource.LinkingResourceRep</probed-type>
+                </probe>
+                <probe>
+                    <property>resource_demand</property>
+                    <probed-type>edu.kit.ipd.sdq.eventsim.instrumentation.description.resource.LinkingResourceRep</probed-type>
+                </probe>
+            </probes>
+            <resource-set>
+                <restrictions/>
+                <resource-type>edu.kit.ipd.sdq.eventsim.instrumentation.description.resource.LinkingResourceRep</resource-type>
+            </resource-set>
+        </resource-rule>
         <action-rule name="ExternalCallAction">
             <calculators>
                 <calculator>

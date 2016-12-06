@@ -12,7 +12,7 @@ import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationConfig;
  * @author Christoph Föhrdes
  */
 public interface ISimulationConfiguration extends ISimulationConfig {
-
+    
 	/**
 	 * Gives access to the raw configuration map as created at simulation launch.
 	 * 
@@ -36,5 +36,9 @@ public interface ISimulationConfiguration extends ISimulationConfig {
 	long getMaxMeasurementsCount();
 	
 	List<ISimulationListener> getListeners();
+
+    boolean isSimulateLinkingResources();
+
+    boolean isSimulateThroughputOfLinkingResources();
 
 }

@@ -1,7 +1,10 @@
 package edu.kit.ipd.sdq.eventsim.system.interpreter.strategies;
 
+import java.util.List;
+import java.util.Map.Entry;
 import java.util.function.Consumer;
 
+import org.apache.log4j.Logger;
 import org.palladiosimulator.pcm.resourceenvironment.LinkingResource;
 import org.palladiosimulator.pcm.seff.AbstractAction;
 import org.palladiosimulator.pcm.seff.ExternalCallAction;
@@ -9,7 +12,9 @@ import org.palladiosimulator.pcm.seff.ResourceDemandingBehaviour;
 
 import com.google.inject.Inject;
 
+import de.uka.ipd.sdq.simucomframework.variables.converter.NumberConverter;
 import edu.kit.ipd.sdq.eventsim.api.ILinkingResource;
+import edu.kit.ipd.sdq.eventsim.api.ISimulationConfiguration;
 import edu.kit.ipd.sdq.eventsim.api.Procedure;
 import edu.kit.ipd.sdq.eventsim.interpreter.SimulationStrategy;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
@@ -25,8 +30,13 @@ import edu.kit.ipd.sdq.eventsim.system.staticstructure.SimulatedResourceContaine
  */
 public class ExternalCallActionStrategy implements SimulationStrategy<AbstractAction, Request> {
 
+    private static final Logger logger = Logger.getLogger(ExternalCallActionStrategy.class);
+
     @Inject
     private ILinkingResource network;
+
+    @Inject
+    private ISimulationConfiguration configuration;
 
     /**
      * {@inheritDoc}
@@ -56,15 +66,14 @@ public class ExternalCallActionStrategy implements SimulationStrategy<AbstractAc
             LinkingResource resource = link.getSpecification()
                     .getLinkingResource_CommunicationLinkResourceSpecification();
 
-            double demand = 0; // latency will still be simulated
             // 1) simulate network demand
-            network.consume(request, resource, demand, () -> {
+            network.consume(request, resource, calculateDemand(request), () -> {
                 // 2) then simulate component-external call
                 request.simulateBehaviour(behaviour, providingComponent, () -> {
                     // 3) when the service call finishes, return traversal instruction
                     onFinishCallback.accept(() -> {
                         // 4) once called, first simulate network demand of result
-                        network.consume(request, resource, demand, () -> {
+                        network.consume(request, resource, calculateDemand(request), () -> {
                             // 5) when completed, continue simulation with successor
                             request.simulateAction(action.getSuccessor_AbstractAction());
                         });
@@ -78,6 +87,34 @@ public class ExternalCallActionStrategy implements SimulationStrategy<AbstractAc
                 });
             });
         }
+    }
+
+    /*
+     * this code is largely taken from SimuCom's model 2 code transformation
+     */
+    private double calculateDemand(Request request) {
+        double demand = 0;
+        if (configuration.isSimulateThroughputOfLinkingResources()) {
+            // if no stream.BYTESIZE variable is available, the demand is calculated by summing up
+            // all the sent variables with BYTESIZE characterization
+            List<Entry<String, Object>> stackFrameContent = request.getRequestState().getStoExContext().getStack()
+                    .currentStackFrame().getContents();
+            for (Entry<String, Object> entry : stackFrameContent) {
+                if (entry.getKey().endsWith("BYTESIZE")) {
+                    if (entry.getKey().contains(".INNER.")) {
+                        // TODO: include logic to determine proper BYTESIZE of the call, take from
+                        // completions code.
+                        logger.warn(
+                                "Network demand cannot be properly determined for INNER BYTESIZE characterizations yet, "
+                                        + "the simulation will assume that there is just a single element in the collection. "
+                                        + "Please enable the ''simulate middleware marshalling / demarshalling of remote calls'' "
+                                        + "in the feature settings tab or directly define the BYTESIZE of the collection.");
+                    }
+                    demand += NumberConverter.toDouble(entry.getValue());
+                }
+            }
+        } // else the demand stays 0.0; latency will still be simulated
+        return demand;
     }
 
 }

@@ -32,6 +32,11 @@ public interface ISimulationMiddleware {
     void stopSimulation();
 
     /**
+     * @return {@code true} if a simulation stop has been requested; {@code false} else
+     */
+    boolean isStopping();
+
+    /**
      * Gives access to the simulation configuration provided by the user on launch of the simulation
      * run.
      * 

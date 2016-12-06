@@ -28,7 +28,6 @@ import edu.kit.ipd.sdq.eventsim.api.events.SimulationStopEvent;
 import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorage;
 import edu.kit.ipd.sdq.eventsim.measurement.MeasurementStorageStartException;
-import edu.kit.ipd.sdq.eventsim.measurement.r.connection.RserveConnection;
 import edu.kit.ipd.sdq.eventsim.middleware.events.EventManager;
 import edu.kit.ipd.sdq.eventsim.middleware.simulation.MaxMeasurementsStopCondition;
 
@@ -59,6 +58,8 @@ public class SimulationMiddleware implements ISimulationMiddleware {
     private EventManager eventManager;
 
     private int measurementCount;
+
+    private boolean isStopping;
 
     @Inject
     public SimulationMiddleware(EventManager eventManager) {
@@ -164,7 +165,10 @@ public class SimulationMiddleware implements ISimulationMiddleware {
         eventManager.triggerEvent(new SimulationPrepareEvent());
         setupSimulationProgressObserver(statusObserver);
 
-        model.getSimulationControl().start();
+        // start simulation only if simulation stop has not been requested
+        if (!isStopping()) {
+            model.getSimulationControl().start();
+        }
     }
 
     private void setupSimulationProgressObserver(IStatusObserver statusObserver) {
@@ -194,7 +198,20 @@ public class SimulationMiddleware implements ISimulationMiddleware {
      */
     @Override
     public void stopSimulation() {
-        model.getSimulationControl().stop();
+        if (!isStopping) {
+            isStopping = true;
+            if (model.getSimulationControl().isRunning()) {
+                model.getSimulationControl().stop();
+            } else {
+                // normally, finalise is invoked by the stop method, which we however do not invoke
+                model.finalise();
+            }
+        }
+    }
+
+    @Override
+    public boolean isStopping() {
+        return isStopping;
     }
 
     /**

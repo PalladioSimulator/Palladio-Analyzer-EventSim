@@ -1,5 +1,6 @@
 package edu.kit.ipd.sdq.eventsim.resources;
 
+import org.apache.log4j.Logger;
 import org.osgi.framework.Bundle;
 import org.palladiosimulator.pcm.resourceenvironment.LinkingResource;
 
@@ -8,6 +9,7 @@ import com.google.inject.Singleton;
 
 import edu.kit.ipd.sdq.eventsim.api.ILinkingResource;
 import edu.kit.ipd.sdq.eventsim.api.IRequest;
+import edu.kit.ipd.sdq.eventsim.api.ISimulationConfiguration;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
 import edu.kit.ipd.sdq.eventsim.api.PCMModel;
 import edu.kit.ipd.sdq.eventsim.api.Procedure;
@@ -28,6 +30,8 @@ import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
 @Singleton
 public class EventSimLinkingResourceModel implements ILinkingResource {
 
+    private static final Logger logger = Logger.getLogger(EventSimLinkingResourceModel.class);
+
     @Inject
     private LinkingResourceRegistry resourceRegistry;
 
@@ -42,6 +46,12 @@ public class EventSimLinkingResourceModel implements ILinkingResource {
 
     @Inject
     private PCMModel pcm;
+
+    @Inject
+    private ISimulationMiddleware middleware;
+
+    @Inject
+    private ISimulationConfiguration configuration;
 
     @Inject
     public EventSimLinkingResourceModel(ISimulationMiddleware middleware) {
@@ -82,6 +92,14 @@ public class EventSimLinkingResourceModel implements ILinkingResource {
             // create probes and calculators (if requested by instrumentation description)
             instrumentor.instrument(resource);
         });
+
+        if (configuration.isSimulateLinkingResources()) {
+            logger.warn("Simulation of full middleware marshalling / demarshalling of remote calls is not "
+                    + "supported by EventSim. Please change the networking mode in your configuration and "
+                    + "restart the simulation.");
+            middleware.stopSimulation();
+        }
+
     }
 
     private void finalise() {

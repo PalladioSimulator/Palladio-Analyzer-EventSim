@@ -6,6 +6,7 @@ import org.mockito.Mockito;
 import com.google.inject.AbstractModule;
 
 import edu.kit.ipd.sdq.eventsim.api.IActiveResource;
+import edu.kit.ipd.sdq.eventsim.api.ILinkingResource;
 import edu.kit.ipd.sdq.eventsim.api.IPassiveResource;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationConfiguration;
 import edu.kit.ipd.sdq.eventsim.api.PCMModel;
@@ -33,6 +34,7 @@ public class TestSimulationModule extends AbstractModule {
 
         bind(IActiveResource.class).toInstance(Mockito.mock(IActiveResource.class));
         bind(IPassiveResource.class).toInstance(Mockito.mock(IPassiveResource.class));
+        bind(ILinkingResource.class).toInstance(Mockito.mock(ILinkingResource.class));
 
         MeasurementStorage measurementStorage = Mockito.mock(MeasurementStorage.class);
         bind(MeasurementStorage.class).toInstance(measurementStorage);

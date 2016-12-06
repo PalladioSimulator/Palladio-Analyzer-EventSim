@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import org.apache.log4j.Logger;
 import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 import org.palladiosimulator.pcm.repository.PassiveResource;
 
@@ -13,9 +14,12 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimPassiveResource;
+import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
 
 @Singleton
 public class PassiveResourceRegistry {
+
+    private static final Logger logger = Logger.getLogger(PassiveResourceRegistry.class);
 
     // maps (AssemblyContext ID, PassiveResource ID) -> SimPassiveResource
     private Map<String, SimPassiveResource> contextToResourceMap;
@@ -53,6 +57,9 @@ public class PassiveResourceRegistry {
 
             // register the created passive resource
             contextToResourceMap.put(compoundKey(assCtx, specification), resource);
+
+            logger.info(String.format("Created passive resource %s in assembly context %s",
+                    PCMEntityHelper.toString(specification), PCMEntityHelper.toString(assCtx)));
 
             notifyRegistrationListeners(resource);
         }

@@ -225,11 +225,6 @@ public class Request extends EventSimEntity implements IRequest {
 
     // TODO pull up
     public void simulateAction(AbstractAction action) {
-        if (state.getCurrentPosition() != null) {
-            AbstractAction finishedAction = state.getCurrentPosition();
-            notifyAfterAction(finishedAction, this);
-        }
-
         state.setCurrentPosition(action);
 
         final SimulationStrategy<AbstractAction, Request> simulationStrategy = strategyRegistry.get()
@@ -239,13 +234,13 @@ public class Request extends EventSimEntity implements IRequest {
                     "No traversal strategy could be found for " + PCMEntityHelper.toString(action));
         }
 
-        notifyBeforeAction(action, this);
-
         logger.debug(String.format("%s simulating %s @ %s", this.toString(), PCMEntityHelper.toString(action),
                 getModel().getSimulationControl().getCurrentSimulationTime()));
 
+        notifyBeforeAction(action, this);
         // 1) tell simulation strategy to simulate the action's effects on this request
         simulationStrategy.simulate(action, this, instruction -> {
+            notifyAfterAction(action, this);
             // 2) then, execute traversal instruction returned by simulation strategy
             instruction.execute();
         });

@@ -1,8 +1,8 @@
 package edu.kit.ipd.sdq.eventsim.resources.entities;
 
 import org.palladiosimulator.pcm.repository.PassiveResource;
-import org.palladiosimulator.pcm.resourceenvironment.CommunicationLinkResourceSpecification;
 import org.palladiosimulator.pcm.resourceenvironment.HDDProcessingResourceSpecification;
+import org.palladiosimulator.pcm.resourceenvironment.LinkingResource;
 import org.palladiosimulator.pcm.resourceenvironment.ProcessingResourceSpecification;
 import org.palladiosimulator.pcm.resourcetype.SchedulingPolicy;
 
@@ -22,8 +22,7 @@ public interface SimResourceFactory {
             @Assisted("readProcessingRate") String readProcessingRate);
 
     SimLinkingResource createLinkingResource(IActiveResource resource, @Assisted("latency") String latencySpecification,
-            @Assisted("throughput") String throughputSpecification,
-            @Assisted("specification") CommunicationLinkResourceSpecification specification);
+            @Assisted("throughput") String throughputSpecification, @Assisted LinkingResource specification);
 
     SimPassiveResource createPassiveResource(IPassiveResource resource, PassiveResource specification);
 

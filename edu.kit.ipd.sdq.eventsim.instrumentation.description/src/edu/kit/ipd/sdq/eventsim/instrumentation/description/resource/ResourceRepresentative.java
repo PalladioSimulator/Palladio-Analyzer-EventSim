@@ -18,11 +18,11 @@ import edu.kit.ipd.sdq.eventsim.instrumentation.description.core.Instrumentable;
  */
 public interface ResourceRepresentative extends Instrumentable {
 
-	boolean represents(ResourceContainer specification, ResourceType resourceType);
-
-	boolean represents(PassiveResource specification, AssemblyContext assCtx);
-
-	boolean represents(String firstSpec, String secondSpec);
+//	boolean represents(ResourceContainer specification, ResourceType resourceType);
+//
+//	boolean represents(PassiveResource specification, AssemblyContext assCtx);
+//
+//	boolean represents(String firstSpec, String secondSpec);
 
 	Class<? extends ResourceRepresentative> getResourceType();
 

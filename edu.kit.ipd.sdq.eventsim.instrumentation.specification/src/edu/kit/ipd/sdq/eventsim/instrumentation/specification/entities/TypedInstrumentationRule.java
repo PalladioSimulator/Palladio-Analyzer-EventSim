@@ -4,21 +4,21 @@ import edu.kit.ipd.sdq.eventsim.instrumentation.description.action.ActionRule;
 import edu.kit.ipd.sdq.eventsim.instrumentation.description.core.InstrumentationRule;
 import edu.kit.ipd.sdq.eventsim.instrumentation.description.core.SetBasedInstrumentationRule;
 import edu.kit.ipd.sdq.eventsim.instrumentation.description.resource.ActiveResourceRep;
+import edu.kit.ipd.sdq.eventsim.instrumentation.description.resource.LinkingResourceRep;
 import edu.kit.ipd.sdq.eventsim.instrumentation.description.resource.PassiveResourceRep;
 import edu.kit.ipd.sdq.eventsim.instrumentation.description.resource.ResourceRule;
 import edu.kit.ipd.sdq.eventsim.instrumentation.description.useraction.UserActionRule;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimActiveResource;
+import edu.kit.ipd.sdq.eventsim.resources.entities.SimLinkingResource;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimPassiveResource;
 
 /**
- * Wraps an {@link InstrumentationRule} and adds the types for which probes are
- * created (both in the instrumentation description and in the EventSim
- * simulation engine)
+ * Wraps an {@link InstrumentationRule} and adds the types for which probes are created (both in the
+ * instrumentation description and in the EventSim simulation engine)
  * 
  * @author Henning Schulz
  *
- * @param
- * 			<P>
+ * @param <P>
  *            the type of the model probe
  * @param <F>
  *            the type of the model calculator from probe
@@ -27,96 +27,102 @@ import edu.kit.ipd.sdq.eventsim.resources.entities.SimPassiveResource;
  */
 public class TypedInstrumentationRule<P, F, T> { // TODO remove type params!?
 
-	private final InstrumentationRule decorated;
+    private final InstrumentationRule decorated;
 
-	private final Class<?> probedType;
-	private final Class<?> calculatorFromType;
-	private final Class<?> calculatorToType;
-	private final Class<P> modelProbedType;
-	private final Class<F> modelCalculatorFromType;
-	private final Class<T> modelCalculatorToType;
+    private final Class<?> probedType;
+    private final Class<?> calculatorFromType;
+    private final Class<?> calculatorToType;
+    private final Class<P> modelProbedType;
+    private final Class<F> modelCalculatorFromType;
+    private final Class<T> modelCalculatorToType;
 
-	private final boolean useCalculatorsOnSingleEntity;
+    private final boolean useCalculatorsOnSingleEntity;
 
-	public TypedInstrumentationRule(InstrumentationRule decorated, Class<?> probedType, Class<?> calculatorFromType,
-			Class<?> calculatorToType, Class<P> modelProbedType, Class<F> modelCalculatorFromType,
-			Class<T> modelCalculatorToType, boolean useCalculatorsOnSingleEntity) {
-		this.decorated = decorated;
-		this.probedType = probedType;
-		this.calculatorFromType = calculatorFromType;
-		this.calculatorToType = calculatorToType;
-		this.modelProbedType = modelProbedType;
-		this.modelCalculatorFromType = modelCalculatorFromType;
-		this.modelCalculatorToType = modelCalculatorToType;
-		this.useCalculatorsOnSingleEntity = useCalculatorsOnSingleEntity;
-	}
+    public TypedInstrumentationRule(InstrumentationRule decorated, Class<?> probedType, Class<?> calculatorFromType,
+            Class<?> calculatorToType, Class<P> modelProbedType, Class<F> modelCalculatorFromType,
+            Class<T> modelCalculatorToType, boolean useCalculatorsOnSingleEntity) {
+        this.decorated = decorated;
+        this.probedType = probedType;
+        this.calculatorFromType = calculatorFromType;
+        this.calculatorToType = calculatorToType;
+        this.modelProbedType = modelProbedType;
+        this.modelCalculatorFromType = modelCalculatorFromType;
+        this.modelCalculatorToType = modelCalculatorToType;
+        this.useCalculatorsOnSingleEntity = useCalculatorsOnSingleEntity;
+    }
 
-	public static <P> TypedInstrumentationRule<P, P, P> fromSetBasedRule(SetBasedInstrumentationRule<P, ?> rule) {
-		if (rule instanceof ActionRule || rule instanceof UserActionRule) {
-			Class<?> probedType;
-			if (rule instanceof ActionRule)
-				probedType = ((ActionRule) rule).getActionType();
-			else
-				probedType = ((UserActionRule) rule).getUserActionType();
-			Class<P> typedProbeType = (Class<P>) probedType;
-			return new TypedInstrumentationRule<>(rule, typedProbeType, typedProbeType, typedProbeType, typedProbeType,
-					typedProbeType, typedProbeType, false);
-		} else if (rule instanceof ResourceRule) {
-			ResourceRule<?> resourceRule = (ResourceRule<?>) rule;
-			Class<?> probedType;
-			Class<P> modelProbedType;
-			if (resourceRule.getResourceSet().getResourceType().equals(ActiveResourceRep.class)) {
-				probedType = SimActiveResource.class;
-				modelProbedType = (Class<P>) ActiveResourceRep.class;
-			} else {
-				probedType = SimPassiveResource.class;
-				modelProbedType = (Class<P>) PassiveResourceRep.class;
-			}
-			return new TypedInstrumentationRule<>(rule, probedType, probedType, probedType, modelProbedType,
-					modelProbedType, modelProbedType, true);
-		} else {
-			return null;
-		}
-	}
+    public static <P> TypedInstrumentationRule<P, P, P> fromSetBasedRule(SetBasedInstrumentationRule<P, ?> rule) {
+        if (rule instanceof ActionRule || rule instanceof UserActionRule) {
+            Class<?> probedType;
+            if (rule instanceof ActionRule)
+                probedType = ((ActionRule) rule).getActionType();
+            else
+                probedType = ((UserActionRule) rule).getUserActionType();
+            Class<P> typedProbeType = (Class<P>) probedType;
+            return new TypedInstrumentationRule<>(rule, typedProbeType, typedProbeType, typedProbeType, typedProbeType,
+                    typedProbeType, typedProbeType, false);
+        } else if (rule instanceof ResourceRule) {
+            ResourceRule<?> resourceRule = (ResourceRule<?>) rule;
+            Class<?> probedType;
+            Class<P> modelProbedType;
+            // TODO should not be hard-coded!
+            if (resourceRule.getResourceSet().getResourceType().equals(ActiveResourceRep.class)) {
+                probedType = SimActiveResource.class;
+                modelProbedType = (Class<P>) ActiveResourceRep.class;
+            } else if (resourceRule.getResourceSet().getResourceType().equals(PassiveResourceRep.class)) {
+                probedType = SimPassiveResource.class;
+                modelProbedType = (Class<P>) PassiveResourceRep.class;
+            } else if (resourceRule.getResourceSet().getResourceType().equals(LinkingResourceRep.class)) {
+                probedType = SimLinkingResource.class;
+                modelProbedType = (Class<P>) LinkingResourceRep.class;
+            } else {
+                throw new RuntimeException("Unknown resource type: " + resourceRule.getResourceSet().getResourceType());
+            }
+            return new TypedInstrumentationRule<>(rule, probedType, probedType, probedType, modelProbedType,
+                    modelProbedType, modelProbedType, true);
+        } else {
+            return null;
+        }
+    }
 
-	public String getName() {
-		return decorated.getName();
-	}
+    public String getName() {
+        return decorated.getName();
+    }
 
-	public void setName(String name) {
-		decorated.setName(name);
-	}
+    public void setName(String name) {
+        decorated.setName(name);
+    }
 
-	public Class<?> getProbedType() {
-		return probedType;
-	}
+    public Class<?> getProbedType() {
+        return probedType;
+    }
 
-	public Class<?> getCalculatorFromType() {
-		return calculatorFromType;
-	}
+    public Class<?> getCalculatorFromType() {
+        return calculatorFromType;
+    }
 
-	public Class<?> getCalculatorToType() {
-		return calculatorToType;
-	}
+    public Class<?> getCalculatorToType() {
+        return calculatorToType;
+    }
 
-	public Class<P> getModelProbedType() {
-		return modelProbedType;
-	}
+    public Class<P> getModelProbedType() {
+        return modelProbedType;
+    }
 
-	public Class<F> getModelCalculatorFromType() {
-		return modelCalculatorFromType;
-	}
+    public Class<F> getModelCalculatorFromType() {
+        return modelCalculatorFromType;
+    }
 
-	public Class<T> getModelCalculatorToType() {
-		return modelCalculatorToType;
-	}
+    public Class<T> getModelCalculatorToType() {
+        return modelCalculatorToType;
+    }
 
-	public InstrumentationRule getDecorated() {
-		return decorated;
-	}
+    public InstrumentationRule getDecorated() {
+        return decorated;
+    }
 
-	public boolean useCalculatorsOnSingleEntity() {
-		return useCalculatorsOnSingleEntity;
-	}
+    public boolean useCalculatorsOnSingleEntity() {
+        return useCalculatorsOnSingleEntity;
+    }
 
 }

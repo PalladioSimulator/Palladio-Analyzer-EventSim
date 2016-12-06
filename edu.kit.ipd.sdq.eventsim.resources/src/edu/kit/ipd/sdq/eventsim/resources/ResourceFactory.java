@@ -5,8 +5,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.palladiosimulator.pcm.core.PCMRandomVariable;
 import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 import org.palladiosimulator.pcm.repository.PassiveResource;
-import org.palladiosimulator.pcm.resourceenvironment.CommunicationLinkResourceSpecification;
 import org.palladiosimulator.pcm.resourceenvironment.HDDProcessingResourceSpecification;
+import org.palladiosimulator.pcm.resourceenvironment.LinkingResource;
 import org.palladiosimulator.pcm.resourceenvironment.ProcessingResourceSpecification;
 
 import com.google.inject.Inject;
@@ -20,7 +20,6 @@ import de.uka.ipd.sdq.scheduler.factory.SchedulingFactory;
 import de.uka.ipd.sdq.simucomframework.resources.SchedulingStrategy;
 import de.uka.ipd.sdq.simucomframework.resources.SimSimpleFairPassiveResource;
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
-import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationModel;
 import edu.kit.ipd.sdq.eventsim.exceptions.unchecked.EventSimException;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimActiveResource;
 import edu.kit.ipd.sdq.eventsim.resources.entities.SimLinkingResource;
@@ -120,11 +119,12 @@ public class ResourceFactory {
      *            the resource specification
      * @return the created resource
      */
-    public SimLinkingResource createLinkingResource(final ISimulationModel model,
-            final CommunicationLinkResourceSpecification specification) {
+    public SimLinkingResource createLinkingResource(final LinkingResource specification) {
 
-        final PCMRandomVariable latency = specification.getLatency_CommunicationLinkResourceSpecification();
-        final PCMRandomVariable throughput = specification.getThroughput_CommunicationLinkResourceSpecification();
+        final PCMRandomVariable latency = specification.getCommunicationLinkResourceSpecifications_LinkingResource()
+                .getLatency_CommunicationLinkResourceSpecification();
+        final PCMRandomVariable throughput = specification.getCommunicationLinkResourceSpecifications_LinkingResource()
+                .getThroughput_CommunicationLinkResourceSpecification();
 
         String resourceName = SchedulingStrategy.FCFS.toString();
         IActiveResource resource = schedulingFactory.createSimFCFSResource(resourceName, getNextResourceId());

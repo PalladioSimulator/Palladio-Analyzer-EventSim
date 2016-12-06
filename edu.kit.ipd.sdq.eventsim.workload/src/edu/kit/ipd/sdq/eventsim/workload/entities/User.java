@@ -146,11 +146,6 @@ public class User extends EventSimEntity implements IUser {
     }
 
     public void simulateAction(AbstractUserAction action) {
-        if (state.getCurrentPosition() != null) {
-            AbstractUserAction finishedAction = state.getCurrentPosition();
-            notifyAfterAction(finishedAction, this);
-        }
-
         state.setCurrentPosition(action);
 
         final SimulationStrategy<AbstractUserAction, User> simulationStrategy = strategyRegistry.get()
@@ -160,13 +155,13 @@ public class User extends EventSimEntity implements IUser {
                     "No simulation strategy could be found for " + PCMEntityHelper.toString(action));
         }
 
-        notifyBeforeAction(action, this);
-
         logger.debug(String.format("%s simulating %s @ %s", this.toString(), PCMEntityHelper.toString(action),
                 getModel().getSimulationControl().getCurrentSimulationTime()));
 
+        notifyBeforeAction(action, this);
         // 1) tell simulation strategy to simulate the action's effects on this user
         simulationStrategy.simulate(action, this, instruction -> {
+            notifyAfterAction(action, this);
             // 2) then, execute traversal instruction returned by simulation strategy
             instruction.execute();
         });

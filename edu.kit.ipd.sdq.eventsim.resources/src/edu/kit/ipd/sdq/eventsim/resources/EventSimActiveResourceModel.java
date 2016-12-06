@@ -46,9 +46,6 @@ public class EventSimActiveResourceModel implements IActiveResource {
     private MeasurementStorage measurementStorage;
 
     @Inject
-    private ISimulationMiddleware middleware;
-
-    @Inject
     private PCMModel pcm;
 
     private MeasurementFacade<ResourceProbeConfiguration> measurementFacade;
@@ -67,6 +64,11 @@ public class EventSimActiveResourceModel implements IActiveResource {
         // initialize in simulation preparation phase
         middleware.registerEventHandler(SimulationPrepareEvent.class, e -> {
             init();
+            return Registration.UNREGISTER;
+        });
+        // finalize on simulation stop
+        middleware.registerEventHandler(SimulationStopEvent.class, e -> {
+            finalise();
             return Registration.UNREGISTER;
         });
         resourceInterfaceToTypeMap = new HashMap<>();
@@ -95,15 +97,6 @@ public class EventSimActiveResourceModel implements IActiveResource {
         resourceRegistry.addResourceRegistrationListener(resource -> {
             // create probes and calculators (if requested by instrumentation description)
             instrumentor.instrument(resource);
-        });
-
-        registerEventHandler();
-    }
-
-    private void registerEventHandler() {
-        middleware.registerEventHandler(SimulationStopEvent.class, e -> {
-            finalise();
-            return Registration.UNREGISTER;
         });
     }
 

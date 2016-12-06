@@ -3,8 +3,6 @@ package edu.kit.ipd.sdq.eventsim.instrumentation.description.resource;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.palladiosimulator.pcm.core.composition.AssemblyContext;
-import org.palladiosimulator.pcm.repository.PassiveResource;
 import org.palladiosimulator.pcm.resourceenvironment.ResourceContainer;
 import org.palladiosimulator.pcm.resourcetype.ResourceType;
 
@@ -54,21 +52,21 @@ public class ActiveResourceRep implements ResourceRepresentative {
         this.resourceTypeId = resourceTypeId;
     }
 
-    @Override
-    public boolean represents(ResourceContainer resourceContainer, ResourceType resourceType) {
-        return this.resourceContainerId.equals(resourceContainer.getId())
-                && this.resourceTypeId.equals(resourceType.getId());
-    }
-
-    @Override
-    public boolean represents(PassiveResource specification, AssemblyContext assCtx) {
-        return false;
-    }
-
-    @Override
-    public boolean represents(String firstSpec, String secondSpec) {
-        return this.resourceContainerId.equals(firstSpec) && this.resourceTypeId.equals(secondSpec);
-    }
+//    @Override
+//    public boolean represents(ResourceContainer resourceContainer, ResourceType resourceType) {
+//        return this.resourceContainerId.equals(resourceContainer.getId())
+//                && this.resourceTypeId.equals(resourceType.getId());
+//    }
+//
+//    @Override
+//    public boolean represents(PassiveResource specification, AssemblyContext assCtx) {
+//        return false;
+//    }
+//
+//    @Override
+//    public boolean represents(String firstSpec, String secondSpec) {
+//        return this.resourceContainerId.equals(firstSpec) && this.resourceTypeId.equals(secondSpec);
+//    }
 
     @Override
     public Class<? extends ResourceRepresentative> getResourceType() {

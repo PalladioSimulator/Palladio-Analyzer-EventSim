@@ -54,20 +54,20 @@ public class PassiveResourceRep implements ResourceRepresentative {
 		this.assemblyContextId = assemblyContextId;
 	}
 
-	@Override
-	public boolean represents(ResourceContainer specification, ResourceType resourceType) {
-		return false;
-	}
-
-	@Override
-	public boolean represents(PassiveResource specification, AssemblyContext assCtx) {
-		return this.specificationId.equals(specification.getId()) && this.assemblyContextId.equals(assCtx.getId());
-	}
-
-	@Override
-	public boolean represents(String firstSpec, String secondSpec) {
-		return this.specificationId.equals(firstSpec) && this.assemblyContextId.equals(secondSpec);
-	}
+//	@Override
+//	public boolean represents(ResourceContainer specification, ResourceType resourceType) {
+//		return false;
+//	}
+//
+//	@Override
+//	public boolean represents(PassiveResource specification, AssemblyContext assCtx) {
+//		return this.specificationId.equals(specification.getId()) && this.assemblyContextId.equals(assCtx.getId());
+//	}
+//
+//	@Override
+//	public boolean represents(String firstSpec, String secondSpec) {
+//		return this.specificationId.equals(firstSpec) && this.assemblyContextId.equals(secondSpec);
+//	}
 
 	@Override
 	public Class<? extends ResourceRepresentative> getResourceType() {

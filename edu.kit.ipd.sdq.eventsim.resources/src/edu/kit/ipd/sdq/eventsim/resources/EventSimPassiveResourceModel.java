@@ -35,9 +35,6 @@ public class EventSimPassiveResourceModel implements IPassiveResource {
     private MeasurementStorage measurementStorage;
 
     @Inject
-    private ISimulationMiddleware middleware;
-
-    @Inject
     private PCMModel pcm;
 
     @Inject
@@ -56,6 +53,11 @@ public class EventSimPassiveResourceModel implements IPassiveResource {
         // initialize in simulation preparation phase
         middleware.registerEventHandler(SimulationPrepareEvent.class, e -> {
             init();
+            return Registration.UNREGISTER;
+        });
+        // finalize on simulation stop
+        middleware.registerEventHandler(SimulationStopEvent.class, e -> {
+            finalise();
             return Registration.UNREGISTER;
         });
     }
@@ -81,15 +83,6 @@ public class EventSimPassiveResourceModel implements IPassiveResource {
         resourceRegistry.addResourceRegistrationListener(resource -> {
             // create probes and calculators (if requested by instrumentation description)
             instrumentor.instrument(resource);
-        });
-
-        registerEventHandler();
-    }
-
-    private void registerEventHandler() {
-        middleware.registerEventHandler(SimulationStopEvent.class, e -> {
-            finalise();
-            return Registration.UNREGISTER;
         });
     }
 

@@ -1,11 +1,11 @@
 package edu.kit.ipd.sdq.eventsim.middleware.events;
 
-import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.osgi.framework.BundleContext;
@@ -39,10 +39,10 @@ public class EventManager {
 
     private EventAdmin eventAdmin;
 
-    private List<ServiceRegistration<?>> handlerRegistrations;
+    private Set<ServiceRegistration<?>> handlerRegistrations;
 
     public EventManager() {
-        handlerRegistrations = new ArrayList<ServiceRegistration<?>>();
+        handlerRegistrations = new HashSet<ServiceRegistration<?>>();
 
         // discover event admin service
         BundleContext bundleContext = Activator.getContext();
@@ -94,8 +94,12 @@ public class EventManager {
                     Registration registrationHint = handler.handle(encapsulatedEvent);
                     if (registrationHint == Registration.UNREGISTER) {
                         if (futureRegistration.get() != null) {
-                            futureRegistration.get().unregister();
-                            // TODO remove from handlerRegistrations?
+                            // remove handler registration, if it is still contained in handler set;
+                            // otherwise do nothing
+                            boolean removed = handlerRegistrations.remove(futureRegistration.get());
+                            if (removed) {
+                                futureRegistration.get().unregister();
+                            }
                         } else {
                             log.warn("Cannot unregister event handler because the service registration "
                                     + "is not yet available.");
@@ -113,6 +117,7 @@ public class EventManager {
         for (ServiceRegistration<?> reg : handlerRegistrations) {
             reg.unregister();
         }
+        handlerRegistrations.clear();
     }
 
     private class FutureServiceRegistration {

@@ -5,7 +5,6 @@ Bundle-SymbolicName: edu.kit.ipd.sdq.eventsim.workload;singleton:=true
 Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: edu.kit.ipd.sdq.eventsim.workload.Activator
 Require-Bundle: de.uka.ipd.sdq.simulation.abstractsimengine;bundle-version="1.0.0",
- org.apache.log4j;bundle-version="1.2.15",
  de.uka.ipd.sdq.probfunction.math;bundle-version="2.0.2",
  org.palladiosimulator.pcm;bundle-version="4.0.0",
  edu.kit.ipd.sdq.eventsim.measurement;bundle-version="2.0.0",
@@ -15,9 +14,7 @@ Require-Bundle: de.uka.ipd.sdq.simulation.abstractsimengine;bundle-version="1.0.
  edu.kit.ipd.sdq.eventsim.measurement.osgi;bundle-version="2.0.0",
  edu.kit.ipd.sdq.eventsim.instrumentation.injection;bundle-version="1.0.0",
  edu.kit.ipd.sdq.eventsim.middleware;bundle-version="2.0.0",
- edu.kit.ipd.sdq.eventsim.instrumentation.description;bundle-version="1.0.0",
- de.uka.ipd.sdq.simulation;bundle-version="1.0.0",
- edu.kit.ipd.sdq.eventsim.rvisualization
+ edu.kit.ipd.sdq.eventsim.instrumentation.description;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: edu.kit.ipd.sdq.eventsim.workload,
  edu.kit.ipd.sdq.eventsim.workload.calculators,

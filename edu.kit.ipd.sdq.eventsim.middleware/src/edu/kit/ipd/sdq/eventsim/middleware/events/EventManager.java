@@ -89,9 +89,11 @@ public class EventManager {
         FutureServiceRegistration futureRegistration = new FutureServiceRegistration();
         ServiceRegistration<EventHandler> handlerRegistration = bundleContext.registerService(EventHandler.class,
                 event -> {
+                    // delegate event handling to registered event handler
                     @SuppressWarnings("unchecked")
                     T encapsulatedEvent = (T) event.getProperty(SimulationEvent.ENCAPSULATED_EVENT);
                     Registration registrationHint = handler.handle(encapsulatedEvent);
+                    // remove event handler if requested (indicated by its returned hint)
                     if (registrationHint == Registration.UNREGISTER) {
                         if (futureRegistration.get() != null) {
                             // remove handler registration, if it is still contained in handler set;
@@ -104,9 +106,9 @@ public class EventManager {
                             log.warn("Cannot unregister event handler because the service registration "
                                     + "is not yet available.");
                         }
-
-                    }
+                    } // else keep registered
                 }, properties);
+        // handler registration is now known; inform the corresponding future
         futureRegistration.set(handlerRegistration);
 
         // store service registration for later cleanup
@@ -120,6 +122,10 @@ public class EventManager {
         handlerRegistrations.clear();
     }
 
+    /**
+     * Wraps a {@link ServiceRegistration} instance that will become available in future (via set
+     * method), but is not yet known at instantiation time.
+     */
     private class FutureServiceRegistration {
 
         private ServiceRegistration<EventHandler> handlerRegistration;

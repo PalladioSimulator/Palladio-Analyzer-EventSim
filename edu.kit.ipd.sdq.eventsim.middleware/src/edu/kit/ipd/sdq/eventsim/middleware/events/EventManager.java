@@ -19,13 +19,14 @@ import org.osgi.service.event.EventHandler;
 import com.google.inject.Singleton;
 
 import edu.kit.ipd.sdq.eventsim.api.events.IEventHandler;
+import edu.kit.ipd.sdq.eventsim.api.events.IEventHandler.Registration;
 import edu.kit.ipd.sdq.eventsim.api.events.SimulationEvent;
 import edu.kit.ipd.sdq.eventsim.middleware.Activator;
 
 /**
- * Wraps the OSGi {@link EventAdmin} service for better type safety. {@link SimulationEvent}s and {@link IEventHandler}s
- * are strongly typed, whereas the classical way of using OSGi {@link Event}s (hidden by this wrapper) involves undesired
- * type casts.
+ * Wraps the OSGi {@link EventAdmin} service for better type safety. {@link SimulationEvent}s and
+ * {@link IEventHandler}s are strongly typed, whereas the classical way of using OSGi {@link Event}s
+ * (hidden by this wrapper) involves undesired type casts.
  * 
  * @author Christoph Föhrdes
  * @author Philipp Merkle
@@ -34,76 +35,98 @@ import edu.kit.ipd.sdq.eventsim.middleware.Activator;
 @Singleton
 public class EventManager {
 
-	private static final Logger log = Logger.getLogger(EventManager.class);
+    private static final Logger log = Logger.getLogger(EventManager.class);
 
-	private EventAdmin eventAdmin;
+    private EventAdmin eventAdmin;
 
-	private List<ServiceRegistration<?>> handlerRegistrations;
+    private List<ServiceRegistration<?>> handlerRegistrations;
 
-	public EventManager() {
-		handlerRegistrations = new ArrayList<ServiceRegistration<?>>();
+    public EventManager() {
+        handlerRegistrations = new ArrayList<ServiceRegistration<?>>();
 
-		// discover event admin service
-		BundleContext bundleContext = Activator.getContext();
-		ServiceReference<EventAdmin> eventAdminServiceReference = bundleContext.getServiceReference(EventAdmin.class);
-		eventAdmin = bundleContext.getService(eventAdminServiceReference);
-	}
+        // discover event admin service
+        BundleContext bundleContext = Activator.getContext();
+        ServiceReference<EventAdmin> eventAdminServiceReference = bundleContext.getServiceReference(EventAdmin.class);
+        eventAdmin = bundleContext.getService(eventAdminServiceReference);
+    }
 
-	/**
-	 * Delivers the specified {@code event} to interested event handlers. Returns not until all interested event
-	 * handlers processed the event completely (synchronous delivery).
-	 * 
-	 * @param event
-	 *            the event to be delivered
-	 */
-	public void triggerEvent(SimulationEvent event) {
-		if (log.isDebugEnabled()) {
-			log.debug("Event triggered (" + SimulationEvent.topicName(event.getClass()) + ")");
-		}
+    /**
+     * Delivers the specified {@code event} to interested event handlers. Returns not until all
+     * interested event handlers processed the event completely (synchronous delivery).
+     * 
+     * @param event
+     *            the event to be delivered
+     */
+    public void triggerEvent(SimulationEvent event) {
+        if (log.isDebugEnabled()) {
+            log.debug("Event triggered (" + SimulationEvent.topicName(event.getClass()) + ")");
+        }
 
-		// we delegate the event to the OSGi event admin service
-		Map<String, Object> properties = new HashMap<String, Object>();
-		properties.put(SimulationEvent.ENCAPSULATED_EVENT, event);
-		properties.putAll(event.getProperties());
-		eventAdmin.sendEvent(new Event(SimulationEvent.topicName(event.getClass()), properties));
+        // we delegate the event to the OSGi event admin service
+        Map<String, Object> properties = new HashMap<String, Object>();
+        properties.put(SimulationEvent.ENCAPSULATED_EVENT, event);
+        properties.putAll(event.getProperties());
+        eventAdmin.sendEvent(new Event(SimulationEvent.topicName(event.getClass()), properties));
 
-	}
+    }
 
-	/**
-	 * Registers the specified handler with events of the specified type.
-	 * 
-	 * @param eventType
-	 *            the type of events handled by the handler
-	 * @param handler
-	 *            the event handler
-	 */
-	public <T extends SimulationEvent> void registerEventHandler(Class<T> eventType, final IEventHandler<T> handler,
-			String filter) {
-		BundleContext bundleContext = Activator.getContext();
-		Dictionary<String, Object> properties = new Hashtable<String, Object>();
-		properties.put(EventConstants.EVENT_TOPIC, SimulationEvent.topicName(eventType));
-		if (filter != null && !filter.isEmpty()) {
-			properties.put(EventConstants.EVENT_FILTER, filter);
-		}
-		ServiceRegistration<EventHandler> handlerRegistration = bundleContext.registerService(EventHandler.class,
-				event -> {
-					@SuppressWarnings("unchecked")
-					T encapsulatedEvent = (T) event.getProperty(SimulationEvent.ENCAPSULATED_EVENT);
-					handler.handle(encapsulatedEvent); // TODO unregister!
-//					if(unregister) {
-//					    handlerRegistration.unregister();
-					    
-//					}
-				} , properties);
+    /**
+     * Registers the specified handler with events of the specified type.
+     * 
+     * @param eventType
+     *            the type of events handled by the handler
+     * @param handler
+     *            the event handler
+     */
+    public <T extends SimulationEvent> void registerEventHandler(Class<T> eventType, final IEventHandler<T> handler,
+            String filter) {
+        BundleContext bundleContext = Activator.getContext();
+        Dictionary<String, Object> properties = new Hashtable<String, Object>();
+        properties.put(EventConstants.EVENT_TOPIC, SimulationEvent.topicName(eventType));
+        if (filter != null && !filter.isEmpty()) {
+            properties.put(EventConstants.EVENT_FILTER, filter);
+        }
+        FutureServiceRegistration futureRegistration = new FutureServiceRegistration();
+        ServiceRegistration<EventHandler> handlerRegistration = bundleContext.registerService(EventHandler.class,
+                event -> {
+                    @SuppressWarnings("unchecked")
+                    T encapsulatedEvent = (T) event.getProperty(SimulationEvent.ENCAPSULATED_EVENT);
+                    Registration registrationHint = handler.handle(encapsulatedEvent);
+                    if (registrationHint == Registration.UNREGISTER) {
+                        if (futureRegistration.get() != null) {
+                            futureRegistration.get().unregister();
+                            // TODO remove from handlerRegistrations?
+                        } else {
+                            log.warn("Cannot unregister event handler because the service registration "
+                                    + "is not yet available.");
+                        }
 
-		// store service registration for later cleanup
-		handlerRegistrations.add(handlerRegistration);
-	}
+                    }
+                }, properties);
+        futureRegistration.set(handlerRegistration);
 
-	public void unregisterAllEventHandlers() {
-		for (ServiceRegistration<?> reg : handlerRegistrations) {
-			reg.unregister();
-		}
-	}
+        // store service registration for later cleanup
+        handlerRegistrations.add(handlerRegistration);
+    }
+
+    public void unregisterAllEventHandlers() {
+        for (ServiceRegistration<?> reg : handlerRegistrations) {
+            reg.unregister();
+        }
+    }
+
+    private class FutureServiceRegistration {
+
+        private ServiceRegistration<EventHandler> handlerRegistration;
+
+        public void set(ServiceRegistration<EventHandler> handlerRegistration) {
+            this.handlerRegistration = handlerRegistration;
+        }
+
+        public ServiceRegistration<EventHandler> get() {
+            return this.handlerRegistration;
+        }
+
+    }
 
 }

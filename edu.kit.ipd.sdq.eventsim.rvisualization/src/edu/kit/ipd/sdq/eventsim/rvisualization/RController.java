@@ -745,7 +745,6 @@ public final class RController {
 
         Long timeBefore = System.currentTimeMillis();
         LOG.debug("[R cmd] " + cmd);
-        System.out.println("[R cmd] " + cmd);
         REXP evaluated = EvaluationHelper.evaluate(lookupConnection().getConnection(), cmd);
         Long timeAfter = System.currentTimeMillis();
         LOG.debug("R result in " + (timeAfter - timeBefore) + "ms.");

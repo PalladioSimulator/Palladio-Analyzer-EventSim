@@ -15,8 +15,7 @@ import edu.kit.ipd.sdq.eventsim.system.entities.Request;
  * @author Philipp Merkle
  *
  */
-public class MinimalDecoratingSimulationStrategy
-        implements DecoratingSimulationStrategy<AbstractAction, Request> {
+public class MinimalDecoratingSimulationStrategy implements DecoratingSimulationStrategy<AbstractAction, Request> {
 
     private SimulationStrategy<AbstractAction, Request> decorated;
 
@@ -27,9 +26,9 @@ public class MinimalDecoratingSimulationStrategy
 
     @Override
     public void simulate(AbstractAction action, Request request, Consumer<TraversalInstruction> onFinishCallback) {
-        ////////////////////////////////////////////////////////
-        // do something *after* decorated simulation strategy //
-        ////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////
+        // do something *before* decorated simulation strategy //
+        /////////////////////////////////////////////////////////
 
         // delegate simulation to decorated strategy
         decorated.simulate(action, request, traversalInstruction -> {

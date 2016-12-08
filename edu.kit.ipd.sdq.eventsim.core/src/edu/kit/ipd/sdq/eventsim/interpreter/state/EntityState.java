@@ -24,7 +24,7 @@ import edu.kit.ipd.sdq.eventsim.entities.EventSimEntity;
  * @param <A>
  *            the least common parent type of all actions that are to be traversed
  */
-public class EntityState<A extends Entity> implements IInterpreterState<A> {
+public class EntityState<A extends Entity> implements IEntityState<A> {
 
     private static final Logger logger = Logger.getLogger(EntityState.class);
 

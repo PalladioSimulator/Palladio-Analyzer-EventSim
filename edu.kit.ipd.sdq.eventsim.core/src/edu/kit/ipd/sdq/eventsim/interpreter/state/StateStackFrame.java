@@ -17,7 +17,7 @@ import edu.kit.ipd.sdq.eventsim.api.Procedure;
  *            the least common parent type of all actions that are to be traversed
  * @see EntityState
  */
-public class StateStackFrame<A extends Entity> implements IInterpreterState<A> {
+public class StateStackFrame<A extends Entity> implements IEntityState<A> {
 
     private A currentPosition;
 

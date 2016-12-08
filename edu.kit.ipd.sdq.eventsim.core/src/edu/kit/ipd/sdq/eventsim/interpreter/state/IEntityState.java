@@ -11,7 +11,7 @@ import edu.kit.ipd.sdq.eventsim.api.Procedure;
  * @author Philipp Merkle
  * 
  */
-public interface IInterpreterState<A extends Entity> {
+public interface IEntityState<A extends Entity> {
 
     /**
      * Returns the current position of the traversal.

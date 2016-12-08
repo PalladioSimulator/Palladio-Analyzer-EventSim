@@ -13,8 +13,8 @@ import de.uka.ipd.sdq.simucomframework.variables.StackContext;
 import edu.kit.ipd.sdq.eventsim.interpreter.LoopIterationHandler;
 import edu.kit.ipd.sdq.eventsim.interpreter.SimulationStrategy;
 import edu.kit.ipd.sdq.eventsim.interpreter.TraversalInstruction;
+import edu.kit.ipd.sdq.eventsim.workload.WorkloadModelDiagnostics;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
-import edu.kit.ipd.sdq.eventsim.workload.interpreter.WorkloadModelDiagnostics;
 
 /**
  * This traversal strategy is responsible for {@link Loop} actions.

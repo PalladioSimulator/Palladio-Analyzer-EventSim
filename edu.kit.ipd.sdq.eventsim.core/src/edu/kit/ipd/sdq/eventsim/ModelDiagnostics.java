@@ -1,4 +1,4 @@
-package edu.kit.ipd.sdq.eventsim.interpreter;
+package edu.kit.ipd.sdq.eventsim;
 
 import org.apache.log4j.Logger;
 import org.palladiosimulator.pcm.core.entity.Entity;

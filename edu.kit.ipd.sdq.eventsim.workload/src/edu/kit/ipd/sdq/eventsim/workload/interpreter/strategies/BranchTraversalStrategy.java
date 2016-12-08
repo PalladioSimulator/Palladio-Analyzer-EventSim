@@ -15,8 +15,8 @@ import edu.kit.ipd.sdq.eventsim.exceptions.unchecked.UnknownSimulationException;
 import edu.kit.ipd.sdq.eventsim.interpreter.SimulationStrategy;
 import edu.kit.ipd.sdq.eventsim.interpreter.TraversalInstruction;
 import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
+import edu.kit.ipd.sdq.eventsim.workload.WorkloadModelDiagnostics;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
-import edu.kit.ipd.sdq.eventsim.workload.interpreter.WorkloadModelDiagnostics;
 
 /**
  * Simulates {@link Branch} actions.

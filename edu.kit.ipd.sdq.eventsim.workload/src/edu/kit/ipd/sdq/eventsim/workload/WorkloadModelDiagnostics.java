@@ -1,11 +1,11 @@
-package edu.kit.ipd.sdq.eventsim.workload.interpreter;
+package edu.kit.ipd.sdq.eventsim.workload;
 
 import org.palladiosimulator.pcm.usagemodel.Branch;
 import org.palladiosimulator.pcm.usagemodel.Loop;
 
 import com.google.inject.Singleton;
 
-import edu.kit.ipd.sdq.eventsim.interpreter.ModelDiagnostics;
+import edu.kit.ipd.sdq.eventsim.ModelDiagnostics;
 
 @Singleton
 public class WorkloadModelDiagnostics extends ModelDiagnostics {

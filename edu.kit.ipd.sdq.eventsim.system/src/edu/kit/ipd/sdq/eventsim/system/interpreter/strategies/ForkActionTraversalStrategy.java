@@ -12,6 +12,7 @@ import com.google.inject.Inject;
 
 import edu.kit.ipd.sdq.eventsim.api.Procedure;
 import edu.kit.ipd.sdq.eventsim.interpreter.SimulationStrategy;
+import edu.kit.ipd.sdq.eventsim.interpreter.TraversalInstruction;
 import edu.kit.ipd.sdq.eventsim.system.entities.ForkedRequest;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
 import edu.kit.ipd.sdq.eventsim.system.entities.RequestFactory;
@@ -30,7 +31,7 @@ public class ForkActionTraversalStrategy implements SimulationStrategy<AbstractA
     private RequestFactory requestFactory;
 
     @Override
-    public void simulate(AbstractAction action, Request request, Consumer<Procedure> onFinishCallback) {
+    public void simulate(AbstractAction action, Request request, Consumer<TraversalInstruction> onFinishCallback) {
         ForkAction fork = (ForkAction) action;
 
         List<ForkedBehaviour> asynchronousBehaviours = fork.getAsynchronousForkedBehaviours_ForkAction();

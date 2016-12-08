@@ -7,10 +7,9 @@ import org.palladiosimulator.pcm.seff.AbstractAction;
 import org.palladiosimulator.pcm.seff.LoopAction;
 import org.palladiosimulator.pcm.seff.ResourceDemandingBehaviour;
 
-import de.uka.ipd.sdq.simucomframework.variables.StackContext;
-import edu.kit.ipd.sdq.eventsim.api.Procedure;
 import edu.kit.ipd.sdq.eventsim.interpreter.LoopIterationHandler;
 import edu.kit.ipd.sdq.eventsim.interpreter.SimulationStrategy;
+import edu.kit.ipd.sdq.eventsim.interpreter.TraversalInstruction;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
 
 /**
@@ -25,7 +24,7 @@ public class LoopActionTraversalStrategy implements SimulationStrategy<AbstractA
      * {@inheritDoc}
      */
     @Override
-    public void simulate(AbstractAction action, Request request, Consumer<Procedure> onFinishCallback) {
+    public void simulate(AbstractAction action, Request request, Consumer<TraversalInstruction> onFinishCallback) {
         LoopAction loop = (LoopAction) action;
 
         // report model issues, if any

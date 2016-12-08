@@ -5,8 +5,8 @@ import java.util.function.Consumer;
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 import org.palladiosimulator.pcm.usagemodel.Start;
 
-import edu.kit.ipd.sdq.eventsim.api.Procedure;
 import edu.kit.ipd.sdq.eventsim.interpreter.SimulationStrategy;
+import edu.kit.ipd.sdq.eventsim.interpreter.TraversalInstruction;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
 
 /**
@@ -21,7 +21,7 @@ public class StartTraversalStrategy implements SimulationStrategy<AbstractUserAc
      * {@inheritDoc}
      */
     @Override
-    public void simulate(AbstractUserAction action, User user, Consumer<Procedure> onFinishCallback) {
+    public void simulate(AbstractUserAction action, User user, Consumer<TraversalInstruction> onFinishCallback) {
         // 1) return traversal instruction
         onFinishCallback.accept(() -> {
             // 2) once called, continue simulation with successor

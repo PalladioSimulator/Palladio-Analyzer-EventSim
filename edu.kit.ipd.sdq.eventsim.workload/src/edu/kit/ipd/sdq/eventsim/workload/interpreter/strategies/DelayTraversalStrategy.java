@@ -8,8 +8,8 @@ import org.palladiosimulator.pcm.usagemodel.Delay;
 
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
 import de.uka.ipd.sdq.simucomframework.variables.converter.NumberConverter;
-import edu.kit.ipd.sdq.eventsim.api.Procedure;
 import edu.kit.ipd.sdq.eventsim.interpreter.SimulationStrategy;
+import edu.kit.ipd.sdq.eventsim.interpreter.TraversalInstruction;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
 
 /**
@@ -24,7 +24,7 @@ public class DelayTraversalStrategy implements SimulationStrategy<AbstractUserAc
      * {@inheritDoc}
      */
     @Override
-    public void simulate(AbstractUserAction action, User user, Consumer<Procedure> onFinishCallback) {
+    public void simulate(AbstractUserAction action, User user, Consumer<TraversalInstruction> onFinishCallback) {
         Delay delay = (Delay) action;
 
         // evaluate StoEx

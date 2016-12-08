@@ -7,8 +7,8 @@ import org.palladiosimulator.pcm.seff.SetVariableAction;
 
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
 import de.uka.ipd.sdq.simucomframework.variables.stackframe.SimulatedStackframe;
-import edu.kit.ipd.sdq.eventsim.api.Procedure;
 import edu.kit.ipd.sdq.eventsim.interpreter.SimulationStrategy;
+import edu.kit.ipd.sdq.eventsim.interpreter.TraversalInstruction;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
 import edu.kit.ipd.sdq.eventsim.util.ParameterHelper;
 
@@ -24,7 +24,7 @@ public class SetVariableActionTraversalStrategy implements SimulationStrategy<Ab
      * {@inheritDoc}
      */
     @Override
-    public void simulate(AbstractAction action, Request request, Consumer<Procedure> onFinishCallback) {
+    public void simulate(AbstractAction action, Request request, Consumer<TraversalInstruction> onFinishCallback) {
         SetVariableAction setVariableAction = (SetVariableAction) action;
 
         StackContext ctx = request.getRequestState().getStoExContext();

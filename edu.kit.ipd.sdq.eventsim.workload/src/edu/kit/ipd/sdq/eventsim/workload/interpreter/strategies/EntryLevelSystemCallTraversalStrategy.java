@@ -8,8 +8,8 @@ import org.palladiosimulator.pcm.usagemodel.EntryLevelSystemCall;
 import com.google.inject.Inject;
 
 import edu.kit.ipd.sdq.eventsim.api.ISystem;
-import edu.kit.ipd.sdq.eventsim.api.Procedure;
 import edu.kit.ipd.sdq.eventsim.interpreter.SimulationStrategy;
+import edu.kit.ipd.sdq.eventsim.interpreter.TraversalInstruction;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
 
 /**
@@ -28,7 +28,7 @@ public class EntryLevelSystemCallTraversalStrategy implements SimulationStrategy
      * {@inheritDoc}
      */
     @Override
-    public void simulate(AbstractUserAction action, User user, Consumer<Procedure> onFinishCallback) {
+    public void simulate(AbstractUserAction action, User user, Consumer<TraversalInstruction> onFinishCallback) {
         EntryLevelSystemCall call = (EntryLevelSystemCall) action;
 
         // 1) invoke system-provided service

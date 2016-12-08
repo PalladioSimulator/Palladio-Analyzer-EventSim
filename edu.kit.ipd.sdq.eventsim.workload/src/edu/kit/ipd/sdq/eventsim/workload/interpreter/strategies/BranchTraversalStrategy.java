@@ -10,10 +10,10 @@ import org.palladiosimulator.pcm.usagemodel.ScenarioBehaviour;
 import com.google.inject.Inject;
 
 import de.uka.ipd.sdq.probfunction.math.IRandomGenerator;
-import edu.kit.ipd.sdq.eventsim.api.Procedure;
 import edu.kit.ipd.sdq.eventsim.exceptions.unchecked.InvalidModelParametersException;
 import edu.kit.ipd.sdq.eventsim.exceptions.unchecked.UnknownSimulationException;
 import edu.kit.ipd.sdq.eventsim.interpreter.SimulationStrategy;
+import edu.kit.ipd.sdq.eventsim.interpreter.TraversalInstruction;
 import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
 import edu.kit.ipd.sdq.eventsim.workload.interpreter.WorkloadModelDiagnostics;
@@ -37,7 +37,7 @@ public class BranchTraversalStrategy implements SimulationStrategy<AbstractUserA
     private WorkloadModelDiagnostics diagnostics;
 
     @Override
-    public void simulate(AbstractUserAction action, User user, Consumer<Procedure> onFinishCallback) {
+    public void simulate(AbstractUserAction action, User user, Consumer<TraversalInstruction> onFinishCallback) {
         Branch branch = (Branch) action;
 
         // no branch transitions? report and continue with successor.

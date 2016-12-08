@@ -22,6 +22,7 @@ import de.uka.ipd.sdq.simucomframework.variables.converter.NumberConverter;
 import edu.kit.ipd.sdq.eventsim.api.IActiveResource;
 import edu.kit.ipd.sdq.eventsim.api.Procedure;
 import edu.kit.ipd.sdq.eventsim.interpreter.SimulationStrategy;
+import edu.kit.ipd.sdq.eventsim.interpreter.TraversalInstruction;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
 import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
 
@@ -46,7 +47,7 @@ public class InternalActionTraversalStrategy implements SimulationStrategy<Abstr
      * {@inheritDoc}
      */
     @Override
-    public void simulate(AbstractAction action, Request request, Consumer<Procedure> onFinishCallback) {
+    public void simulate(AbstractAction action, Request request, Consumer<TraversalInstruction> onFinishCallback) {
         InternalAction internalAction = (InternalAction) action;
 
         // prepare pending resource demands

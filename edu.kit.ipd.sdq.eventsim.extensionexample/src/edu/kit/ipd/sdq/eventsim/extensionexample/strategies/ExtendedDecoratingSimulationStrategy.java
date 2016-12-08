@@ -9,16 +9,16 @@ import com.google.inject.Inject;
 
 import edu.kit.ipd.sdq.eventsim.api.ISimulationConfiguration;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
-import edu.kit.ipd.sdq.eventsim.api.Procedure;
 import edu.kit.ipd.sdq.eventsim.extensionexample.entites.ExtendedRequest;
 import edu.kit.ipd.sdq.eventsim.extensionexample.launch.ConfigurationConstants;
 import edu.kit.ipd.sdq.eventsim.interpreter.DecoratingSimulationStrategy;
 import edu.kit.ipd.sdq.eventsim.interpreter.SimulationStrategy;
+import edu.kit.ipd.sdq.eventsim.interpreter.TraversalInstruction;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
 
-public class ExtendedAbstractActionTraversalStrategy implements DecoratingSimulationStrategy<AbstractAction, Request> {
+public class ExtendedDecoratingSimulationStrategy implements DecoratingSimulationStrategy<AbstractAction, Request> {
 
-    private static final Logger logger = Logger.getLogger(ExtendedAbstractActionTraversalStrategy.class);
+    private static final Logger logger = Logger.getLogger(ExtendedDecoratingSimulationStrategy.class);
 
     @Inject
     private ISimulationConfiguration configuration;
@@ -36,7 +36,7 @@ public class ExtendedAbstractActionTraversalStrategy implements DecoratingSimula
     }
 
     @Override
-    public void simulate(AbstractAction action, Request request, Consumer<Procedure> onFinishCallback) {
+    public void simulate(AbstractAction action, Request request, Consumer<TraversalInstruction> onFinishCallback) {
         // initialize from configuration
         if (prefix == null) {
             prefix = loadCustomPrefixFromConfiguration(configuration);

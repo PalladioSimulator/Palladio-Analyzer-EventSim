@@ -15,8 +15,8 @@ import com.google.inject.Inject;
 import de.uka.ipd.sdq.simucomframework.variables.converter.NumberConverter;
 import edu.kit.ipd.sdq.eventsim.api.ILinkingResource;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationConfiguration;
-import edu.kit.ipd.sdq.eventsim.api.Procedure;
 import edu.kit.ipd.sdq.eventsim.interpreter.SimulationStrategy;
+import edu.kit.ipd.sdq.eventsim.interpreter.TraversalInstruction;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
 import edu.kit.ipd.sdq.eventsim.system.staticstructure.CommunicationLink;
 import edu.kit.ipd.sdq.eventsim.system.staticstructure.ComponentInstance;
@@ -42,7 +42,7 @@ public class ExternalCallActionStrategy implements SimulationStrategy<AbstractAc
      * {@inheritDoc}
      */
     @Override
-    public void simulate(AbstractAction action, Request request, Consumer<Procedure> onFinishCallback) {
+    public void simulate(AbstractAction action, Request request, Consumer<TraversalInstruction> onFinishCallback) {
         ExternalCallAction callAction = (ExternalCallAction) action;
 
         final ComponentInstance currentComponent = request.getCurrentComponent();

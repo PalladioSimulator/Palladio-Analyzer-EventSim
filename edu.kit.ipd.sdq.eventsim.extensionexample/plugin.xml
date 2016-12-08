@@ -12,7 +12,7 @@
          <simulation_strategy
                action="org.palladiosimulator.pcm.seff.InternalAction"
                name="InternalAction Decorator"
-               strategy="edu.kit.ipd.sdq.eventsim.extensionexample.strategies.ExtendedAbstractActionTraversalStrategy">
+               strategy="edu.kit.ipd.sdq.eventsim.extensionexample.strategies.ExtendedDecoratingSimulationStrategy">
          </simulation_strategy>
       </simulation_module>
    </extension>

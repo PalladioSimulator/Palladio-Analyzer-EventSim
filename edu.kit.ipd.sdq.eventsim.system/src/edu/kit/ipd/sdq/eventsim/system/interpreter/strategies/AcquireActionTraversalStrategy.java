@@ -10,9 +10,9 @@ import org.palladiosimulator.pcm.seff.AcquireAction;
 import com.google.inject.Inject;
 
 import edu.kit.ipd.sdq.eventsim.api.IPassiveResource;
-import edu.kit.ipd.sdq.eventsim.api.Procedure;
 import edu.kit.ipd.sdq.eventsim.exceptions.unchecked.EventSimException;
 import edu.kit.ipd.sdq.eventsim.interpreter.SimulationStrategy;
+import edu.kit.ipd.sdq.eventsim.interpreter.TraversalInstruction;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
 
 /**
@@ -31,7 +31,7 @@ public class AcquireActionTraversalStrategy implements SimulationStrategy<Abstra
      * {@inheritDoc}
      */
     @Override
-    public void simulate(AbstractAction action, Request request, Consumer<Procedure> onFinishCallback) {
+    public void simulate(AbstractAction action, Request request, Consumer<TraversalInstruction> onFinishCallback) {
         AcquireAction acquireAction = (AcquireAction) action;
 
         // TODO warning if timeout is set to true in model

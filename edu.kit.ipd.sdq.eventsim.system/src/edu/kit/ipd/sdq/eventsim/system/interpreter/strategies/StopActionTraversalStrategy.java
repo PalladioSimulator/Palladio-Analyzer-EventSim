@@ -5,8 +5,8 @@ import java.util.function.Consumer;
 import org.palladiosimulator.pcm.seff.AbstractAction;
 import org.palladiosimulator.pcm.seff.StopAction;
 
-import edu.kit.ipd.sdq.eventsim.api.Procedure;
 import edu.kit.ipd.sdq.eventsim.interpreter.SimulationStrategy;
+import edu.kit.ipd.sdq.eventsim.interpreter.TraversalInstruction;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
 
 /**
@@ -21,7 +21,7 @@ public class StopActionTraversalStrategy implements SimulationStrategy<AbstractA
      * {@inheritDoc}
      */
     @Override
-    public void simulate(AbstractAction action, Request request, Consumer<Procedure> onFinishCallback) {
+    public void simulate(AbstractAction action, Request request, Consumer<TraversalInstruction> onFinishCallback) {
         // 1) return traversal instruction
         onFinishCallback.accept(() -> {
             // 2) once called, leave the scenario behaviour, which will trigger another callback

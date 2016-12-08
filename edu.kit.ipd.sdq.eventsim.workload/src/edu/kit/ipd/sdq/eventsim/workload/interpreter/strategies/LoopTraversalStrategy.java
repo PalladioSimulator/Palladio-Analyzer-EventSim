@@ -10,9 +10,9 @@ import org.palladiosimulator.pcm.usagemodel.ScenarioBehaviour;
 import com.google.inject.Inject;
 
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
-import edu.kit.ipd.sdq.eventsim.api.Procedure;
 import edu.kit.ipd.sdq.eventsim.interpreter.LoopIterationHandler;
 import edu.kit.ipd.sdq.eventsim.interpreter.SimulationStrategy;
+import edu.kit.ipd.sdq.eventsim.interpreter.TraversalInstruction;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
 import edu.kit.ipd.sdq.eventsim.workload.interpreter.WorkloadModelDiagnostics;
 
@@ -31,7 +31,7 @@ public class LoopTraversalStrategy implements SimulationStrategy<AbstractUserAct
      * {@inheritDoc}
      */
     @Override
-    public void simulate(AbstractUserAction action, User user, Consumer<Procedure> onFinishCallback) {
+    public void simulate(AbstractUserAction action, User user, Consumer<TraversalInstruction> onFinishCallback) {
         // TODO simulate decorated
 
         Loop loop = (Loop) action;

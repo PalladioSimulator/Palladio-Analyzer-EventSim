@@ -10,9 +10,9 @@ import org.palladiosimulator.pcm.seff.ReleaseAction;
 import com.google.inject.Inject;
 
 import edu.kit.ipd.sdq.eventsim.api.IPassiveResource;
-import edu.kit.ipd.sdq.eventsim.api.Procedure;
 import edu.kit.ipd.sdq.eventsim.exceptions.unchecked.EventSimException;
 import edu.kit.ipd.sdq.eventsim.interpreter.SimulationStrategy;
+import edu.kit.ipd.sdq.eventsim.interpreter.TraversalInstruction;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
 
 /**
@@ -30,7 +30,7 @@ public class ReleaseActionTraversalStrategy implements SimulationStrategy<Abstra
      * {@inheritDoc}
      */
     @Override
-    public void simulate(AbstractAction action, Request request, Consumer<Procedure> onFinishCallback) {
+    public void simulate(AbstractAction action, Request request, Consumer<TraversalInstruction> onFinishCallback) {
         ReleaseAction releaseAction = (ReleaseAction) action;
 
         if (!releaseAction.getResourceDemand_Action().isEmpty()) {

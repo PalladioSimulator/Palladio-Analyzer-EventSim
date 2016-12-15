@@ -20,7 +20,7 @@ import edu.kit.ipd.sdq.eventsim.workload.entities.UserFactory;
  * @author Philipp Merkle
  * 
  */
-public class OpenWorkloadGenerator implements IWorkloadGenerator {
+public class OpenWorkloadGenerator implements WorkloadGenerator {
 
     private final OpenWorkload workload;
     private final PCMRandomVariable interarrivalTime;

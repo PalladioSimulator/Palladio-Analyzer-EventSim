@@ -29,11 +29,11 @@ import edu.kit.ipd.sdq.eventsim.interpreter.SimulationStrategyRegistry;
 import edu.kit.ipd.sdq.eventsim.interpreter.TraversalListenerRegistry;
 import edu.kit.ipd.sdq.eventsim.interpreter.state.EntityState;
 import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
-import edu.kit.ipd.sdq.eventsim.workload.generator.IWorkloadGenerator;
+import edu.kit.ipd.sdq.eventsim.workload.generator.WorkloadGenerator;
 
 /**
  * This entity represents a user of the system under simulation. Users issue system calls while
- * traversing a usage scenario. They are spawned by a {@link IWorkloadGenerator}.
+ * traversing a usage scenario. They are spawned by a {@link WorkloadGenerator}.
  * 
  * @author Philipp Merkle
  * @author Christoph Föhrdes

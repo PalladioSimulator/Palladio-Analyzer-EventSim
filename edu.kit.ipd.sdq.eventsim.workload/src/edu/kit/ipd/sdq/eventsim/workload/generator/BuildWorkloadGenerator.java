@@ -15,12 +15,12 @@ import edu.kit.ipd.sdq.eventsim.command.IPCMCommand;
 import edu.kit.ipd.sdq.eventsim.exceptions.unchecked.UnexpectedModelStructureException;
 
 /**
- * This command creates and returns a list of all {@link IWorkloadGenerator}s for a PCM usage model.
+ * This command creates and returns a list of all {@link WorkloadGenerator}s for a PCM usage model.
  * 
  * @author Philipp Merkle
  * 
  */
-public class BuildWorkloadGenerator implements IPCMCommand<List<IWorkloadGenerator>> {
+public class BuildWorkloadGenerator implements IPCMCommand<List<WorkloadGenerator>> {
 
     private WorkloadGeneratorFactory factory;
 
@@ -32,8 +32,8 @@ public class BuildWorkloadGenerator implements IPCMCommand<List<IWorkloadGenerat
      * {@inheritDoc}
      */
     @Override
-    public List<IWorkloadGenerator> execute(final PCMModel pcm, final ICommandExecutor<PCMModel> executor) {
-        final List<IWorkloadGenerator> workloads = new ArrayList<IWorkloadGenerator>();
+    public List<WorkloadGenerator> execute(final PCMModel pcm, final ICommandExecutor<PCMModel> executor) {
+        final List<WorkloadGenerator> workloads = new ArrayList<WorkloadGenerator>();
         for (final UsageScenario u : pcm.getUsageModel().getUsageScenario_UsageModel()) {
             final Workload w = u.getWorkload_UsageScenario();
             if (UsagemodelPackage.eINSTANCE.getOpenWorkload().isInstance(w)) {

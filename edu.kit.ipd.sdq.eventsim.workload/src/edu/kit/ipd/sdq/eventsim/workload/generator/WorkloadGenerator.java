@@ -9,7 +9,7 @@ import edu.kit.ipd.sdq.eventsim.workload.entities.User;
  * @author Philipp Merkle
  * 
  */
-public interface IWorkloadGenerator {
+public interface WorkloadGenerator {
 
     /**
      * Starts the workload generation.

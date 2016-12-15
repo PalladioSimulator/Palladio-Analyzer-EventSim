@@ -22,7 +22,7 @@ import edu.kit.ipd.sdq.eventsim.workload.entities.UserFactory;
  * @author Philipp Merkle
  * 
  */
-public class ClosedWorkloadGenerator implements IWorkloadGenerator {
+public class ClosedWorkloadGenerator implements WorkloadGenerator {
 
     private final ClosedWorkload workload;
     private final int population;

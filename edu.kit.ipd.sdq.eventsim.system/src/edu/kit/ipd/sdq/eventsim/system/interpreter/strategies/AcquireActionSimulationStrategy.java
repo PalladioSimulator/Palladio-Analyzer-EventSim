@@ -22,7 +22,7 @@ import edu.kit.ipd.sdq.eventsim.system.entities.Request;
  * @author Christoph Föhrdes
  * 
  */
-public class AcquireActionTraversalStrategy implements SimulationStrategy<AbstractAction, Request> {
+public class AcquireActionSimulationStrategy implements SimulationStrategy<AbstractAction, Request> {
 
     @Inject
     private IPassiveResource passiveResourceModule;

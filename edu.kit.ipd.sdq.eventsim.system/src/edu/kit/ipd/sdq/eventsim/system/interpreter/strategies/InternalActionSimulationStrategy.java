@@ -36,9 +36,9 @@ import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
  * @author Thomas Zwickl
  * 
  */
-public class InternalActionTraversalStrategy implements SimulationStrategy<AbstractAction, Request> {
+public class InternalActionSimulationStrategy implements SimulationStrategy<AbstractAction, Request> {
 
-    private static final Logger logger = Logger.getLogger(InternalActionTraversalStrategy.class);
+    private static final Logger logger = Logger.getLogger(InternalActionSimulationStrategy.class);
 
     @Inject
     private IActiveResource activeResourceModule;

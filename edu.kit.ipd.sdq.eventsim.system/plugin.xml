@@ -11,52 +11,52 @@
          <simulation_strategy
                action="org.palladiosimulator.pcm.seff.AcquireAction"
                name="AcquireAction"
-               strategy="edu.kit.ipd.sdq.eventsim.system.interpreter.strategies.AcquireActionTraversalStrategy">
+               strategy="edu.kit.ipd.sdq.eventsim.system.interpreter.strategies.AcquireActionSimulationStrategy">
          </simulation_strategy>
          <simulation_strategy
                action="org.palladiosimulator.pcm.seff.BranchAction"
                name="BranchAction"
-               strategy="edu.kit.ipd.sdq.eventsim.system.interpreter.strategies.BranchActionTraversalStrategy">
+               strategy="edu.kit.ipd.sdq.eventsim.system.interpreter.strategies.BranchActionSimulationStrategy">
          </simulation_strategy>
          <simulation_strategy
                action="org.palladiosimulator.pcm.seff.ExternalCallAction"
                name="ExternalCallAction"
-               strategy="edu.kit.ipd.sdq.eventsim.system.interpreter.strategies.ExternalCallActionStrategy">
+               strategy="edu.kit.ipd.sdq.eventsim.system.interpreter.strategies.ExternalCallSimulationStrategy">
          </simulation_strategy>
          <simulation_strategy
                action="org.palladiosimulator.pcm.seff.ForkAction"
                name="ForkAction"
-               strategy="edu.kit.ipd.sdq.eventsim.system.interpreter.strategies.ForkActionTraversalStrategy">
+               strategy="edu.kit.ipd.sdq.eventsim.system.interpreter.strategies.ForkActionSimulationStrategy">
          </simulation_strategy>
          <simulation_strategy
                action="org.palladiosimulator.pcm.seff.InternalAction"
                name="InternalAction"
-               strategy="edu.kit.ipd.sdq.eventsim.system.interpreter.strategies.InternalActionTraversalStrategy">
+               strategy="edu.kit.ipd.sdq.eventsim.system.interpreter.strategies.InternalActionSimulationStrategy">
          </simulation_strategy>
          <simulation_strategy
                action="org.palladiosimulator.pcm.seff.LoopAction"
                name="LoopAction"
-               strategy="edu.kit.ipd.sdq.eventsim.system.interpreter.strategies.LoopActionTraversalStrategy">
+               strategy="edu.kit.ipd.sdq.eventsim.system.interpreter.strategies.LoopActionSimulationStrategy">
          </simulation_strategy>
          <simulation_strategy
                action="org.palladiosimulator.pcm.seff.ReleaseAction"
                name="ReleaseAction"
-               strategy="edu.kit.ipd.sdq.eventsim.system.interpreter.strategies.ReleaseActionTraversalStrategy">
+               strategy="edu.kit.ipd.sdq.eventsim.system.interpreter.strategies.ReleaseActionSimulationStrategy">
          </simulation_strategy>
          <simulation_strategy
                action="org.palladiosimulator.pcm.seff.SetVariableAction"
                name="SetVariableAction"
-               strategy="edu.kit.ipd.sdq.eventsim.system.interpreter.strategies.SetVariableActionTraversalStrategy">
+               strategy="edu.kit.ipd.sdq.eventsim.system.interpreter.strategies.SetVariableActionSimulationStrategy">
          </simulation_strategy>
          <simulation_strategy
                action="org.palladiosimulator.pcm.seff.StartAction"
                name="StartAction"
-               strategy="edu.kit.ipd.sdq.eventsim.system.interpreter.strategies.StartActionTraversalStrategy">
+               strategy="edu.kit.ipd.sdq.eventsim.system.interpreter.strategies.StartActionSimulationStrategy">
          </simulation_strategy>
          <simulation_strategy
                action="org.palladiosimulator.pcm.seff.StopAction"
                name="StopAction"
-               strategy="edu.kit.ipd.sdq.eventsim.system.interpreter.strategies.StopActionTraversalStrategy">
+               strategy="edu.kit.ipd.sdq.eventsim.system.interpreter.strategies.StopActionSimulationStrategy">
          </simulation_strategy>
       </simulation_module>
    </extension>

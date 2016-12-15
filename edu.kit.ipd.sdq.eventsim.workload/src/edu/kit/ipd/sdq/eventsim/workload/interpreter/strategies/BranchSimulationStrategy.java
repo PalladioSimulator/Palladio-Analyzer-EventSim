@@ -24,7 +24,7 @@ import edu.kit.ipd.sdq.eventsim.workload.entities.User;
  * @author Philipp Merkle
  * 
  */
-public class BranchTraversalStrategy implements SimulationStrategy<AbstractUserAction, User> {
+public class BranchSimulationStrategy implements SimulationStrategy<AbstractUserAction, User> {
 
     // TODO revisit this tolerance; it's likely better to "fix" the branching probabilities as done
     // in SimuCom.

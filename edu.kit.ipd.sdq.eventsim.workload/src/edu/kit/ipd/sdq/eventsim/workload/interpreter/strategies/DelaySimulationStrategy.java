@@ -18,7 +18,7 @@ import edu.kit.ipd.sdq.eventsim.workload.entities.User;
  * @author Philipp Merkle
  * 
  */
-public class DelayTraversalStrategy implements SimulationStrategy<AbstractUserAction, User> {
+public class DelaySimulationStrategy implements SimulationStrategy<AbstractUserAction, User> {
 
     /**
      * {@inheritDoc}

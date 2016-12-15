@@ -28,9 +28,9 @@ import edu.kit.ipd.sdq.eventsim.system.staticstructure.SimulatedResourceContaine
  * @author Philipp Merkle
  * 
  */
-public class ExternalCallActionStrategy implements SimulationStrategy<AbstractAction, Request> {
+public class ExternalCallSimulationStrategy implements SimulationStrategy<AbstractAction, Request> {
 
-    private static final Logger logger = Logger.getLogger(ExternalCallActionStrategy.class);
+    private static final Logger logger = Logger.getLogger(ExternalCallSimulationStrategy.class);
 
     @Inject
     private ILinkingResource network;

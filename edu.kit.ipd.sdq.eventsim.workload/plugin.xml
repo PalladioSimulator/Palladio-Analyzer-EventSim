@@ -11,32 +11,32 @@
          <simulation_strategy
                action="org.palladiosimulator.pcm.usagemodel.Branch"
                name="Branch"
-               strategy="edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies.BranchTraversalStrategy">
+               strategy="edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies.BranchSimulationStrategy">
          </simulation_strategy>
          <simulation_strategy
                action="org.palladiosimulator.pcm.usagemodel.Delay"
                name="Delay"
-               strategy="edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies.DelayTraversalStrategy">
+               strategy="edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies.DelaySimulationStrategy">
          </simulation_strategy>
          <simulation_strategy
                action="org.palladiosimulator.pcm.usagemodel.EntryLevelSystemCall"
                name="EntryLevelSystemCall"
-               strategy="edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies.EntryLevelSystemCallTraversalStrategy">
+               strategy="edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies.EntryLevelSystemCallSimulationStrategy">
          </simulation_strategy>
          <simulation_strategy
                action="org.palladiosimulator.pcm.usagemodel.Loop"
                name="Loop"
-               strategy="edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies.LoopTraversalStrategy">
+               strategy="edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies.LoopSimulationStrategy">
          </simulation_strategy>
          <simulation_strategy
                action="org.palladiosimulator.pcm.usagemodel.Start"
                name="Start"
-               strategy="edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies.StartTraversalStrategy">
+               strategy="edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies.StartSimulationStrategy">
          </simulation_strategy>
          <simulation_strategy
                action="org.palladiosimulator.pcm.usagemodel.Stop"
                name="Stop"
-               strategy="edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies.StopTraversalStrategy">
+               strategy="edu.kit.ipd.sdq.eventsim.workload.interpreter.strategies.StopSimulationStrategy">
          </simulation_strategy>
       </simulation_module>
    </extension>

@@ -26,7 +26,7 @@ import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
  * @author Philipp Merkle
  * 
  */
-public class BranchActionTraversalStrategy implements SimulationStrategy<AbstractAction, Request> {
+public class BranchActionSimulationStrategy implements SimulationStrategy<AbstractAction, Request> {
 
     @Inject
     private IRandomGenerator randomGenerator;

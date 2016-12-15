@@ -21,7 +21,7 @@ import edu.kit.ipd.sdq.eventsim.system.entities.Request;
  * @author Philipp Merkle
  * 
  */
-public class ReleaseActionTraversalStrategy implements SimulationStrategy<AbstractAction, Request> {
+public class ReleaseActionSimulationStrategy implements SimulationStrategy<AbstractAction, Request> {
 
     @Inject
     private IPassiveResource passiveResourceModule;

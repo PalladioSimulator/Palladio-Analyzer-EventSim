@@ -22,7 +22,7 @@ import edu.kit.ipd.sdq.eventsim.workload.entities.User;
  * @author Philipp Merkle
  * 
  */
-public class LoopTraversalStrategy implements SimulationStrategy<AbstractUserAction, User> {
+public class LoopSimulationStrategy implements SimulationStrategy<AbstractUserAction, User> {
 
     @Inject
     private WorkloadModelDiagnostics diagnostics;

@@ -18,7 +18,7 @@ import edu.kit.ipd.sdq.eventsim.system.entities.Request;
  * @author Philipp Merkle
  * 
  */
-public class LoopActionTraversalStrategy implements SimulationStrategy<AbstractAction, Request> {
+public class LoopActionSimulationStrategy implements SimulationStrategy<AbstractAction, Request> {
 
     /**
      * {@inheritDoc}

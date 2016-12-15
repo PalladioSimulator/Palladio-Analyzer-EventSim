@@ -19,7 +19,7 @@ import edu.kit.ipd.sdq.eventsim.workload.entities.User;
  * @author Philipp Merkle
  * @author Christoph Föhrdes
  */
-public class EntryLevelSystemCallTraversalStrategy implements SimulationStrategy<AbstractUserAction, User> {
+public class EntryLevelSystemCallSimulationStrategy implements SimulationStrategy<AbstractUserAction, User> {
 
     @Inject
     private ISystem system;

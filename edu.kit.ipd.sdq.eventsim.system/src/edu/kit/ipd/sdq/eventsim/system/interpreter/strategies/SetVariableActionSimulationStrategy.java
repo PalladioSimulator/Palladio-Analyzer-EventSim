@@ -18,7 +18,7 @@ import edu.kit.ipd.sdq.eventsim.util.ParameterHelper;
  * @author Philipp Merkle
  * 
  */
-public class SetVariableActionTraversalStrategy implements SimulationStrategy<AbstractAction, Request> {
+public class SetVariableActionSimulationStrategy implements SimulationStrategy<AbstractAction, Request> {
 
     /**
      * {@inheritDoc}

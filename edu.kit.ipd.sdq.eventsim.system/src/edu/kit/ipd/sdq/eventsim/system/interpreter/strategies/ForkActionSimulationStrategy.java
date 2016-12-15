@@ -23,9 +23,9 @@ import edu.kit.ipd.sdq.eventsim.system.entities.RequestFactory;
  * @author Philipp Merkle
  * 
  */
-public class ForkActionTraversalStrategy implements SimulationStrategy<AbstractAction, Request> {
+public class ForkActionSimulationStrategy implements SimulationStrategy<AbstractAction, Request> {
 
-    private static final Logger logger = Logger.getLogger(ForkActionTraversalStrategy.class);
+    private static final Logger logger = Logger.getLogger(ForkActionSimulationStrategy.class);
 
     @Inject
     private RequestFactory requestFactory;

@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sequence-diagram version="1.1.13" icons="true">  
+  <object id="1" language="java" name="edu.kit.ipd.sdq.eventsim.workload.generator.ClosedWorkloadGenerator" 
+    project="edu.kit.ipd.sdq.eventsim.workload" 
+    file="/edu.kit.ipd.sdq.eventsim.workload/src/edu/kit/ipd/sdq/eventsim/workload/generator/ClosedWorkloadGenerator.java" 
+    binary="false" label="closedWorkloadGenerator" type="class" autoSize="true">    
+    <position height="-1" width="-1" x="382" y="0"/>    
+    <execution id="2">      
+      <position height="446" width="191" x="5" y="105"/>    
+    </execution>  
+  </object>  
+  <object id="5" language="java" name="edu.kit.ipd.sdq.eventsim.workload.entities.User" 
+    project="edu.kit.ipd.sdq.eventsim.workload" 
+    file="/edu.kit.ipd.sdq.eventsim.workload/src/edu/kit/ipd/sdq/eventsim/workload/entities/User.java" binary="false" 
+    label="user" type="class" autoSize="true">    
+    <position height="-1" width="-1" x="366" y="0"/>    
+    <execution id="4">      
+      <position height="404" width="182" x="200" y="126"/>    
+    </execution>    
+    <execution id="7">      
+      <position height="21" width="7" x="288" y="153"/>    
+    </execution>    
+    <execution id="9">      
+      <position height="294" width="7" x="288" y="215"/>    
+    </execution>    
+    <execution id="16">      
+      <position height="21" width="7" x="291" y="362"/>    
+    </execution>    
+    <execution id="17">      
+      <position height="21" width="7" x="291" y="446"/>    
+    </execution>  
+  </object>  
+  <object id="18" language="java" name="edu.kit.ipd.sdq.eventsim.interpreter.SimulationStrategyRegistry" 
+    project="edu.kit.ipd.sdq.eventsim.core" 
+    file="/edu.kit.ipd.sdq.eventsim.core/src/edu/kit/ipd/sdq/eventsim/interpreter/SimulationStrategyRegistry.java" 
+    binary="false" label="simulationStrategyRegistry" type="class" autoSize="true">    
+    <position height="-1" width="-1" x="760" y="0"/>    
+    <execution id="11">      
+      <position height="21" width="210" x="386" y="246"/>    
+    </execution>  
+  </object>  
+  <object id="19" language="java" name="edu.kit.ipd.sdq.eventsim.interpreter.SimulationStrategy" 
+    project="edu.kit.ipd.sdq.eventsim.core" 
+    file="/edu.kit.ipd.sdq.eventsim.core/src/edu/kit/ipd/sdq/eventsim/interpreter/SimulationStrategy.java" 
+    binary="false" label="simulationStrategy" type="interface" autoSize="true">    
+    <position height="-1" width="-1" x="743" y="0"/>    
+    <execution id="13">      
+      <position height="109" width="238" x="759" y="295"/>    
+    </execution>  
+  </object>  
+  <object id="23" language="java" name="edu.kit.ipd.sdq.eventsim.interpreter.TraversalInstruction" 
+    project="edu.kit.ipd.sdq.eventsim.core" 
+    file="/edu.kit.ipd.sdq.eventsim.core/src/edu/kit/ipd/sdq/eventsim/interpreter/TraversalInstruction.java" 
+    binary="false" label="traversalInstruction" type="interface" autoSize="true">    
+    <position height="-1" width="-1" x="843" y="0"/>    
+    <execution id="21">      
+      <position height="21" width="155" x="842" y="307"/>    
+    </execution>    
+    <execution id="15">      
+      <position height="74" width="155" x="767" y="414"/>    
+    </execution>  
+  </object>  
+  <note id="25">    
+    <position height="26" width="115" x="359" y="139"/>    
+    <text><![CDATA[find start action
+    ]]>
+    </text>  
+  </note>  
+  <note id="26">    
+    <position height="43" width="122" x="543" y="157"/>    
+    <text><![CDATA[lookup resonsible simulation strategy
+    ]]>
+    </text>  
+  </note>  
+  <note id="27">    
+    <position height="40" width="170" x="502" y="306"/>    
+    <text><![CDATA[return traversal instruction to user (simplified) ]]>
+    </text>  
+  </note>  
+  <note id="28">    
+    <position height="35" width="200" x="693" y="230"/>    
+    <text><![CDATA[create traversal instruction]]>
+    </text>  
+  </note>  
+  <note id="29">    
+    <position height="34" width="242" x="518" y="466"/>    
+    <text><![CDATA[continue with successor of current action]]>
+    </text>  
+  </note>  
+  <message id="3" 
+    operation="simulateBehaviour(org.palladiosimulator.pcm.usagemodel.ScenarioBehaviour,edu.kit.ipd.sdq.eventsim.api.Procedure):void" 
+    asynchronous="false">    
+    <end type="SOURCE" refId="2"/>    
+    <end type="TARGET" refId="4"/>  
+  </message>  
+  <message id="6" asynchronous="false">    
+    <end type="SOURCE" refId="4"/>    
+    <end type="TARGET" refId="7"/>  
+  </message>  
+  <message id="8" operation="simulateAction(org.palladiosimulator.pcm.usagemodel.AbstractUserAction):void" 
+    asynchronous="false">    
+    <end type="SOURCE" refId="4"/>    
+    <end type="TARGET" refId="9"/>  
+  </message>  
+  <message id="10" 
+    operation="lookup(java.lang.Class&lt;? extends A&gt;):edu.kit.ipd.sdq.eventsim.interpreter.SimulationStrategy&lt;A,E&gt;" 
+    asynchronous="false">    
+    <end type="SOURCE" refId="9"/>    
+    <end type="TARGET" refId="11"/>  
+  </message>  
+  <message id="12" 
+    operation="simulate(A,E,java.util.function.Consumer&lt;edu.kit.ipd.sdq.eventsim.interpreter.TraversalInstruction&gt;):void" 
+    asynchronous="false">    
+    <end type="SOURCE" refId="9"/>    
+    <end type="TARGET" refId="13"/>  
+  </message>  
+  <message id="14" operation="execute():void" asynchronous="false">    
+    <end type="SOURCE" refId="9"/>    
+    <end type="TARGET" refId="15"/>  
+  </message>  
+  <message id="20" asynchronous="false">    
+    <end type="SOURCE" refId="13"/>    
+    <end type="TARGET" refId="21"/>  
+  </message>  
+  <message id="22" asynchronous="false">    
+    <end type="SOURCE" refId="13"/>    
+    <end type="TARGET" refId="16"/>  
+  </message>  
+  <message id="24" operation="simulateAction(org.palladiosimulator.pcm.usagemodel.AbstractUserAction):void" 
+    asynchronous="false">    
+    <end type="SOURCE" refId="15"/>    
+    <end type="TARGET" refId="17"/>  
+  </message>  
+  <text-link id="30">    
+    <link-end type="SOURCE" refId="25"/>    
+    <link-end type="TARGET" refId="7"/>  
+  </text-link>  
+  <text-link id="31">    
+    <link-end type="SOURCE" refId="26"/>    
+    <link-end type="TARGET" refId="11"/>  
+  </text-link>  
+  <text-link id="32">    
+    <link-end type="SOURCE" refId="28"/>    
+    <link-end type="TARGET" refId="20"/>  
+  </text-link>  
+  <text-link id="33">    
+    <link-end type="SOURCE" refId="29"/>    
+    <link-end type="TARGET" refId="24"/>  
+  </text-link>  
+  <text-link id="34">    
+    <link-end type="SOURCE" refId="27"/>    
+    <link-end type="TARGET" refId="22"/>  
+  </text-link>
+</sequence-diagram>

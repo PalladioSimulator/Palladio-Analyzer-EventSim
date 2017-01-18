@@ -116,8 +116,7 @@ public class Buffer {
 		for (Metadata md : m.getMetadata()) {
 			String key = md.getName();
 			if (!metadata.containsKey(key)) {
-				// TODO get "factorial" from Metadata object
-				metadata.put(key, new Column<>(String.class, md.getName(), capacity, true));
+                metadata.put(key, new Column<>(String.class, md.getName(), capacity, md.isFactorial()));
 			}
 			metadata.get(key).set(size, md.getValue().toString()); // TODO use "value extractor"?
 		}

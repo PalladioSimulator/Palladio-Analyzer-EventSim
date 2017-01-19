@@ -1,10 +1,7 @@
 package edu.kit.ipd.sdq.eventsim.measurement;
 
-import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.List;
-
-import org.apache.log4j.Logger;
 
 /**
  * 
@@ -15,13 +12,11 @@ import org.apache.log4j.Logger;
  */
 public class Measurement<E> {
 
-    private static final Logger log = Logger.getLogger(Measurement.class);
-
     private Object what;
 
     private MeasuringPoint<E> where;
 
-    private WeakReference<Object> who;
+    private Object who;
 
     private double value;
 
@@ -51,11 +46,7 @@ public class Measurement<E> {
             Metadata... metadata) {
         this.what = what;
         this.where = where;
-        if (who == null) {
-            this.who = null;
-        } else {
-            this.who = new WeakReference<Object>(who);
-        }
+        this.who = who;
         this.value = value;
         this.when = when;
         this.metadata = metadata;
@@ -70,15 +61,7 @@ public class Measurement<E> {
     }
 
     public Object getWho() {
-        if (who == null) {
-            return null;
-        }
-        Object trigger = who.get();
-        if (trigger == null) {
-            log.warn("Requested measurement trigger is null. "
-                    + "Possibly the weak reference has been garbage-collected already");
-        }
-        return trigger;
+        return who;
     }
 
     public double getWhen() {
@@ -104,8 +87,8 @@ public class Measurement<E> {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("Measurement [what=").append(what).append(", where=").append(where).append(", who=")
-                .append(who.get()).append(", value=").append(value).append(", when=").append(when).append(", metadata=")
+        builder.append("Measurement [what=").append(what).append(", where=").append(where).append(", who=").append(who)
+                .append(", value=").append(value).append(", when=").append(when).append(", metadata=")
                 .append(Arrays.toString(metadata)).append("]");
         return builder.toString();
     }

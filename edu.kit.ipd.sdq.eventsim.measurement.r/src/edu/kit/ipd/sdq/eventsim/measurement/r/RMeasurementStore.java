@@ -2,6 +2,7 @@ package edu.kit.ipd.sdq.eventsim.measurement.r;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Function;
 
 import org.apache.log4j.Logger;
@@ -52,6 +53,8 @@ public class RMeasurementStore implements MeasurementStorage {
     private String rdsFilePath;
 
     private Metadata[] globalMetadata;
+
+    private ReentrantReadWriteLock bufferLock = new ReentrantReadWriteLock(true);
 
     /**
      * Use this constructor when no RDS file is to be created upon finish.
@@ -131,16 +134,51 @@ public class RMeasurementStore implements MeasurementStorage {
     }
 
     @Override
-    public synchronized void put(Measurement<?> m) {
-        // add global metadata to measurement, if present
-        if (globalMetadata != null) {
-            m.addMetadata(globalMetadata);
+    public void put(Measurement<?> m) {
+        /*
+         * lock handling implemented as suggested by
+         * https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/locks/
+         * ReentrantReadWriteLock.html
+         */
+        bufferLock.readLock().lock();
+        if (buffer.isFull()) {
+            // must release read lock before acquiring write lock
+            bufferLock.readLock().unlock();
+            bufferLock.writeLock().lock();
+            try {
+                // recheck state because another thread might have acquired write lock and changed
+                // state before we did
+                if (buffer.isFull()) {
+                    rJobProcessor.enqueue(new PushBufferToRJob(buffer, bufferNumber++));
+                    buffer = new Buffer(BUFFER_CAPACITY, idExtractor, nameExtractor, typeExtractor);
+                }
+                // downgrade lock by acquiring read lock before releasing write lock
+                bufferLock.readLock().lock();
+            } finally {
+                // release write lock, keep read lock
+                bufferLock.writeLock().unlock();
+            }
         }
 
-        buffer.put(m);
-        if (buffer.isFull()) {
-            rJobProcessor.enqueue(new PushBufferToRJob(buffer, bufferNumber++));
-            buffer = new Buffer(BUFFER_CAPACITY, idExtractor, nameExtractor, typeExtractor);
+        try {
+            // add global metadata to measurement, if present
+            if (globalMetadata != null) {
+                m.addMetadata(globalMetadata);
+            }
+            boolean added = buffer.put(m);
+            int retries = 0;
+            while (!added && retries < 10) {
+                added = buffer.put(m);
+                retries++;
+            }
+            if (!added) {
+                System.out.println("Failed to add measurement " + m + " to buffer " + bufferNumber + buffer
+                        + " after multiple retries.");
+                // log.warn("Failed to add measurement " + m + " to buffer after multiple
+                // retries.");
+            }
+        } finally {
+            bufferLock.readLock().unlock();
         }
     }
 
@@ -167,31 +205,36 @@ public class RMeasurementStore implements MeasurementStorage {
     @Override
     public void finish() {
         log.info("Closing R measurement store...");
-        buffer.shrinkToSize();
+        bufferLock.writeLock().lock();
+        try {
+            buffer.shrinkToSize();
 
-        rJobProcessor.enqueue(new PushBufferToRJob(buffer, bufferNumber++));
-        rJobProcessor.enqueue(new MergeBufferedDataFramesJob());
+            rJobProcessor.enqueue(new PushBufferToRJob(buffer, bufferNumber++));
+            rJobProcessor.enqueue(new MergeBufferedDataFramesJob());
 
-        // handle R job extensions
-        for (RJob job : JobExtensionHelper.createExtensionJobs()) {
-            log.info("Processing R extension job: " + job.getName());
-            rJobProcessor.enqueue(job);
+            // handle R job extensions
+            for (RJob job : JobExtensionHelper.createExtensionJobs()) {
+                log.info("Processing R extension job: " + job.getName());
+                rJobProcessor.enqueue(job);
+            }
+
+            if (storeRds) {
+                rJobProcessor.enqueue(new StoreRDSFileJob(rdsFilePath));
+            } else {
+                log.info("Skipping creation of RDS file.");
+            }
+            rJobProcessor.enqueue(new FinalizeRProcessingJob());
+
+            // wait until R processing is finished
+            rJobProcessor.waitUntilFinished();
+
+            // clean up
+            // TODO really needed?
+            buffer = new Buffer(BUFFER_CAPACITY, idExtractor, nameExtractor, typeExtractor);
+            bufferNumber = 0;
+        } finally {
+            bufferLock.writeLock().unlock();
         }
-
-        if (storeRds) {
-            rJobProcessor.enqueue(new StoreRDSFileJob(rdsFilePath));
-        } else {
-            log.info("Skipping creation of RDS file.");
-        }
-        rJobProcessor.enqueue(new FinalizeRProcessingJob());
-
-        // wait until R processing is finished
-        rJobProcessor.waitUntilFinished();
-
-        // clean up
-        // TODO really needed?
-        buffer = new Buffer(BUFFER_CAPACITY, idExtractor, nameExtractor, typeExtractor);
-        bufferNumber = 0;
     }
 
 }

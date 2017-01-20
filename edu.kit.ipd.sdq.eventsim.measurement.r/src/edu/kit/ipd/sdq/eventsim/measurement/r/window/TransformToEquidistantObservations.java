@@ -62,7 +62,7 @@ public class TransformToEquidistantObservations {
 
             // read all observed values, together with the corresponding time ("when")
             REXP result = EvaluationHelper.evaluate(context.getConnection(),
-                    "mm[" + selectionString + ", .(when, value)]");
+                    "mm[" + selectionString + ", .(when, value)][order(when)]");
             RList resultList = result.asList();
             double[] when = resultList.at("when").asDoubles();
             int[] values = resultList.at("value").asIntegers();

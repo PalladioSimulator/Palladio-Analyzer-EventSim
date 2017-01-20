@@ -31,6 +31,8 @@ import edu.kit.ipd.sdq.eventsim.measurement.r.jobs.StoreRDSFileJob;
  */
 public class RMeasurementStore implements MeasurementStorage {
 
+    private static final int MAX_RETRIES_PUT_MEASUREMENT = 10;
+
     private static final Logger log = Logger.getLogger(RMeasurementStore.class);
 
     private static final int BUFFER_CAPACITY = 10_000;
@@ -54,7 +56,7 @@ public class RMeasurementStore implements MeasurementStorage {
 
     private Metadata[] globalMetadata;
 
-    private ReentrantReadWriteLock bufferLock = new ReentrantReadWriteLock(true);
+    private ReentrantReadWriteLock bufferLock = new ReentrantReadWriteLock(false);
 
     /**
      * Use this constructor when no RDS file is to be created upon finish.
@@ -135,50 +137,48 @@ public class RMeasurementStore implements MeasurementStorage {
 
     @Override
     public void put(Measurement<?> m) {
-        /*
-         * lock handling implemented as suggested by
-         * https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/locks/
-         * ReentrantReadWriteLock.html
-         */
-        bufferLock.readLock().lock();
-        if (buffer.isFull()) {
-            // must release read lock before acquiring write lock
-            bufferLock.readLock().unlock();
-            bufferLock.writeLock().lock();
-            try {
-                // recheck state because another thread might have acquired write lock and changed
-                // state before we did
-                if (buffer.isFull()) {
-                    rJobProcessor.enqueue(new PushBufferToRJob(buffer, bufferNumber++));
-                    buffer = new Buffer(BUFFER_CAPACITY, idExtractor, nameExtractor, typeExtractor);
+        boolean successfullyAdded = false;
+        int tries = 0;
+        while (!successfullyAdded && tries < MAX_RETRIES_PUT_MEASUREMENT + 1) {
+            /*
+             * lock handling implemented as suggested by
+             * https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/locks/
+             * ReentrantReadWriteLock.html
+             */
+            bufferLock.readLock().lock();
+            if (buffer.isFull()) {
+                // must release read lock before acquiring write lock
+                bufferLock.readLock().unlock();
+                bufferLock.writeLock().lock();
+                try {
+                    // recheck state because another thread might have acquired write lock and
+                    // changed state before we did
+                    if (buffer.isFull()) {
+                        rJobProcessor.enqueue(new PushBufferToRJob(buffer, bufferNumber++));
+                        buffer = new Buffer(BUFFER_CAPACITY, idExtractor, nameExtractor, typeExtractor);
+                    }
+                    // downgrade lock by acquiring read lock before releasing write lock
+                    bufferLock.readLock().lock();
+                } finally {
+                    // release write lock, keep read lock
+                    bufferLock.writeLock().unlock();
                 }
-                // downgrade lock by acquiring read lock before releasing write lock
-                bufferLock.readLock().lock();
-            } finally {
-                // release write lock, keep read lock
-                bufferLock.writeLock().unlock();
             }
-        }
+            try {
+                // add global metadata to measurement, if present
+                if (globalMetadata != null) {
+                    m.addMetadata(globalMetadata);
+                }
 
-        try {
-            // add global metadata to measurement, if present
-            if (globalMetadata != null) {
-                m.addMetadata(globalMetadata);
+                // try adding measurement to buffer
+                successfullyAdded = buffer.put(m);
+            } finally {
+                bufferLock.readLock().unlock();
             }
-            boolean added = buffer.put(m);
-            int retries = 0;
-            while (!added && retries < 10) {
-                added = buffer.put(m);
-                retries++;
-            }
-            if (!added) {
-                System.out.println("Failed to add measurement " + m + " to buffer " + bufferNumber + buffer
-                        + " after multiple retries.");
-                // log.warn("Failed to add measurement " + m + " to buffer after multiple
-                // retries.");
-            }
-        } finally {
-            bufferLock.readLock().unlock();
+            tries++;
+        }
+        if (!successfullyAdded) {
+            log.warn("Failed to add measurement " + m + " to buffer after multiple retries.");
         }
     }
 

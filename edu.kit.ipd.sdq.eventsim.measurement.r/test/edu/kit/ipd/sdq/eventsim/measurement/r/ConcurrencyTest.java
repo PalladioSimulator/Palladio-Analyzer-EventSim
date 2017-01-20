@@ -21,6 +21,15 @@ import edu.kit.ipd.sdq.eventsim.measurement.r.connection.RserveConnection;
 import edu.kit.ipd.sdq.eventsim.measurement.r.jobs.EvaluationException;
 import edu.kit.ipd.sdq.eventsim.measurement.r.jobs.EvaluationHelper;
 
+/**
+ * Tests {@link RMeasurementStore} under highly concurrent load. Checks that no measurement is lost
+ * and that each measurement is consistent.
+ * <p>
+ * Requires an Rserve sever to be available on localhost:6311.
+ * 
+ * @author Philipp Merkle
+ *
+ */
 public class ConcurrencyTest {
 
     private static final int PRODUCER_TRHEADS = 10;
@@ -42,7 +51,7 @@ public class ConcurrencyTest {
         BasicConfigurator.configure();
 
         RserveConnection connection = new RserveConnection();
-        connection.connect();
+        connection.connect("localhost", 6311);
         measurementStore = new RMeasurementStore(connection);
         measurementStore.addIdExtractor(String.class, s -> (String) s);
         measurementStore.addNameExtractor(String.class, s -> (String) s);
@@ -87,13 +96,10 @@ public class ConcurrencyTest {
             Assert.assertEquals((double) value, when[i], 0.000001);
             Assert.assertTrue(where[i].endsWith(Integer.toString(value)));
             Assert.assertTrue(who[i].endsWith(Integer.toString(value)));
-
-            System.out.println(value);
         }
 
         System.out.println("Total measurements: " + values.length);
-        System.out.println("Runtime: " + (end - start));
-
+        System.out.println("Runtime (ms): " + (end - start));
     }
 
     private void startThreadsSimultaneously() {

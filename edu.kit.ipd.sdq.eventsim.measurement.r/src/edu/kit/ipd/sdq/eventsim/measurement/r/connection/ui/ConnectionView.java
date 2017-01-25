@@ -27,6 +27,7 @@ public class ConnectionView {
     private static final String DISCONNECTED_ICON_FILE = "bullet_black.png";
     private static final String CONNECTED_ICON_FILE = "bullet_green.png";
     private static final String CONNECTING_ICON_FILE = "bullet_orange.png";
+    private static final String CONNECTION_FAILED_ICON_FILE = "bullet_red.png";
 
     private ConnectionViewListener viewListener;
 
@@ -42,6 +43,11 @@ public class ConnectionView {
     private Button btnCancel;
     private Button btnDisconnect;
     private Label lblConnecting;
+    private Label lblConnectionHint1;
+    private Label lblConnectionHint2;
+    private Text txtConnectionHint;
+    private Composite compositeFailed;
+    private Label lblConnectionFailed;
 
     private static Image getImage(String file) {
         return Activator.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "icons/" + file).createImage();
@@ -129,7 +135,28 @@ public class ConnectionView {
             }
         });
         btnDisconnect.setText("Disconnect");
+        
+        compositeFailed = new Composite(compositeConnection, SWT.NONE);
+        compositeFailed.setLayout(new GridLayout(2, false));
+        
+        Canvas canvasConnectionFailedIcon = new Canvas(compositeFailed, SWT.NONE);
+        GridData gd_canvas = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+        gd_canvas.widthHint = 16;
+        gd_canvas.heightHint = 16;
+        canvasConnectionFailedIcon.setLayoutData(gd_canvas);
+        
+        lblConnectionFailed = new Label(compositeFailed, SWT.NONE);
+        lblConnectionFailed.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+        lblConnectionFailed.setText("Connection failed. Make sure Rserve is listening on the specfied host and port.");
 
+        canvasConnectionFailedIcon.addPaintListener(new PaintListener() {
+            public void paintControl(PaintEvent e) {
+                Image image = getImage(CONNECTION_FAILED_ICON_FILE);
+                e.gc.drawImage(image, 0, 0);
+                image.dispose();
+            }
+        });
+        
         compositeDisconnected = new Composite(compositeConnection, SWT.NONE);
         compositeDisconnected.setLayout(new GridLayout(2, false));
 
@@ -186,6 +213,22 @@ public class ConnectionView {
             }
         });
         btnDefault.setText("Default");
+        new Label(grpConnect, SWT.NONE);
+
+        lblConnectionHint1 = new Label(grpConnect, SWT.NONE);
+        lblConnectionHint1.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 5, 1));
+        lblConnectionHint1.setText("Before connecting, ensure there is an Rserve instance running.");
+        new Label(grpConnect, SWT.NONE);
+
+        lblConnectionHint2 = new Label(grpConnect, SWT.NONE);
+        lblConnectionHint2.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 5, 1));
+        lblConnectionHint2.setText("To start Rserve, execute the following command in R:");
+        new Label(grpConnect, SWT.NONE);
+
+        txtConnectionHint = new Text(grpConnect, SWT.BORDER);
+        txtConnectionHint.setEditable(false);
+        txtConnectionHint.setText("library(Rserve); Rserve()");
+        txtConnectionHint.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 5, 1));
 
         setDisconnected();
         setDefaultServerAndPort();
@@ -223,8 +266,11 @@ public class ConnectionView {
     }
 
     public void setFailed() {
-        // TODO Auto-generated method stub
-        System.out.println("FAILED");
+        compositeConnection.getDisplay().asyncExec(() -> {
+            sl_compositeConnection.topControl = compositeFailed;
+            compositeConnection.layout();
+            enableConnectionGroup(true);
+        });
     }
 
     public void setDefaultServerAndPort() {
@@ -250,9 +296,5 @@ public class ConnectionView {
     public String getServer() {
         return txtServer.getText();
     }
-
-    // @Focus
-    // public void setFocus() {
-    // }
 
 }

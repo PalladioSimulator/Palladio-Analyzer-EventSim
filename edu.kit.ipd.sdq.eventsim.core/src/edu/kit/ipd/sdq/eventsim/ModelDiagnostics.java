@@ -31,14 +31,14 @@ public abstract class ModelDiagnostics {
 		this.mode = mode;
 	}
 
-	protected void handle(String baseMessage, Entity entity) {
-		String message = baseMessage + ": " + PCMEntityHelper.toString(entity);
-		if (mode == DiagnosticsMode.THROW_EXCEPTION) {
-			throw new UnexpectedModelStructureException(message);
-		} else if (mode == DiagnosticsMode.LOG_WARNING_AND_CONTINUE) {
-			message += ". Ignoring this " + entity.eClass().getName() + " and continuing with successor.";
-			log.warn(message);
-		}
-	}
+    protected void handle(String baseMessage, Entity entity) {
+        String message = baseMessage + ": " + PCMEntityHelper.toString(entity);
+        if (mode == DiagnosticsMode.THROW_EXCEPTION) {
+            throw new UnexpectedModelStructureException(message);
+        } else if (mode == DiagnosticsMode.LOG_WARNING_AND_CONTINUE) {
+            message += ". Ignoring this " + entity.eClass().getName() + " and continuing.";
+            log.warn(message);
+        }
+    }
 
 }

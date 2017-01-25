@@ -2,6 +2,7 @@ package edu.kit.ipd.sdq.eventsim.workload;
 
 import org.palladiosimulator.pcm.usagemodel.Branch;
 import org.palladiosimulator.pcm.usagemodel.Loop;
+import org.palladiosimulator.pcm.usagemodel.UsageScenario;
 
 import com.google.inject.Singleton;
 
@@ -25,6 +26,10 @@ public class WorkloadModelDiagnostics extends ModelDiagnostics {
 
     public void reportMissingBranchTransitions(Branch branch) {
         handle("Missing branch transitions", branch);
+    }
+
+    public void reportMissingWorkload(UsageScenario u) {
+        handle("Missing or unknown workload. Must be one of OpenWorkload or ClosedWorkload.", u);
     }
 
 }

@@ -9,10 +9,12 @@ import org.palladiosimulator.pcm.usagemodel.UsageScenario;
 import org.palladiosimulator.pcm.usagemodel.UsagemodelPackage;
 import org.palladiosimulator.pcm.usagemodel.Workload;
 
+import com.google.inject.Inject;
+
 import edu.kit.ipd.sdq.eventsim.api.PCMModel;
 import edu.kit.ipd.sdq.eventsim.command.ICommandExecutor;
 import edu.kit.ipd.sdq.eventsim.command.IPCMCommand;
-import edu.kit.ipd.sdq.eventsim.exceptions.unchecked.UnexpectedModelStructureException;
+import edu.kit.ipd.sdq.eventsim.workload.WorkloadModelDiagnostics;
 
 /**
  * This command creates and returns a list of all {@link WorkloadGenerator}s for a PCM usage model.
@@ -22,11 +24,11 @@ import edu.kit.ipd.sdq.eventsim.exceptions.unchecked.UnexpectedModelStructureExc
  */
 public class BuildWorkloadGenerator implements IPCMCommand<List<WorkloadGenerator>> {
 
+    @Inject
     private WorkloadGeneratorFactory factory;
-
-    public BuildWorkloadGenerator(WorkloadGeneratorFactory factory) {
-        this.factory = factory;
-    }
+    
+    @Inject
+    private WorkloadModelDiagnostics diagnostics;
 
     /**
      * {@inheritDoc}
@@ -43,8 +45,7 @@ public class BuildWorkloadGenerator implements IPCMCommand<List<WorkloadGenerato
                 ClosedWorkloadGenerator generator = factory.createClosed((ClosedWorkload) w);
                 workloads.add(generator);
             } else {
-                throw new UnexpectedModelStructureException(
-                        "Found a workload which is neither an OpenWorkload nor a ClosedWorkload.");
+                diagnostics.reportMissingWorkload(u);
             }
         }
         return workloads;

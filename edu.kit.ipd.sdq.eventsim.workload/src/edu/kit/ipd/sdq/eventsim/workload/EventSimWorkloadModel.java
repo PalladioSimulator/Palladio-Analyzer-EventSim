@@ -33,7 +33,6 @@ import edu.kit.ipd.sdq.eventsim.workload.debug.DebugUsageTraversalListener;
 import edu.kit.ipd.sdq.eventsim.workload.entities.User;
 import edu.kit.ipd.sdq.eventsim.workload.generator.BuildWorkloadGenerator;
 import edu.kit.ipd.sdq.eventsim.workload.generator.WorkloadGenerator;
-import edu.kit.ipd.sdq.eventsim.workload.generator.WorkloadGeneratorFactory;
 
 /**
  * The EventSim workload simulation model. This is the central class of the workload simulation.
@@ -68,7 +67,7 @@ public class EventSimWorkloadModel implements IWorkload {
     private TraversalListenerRegistry<AbstractUserAction, User> traversalListeners;
 
     @Inject
-    private WorkloadGeneratorFactory workloadGeneratorFactory;
+    private BuildWorkloadGenerator workloadGeneratorBuilder;
 
     @Inject
     private PCMModel pcm;
@@ -112,8 +111,7 @@ public class EventSimWorkloadModel implements IWorkload {
     @Override
     public void generate() {
         // start the simulation by generating the workload
-        final List<WorkloadGenerator> workloadGenerators = executor
-                .execute(new BuildWorkloadGenerator(workloadGeneratorFactory));
+        final List<WorkloadGenerator> workloadGenerators = executor.execute(workloadGeneratorBuilder);
         for (final WorkloadGenerator d : workloadGenerators) {
             d.processWorkload();
         }

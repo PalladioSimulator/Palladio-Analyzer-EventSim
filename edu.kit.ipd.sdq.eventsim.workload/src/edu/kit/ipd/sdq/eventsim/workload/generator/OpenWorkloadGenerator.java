@@ -55,6 +55,9 @@ public class OpenWorkloadGenerator implements WorkloadGenerator {
      * has passed.
      */
     private void spawnUser(double waitingTime) {
+        // ensure non-negative wating time
+        waitingTime = Math.max(0, waitingTime);
+
         // create the user
         final UsageScenario scenario = this.workload.getUsageScenario_Workload();
         User user = userFactory.create(scenario);

@@ -45,7 +45,7 @@ public class InterDepartureTimeProbe<E extends UsageScenario>
                 simTimeLast = simTime;
             }
 
-            return Registration.UNREGISTER;
+            return Registration.KEEP_REGISTERED;
         });
 
     }

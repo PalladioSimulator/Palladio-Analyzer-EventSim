@@ -44,7 +44,7 @@ public class InterArrivalTimeProbe<E extends UsageScenario> extends AbstractProb
                 simTimeLast = simTime;
             }
 
-            return Registration.UNREGISTER;
+            return Registration.KEEP_REGISTERED;
         });
 
     }

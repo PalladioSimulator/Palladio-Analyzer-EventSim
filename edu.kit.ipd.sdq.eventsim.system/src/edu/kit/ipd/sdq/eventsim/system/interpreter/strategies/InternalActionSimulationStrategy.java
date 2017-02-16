@@ -2,7 +2,6 @@ package edu.kit.ipd.sdq.eventsim.system.interpreter.strategies;
 
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import org.apache.log4j.Logger;
@@ -21,6 +20,7 @@ import com.google.inject.Inject;
 import de.uka.ipd.sdq.simucomframework.variables.converter.NumberConverter;
 import edu.kit.ipd.sdq.eventsim.api.IActiveResource;
 import edu.kit.ipd.sdq.eventsim.api.Procedure;
+import edu.kit.ipd.sdq.eventsim.interpreter.DemandQueueHandler;
 import edu.kit.ipd.sdq.eventsim.interpreter.SimulationStrategy;
 import edu.kit.ipd.sdq.eventsim.interpreter.TraversalInstruction;
 import edu.kit.ipd.sdq.eventsim.system.entities.Request;
@@ -28,8 +28,6 @@ import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
 
 /**
  * This traversal strategy is responsible for {@link InternalAction}s.
- * 
- * TODO remove duplicated code
  * 
  * @author Philipp Merkle
  * @author Christoph Föhrdes
@@ -67,11 +65,11 @@ public class InternalActionSimulationStrategy implements SimulationStrategy<Abst
         }
 
         // 4) simulate resource calls (after resource demand simulation, see below)
-        ResourceCallHandler resourceCallHandler = new ResourceCallHandler(pendingResourceCalls,
+        DemandQueueHandler<ResourceCall> resourceCallHandler = new DemandQueueHandler<>(pendingResourceCalls,
                 (resourceCall, self) -> {
                     // 5) for each resource call
                     simulateProcessingResourceCall(request, resourceCall, self);
-                }, self -> {
+                } , self -> {
                     // 6) once all resource calls have been served
                     onFinishCallback.accept(() -> {
                         // 7) continue with next action
@@ -81,10 +79,10 @@ public class InternalActionSimulationStrategy implements SimulationStrategy<Abst
                     // below) have been served
 
         // 1) simulate resource demands
-        new ResourceDemandHandler(pendingDemands, (demand, self) -> {
+        new DemandQueueHandler<ParametricResourceDemand>(pendingDemands, (demand, self) -> {
             // 2) for each resource demand
             simulateResourceDemand(request, demand, self);
-        }, self -> {
+        } , self -> {
             // 3) once all resource demands have been served
             resourceCallHandler.execute(); // hand over to resource call handler
         }).execute();
@@ -143,60 +141,6 @@ public class InternalActionSimulationStrategy implements SimulationStrategy<Abst
     private boolean isProcessingResourceType(ResourceType type) {
         // TODO get rid of instanceof check, if possible
         return type instanceof ProcessingResourceType;
-    }
-
-    private static class ResourceDemandHandler implements Procedure {
-
-        private final Queue<ParametricResourceDemand> pendingDemands;
-
-        private final BiConsumer<ParametricResourceDemand, ResourceDemandHandler> demandHandler;
-
-        private final Consumer<ResourceDemandHandler> onCompletionHandler;
-
-        public ResourceDemandHandler(Queue<ParametricResourceDemand> pendingDemands,
-                BiConsumer<ParametricResourceDemand, ResourceDemandHandler> demandHandler,
-                Consumer<ResourceDemandHandler> onCompletionHandler) {
-            this.pendingDemands = pendingDemands;
-            this.demandHandler = demandHandler;
-            this.onCompletionHandler = onCompletionHandler;
-        }
-
-        @Override
-        public void execute() {
-            if (!pendingDemands.isEmpty()) {
-                demandHandler.accept(pendingDemands.poll(), this);
-            } else {
-                onCompletionHandler.accept(this);
-            }
-        }
-
-    }
-
-    private static class ResourceCallHandler implements Procedure {
-
-        private Queue<ResourceCall> pendingResourceCalls;
-
-        private final BiConsumer<ResourceCall, ResourceCallHandler> demandHandler;
-
-        private final Consumer<ResourceCallHandler> onCompletionHandler;
-
-        public ResourceCallHandler(Queue<ResourceCall> pendingResourceCalls,
-                BiConsumer<ResourceCall, ResourceCallHandler> demandHandler,
-                Consumer<ResourceCallHandler> onCompletionHandler) {
-            this.pendingResourceCalls = pendingResourceCalls;
-            this.demandHandler = demandHandler;
-            this.onCompletionHandler = onCompletionHandler;
-        }
-
-        @Override
-        public void execute() {
-            if (!pendingResourceCalls.isEmpty()) {
-                demandHandler.accept(pendingResourceCalls.poll(), this);
-            } else {
-                onCompletionHandler.accept(this);
-            }
-        }
-
     }
 
 }

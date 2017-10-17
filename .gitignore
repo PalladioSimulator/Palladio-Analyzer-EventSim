@@ -1,0 +1,16 @@
+
+# /edu.kit.ipd.sdq.eventsim.core/
+/edu.kit.ipd.sdq.eventsim.core/bin
+
+# /edu.kit.ipd.sdq.eventsim.rvisualization/
+/edu.kit.ipd.sdq.eventsim.rvisualization/diagrams
+/edu.kit.ipd.sdq.eventsim.rvisualization/UMLDiagrams
+
+# /edu.kit.ipd.sdq.eventsim.system/
+/edu.kit.ipd.sdq.eventsim.system/bin
+
+# /edu.kit.ipd.sdq.eventsim.workload/
+/edu.kit.ipd.sdq.eventsim.workload/bin
+
+# /edu.kit.ipd.sdq.eventsim.workload.tests/
+/edu.kit.ipd.sdq.eventsim.workload.tests/*.html

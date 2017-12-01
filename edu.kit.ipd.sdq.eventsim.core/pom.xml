@@ -1,0 +1,105 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>edu.kit.ipd.sdq.eventsim</groupId>
+  <artifactId>core</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  
+  <name>Palladio Analyzer EventSim</name>
+  <url>https://sdqweb.ipd.kit.edu/wiki/EventSim</url>
+
+  <build>
+    <plugins>
+      <plugin>
+        <!-- enable the Tycho build extension -->
+	    <groupId>org.sonatype.tycho</groupId>
+	    <artifactId>tycho-maven-plugin</artifactId>
+	    <version>0.11.1</version>
+	    <extensions>true</extensions>
+      </plugin>
+
+      <!-- hier eventuelle Abhängigkeiten zu weiteren Maven-Plugins einfügen -->
+    </plugins>
+  </build>
+
+<!--  <modules>
+    <module>../edu.kit.ipd.sdq.eventsim.api</module>
+    <module>../edu.kit.ipd.sdq.eventsim.extensionexample</module>
+    <module>../edu.kit.ipd.sdq.eventsim.instrumentation.builder</module>
+    <module>../edu.kit.ipd.sdq.eventsim.instrumentation.description</module>
+    <module>../edu.kit.ipd.sdq.eventsim.instrumentation.injection</module>
+    <module>../edu.kit.ipd.sdq.eventsim.instrumentation.restrictions</module>
+    <module>../edu.kit.ipd.sdq.eventsim.instrumentation.specification</module>
+    <module>../edu.kit.ipd.sdq.eventsim.instrumentation.utils</module>
+    <module>../edu.kit.ipd.sdq.eventsim.launch</module>
+    <module>../edu.kit.ipd.sdq.eventsim.measurement</module>
+    <module>../edu.kit.ipd.sdq.eventsim.measurement.osgi</module>
+    <module>../edu.kit.ipd.sdq.eventsim.measurement.r</module>
+    <module>../edu.kit.ipd.sdq.eventsim.measurement.r.launch</module>
+    <module>../edu.kit.ipd.sdq.eventsim.middleware</module>
+    <module>../edu.kit.ipd.sdq.eventsim.resources</module>
+    <module>../edu.kit.ipd.sdq.eventsim.rvisualization</module>
+    <module>../edu.kit.ipd.sdq.eventsim.system</module>
+    <module>../edu.kit.ipd.sdq.eventsim.test.util</module>
+    <module>../edu.kit.ipd.sdq.eventsim.workload</module>
+    <module>../edu.kit.ipd.sdq.eventsim.workload.tests</module>
+  </modules>
+--> 
+  
+  <dependencies>
+  	<!-- Google Guice Dependencies -->
+	<dependency>
+	    <groupId>aopalliance</groupId>
+	    <artifactId>aopalliance</artifactId>
+	    <version>1.0</version>
+	</dependency>
+
+	<dependency>
+	    <groupId>com.google.guava</groupId>
+	    <artifactId>guava</artifactId>
+	    <version>23.0</version>
+	</dependency>
+
+	<dependency>
+	    <groupId>com.google.inject</groupId>
+	    <artifactId>guice</artifactId>
+	    <version>4.0</version>
+	</dependency>
+
+	<dependency>
+	    <groupId>com.google.inject.extensions</groupId>
+	    <artifactId>guice-assistedinject</artifactId>
+	    <version>4.1.0</version>
+	</dependency>
+
+	
+  	<!-- Mockito Dependencies -->
+	<dependency>
+	    <groupId>org.mockito</groupId>
+	    <artifactId>mockito-core</artifactId>
+	    <version>2.12.0</version>
+	    <scope>test</scope>
+	</dependency>
+
+	<dependency>
+	    <groupId>org.objenesis</groupId>
+	    <artifactId>objenesis</artifactId>
+	    <version>2.6</version>
+	    <scope>test</scope>
+	</dependency>
+  </dependencies>
+  <repositories>
+    <!-- If you adjust a repository here, please also adjust the repository in the b3 aggregator. -->
+    <repository>
+        <id>Eclipse Oxygen</id>
+        <layout>p2</layout>
+        <url>http://sdqbuild.ipd.kit.edu/nexus/content/groups/eclipse-oxygen-complete</url>
+    </repository>
+    <repository>
+        <id>Palladio</id>
+        <layout>p2</layout>
+        <url>https://sdqbuild.ipd.kit.edu/nexus/content/repositories/palladiosimulator-release/</url>
+    </repository>
+  </repositories>
+
+</project>

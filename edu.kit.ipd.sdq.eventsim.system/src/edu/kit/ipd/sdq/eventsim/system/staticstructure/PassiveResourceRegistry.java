@@ -4,8 +4,8 @@
 //import java.util.HashMap;
 //import java.util.Map;
 //
-//import de.uka.ipd.sdq.pcm.core.composition.AssemblyContext;
-//import de.uka.ipd.sdq.pcm.repository.PassiveResource;
+//import org.palladiosimulator.pcm.core.composition.AssemblyContext;
+//import org.palladiosimulator.pcm.repository.PassiveResource;
 //import edu.kit.ipd.sdq.eventsim.resources.entities.SimPassiveResource;
 //import edu.kit.ipd.sdq.eventsim.util.PCMEntityHelper;
 //

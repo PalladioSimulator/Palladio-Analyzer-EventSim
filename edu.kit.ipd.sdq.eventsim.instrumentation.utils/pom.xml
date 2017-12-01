@@ -1,8 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>edu.kit.ipd.sdq.eventsim.instrumentation.utils</artifactId>
+  <artifactId>instrumentation.utils</artifactId>
   <build>
-    <sourceDirectory>src</sourceDirectory>
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -16,8 +15,8 @@
   </build>
   <parent>
     <groupId>edu.kit.ipd.sdq.eventsim</groupId>
-    <artifactId>edu.kit.ipd.sdq.eventsim.core</artifactId>
+    <artifactId>parent</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <relativePath>../edu.kit.ipd.sdq.eventsim.core</relativePath>
+    <relativePath>../</relativePath>
   </parent>
 </project>

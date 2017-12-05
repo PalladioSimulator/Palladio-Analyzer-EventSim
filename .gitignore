@@ -15,3 +15,4 @@
 # /edu.kit.ipd.sdq.eventsim.workload.tests/
 /edu.kit.ipd.sdq.eventsim.workload.tests/*.html
 
+*.ucls

@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bundle-SymbolicName: org.mockito;singleton:=true
+Export-Package: org.mockito,org.mockito.asm,org.mockito.asm.signature,
+ org.mockito.asm.tree,org.mockito.asm.tree.analysis,org.mockito.asm.ut
+ il,org.mockito.cglib.beans,org.mockito.cglib.core,org.mockito.cglib.p
+ roxy,org.mockito.cglib.reflect,org.mockito.cglib.transform,org.mockit
+ o.cglib.transform.impl,org.mockito.cglib.util,org.mockito.configurati
+ on,org.mockito.exceptions,org.mockito.exceptions.base,org.mockito.exc
+ eptions.misusing,org.mockito.exceptions.stacktrace,org.mockito.except
+ ions.verification,org.mockito.exceptions.verification.junit,org.mocki
+ to.invocation,org.mockito.listeners,org.mockito.mock,org.mockito.plug
+ ins,org.mockito.runners,org.mockito.stubbing,org.mockito.stubbing.ans
+ wers,org.mockito.verification
+Bundle-Name: Mockito
+Bundle-Version: 1.9.5
+Bundle-ClassPath: mockito-core-1.9.5.jar,objenesis-2.2.jar
+Require-Bundle: org.hamcrest.core;bundle-version="1.3.0"
+Bundle-ManifestVersion: 2
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/edu.kit.idp.sdq.eventsim.feature_1.0.0.qualifier.jar" id="edu.kit.idp.sdq.eventsim.feature" version="1.0.0.qualifier">
+      <category name="eventsim"/>
+   </feature>
+   <feature id="edu.kit.idp.sdq.eventsim.feature.source" version="1.0.0.qualifier">
+      <category name="eventsim"/>
+   </feature>
+   <category-def name="eventsim" label="eventsim">
+      <description>
+	<!-- TODO add a category description for the update site and make the label above nicer -->
+      </description>
+   </category-def>
+</site>

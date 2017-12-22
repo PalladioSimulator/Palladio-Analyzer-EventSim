@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: EventSim Launch Integration
+Bundle-SymbolicName: edu.kit.ipd.sdq.eventsim.launch;singleton:=true
+Bundle-Version: 2.0.0.qualifier
+Bundle-Activator: edu.kit.ipd.sdq.eventsim.launch.Activator
+Require-Bundle: de.uka.ipd.sdq.codegen.simucontroller;bundle-version="1.0.0",
+ de.uka.ipd.sdq.simulation;bundle-version="1.0.0",
+ org.palladiosimulator.analyzer.workflow;bundle-version="1.0.0",
+ org.palladiosimulator.pcm;bundle-version="4.0.0",
+ org.eclipse.osgi.services;bundle-version="3.5.0",
+ edu.kit.ipd.sdq.eventsim.core;bundle-version="2.0.0",
+ edu.kit.ipd.sdq.eventsim.middleware;bundle-version="2.0.0",
+ edu.kit.ipd.sdq.eventsim.api;bundle-version="2.0.0",
+ edu.kit.ipd.sdq.eventsim.measurement;bundle-version="2.0.0",
+ edu.kit.ipd.sdq.eventsim.instrumentation.description;bundle-version="1.0.0",
+ com.google.inject.guice
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Export-Package: edu.kit.ipd.sdq.eventsim.launch,
+ edu.kit.ipd.sdq.eventsim.launch.runconfig,
+ edu.kit.ipd.sdq.eventsim.launch.workflow.jobs

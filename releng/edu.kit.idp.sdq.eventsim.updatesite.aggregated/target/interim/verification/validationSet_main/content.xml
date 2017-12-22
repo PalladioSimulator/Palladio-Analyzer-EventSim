@@ -1,0 +1,46 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?metadataRepository version='1.1.0'?>
+<repository name='eventsim Update Site / main Verification repository' type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1'>
+  <properties size='1'>
+    <property name='p2.timestamp' value='1513951367567'/>
+  </properties>
+  <units size='3'>
+    <unit id='validationSet_main' version='1.0.0' singleton='false'>
+      <properties size='2'>
+        <property name='org.eclipse.equinox.p2.type.group' value='true'/>
+        <property name='org.eclipse.cbi.p2repo.aggregator.generated.IU' value='true'/>
+      </properties>
+      <provides size='1'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='validationSet_main' version='1.0.0'/>
+      </provides>
+      <requires size='1'>
+        <required namespace='org.eclipse.equinox.p2.iu' name='mappedRepo_mnt_c_Users_layor_git_EventSim_releng_edu.kit.idp.sdq.eventsim.updatesite_target_repository' range='[1.0.0,1.0.0]'/>
+      </requires>
+      <touchpoint id='null' version='0.0.0'/>
+    </unit>
+    <unit id='Cannot be installed into the IDE' version='0.0.0' singleton='false'>
+      <properties size='1'>
+        <property name='org.eclipse.cbi.p2repo.aggregator.generated.IU' value='true'/>
+      </properties>
+      <provides size='1'>
+        <provided namespace='A.PDE.Target.Platform' name='Cannot be installed into the IDE' version='0.0.0'/>
+      </provides>
+      <touchpoint id='null' version='0.0.0'/>
+    </unit>
+    <unit id='mappedRepo_mnt_c_Users_layor_git_EventSim_releng_edu.kit.idp.sdq.eventsim.updatesite_target_repository' version='1.0.0' singleton='false'>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.type.group' value='true'/>
+        <property name='org.eclipse.cbi.p2repo.aggregator.model.element.URI' value='#//@validationSets[label=&apos;main&apos;]/@contributions[label=&apos;local&apos;]/@repositories.0'/>
+        <property name='org.eclipse.cbi.p2repo.aggregator.generated.IU' value='true'/>
+      </properties>
+      <provides size='1'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='mappedRepo_mnt_c_Users_layor_git_EventSim_releng_edu.kit.idp.sdq.eventsim.updatesite_target_repository' version='1.0.0'/>
+      </provides>
+      <requires size='2'>
+        <required namespace='org.eclipse.equinox.p2.iu' name='edu.kit.idp.sdq.eventsim.feature.feature.group' range='0.0.0'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='edu.kit.idp.sdq.eventsim.feature.source.feature.group' range='0.0.0'/>
+      </requires>
+      <touchpoint id='null' version='0.0.0'/>
+    </unit>
+  </units>
+</repository>

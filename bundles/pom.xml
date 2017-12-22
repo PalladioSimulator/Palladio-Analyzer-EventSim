@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>edu.kit.idp.sdq.eventsim</groupId>
+		<artifactId>parent</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+		<relativePath>../releng/edu.kit.idp.sdq.eventsim.parent</relativePath>
+	</parent>
+	<artifactId>edu.kit.idp.sdq.eventsim.bundles</artifactId>
+	<packaging>pom</packaging>
+	<name>EventSim Bundle Modules</name>
+
+	<modules>
+		<module>edu.kit.ipd.sdq.eventsim.api</module>
+		<module>edu.kit.ipd.sdq.eventsim.core</module>
+		<module>edu.kit.ipd.sdq.eventsim.instrumentation.builder</module>
+		<module>edu.kit.ipd.sdq.eventsim.instrumentation.description</module>
+		<module>edu.kit.ipd.sdq.eventsim.instrumentation.injection</module>
+		<module>edu.kit.ipd.sdq.eventsim.instrumentation.restrictions</module>
+		<module>edu.kit.ipd.sdq.eventsim.instrumentation.specification</module>
+		<module>edu.kit.ipd.sdq.eventsim.instrumentation.utils</module>
+		<module>edu.kit.ipd.sdq.eventsim.launch</module>
+		<module>edu.kit.ipd.sdq.eventsim.measurement</module>
+		<module>edu.kit.ipd.sdq.eventsim.measurement.osgi</module>
+		<module>edu.kit.ipd.sdq.eventsim.measurement.r</module>
+		<module>edu.kit.ipd.sdq.eventsim.measurement.r.launch</module>
+		<module>edu.kit.ipd.sdq.eventsim.middleware</module>
+		<module>com.google.inject.guice</module>
+		<module>org.mockito</module>
+		<module>edu.kit.ipd.sdq.eventsim.resources</module>
+		<module>edu.kit.ipd.sdq.eventsim.rvisualization</module>
+		<module>edu.kit.ipd.sdq.eventsim.system</module>
+		<module>edu.kit.ipd.sdq.eventsim.test.util</module>
+		<module>edu.kit.ipd.sdq.eventsim.workload</module>
+	</modules>
+</project>

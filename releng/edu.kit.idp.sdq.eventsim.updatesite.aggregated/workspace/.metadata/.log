@@ -1,0 +1,88 @@
+!SESSION 2017-12-22 14:02:36.758 -----------------------------------------------
+eclipse.buildId=unknown
+java.version=1.8.0_151
+java.vendor=Oracle Corporation
+BootLoader constants: OS=linux, ARCH=x86_64, WS=gtk, NL=en_US
+Framework arguments:  -application org.eclipse.cbi.p2repo.cli.headless aggregate --buildModel updatesite.aggr --action BUILD
+Command-line arguments:  -application org.eclipse.cbi.p2repo.cli.headless aggregate --buildModel updatesite.aggr --action BUILD
+
+!ENTRY org.eclipse.cbi.p2repo.util 1 -1826163001 2017-12-22 14:02:47.303
+!MESSAGE Loading all repositories
+
+!ENTRY org.eclipse.cbi.p2repo.util 1 -1826163001 2017-12-22 14:02:47.439
+!MESSAGE Starting generation of composite repository
+
+!ENTRY org.eclipse.cbi.p2repo.util 1 -1826163001 2017-12-22 14:02:47.474
+!MESSAGE Adding child meta-data repository file:/mnt/c/Users/layor/git/EventSim/releng/edu.kit.idp.sdq.eventsim.updatesite/target/repository
+
+!ENTRY org.eclipse.cbi.p2repo.util 1 -1826163001 2017-12-22 14:02:47.494
+!MESSAGE Done. Took 0 seconds
+
+!ENTRY org.eclipse.cbi.p2repo.util 1 -1826163001 2017-12-22 14:02:47.505
+!MESSAGE Starting generation of verification feature for validationSet: main
+
+!ENTRY org.eclipse.cbi.p2repo.util 1 -1826163001 2017-12-22 14:02:47.588
+!MESSAGE Done. Took 0 seconds
+
+!ENTRY org.eclipse.cbi.p2repo.util 1 -1826163001 2017-12-22 14:02:47.612
+!MESSAGE Starting planner verification for validationSet: main
+
+!ENTRY org.eclipse.cbi.p2repo.util 1 -1826163001 2017-12-22 14:02:47.647
+!MESSAGE Verifying config win32,win32,x86_64...
+
+!ENTRY org.eclipse.cbi.p2repo.util 1 -1826163001 2017-12-22 14:02:47.773
+!MESSAGE Verifying config win32,win32,x86...
+
+!ENTRY org.eclipse.cbi.p2repo.util 1 -1826163001 2017-12-22 14:02:47.795
+!MESSAGE Verifying config linux,gtk,x86...
+
+!ENTRY org.eclipse.cbi.p2repo.util 1 -1826163001 2017-12-22 14:02:47.815
+!MESSAGE Verifying config linux,gtk,x86_64...
+
+!ENTRY org.eclipse.cbi.p2repo.util 1 -1826163001 2017-12-22 14:02:47.836
+!MESSAGE Verifying config macosx,cocoa,x86...
+
+!ENTRY org.eclipse.cbi.p2repo.util 1 -1826163001 2017-12-22 14:02:47.870
+!MESSAGE Verifying config macosx,cocoa,x86_64...
+
+!ENTRY org.eclipse.cbi.p2repo.util 1 -1826163001 2017-12-22 14:02:47.892
+!MESSAGE Verification successful
+
+!ENTRY org.eclipse.cbi.p2repo.util 1 -1826163001 2017-12-22 14:02:47.902
+!MESSAGE Done. Took 0 seconds
+
+!ENTRY org.eclipse.cbi.p2repo.util 1 -1826163001 2017-12-22 14:02:47.992
+!MESSAGE Starting mirroring of meta-data for validationSet: main
+
+!ENTRY org.eclipse.cbi.p2repo.util 1 -1826163001 2017-12-22 14:02:48.020
+!MESSAGE Mirroring meta-data consisting of 4 units from file:/mnt/c/Users/layor/git/EventSim/releng/edu.kit.idp.sdq.eventsim.updatesite/target/repository
+
+!ENTRY org.eclipse.cbi.p2repo.util 1 -1826163001 2017-12-22 14:02:48.046
+!MESSAGE Done. Took 0 seconds
+
+!ENTRY org.eclipse.cbi.p2repo.util 1 -1826163001 2017-12-22 14:02:48.054
+!MESSAGE Starting generation of categories
+
+!ENTRY org.eclipse.cbi.p2repo.util 1 -1826163001 2017-12-22 14:02:48.076
+!MESSAGE Done. Took 0 seconds
+
+!ENTRY org.eclipse.cbi.p2repo.util 1 -1826163001 2017-12-22 14:02:48.127
+!MESSAGE Starting artifacts mirroring
+
+!ENTRY org.eclipse.cbi.p2repo.util 1 -1826163001 2017-12-22 14:02:48.166
+!MESSAGE Mirroring artifacts from file:/mnt/c/Users/layor/git/EventSim/releng/edu.kit.idp.sdq.eventsim.updatesite/target/repository
+
+!ENTRY org.eclipse.cbi.p2repo.util 1 -1826163001 2017-12-22 14:02:48.214
+!MESSAGE - mirroring artifact org.eclipse.update.feature,edu.kit.idp.sdq.eventsim.feature,1.0.0.201712221352
+
+!ENTRY org.eclipse.cbi.p2repo.util 1 -1826163001 2017-12-22 14:02:48.248
+!MESSAGE - mirroring artifact org.eclipse.update.feature,edu.kit.idp.sdq.eventsim.feature.source,1.0.0.201712221352
+
+!ENTRY org.eclipse.cbi.p2repo.util 1 -1826163001 2017-12-22 14:02:48.275
+!MESSAGE Done. Took 0 seconds
+
+!ENTRY org.eclipse.cbi.p2repo.util 1 -1826163001 2017-12-22 14:02:48.283
+!MESSAGE Making the aggregated metadata repository final at file:/mnt/c/Users/layor/git/EventSim/releng/edu.kit.idp.sdq.eventsim.updatesite.aggregated/target/final
+
+!ENTRY org.eclipse.cbi.p2repo.util 1 -1826163001 2017-12-22 14:02:48.295
+!MESSAGE Making the aggregated artifact repository final at file:/mnt/c/Users/layor/git/EventSim/releng/edu.kit.idp.sdq.eventsim.updatesite.aggregated/target/final

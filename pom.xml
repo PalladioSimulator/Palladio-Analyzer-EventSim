@@ -2,19 +2,23 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>edu.kit.idp.sdq.eventsim</groupId>
-    <artifactId>parent</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
-    <relativePath>releng/edu.kit.idp.sdq.eventsim.parent</relativePath>
+    <groupId>org.palladiosimulator</groupId>
+    <artifactId>eclipse-parent</artifactId>
+    <version>0.1.9</version>
   </parent>
-  <artifactId>edu.kit.idp.sdq.eventsim.main</artifactId>
+  <groupId>org.palladiosimulator.eventsim</groupId>
+  <artifactId>parent</artifactId>	
+  <version>0.1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
+  
+  <properties>
+	<org.palladiosimulator.maven.tychotprefresh.tplocation.1>${project.basedir}/releng/edu.kit.idp.sdq.eventsim.targetplatform/tp.target</org.palladiosimulator.maven.tychotprefresh.tplocation.1>
+  </properties>
+
   <modules>
     <module>bundles</module>
     <module>features</module>
     <module>tests</module>
-    <module>releng/edu.kit.idp.sdq.eventsim.aggregator</module>
-    <module>releng/edu.kit.idp.sdq.eventsim.updatesite</module>
-    <module>releng/edu.kit.idp.sdq.eventsim.updatesite.aggregated</module>
+    <module>releng</module>
   </modules>
 </project>

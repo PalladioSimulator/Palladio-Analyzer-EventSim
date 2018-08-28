@@ -3,12 +3,15 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>edu.kit.idp.sdq.eventsim</groupId>
+		<groupId>org.palladiosimulator.eventsim</groupId>
 		<artifactId>parent</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
-		<relativePath>../releng/edu.kit.idp.sdq.eventsim.parent</relativePath>
+		<version>0.1.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>edu.kit.idp.sdq.eventsim.features</artifactId>
 	<packaging>pom</packaging>
-	<name>EventSim Feature Modules</name>
+
+        <modules>
+		<module>edu.kit.idp.sdq.eventsim.feature</module>
+        </modules>
+
 </project>

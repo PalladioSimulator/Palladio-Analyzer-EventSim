@@ -16,3 +16,5 @@
 /edu.kit.ipd.sdq.eventsim.workload.tests/*.html
 
 *.ucls
+
+target/

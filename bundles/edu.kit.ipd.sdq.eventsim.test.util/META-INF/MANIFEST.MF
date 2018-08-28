@@ -4,6 +4,7 @@ Bundle-Name: EventSim Test Utilities
 Bundle-SymbolicName: edu.kit.ipd.sdq.eventsim.test.util
 Bundle-Version: 2.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-Vendor: org.palladiosimulator
 Require-Bundle: org.junit;bundle-version="4.12.0",
  edu.kit.ipd.sdq.eventsim.measurement;bundle-version="2.0.0",
  org.palladiosimulator.pcm;bundle-version="4.0.0",

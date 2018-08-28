@@ -17,6 +17,7 @@ Require-Bundle: de.uka.ipd.sdq.simulation.abstractsimengine;bundle-version="1.0.
  org.apache.log4j,
  com.google.inject.guice
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-Vendor: org.palladiosimulator
 Export-Package: edu.kit.ipd.sdq.eventsim.workload,
  edu.kit.ipd.sdq.eventsim.workload.calculators,
  edu.kit.ipd.sdq.eventsim.workload.probes

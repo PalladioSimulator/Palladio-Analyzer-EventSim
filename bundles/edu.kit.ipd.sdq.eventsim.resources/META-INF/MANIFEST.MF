@@ -21,6 +21,7 @@ Require-Bundle: de.uka.ipd.sdq.simucomframework;bundle-version="2.0.0",
  org.apache.log4j,
  com.google.inject.guice
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-Vendor: org.palladiosimulator
 Export-Package: edu.kit.ipd.sdq.eventsim.resources,
  edu.kit.ipd.sdq.eventsim.resources.entities
 Bundle-ActivationPolicy: lazy

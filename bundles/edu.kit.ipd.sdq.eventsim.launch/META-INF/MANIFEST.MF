@@ -16,6 +16,7 @@ Require-Bundle: de.uka.ipd.sdq.codegen.simucontroller;bundle-version="1.0.0",
  edu.kit.ipd.sdq.eventsim.instrumentation.description;bundle-version="1.0.0",
  com.google.inject.guice
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-Vendor: org.palladiosimulator
 Bundle-ActivationPolicy: lazy
 Export-Package: edu.kit.ipd.sdq.eventsim.launch,
  edu.kit.ipd.sdq.eventsim.launch.runconfig,

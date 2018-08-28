@@ -3,18 +3,185 @@
       id="edu.kit.idp.sdq.eventsim.feature"
       label="eventsim"
       version="1.0.0.qualifier"
-      provider-name="SDQ">
+      plugin="org.palladiosimulator.branding"
+      license-feature="org.palladiosimulator.license"
+      license-feature-version="1.0.0">
 
-   <description url="http://www.example.com/description">
-      [TODO Enter Feature Description here.]
+   <description url="https://sdqweb.ipd.kit.edu/wiki/EventSim">
+      Event-driven Simulator for Palladio models primarily geared towards highly complex simulation models, where SimuCom might suffer from scalability and performance issues.
    </description>
 
-   <copyright url="http://www.example.com/copyright">
-      [TODO Enter Copyright Description here.]
-   </copyright>
+   <requires>
+      <import plugin="org.palladiosimulator.pcm" version="4.0.0" match="greaterOrEqual"/>
+      <import plugin="de.uka.ipd.sdq.simulation.abstractsimengine" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="de.uka.ipd.sdq.simucomframework.variables" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="de.uka.ipd.sdq.simulation" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="de.uka.ipd.sdq.probfunction.math" version="2.0.2" match="greaterOrEqual"/>
+      <import plugin="de.uka.ipd.sdq.simucomframework.simucomstatus" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="org.apache.log4j" version="1.2.15" match="greaterOrEqual"/>
+      <import plugin="org.palladiosimulator.analyzer.workflow" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="edu.kit.ipd.sdq.eventsim.api" version="2.0.0" match="greaterOrEqual"/>
+      <import plugin="edu.kit.ipd.sdq.eventsim.instrumentation.description" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="edu.kit.ipd.sdq.eventsim.measurement" version="2.0.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.gmf.runtime.emf.core"/>
+      <import plugin="com.google.inject.guice" version="4.0.0" match="greaterOrEqual"/>
+      <import plugin="de.uka.ipd.sdq.codegen.simucontroller" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.osgi.services" version="3.5.0" match="greaterOrEqual"/>
+      <import plugin="edu.kit.ipd.sdq.eventsim.core" version="2.0.0" match="greaterOrEqual"/>
+      <import plugin="edu.kit.ipd.sdq.eventsim.middleware" version="2.0.0" match="greaterOrEqual"/>
+      <import plugin="edu.kit.ipd.sdq.eventsim.workload" version="2.0.0" match="greaterOrEqual"/>
+      <import plugin="edu.kit.ipd.sdq.eventsim.system" version="2.0.0" match="greaterOrEqual"/>
+      <import plugin="edu.kit.ipd.sdq.eventsim.resources" version="2.0.0" match="greaterOrEqual"/>
+      <import plugin="edu.kit.ipd.sdq.eventsim.measurement.r" version="2.0.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.swt" version="3.104.1" match="greaterOrEqual"/>
+      <import plugin="org.rosuda.rJavaAndRserve" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.ui"/>
+      <import plugin="org.eclipse.core.runtime" version="3.11.1" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.e4.ui.di" version="1.1.0" match="greaterOrEqual"/>
+      <import plugin="de.uka.ipd.sdq.scheduler" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="de.uka.ipd.sdq.simucomframework" version="2.0.0" match="greaterOrEqual"/>
+      <import plugin="edu.kit.ipd.sdq.eventsim.measurement.osgi" version="2.0.0" match="greaterOrEqual"/>
+      <import plugin="edu.kit.ipd.sdq.eventsim.instrumentation.injection" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="edu.kit.ipd.sdq.eventsim.rvisualization" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.debug.ui" version="3.11.100" match="greaterOrEqual"/>
+      <import plugin="org.palladiosimulator.recorderframework" version="2.0.1" match="greaterOrEqual"/>
+      <import plugin="org.palladiosimulator.measurementframework" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="de.uka.ipd.sdq.workflow.launchconfig" version="2.1.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.osgi" version="3.10.101" match="greaterOrEqual"/>
+      <import plugin="edu.kit.ipd.sdq.eventsim.instrumentation.utils" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="edu.kit.ipd.sdq.eventsim.instrumentation.specification" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.emf.edit.ui" version="2.11.0" match="greaterOrEqual" />
+      <import plugin="org.eclipse.ui.ide"/>
+      <import plugin="org.eclipse.core.databinding"/>
+      <import plugin="org.eclipse.core.databinding.beans"/>
+      <import plugin="org.eclipse.jface.databinding"/>
+      <import plugin="org.eclipse.core.databinding.property"/>
+   </requires>
 
-   <license url="http://www.example.com/license">
-      [TODO Enter License Description here.]
-   </license>
+   <plugin
+         id="edu.kit.ipd.sdq.eventsim.api"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
 
+   <plugin
+         id="edu.kit.ipd.sdq.eventsim.core"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.kit.ipd.sdq.eventsim.launch"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.kit.ipd.sdq.eventsim.measurement"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.kit.ipd.sdq.eventsim.measurement.r"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.kit.ipd.sdq.eventsim.middleware"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.kit.ipd.sdq.eventsim.resources"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.kit.ipd.sdq.eventsim.system"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.kit.ipd.sdq.eventsim.workload"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.google.inject.guice"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.kit.ipd.sdq.eventsim.measurement.r.launch"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.kit.ipd.sdq.eventsim.measurement.osgi"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.kit.ipd.sdq.eventsim.instrumentation.description"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.kit.ipd.sdq.eventsim.instrumentation.injection"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.kit.ipd.sdq.eventsim.instrumentation.restrictions"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.kit.ipd.sdq.eventsim.instrumentation.specification"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.kit.ipd.sdq.eventsim.instrumentation.utils"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.kit.ipd.sdq.eventsim.rvisualization"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+   
 </feature>

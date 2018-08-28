@@ -14,6 +14,7 @@ Require-Bundle: de.uka.ipd.sdq.simucomframework.simucomstatus;bundle-version="1.
  org.eclipse.gmf.runtime.emf.core,
  com.google.inject.guice
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-Vendor: org.palladiosimulator
 Export-Package: edu.kit.ipd.sdq.eventsim,
  edu.kit.ipd.sdq.eventsim.command,
  edu.kit.ipd.sdq.eventsim.command.action,

@@ -7,7 +7,7 @@
 		<artifactId>parent</artifactId>
 		<version>0.1.0-SNAPSHOT</version>
 	</parent>
-	<artifactId>edu.kit.idp.sdq.eventsim.bundles</artifactId>
+	<artifactId>bundles</artifactId>
 	<packaging>pom</packaging>
 
 	<modules>

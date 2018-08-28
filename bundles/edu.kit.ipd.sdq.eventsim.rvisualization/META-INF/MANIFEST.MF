@@ -16,6 +16,7 @@ Require-Bundle: org.eclipse.ui,
  edu.kit.ipd.sdq.eventsim.measurement,
  org.eclipse.jface
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-Vendor: org.palladiosimulator
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,
  swing2swt.jar

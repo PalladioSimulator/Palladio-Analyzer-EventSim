@@ -15,6 +15,7 @@ Require-Bundle: edu.kit.ipd.sdq.eventsim.measurement;bundle-version="2.0.0",
  edu.kit.ipd.sdq.eventsim.resources;bundle-version="2.0.0",
  org.eclipse.ui.ide
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-Vendor: org.palladiosimulator
 Bundle-ActivationPolicy: lazy
 Export-Package: edu.kit.ipd.sdq.eventsim.instrumentation.specification.editor,
  edu.kit.ipd.sdq.eventsim.instrumentation.specification.repo,

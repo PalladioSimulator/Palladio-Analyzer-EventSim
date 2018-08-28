@@ -8,7 +8,7 @@
         <artifactId>parent</artifactId>
         <version>0.1.0-SNAPSHOT</version>
     </parent>
-    <artifactId>edu.kit.idp.sdq.eventsim.tests</artifactId>
+    <artifactId>tests</artifactId>
     <packaging>pom</packaging>
 
     <modules>

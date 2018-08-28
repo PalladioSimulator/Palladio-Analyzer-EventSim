@@ -7,11 +7,11 @@
 		<artifactId>parent</artifactId>
 		<version>0.1.0-SNAPSHOT</version>
 	</parent>
-	<artifactId>edu.kit.idp.sdq.eventsim.features</artifactId>
+	<artifactId>features</artifactId>
 	<packaging>pom</packaging>
 
-        <modules>
+    <modules>
 		<module>edu.kit.idp.sdq.eventsim.feature</module>
-        </modules>
+    </modules>
 
 </project>

@@ -4,6 +4,7 @@ Bundle-Name: Mockito
 Bundle-SymbolicName: org.mockito;singleton:=true
 Bundle-Version: 1.9.5
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-Vendor: org.palladiosimulator
 Bundle-ClassPath: mockito-core-1.9.5.jar,
  objenesis-2.2.jar
 Export-Package: org.mockito,

@@ -4,6 +4,7 @@ Bundle-Name: EventSim Measurements R Connector
 Bundle-SymbolicName: edu.kit.ipd.sdq.eventsim.measurement.r;singleton:=true
 Bundle-Version: 2.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-Vendor: org.palladiosimulator
 Export-Package: edu.kit.ipd.sdq.eventsim.measurement.r,
  edu.kit.ipd.sdq.eventsim.measurement.r.connection,
  edu.kit.ipd.sdq.eventsim.measurement.r.connection.ui,

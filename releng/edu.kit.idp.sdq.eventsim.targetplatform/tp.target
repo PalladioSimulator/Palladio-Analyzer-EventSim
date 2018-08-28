@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?pde version="3.8"?><target name="org.palladiosimulator.eventsim Target Platform" sequenceNumber="1">
 <locations>
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
+<unit id="org.mockito" version="1.9.5.v201605172210"/>
+<unit id="org.hamcrest" version="1.1.0.v20090501071000"/>
+<unit id="org.objenesis" version="1.0.0.v201505121915"/>
+<repository location="http://download.eclipse.org/tools/orbit/downloads/drops/R20180330011457/repository"/>
+</location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit" filter="release" refresh="true">
 <unit id="org.palladiosimulator.pcm.feature.feature.group" version="4.1.0.201709282114"/>
 <repository location="https://sdqweb.ipd.kit.edu/eclipse/palladio/pcm/releases/latest/"/>

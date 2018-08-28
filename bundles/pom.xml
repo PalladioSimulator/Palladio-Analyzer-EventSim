@@ -26,7 +26,6 @@
 		<module>edu.kit.ipd.sdq.eventsim.measurement.r.launch</module>
 		<module>edu.kit.ipd.sdq.eventsim.middleware</module>
 		<module>com.google.inject.guice</module>
-		<module>org.mockito</module>
 		<module>edu.kit.ipd.sdq.eventsim.resources</module>
 		<module>edu.kit.ipd.sdq.eventsim.rvisualization</module>
 		<module>edu.kit.ipd.sdq.eventsim.system</module>

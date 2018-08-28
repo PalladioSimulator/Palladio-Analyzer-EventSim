@@ -50,12 +50,13 @@
       <import plugin="org.eclipse.osgi" version="3.10.101" match="greaterOrEqual"/>
       <import plugin="edu.kit.ipd.sdq.eventsim.instrumentation.utils" version="1.0.0" match="greaterOrEqual"/>
       <import plugin="edu.kit.ipd.sdq.eventsim.instrumentation.specification" version="1.0.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.emf.edit.ui" version="2.11.0" match="greaterOrEqual" />
+      <import plugin="org.eclipse.emf.edit.ui" version="2.11.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.ui.ide"/>
       <import plugin="org.eclipse.core.databinding"/>
       <import plugin="org.eclipse.core.databinding.beans"/>
       <import plugin="org.eclipse.jface.databinding"/>
       <import plugin="org.eclipse.core.databinding.property"/>
+	  <import feature="de.uka.ipd.sdq.simulation.abstractsimengine.feature"/>
    </requires>
 
    <plugin
@@ -183,5 +184,5 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-   
+
 </feature>

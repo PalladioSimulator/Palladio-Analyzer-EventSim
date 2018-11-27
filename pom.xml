@@ -12,7 +12,7 @@
 	<packaging>pom</packaging>
 
 	<properties>
-		<org.palladiosimulator.maven.tychotprefresh.tplocation.1>${project.basedir}/releng/edu.kit.idp.sdq.eventsim.targetplatform/tp.target</org.palladiosimulator.maven.tychotprefresh.tplocation.1>
+		<org.palladiosimulator.maven.tychotprefresh.tplocation.1>${project.basedir}/releng/edu.kit.ipd.sdq.eventsim.targetplatform/tp.target</org.palladiosimulator.maven.tychotprefresh.tplocation.1>
 	</properties>
 
 	<modules>

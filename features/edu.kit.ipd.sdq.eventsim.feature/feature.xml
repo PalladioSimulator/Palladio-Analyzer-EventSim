@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="edu.kit.idp.sdq.eventsim.feature"
+      id="edu.kit.ipd.sdq.eventsim.feature"
       label="eventsim"
       version="1.0.0.qualifier"
       plugin="org.palladiosimulator.branding"

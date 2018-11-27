@@ -12,7 +12,7 @@
 	<packaging>pom</packaging>
 	
 	<modules>
-		<module>edu.kit.idp.sdq.eventsim.updatesite</module>
+		<module>edu.kit.ipd.sdq.eventsim.updatesite</module>
 	</modules>
 	
 </project>

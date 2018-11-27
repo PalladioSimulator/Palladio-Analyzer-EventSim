@@ -11,7 +11,7 @@
 	<packaging>pom</packaging>
 
     <modules>
-		<module>edu.kit.idp.sdq.eventsim.feature</module>
+		<module>edu.kit.ipd.sdq.eventsim.feature</module>
     </modules>
 
 </project>

@@ -1,6 +1,5 @@
 package edu.kit.ipd.sdq.eventsim.resources.entities;
 
-import org.omg.CORBA.Request;
 import org.palladiosimulator.pcm.resourceenvironment.ProcessingResourceSpecification;
 import org.palladiosimulator.pcm.resourceenvironment.ResourceContainer;
 import org.palladiosimulator.pcm.resourcetype.ProcessingResourceType;

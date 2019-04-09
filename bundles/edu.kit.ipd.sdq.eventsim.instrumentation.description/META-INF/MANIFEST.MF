@@ -16,4 +16,5 @@ Export-Package: edu.kit.ipd.sdq.eventsim.instrumentation.description,
  edu.kit.ipd.sdq.eventsim.instrumentation.description.resource,
  edu.kit.ipd.sdq.eventsim.instrumentation.description.useraction,
  edu.kit.ipd.sdq.eventsim.instrumentation.xml
-Import-Package: org.palladiosimulator.pcm.seff
+Import-Package: javax.xml.bind,
+ org.palladiosimulator.pcm.seff

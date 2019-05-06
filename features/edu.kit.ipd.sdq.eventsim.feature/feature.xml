@@ -56,7 +56,8 @@
       <import plugin="org.eclipse.core.databinding.beans"/>
       <import plugin="org.eclipse.jface.databinding"/>
       <import plugin="org.eclipse.core.databinding.property"/>
-	  <import feature="de.uka.ipd.sdq.simulation.abstractsimengine.feature"/>
+      <import feature="de.uka.ipd.sdq.simulation.abstractsimengine.feature"/>
+      <import plugin="org.palladiosimulator.branding"/>
    </requires>
 
    <plugin

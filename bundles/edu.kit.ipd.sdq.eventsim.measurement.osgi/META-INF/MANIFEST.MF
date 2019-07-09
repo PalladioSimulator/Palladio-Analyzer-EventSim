@@ -7,6 +7,6 @@ Require-Bundle: edu.kit.ipd.sdq.eventsim.measurement;bundle-version="2.0.0",
  org.apache.log4j;bundle-version="1.2.15",
  org.eclipse.osgi,
  edu.kit.ipd.sdq.eventsim.instrumentation.utils
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-Vendor: org.palladiosimulator
 Export-Package: edu.kit.ipd.sdq.eventsim.measurement.osgi

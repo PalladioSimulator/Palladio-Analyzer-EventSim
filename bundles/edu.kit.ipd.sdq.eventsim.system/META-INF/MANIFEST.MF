@@ -15,7 +15,7 @@ Require-Bundle: de.uka.ipd.sdq.simulation.abstractsimengine;bundle-version="1.0.
  edu.kit.ipd.sdq.eventsim.instrumentation.injection;bundle-version="1.0.0",
  org.apache.log4j,
  com.google.inject.guice
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-Vendor: org.palladiosimulator
 Export-Package: edu.kit.ipd.sdq.eventsim.system;
   uses:="org.osgi.framework,

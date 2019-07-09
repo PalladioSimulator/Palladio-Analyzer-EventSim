@@ -15,7 +15,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.databinding.property,
  edu.kit.ipd.sdq.eventsim.measurement,
  org.eclipse.jface
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-Vendor: org.palladiosimulator
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,

@@ -1,0 +1,6 @@
+version: '3'
+services:
+    R:
+        image: usgs/rserve
+        ports:
+            - "6311:6311"

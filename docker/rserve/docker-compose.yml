@@ -1,26 +1,7 @@
----
-version: '2'
-
-# Building on the DOI network: When building this container, you must set your environment
-# variable "doi_network" to "true" so SSL certificates may be installed.
-#
-# Ex: $ doi_network="true" docker-compose build
-
-networks:
-  rservenet:
+version: '3'
 
 services:
   rserve:
-    build:
-      context: .
-      args:
-        - doi_network=$doi_network
-    image: usgs/rserve
+    build: .
     ports:
       - "6311:6311"
-    networks:
-      rservenet:
-        aliases:
-        - rserve
-    env_file:
-      - "compose${AUTH_ENV_LOCAL}.env"

@@ -13,6 +13,7 @@
 	<modules>
 		<module>edu.kit.ipd.sdq.eventsim.api</module>
 		<module>edu.kit.ipd.sdq.eventsim.core</module>
+        <module>edu.kit.ipd.sdq.eventsim.extensionexample</module>
 		<module>edu.kit.ipd.sdq.eventsim.instrumentation.builder</module>
 		<module>edu.kit.ipd.sdq.eventsim.instrumentation.description</module>
 		<module>edu.kit.ipd.sdq.eventsim.instrumentation.injection</module>

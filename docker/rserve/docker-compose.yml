@@ -4,4 +4,6 @@ services:
   rserve:
     build: .
     ports:
-      - "6311:6311"
+      - "54321:6311"
+    volumes:
+      - /Users/layornos/tmp:/Users/layornos/tmp

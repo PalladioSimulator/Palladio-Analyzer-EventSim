@@ -43,5 +43,5 @@ Export-Package: com.google.common.annotations,
  javax.inject,
  org.aopalliance.aop,
  org.aopalliance.intercept
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-Vendor: org.palladiosimulator

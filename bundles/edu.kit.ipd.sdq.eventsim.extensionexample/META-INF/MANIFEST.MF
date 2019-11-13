@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Ext
 Bundle-SymbolicName: edu.kit.ipd.sdq.eventsim.extensionexample;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: edu.kit.ipd.sdq.eventsim.system;bundle-version="2.0.0",
  edu.kit.ipd.sdq.eventsim.api;bundle-version="2.0.0",
  edu.kit.ipd.sdq.eventsim.core;bundle-version="2.0.0",

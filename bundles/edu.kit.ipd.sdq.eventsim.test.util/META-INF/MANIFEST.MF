@@ -2,19 +2,19 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: EventSim Test Utilities
 Bundle-SymbolicName: edu.kit.ipd.sdq.eventsim.test.util
-Bundle-Version: 2.0.0.qualifier
+Bundle-Version: 4.2.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-Vendor: org.palladiosimulator
 Require-Bundle: org.junit;bundle-version="4.12.0",
- edu.kit.ipd.sdq.eventsim.measurement;bundle-version="2.0.0",
+ edu.kit.ipd.sdq.eventsim.measurement;bundle-version="4.2.0",
  org.palladiosimulator.pcm;bundle-version="4.0.0",
- edu.kit.ipd.sdq.eventsim.api;bundle-version="2.0.0",
+ edu.kit.ipd.sdq.eventsim.api;bundle-version="4.2.0",
  de.uka.ipd.sdq.simulation;bundle-version="1.0.0",
- edu.kit.ipd.sdq.eventsim.middleware;bundle-version="2.0.0",
- edu.kit.ipd.sdq.eventsim.launch;bundle-version="2.0.0",
- edu.kit.ipd.sdq.eventsim.workload;bundle-version="2.0.0",
- edu.kit.ipd.sdq.eventsim.system;bundle-version="2.0.0",
- edu.kit.ipd.sdq.eventsim.core;bundle-version="2.0.0"
+ edu.kit.ipd.sdq.eventsim.middleware;bundle-version="4.2.0",
+ edu.kit.ipd.sdq.eventsim.launch;bundle-version="4.2.0",
+ edu.kit.ipd.sdq.eventsim.workload;bundle-version="4.2.0",
+ edu.kit.ipd.sdq.eventsim.system;bundle-version="4.2.0",
+ edu.kit.ipd.sdq.eventsim.core;bundle-version="4.2.0"
 Export-Package: edu.kit.ipd.sdq.eventsim.test.util,
  edu.kit.ipd.sdq.eventsim.test.util.builder,
  edu.kit.ipd.sdq.eventsim.test.util.builder.repository,

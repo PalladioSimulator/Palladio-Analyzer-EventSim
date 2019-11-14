@@ -2,14 +2,14 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: EventSim Instrumentation Injection
 Bundle-SymbolicName: edu.kit.ipd.sdq.eventsim.instrumentation.injection
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 4.2.0.qualifier
 Bundle-Activator: edu.kit.ipd.sdq.eventsim.instrumentation.injection.Activator
-Require-Bundle: edu.kit.ipd.sdq.eventsim.measurement;bundle-version="2.0.0",
- edu.kit.ipd.sdq.eventsim.instrumentation.description;bundle-version="1.0.0",
- edu.kit.ipd.sdq.eventsim.measurement.osgi;bundle-version="2.0.0",
- edu.kit.ipd.sdq.eventsim.api;bundle-version="2.0.0",
+Require-Bundle: edu.kit.ipd.sdq.eventsim.measurement;bundle-version="4.2.0",
+ edu.kit.ipd.sdq.eventsim.instrumentation.description;bundle-version="4.2.0",
+ edu.kit.ipd.sdq.eventsim.measurement.osgi;bundle-version="4.2.0",
+ edu.kit.ipd.sdq.eventsim.api;bundle-version="4.2.0",
  org.palladiosimulator.pcm;bundle-version="4.0.0",
- edu.kit.ipd.sdq.eventsim.core;bundle-version="2.0.0"
+ edu.kit.ipd.sdq.eventsim.core;bundle-version="4.2.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-Vendor: org.palladiosimulator
 Bundle-ActivationPolicy: lazy

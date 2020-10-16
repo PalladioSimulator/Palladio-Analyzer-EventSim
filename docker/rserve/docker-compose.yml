@@ -5,5 +5,3 @@ services:
     build: .
     ports:
       - "54321:6311"
-    volumes:
-      - /Users/layornos/tmp:/Users/layornos/tmp

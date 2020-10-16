@@ -32,7 +32,7 @@ public class BundleProbeLocator<C extends ProbeConfiguration> implements ProbeLo
 		for (String classString : classesInLocalBundle) {
 			URL classURL = bundle.getEntry(classString);
 			if (classURL != null) {
-				String className = classURL.getPath().replaceAll("/", ".").replace(".class", "").replace(".bin.", "");
+				String className = classURL.getPath().replaceAll("/", ".").replace(".class", "").replace(".bin.", "").replace("targetes.", "");
 				if (className.startsWith(".")) {
 					// remove first character
 					className = className.substring(1);

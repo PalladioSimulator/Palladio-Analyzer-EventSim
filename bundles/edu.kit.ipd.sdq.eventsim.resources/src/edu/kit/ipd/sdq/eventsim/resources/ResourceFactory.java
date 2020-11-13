@@ -17,6 +17,7 @@ import de.uka.ipd.sdq.scheduler.IPassiveResource;
 import de.uka.ipd.sdq.scheduler.ISchedulingFactory;
 import de.uka.ipd.sdq.scheduler.SchedulerModel;
 import de.uka.ipd.sdq.scheduler.factory.SchedulingFactory;
+import de.uka.ipd.sdq.scheduler.resources.active.IResourceTableManager;
 import de.uka.ipd.sdq.simucomframework.resources.SchedulingStrategy;
 import de.uka.ipd.sdq.simucomframework.resources.SimSimpleFairPassiveResource;
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
@@ -45,9 +46,9 @@ public class ResourceFactory {
     private SchedulerModel model;
 
     @Inject
-    public ResourceFactory(SchedulerModel model) {
+    public ResourceFactory(SchedulerModel model, IResourceTableManager resourceTableManager) {
         this.model = model;
-        schedulingFactory = new SchedulingFactory(model);
+        schedulingFactory = new SchedulingFactory(model, resourceTableManager);
     }
 
     /**

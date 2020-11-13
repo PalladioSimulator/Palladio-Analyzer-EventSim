@@ -14,7 +14,7 @@ import org.palladiosimulator.pcm.resourcetype.ResourceType;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import de.uka.ipd.sdq.scheduler.resources.active.AbstractActiveResource;
+import de.uka.ipd.sdq.scheduler.ISchedulingFactory;
 import edu.kit.ipd.sdq.eventsim.api.IActiveResource;
 import edu.kit.ipd.sdq.eventsim.api.IRequest;
 import edu.kit.ipd.sdq.eventsim.api.ISimulationMiddleware;
@@ -58,6 +58,9 @@ public class EventSimActiveResourceModel implements IActiveResource {
 
     @Inject
     private ActiveResourceRegistry resourceRegistry;
+    
+    @Inject
+    private ISchedulingFactory schedulingFactory;
 
     @Inject
     public EventSimActiveResourceModel(ISimulationMiddleware middleware) {
@@ -117,7 +120,7 @@ public class EventSimActiveResourceModel implements IActiveResource {
         resourceRegistry.finalise();
 
         // clean up scheduler
-        AbstractActiveResource.cleanProcesses();
+        schedulingFactory.cleanActiveResources();
     }
 
     @Override

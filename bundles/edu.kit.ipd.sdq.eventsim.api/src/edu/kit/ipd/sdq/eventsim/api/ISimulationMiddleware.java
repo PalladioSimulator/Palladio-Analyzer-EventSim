@@ -1,7 +1,5 @@
 package edu.kit.ipd.sdq.eventsim.api;
 
-import javax.inject.Singleton;
-
 import de.uka.ipd.sdq.probfunction.math.IRandomGenerator;
 import de.uka.ipd.sdq.simulation.IStatusObserver;
 import de.uka.ipd.sdq.simulation.abstractsimengine.ISimulationControl;
@@ -15,7 +13,6 @@ import edu.kit.ipd.sdq.eventsim.api.events.SimulationEvent;
  * @author Christoph Föhrdes
  * @author Philipp Merkle
  */
-@Singleton
 public interface ISimulationMiddleware {
 
     /**

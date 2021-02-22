@@ -22,3 +22,4 @@ Export-Package: edu.kit.ipd.sdq.eventsim.test.util,
  edu.kit.ipd.sdq.eventsim.test.util.builder.system,
  edu.kit.ipd.sdq.eventsim.test.util.builder.usage,
  edu.kit.ipd.sdq.eventsim.test.util.matcher
+Automatic-Module-Name: edu.kit.ipd.sdq.eventsim.test.util

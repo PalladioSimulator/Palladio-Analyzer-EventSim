@@ -14,3 +14,4 @@ Bundle-ActivationPolicy: lazy
 Export-Package: edu.kit.ipd.sdq.eventsim.api,
  edu.kit.ipd.sdq.eventsim.api.events
 Import-Package: javax.inject
+Automatic-Module-Name: edu.kit.ipd.sdq.eventsim.api

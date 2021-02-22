@@ -19,10 +19,10 @@ Require-Bundle: org.junit;bundle-version="4.12.0",
  edu.kit.ipd.sdq.eventsim.system;bundle-version="5.0.0",
  edu.kit.ipd.sdq.eventsim.instrumentation.description;bundle-version="5.0.0",
  org.apache.log4j,
- com.google.inject.guice,
  org.mockito,
  org.hamcrest,
  org.objenesis,
  edu.kit.ipd.sdq.eventsim.measurement.r.launch;bundle-version="5.0.0",
  de.uka.ipd.sdq.simulation.abstractsimengine.desmoj;bundle-version="4.1.0"
+Automatic-Module-Name: edu.kit.ipd.sdq.eventsim.workload.tests
 

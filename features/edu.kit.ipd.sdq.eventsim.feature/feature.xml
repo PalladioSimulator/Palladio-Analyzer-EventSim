@@ -24,7 +24,6 @@
       <import plugin="edu.kit.ipd.sdq.eventsim.instrumentation.description" version="5.0.0" match="greaterOrEqual"/>
       <import plugin="edu.kit.ipd.sdq.eventsim.measurement" version="5.0.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.gmf.runtime.emf.core"/>
-      <import plugin="com.google.inject.guice" version="5.0.0" match="greaterOrEqual"/>
       <import plugin="de.uka.ipd.sdq.codegen.simucontroller" version="1.0.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.osgi.services" version="3.5.0" match="greaterOrEqual"/>
       <import plugin="edu.kit.ipd.sdq.eventsim.core" version="5.0.0" match="greaterOrEqual"/>
@@ -118,13 +117,6 @@
 
    <plugin
          id="edu.kit.ipd.sdq.eventsim.workload"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.google.inject.guice"
          download-size="0"
          install-size="0"
          version="0.0.0"

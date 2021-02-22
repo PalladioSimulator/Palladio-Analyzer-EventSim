@@ -14,11 +14,13 @@ Require-Bundle: de.uka.ipd.sdq.simulation.abstractsimengine;bundle-version="1.0.
  edu.kit.ipd.sdq.eventsim.instrumentation.injection;bundle-version="5.0.0",
  edu.kit.ipd.sdq.eventsim.middleware;bundle-version="5.0.0",
  edu.kit.ipd.sdq.eventsim.instrumentation.description;bundle-version="5.0.0",
- org.apache.log4j,
- com.google.inject.guice
+ org.apache.log4j
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-Vendor: org.palladiosimulator
 Export-Package: edu.kit.ipd.sdq.eventsim.workload,
  edu.kit.ipd.sdq.eventsim.workload.calculators,
  edu.kit.ipd.sdq.eventsim.workload.probes
 Bundle-ActivationPolicy: lazy
+Import-Package: com.google.inject,
+ com.google.inject.assistedinject
+Automatic-Module-Name: edu.kit.ipd.sdq.eventsim.workload

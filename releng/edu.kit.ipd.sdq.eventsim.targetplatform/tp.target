@@ -8,7 +8,7 @@
 <unit id="javax.annotation" version="0.0.0"/>
 <unit id="com.google.inject" version="0.0.0"/>
 <unit id="com.google.inject.assistedinject" version="0.0.0"/>
-<repository location="http://download.eclipse.org/tools/orbit/downloads/2020-12/"/>
+<repository location="http://download.eclipse.org/tools/orbit/downloads/2021-09/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit" filter="release">
 <unit id="org.palladiosimulator.pcm.feature.feature.group" version="0.0.0"/>

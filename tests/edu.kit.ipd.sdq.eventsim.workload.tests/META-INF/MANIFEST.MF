@@ -2,27 +2,27 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: EventSim Workload Test
 Bundle-SymbolicName: edu.kit.ipd.sdq.eventsim.workload.tests
-Bundle-Version: 5.0.0.qualifier
+Bundle-Version: 5.1.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-Vendor: org.palladiosimulator
 Require-Bundle: org.junit;bundle-version="4.12.0",
- edu.kit.ipd.sdq.eventsim.measurement;bundle-version="5.0.0",
- edu.kit.ipd.sdq.eventsim.middleware;bundle-version="5.0.0",
- edu.kit.ipd.sdq.eventsim.api;bundle-version="5.0.0",
+ edu.kit.ipd.sdq.eventsim.measurement;bundle-version="5.1.0",
+ edu.kit.ipd.sdq.eventsim.middleware;bundle-version="5.1.0",
+ edu.kit.ipd.sdq.eventsim.api;bundle-version="5.1.0",
  org.palladiosimulator.pcm;bundle-version="4.0.0",
  de.uka.ipd.sdq.simulation;bundle-version="1.0.0",
- edu.kit.ipd.sdq.eventsim.workload;bundle-version="5.0.0",
- edu.kit.ipd.sdq.eventsim.core;bundle-version="5.0.0",
+ edu.kit.ipd.sdq.eventsim.workload;bundle-version="5.1.0",
+ edu.kit.ipd.sdq.eventsim.core;bundle-version="5.1.0",
  de.uka.ipd.sdq.simulation.abstractsimengine;bundle-version="1.0.0",
- edu.kit.ipd.sdq.eventsim.launch;bundle-version="5.0.0",
- edu.kit.ipd.sdq.eventsim.test.util;bundle-version="5.0.0",
- edu.kit.ipd.sdq.eventsim.system;bundle-version="5.0.0",
- edu.kit.ipd.sdq.eventsim.instrumentation.description;bundle-version="5.0.0",
+ edu.kit.ipd.sdq.eventsim.launch;bundle-version="5.1.0",
+ edu.kit.ipd.sdq.eventsim.test.util;bundle-version="5.1.0",
+ edu.kit.ipd.sdq.eventsim.system;bundle-version="5.1.0",
+ edu.kit.ipd.sdq.eventsim.instrumentation.description;bundle-version="5.1.0",
  org.apache.log4j,
  org.mockito,
  org.hamcrest,
  org.objenesis,
- edu.kit.ipd.sdq.eventsim.measurement.r.launch;bundle-version="5.0.0",
+ edu.kit.ipd.sdq.eventsim.measurement.r.launch;bundle-version="5.1.0",
  de.uka.ipd.sdq.simulation.abstractsimengine.desmoj;bundle-version="4.1.0"
 Automatic-Module-Name: edu.kit.ipd.sdq.eventsim.workload.tests
 
